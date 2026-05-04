@@ -2,26 +2,26 @@
    DASHBOARD CSS — John Don User Dashboard
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 /* ---- CSS Variables ---- */
 :root {
-    --navy:      #1a2e4a;
-    --navy-mid:  #1f3557;
-    --navy-light:#263e60;
-    --orange:    #f5a623;
-    --orange-hover:#e09418;
-    --bg:        #eef1f6;
+    --navy:      #2B2D31;
+    --navy-mid:  #3F4147;
+    --navy-light:#555555;
+    --orange:    #4CAF50;
+    --orange-hover:#388E3C;
+    --bg:        #F5F6F8;
     --surface:   #ffffff;
-    --text:      #1a2e4a;
-    --muted:     #8898aa;
-    --border:    #e4e9f0;
+    --text:      #333333;
+    --muted:     #888888;
+    --border:    #E0E0E0;
     --shadow:    0 4px 20px rgba(26,46,74,0.08);
     --shadow-lg: 0 8px 32px rgba(26,46,74,0.14);
     --radius:    14px;
     --radius-sm: 8px;
     --sidebar-w: 220px;
-    --font-main: 'DM Sans', sans-serif;
+    --font-main: 'Inter', sans-serif;
     --font-mono: 'Space Mono', monospace;
     --transition: 0.28s cubic-bezier(.4,0,.2,1);
 }

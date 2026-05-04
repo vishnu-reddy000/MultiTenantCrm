@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Management | CRMS</title>
+
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
+
+    <!-- Reuse the same CSS as the super-admin dashboard -->
+    <link rel="stylesheet" th:href="@{/dashboard-super-admin.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+        /* ── Tenant-page-specific additions ─────────────────────────────── */
+
+        /* Stat cards row */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--trans);
+        }
+
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .stat-card:nth-child(1) { border-left: 3px solid var(--purple); }
+        .stat-card:nth-child(2) { border-left: 3px solid var(--orange); }
+        .stat-card:nth-child(3) { border-left: 3px solid var(--peach); }
+        .stat-card:nth-child(4) { border-left: 3px solid var(--bluegrey); }
+
+        .stat-icon {
+            width: 42px; height: 42px; border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+
+        .si-1 { background: #f0ead8; color: var(--purple); }
+        .si-2 { background: #f7f0e2; color: var(--orange); }
+        .si-3 { background: #ede8dc; color: var(--peach-d, #a09060); }
+        .si-4 { background: #e8edf4; color: var(--bluegrey); }
+
+        .stat-label { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .18rem; }
+        .stat-val   { font-family: var(--font-head); font-size: 1.28rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex; align-items: center; gap: .75rem; margin-bottom: 1.1rem; flex-wrap: wrap;
+        }
+
+        .tb-search {
+            display: flex; align-items: center; gap: .55rem;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--r-sm); padding: .46rem .88rem;
+            flex: 1; max-width: 320px; transition: all var(--trans);
+        }
+
+        .tb-search:focus-within { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(189,140,45,.11); }
+        .tb-search i { color: var(--muted-2); font-size: .75rem; }
+        .tb-search input { background: none; border: none; outline: none; font-family: var(--font); font-size: .81rem; color: var(--text); flex: 1; }
+        .tb-search input::placeholder { color: var(--muted-2); }
+
+        .tb-filter {
+            display: flex; align-items: center; gap: .4rem;
+            padding: .46rem .88rem; background: var(--surface);
+            border: 1px solid var(--border); border-radius: var(--r-sm);
+            font-size: .75rem; font-weight: 500; color: var(--text-2);
+            transition: all var(--trans);
+        }
+
+        .tb-filter select { background: none; border: none; outline: none; font-family: var(--font); font-size: .75rem; color: var(--text-2); cursor: pointer; }
+        .tb-filter:hover  { border-color: var(--orange); }
+
+        .btn-add-tenant {
+            display: flex; align-items: center; gap: .45rem;
+            padding: .5rem 1.1rem; background: var(--orange); color: #fff;
+            border-radius: var(--r-sm); font-size: .8rem; font-weight: 600;
+            border: none; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(189,140,45,.28);
+            transition: all var(--trans); white-space: nowrap;
+        }
+
+        .btn-add-tenant:hover { background: var(--orange-l, #cb9e3e); transform: translateY(-1px); }
+
+        /* Table */
+        .tenant-table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .tenant-table-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.35rem .85rem; }
+
+        .t-wrap { overflow-x: auto; }
+
+        .t-wrap table { width: 100%; border-collapse: collapse; }
+
+        .t-wrap thead th {
+            padding: .6rem 1rem; text-align: left;
+            font-size: .62rem; font-weight: 600; letter-spacing: .07em;
+            text-transform: uppercase; color: var(--muted);
+            background: var(--bg); border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .t-wrap thead th:first-child { padding-left: 1.35rem; }
+        .t-wrap thead th:last-child  { padding-right: 1.35rem; text-align: center; }
+
+        .t-wrap tbody tr { transition: background var(--trans); }
+        .t-wrap tbody tr:hover td { background: var(--bg); }
+        .t-wrap tbody tr:last-child td { border-bottom: none; }
+
+        .t-wrap tbody td {
+            padding: .78rem 1rem; font-size: .78rem;
+            color: var(--text-2); border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .t-wrap tbody td:first-child { padding-left: 1.35rem; }
+        .t-wrap tbody td:last-child  { padding-right: 1.35rem; text-align: center; }
+
+        /* Company cell */
+        .company-cell { display: flex; align-items: center; gap: .6rem; }
+        .company-av   {
+            width: 32px; height: 32px; border-radius: 9px;
+            background: linear-gradient(135deg, var(--purple), var(--orange));
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .company-name { font-weight: 600; color: var(--text); }
+
+        /* Tenant ID chip */
+        .tid-chip {
+            font-family: monospace; font-size: .71rem;
+            background: var(--surface-3, #f3ece2); border: 1px solid var(--border);
+            padding: 2px 8px; border-radius: 4px; color: var(--purple-l, #5c4412);
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: .24rem;
+            padding: .19rem .62rem; border-radius: var(--r-full);
+            font-size: .63rem; font-weight: 600;
+        }
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+        .badge-ACTIVE   { background: #f5edd8; color: #7e5518; }
+        .badge-ACTIVE::before   { background: var(--orange); }
+        .badge-PENDING  { background: #e8edf4; color: var(--bluegrey, #8e8e90); }
+        .badge-PENDING::before  { background: var(--bluegrey, #8e8e90); }
+        .badge-INACTIVE { background: #f2e8e0; color: #7e3818; }
+        .badge-INACTIVE::before { background: var(--rose, #8e4a2a); }
+
+        /* Action buttons */
+        .act-btns { display: flex; align-items: center; justify-content: center; gap: .32rem; }
+        .act-btn  {
+            width: 28px; height: 28px; border-radius: var(--r-xs);
+            border: 1px solid var(--border); background: var(--surface-2, #faf7f2);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); font-size: .68rem; cursor: pointer;
+            transition: all var(--trans);
+        }
+        .act-btn:hover        { border-color: var(--orange); color: var(--orange); background: var(--surface); }
+        .act-btn.danger:hover { border-color: var(--rose, #8e4a2a); color: var(--rose, #8e4a2a); }
+
+        /* Empty state */
+        .empty-state { padding: 3.5rem; text-align: center; color: var(--muted); }
+        .empty-state i { font-size: 2rem; color: var(--border-2); margin-bottom: .8rem; display: block; }
+        .empty-state p { font-size: .8rem; }
+
+        /* ── Modal overrides ─────────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(30,22,8,.52);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(3px);
+            animation: fadeIn .18s ease;
+        }
+        .modal-overlay.hidden { display: none !important; }
+
+        .t-modal {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--r); box-shadow: var(--shadow-md);
+            width: 540px; max-width: 96vw;
+            max-height: 90vh; overflow-y: auto;
+            animation: slideUp .26s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .t-modal-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.15rem 1.35rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; background: var(--surface); z-index: 2;
+        }
+
+        .t-modal-eyebrow { font-size: .6rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--orange); margin-bottom: .15rem; }
+        .t-modal-title   { font-family: var(--font-head); font-size: 1.02rem; font-weight: 700; color: var(--text); }
+
+        .t-modal-close {
+            width: 28px; height: 28px; border-radius: var(--r-xs);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); font-size: .75rem; cursor: pointer;
+            border: 1px solid transparent; transition: all var(--trans);
+        }
+        .t-modal-close:hover { background: var(--bg); color: var(--rose); border-color: var(--border); }
+
+        .t-modal-body   { padding: 1.25rem 1.35rem; }
+        .t-modal-footer { display: flex; justify-content: flex-end; gap: .62rem; padding: .9rem 1.35rem 1.2rem; border-top: 1px solid var(--border); }
+
+        /* Section divider inside form */
+        .form-section-label {
+            font-size: .62rem; font-weight: 700; letter-spacing: .09em;
+            text-transform: uppercase; color: var(--muted);
+            margin: 1.1rem 0 .75rem;
+            display: flex; align-items: center; gap: .42rem;
+        }
+        .form-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .form-section-label:first-of-type { margin-top: 0; }
+
+        /* Tenant ID preview box */
+        .tid-preview-box {
+            display: flex; align-items: center; gap: .62rem;
+            padding: .56rem .88rem;
+            background: var(--surface-3, #f3ece2);
+            border: 1px dashed var(--border-2);
+            border-radius: var(--r-xs);
+        }
+        .tid-preview-val { font-family: monospace; font-size: .85rem; font-weight: 700; color: var(--purple-l, #5c4412); flex: 1; letter-spacing: .04em; }
+        .tid-regen-btn   {
+            width: 26px; height: 26px; border-radius: var(--r-xs);
+            background: var(--surface); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); font-size: .68rem; cursor: pointer;
+            transition: all var(--trans);
+        }
+        .tid-regen-btn:hover { border-color: var(--orange); color: var(--orange); }
+        .tid-hint { font-size: .64rem; color: var(--muted); margin-top: .28rem; }
+
+        /* Password strength */
+        .pw-wrap { position: relative; }
+        .pw-eye  { position: absolute; right: .78rem; top: 50%; transform: translateY(-50%); color: var(--muted); cursor: pointer; font-size: .78rem; transition: color var(--trans); }
+        .pw-eye:hover { color: var(--orange); }
+        .pw-strength  { margin-top: .38rem; }
+        .pw-bars { display: flex; gap: 3px; margin-bottom: .22rem; }
+        .pw-bar  { height: 3px; flex: 1; border-radius: 2px; background: var(--bg-3, #e3d8c8); transition: background .3s; }
+        .pw-bar.weak   { background: var(--rose, #8e4a2a); }
+        .pw-bar.medium { background: var(--orange); }
+        .pw-bar.strong { background: var(--peach, #c2b490); }
+        .pw-hint-txt   { font-size: .63rem; color: var(--muted); }
+
+        /* Error messages */
+        .field-error { font-size: .67rem; color: var(--rose, #8e4a2a); margin-top: .26rem; display: none; }
+        .field-error.show { display: block; }
+        .input-error  { border-color: var(--rose, #8e4a2a) !important; box-shadow: 0 0 0 3px rgba(142,74,42,.10) !important; }
+
+        /* View-detail rows */
+        .detail-row { display: flex; gap: .5rem; align-items: flex-start; padding: .52rem 0; border-bottom: 1px solid var(--border); }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-key { font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; min-width: 110px; flex-shrink: 0; padding-top: 1px; }
+        .detail-val { font-size: .8rem; color: var(--text); font-weight: 500; }
+
+        /* Buttons */
+        .btn { padding: .52rem 1.15rem; border-radius: var(--r-sm); font-size: .79rem; font-weight: 500; cursor: pointer; transition: all var(--trans); border: none; font-family: var(--font); }
+        .btn-ghost   { background: none; border: 1px solid var(--border); color: var(--text-2); }
+        .btn-ghost:hover   { border-color: var(--orange); color: var(--orange); }
+        .btn-primary { background: var(--orange); color: #fff; box-shadow: 0 2px 8px rgba(189,140,45,.28); }
+        .btn-primary:hover { background: var(--orange-l, #cb9e3e); }
+        .btn-danger  { background: var(--rose, #8e4a2a); color: #fff; border: 1px solid var(--rose, #8e4a2a); }
+        .btn-danger:hover  { opacity: .88; }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000; display: flex; flex-direction: column; gap: .5rem; }
+        .toast { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: .7rem 1rem; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: .55rem; font-size: .78rem; color: var(--text-2); min-width: 220px; animation: fadeUp .25s ease; }
+        .toast i           { font-size: .88rem; }
+        .toast-success i   { color: var(--orange); }
+        .toast-error i     { color: var(--rose, #8e4a2a); }
+
+        /* Spinning regen icon */
+        @keyframes spinOnce { to { transform: rotate(360deg); } }
+        .spin-once { animation: spinOnce .5s linear; }
+
+        @keyframes fadeUp  { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:none; } }
+        @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+        @keyframes slideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:none; } }
+
+        @media(max-width:900px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media(max-width:600px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; gap: .65rem; }
+            .t-modal   { max-width: 100%; border-radius: var(--r) var(--r) 0 0; }
+            .modal-overlay { align-items: flex-end; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ═══════════════════ TOPBAR ═══════════════════ -->
+<header class="topbar">
+    <div class="topbar-left">
+        <a th:href="@{/dashboard/super-admin}" class="brand">
+            <div class="brand-icon"><i class="fas fa-fire-flame-curved"></i></div>
+            <span class="brand-name">CRMS</span>
+        </a>
+        <button class="sidebar-collapse-btn" id="sidebarToggle" title="Toggle sidebar">
+            <i class="fas fa-chevron-left" id="toggleIcon"></i>
+        </button>
+    </div>
+
+    <div class="topbar-center">
+        <div class="search-box">
+            <i class="fas fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search anything…">
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <button class="tb-btn" title="Dark mode"><i class="fas fa-moon"></i></button>
+        <div class="tb-divider"></div>
+        <div class="user-chip" id="userChip">
+            <div class="user-avatar"><span class="user-dot"></span></div>
+            <div class="user-info">
+                <span class="user-name">Admin</span>
+                <span class="user-role">Super Admin</span>
+            </div>
+            <div class="user-dropdown" id="userDropdown">
+                <div class="user-drop-head">
+                    <div class="udh-av"><div class="udh-dot"></div></div>
+                    <div>
+                        <div class="udh-name">Admin User</div>
+                        <div class="udh-email">admin@crms.io</div>
+                    </div>
+                </div>
+                <div class="user-drop-divider"></div>
+                <a th:href="@{/logout}" class="user-drop-item danger">
+                    <i class="fas fa-arrow-right-from-bracket"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="layout" id="layout">
+
+    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <span class="nav-section">Main Menu</span>
+        <div class="nav-group">
+            <div class="nav-item">
+                <a th:href="@{/dashboard/super-admin}" class="nav-row" data-tooltip="Dashboard">
+                    <span class="nav-icon"><i class="fas fa-chart-tree-map"></i></span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a th:href="@{/super-admin/tenants/page}" class="nav-row" data-tooltip="Tenants">
+                    <span class="nav-icon"><i class="fas fa-building"></i></span>
+                    <span class="nav-label">Tenants</span>
+                </a>
+            </div>
+            <div class="nav-item has-sub">
+                <div class="nav-row" onclick="toggleSub(this)" data-tooltip="Super Admin">
+                    <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
+                    <span class="nav-label">Super Admin</span>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li><span class="sub-dot"></span>Users</li>
+                    <li><span class="sub-dot"></span>Roles &amp; Permissions</li>
+                    <li><span class="sub-dot"></span>Audit Log</li>
+                    <li><span class="sub-dot"></span>System Settings</li>
+                </ul>
+            </div>
+        </div>
+
+        <span class="nav-section">System</span>
+        <div class="nav-group">
+            <div class="nav-item">
+                <div class="nav-row" data-tooltip="Settings">
+                    <span class="nav-icon"><i class="fas fa-gear"></i></span>
+                    <span class="nav-label">Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-meta">
+                <div class="sf-av"></div>
+                <div>
+                    <div class="sf-name">Admin User</div>
+                    <div class="sf-role">Super Administrator</div>
+                </div>
+            </div>
+            <a th:href="@{/logout}" class="logout-btn">
+                <i class="fas fa-arrow-right-from-bracket"></i>
+                <span class="logout-text">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════ MAIN ═══════════════════ -->
+    <main class="main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="ph-left">
+                <div class="page-eyebrow">Super Admin</div>
+                <h1 class="page-title">Tenant Management</h1>
+                <p class="page-subtitle">Create and manage tenant accounts — each gets a unique ID for data isolation</p>
+            </div>
+            <div class="ph-right">
+                <a th:href="@{/dashboard/super-admin}" class="icon-btn" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- ── KPI Stat Cards ── -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon si-1"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="stat-label">Total Tenants</div>
+                    <div class="stat-val" id="statTotal">—</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-2"><i class="fas fa-circle-check"></i></div>
+                <div>
+                    <div class="stat-label">Active</div>
+                    <div class="stat-val" id="statActive">—</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-3"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-val" id="statPending">—</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-4"><i class="fas fa-circle-xmark"></i></div>
+                <div>
+                    <div class="stat-label">Inactive</div>
+                    <div class="stat-val" id="statInactive">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Toolbar ── -->
+        <div class="toolbar">
+            <div class="tb-search">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search by name, email or tenant ID…" oninput="filterTable()">
+            </div>
+            <div class="tb-filter">
+                <i class="fas fa-filter" style="color:var(--muted);font-size:.72rem"></i>
+                <select id="statusFilter" onchange="filterTable()">
+                    <option value="">All Status</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="INACTIVE">Inactive</option>
+                </select>
+            </div>
+            <button class="btn-add-tenant" onclick="openAddModal()">
+                <i class="fas fa-plus"></i> Add Tenant
+            </button>
+        </div>
+
+        <!-- ── Tenants Table ── -->
+        <div class="tenant-table-card">
+            <div class="tenant-table-head">
+                <h3 class="card-title">
+                    <span class="title-accent"></span>Registered Tenants
+                </h3>
+                <span style="font-size:.72rem;color:var(--muted)" id="rowCount"></span>
+            </div>
+            <div class="t-wrap">
+                <table id="tenantTable">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Tenant ID</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantTbody">
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading tenants…</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="dash-footer">
+            <span>© 2026 <a th:href="@{/}" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- ── Add / Edit Tenant Modal ── -->
+<div class="modal-overlay hidden" id="addModal">
+    <div class="t-modal">
+        <div class="t-modal-head">
+            <div>
+                <div class="t-modal-eyebrow" id="modalEyebrow">New Tenant</div>
+                <div class="t-modal-title"  id="modalTitle">Add Tenant Account</div>
+            </div>
+            <button class="t-modal-close" onclick="closeModal('addModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="t-modal-body">
+
+            <!-- Tenant Identity -->
+            <div class="form-section-label">Tenant Identity</div>
+
+            <div class="form-row">
+                <label class="form-label">Tenant ID</label>
+                <div class="tid-preview-box">
+                    <span class="tid-preview-val" id="tenantIdDisplay">—</span>
+                    <button class="tid-regen-btn" type="button" onclick="regenId()" title="Generate new ID">
+                        <i class="fas fa-arrows-rotate" id="regenIcon"></i>
+                    </button>
+                </div>
+                <div class="tid-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Auto-generated. Stored on every user in this tenant for data isolation.
+                </div>
+            </div>
+
+            <!-- Company Info -->
+            <div class="form-section-label">Company Information</div>
+
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="form-label">Company Name <span style="color:var(--orange)">*</span></label>
+                    <input class="form-input" id="f_company" type="text" placeholder="e.g. Acme Corp Ltd."
+                           oninput="clearFieldError('f_company','e_company')">
+                    <div class="field-error" id="e_company">Company name is required</div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">Phone Number <span style="color:var(--orange)">*</span></label>
+                    <input class="form-input" id="f_phone" type="tel" placeholder="+91 98765 43210"
+                           oninput="clearFieldError('f_phone','e_phone')">
+                    <div class="field-error" id="e_phone">Phone number is required</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Address <span style="color:var(--orange)">*</span></label>
+                <input class="form-input" id="f_address" type="text" placeholder="Street, City, State, Country"
+                       oninput="clearFieldError('f_address','e_address')">
+                <div class="field-error" id="e_address">Address is required</div>
+            </div>
+
+            <!-- Login Credentials -->
+            <div class="form-section-label">Login Credentials</div>
+
+            <div class="form-row">
+                <label class="form-label">Email Address <span style="color:var(--orange)">*</span></label>
+                <input class="form-input" id="f_email" type="email" placeholder="admin@company.com"
+                       oninput="clearFieldError('f_email','e_email')">
+                <div class="field-error" id="e_email">Valid email is required</div>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Password <span style="color:var(--orange)">*</span></label>
+                <div class="pw-wrap">
+                    <input class="form-input" id="f_password" type="password"
+                           placeholder="Create a strong password (min 8 chars)"
+                           oninput="checkPwStrength(); clearFieldError('f_password','e_password')"
+                           style="padding-right:2.6rem">
+                    <span class="pw-eye" onclick="togglePw('f_password',this)">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="pw-strength" id="pwStrengthWrap" style="display:none">
+                    <div class="pw-bars">
+                        <div class="pw-bar" id="pwb1"></div>
+                        <div class="pw-bar" id="pwb2"></div>
+                        <div class="pw-bar" id="pwb3"></div>
+                        <div class="pw-bar" id="pwb4"></div>
+                    </div>
+                    <div class="pw-hint-txt" id="pwHint"></div>
+                </div>
+                <div class="field-error" id="e_password">Password must be at least 8 characters</div>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Confirm Password <span style="color:var(--orange)">*</span></label>
+                <div class="pw-wrap">
+                    <input class="form-input" id="f_confirm" type="password"
+                           placeholder="Re-enter password"
+                           oninput="clearFieldError('f_confirm','e_confirm')"
+                           style="padding-right:2.6rem">
+                    <span class="pw-eye" onclick="togglePw('f_confirm',this)">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="field-error" id="e_confirm">Passwords do not match</div>
+            </div>
+
+            <!-- Status -->
+            <div class="form-section-label">Account Status</div>
+
+            <div class="form-row" style="margin-bottom:0">
+                <label class="form-label">Initial Status</label>
+                <select class="form-input" id="f_status">
+                    <option value="ACTIVE">Active — tenant can log in immediately</option>
+                    <option value="PENDING">Pending — awaiting activation</option>
+                    <option value="INACTIVE">Inactive — access disabled</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="t-modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+            <button class="btn btn-primary" id="saveTenantBtn" onclick="saveTenant()">
+                <i class="fas fa-save" style="margin-right:.38rem;font-size:.78rem"></i>
+                <span id="saveBtnLabel">Save Tenant</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── View Tenant Modal ── -->
+<div class="modal-overlay hidden" id="viewModal">
+    <div class="t-modal" style="width:440px">
+        <div class="t-modal-head">
+            <div>
+                <div class="t-modal-eyebrow">Tenant Details</div>
+                <div class="t-modal-title" id="viewModalTitle">—</div>
+            </div>
+            <button class="t-modal-close" onclick="closeModal('viewModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="t-modal-body" id="viewModalBody"></div>
+        <div class="t-modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Delete Confirm Modal ── -->
+<div class="modal-overlay hidden" id="deleteModal">
+    <div class="t-modal" style="width:360px">
+        <div class="t-modal-head">
+            <div>
+                <div class="t-modal-eyebrow" style="color:var(--rose)">Danger Zone</div>
+                <div class="t-modal-title">Delete Tenant?</div>
+            </div>
+            <button class="t-modal-close" onclick="closeModal('deleteModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="t-modal-body">
+            <p style="font-size:.81rem;color:var(--text-2);line-height:1.6">
+                This will permanently delete <strong id="deleteTargetName"></strong>
+                and their tenant account. This action cannot be undone.
+            </p>
+        </div>
+        <div class="t-modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash" style="margin-right:.38rem;font-size:.78rem"></i>Delete Tenant
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+// ─────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────
+let allTenants   = [];      // full list from server
+let editingId    = null;    // DB id of tenant being edited, or null on create
+let deleteTargId = null;    // DB id to delete
+let pendingTenantId = '';   // generated ID for the current create form
+
+// ─────────────────────────────────────────────────────────
+// Sidebar toggle (reuse existing pattern)
+// ─────────────────────────────────────────────────────────
+document.getElementById('sidebarToggle').addEventListener('click', function () {
+    const layout  = document.getElementById('layout');
+    const sidebar = document.getElementById('sidebar');
+    const icon    = document.getElementById('toggleIcon');
+    sidebar.classList.toggle('collapsed');
+    layout.classList.toggle('sidebar-collapsed');
+    icon.className = sidebar.classList.contains('collapsed')
+        ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+});
+
+// User chip dropdown toggle
+document.getElementById('userChip').addEventListener('click', function (e) {
+    document.getElementById('userDropdown').classList.toggle('open');
+    e.stopPropagation();
+});
+document.addEventListener('click', () => {
+    document.getElementById('userDropdown').classList.remove('open');
+});
+
+// ─────────────────────────────────────────────────────────
+// Modal helpers
+// ─────────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Close on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', function (e) {
+        if (e.target === this) closeModal(this.id);
+    });
+});
+
+// ─────────────────────────────────────────────────────────
+// Tenant ID generation
+// ─────────────────────────────────────────────────────────
+async function fetchNewTenantId() {
+    const res  = await fetch('/super-admin/tenants/generate-id');
+    const data = await res.json();
+    return data.tenantId;
+}
+
+async function regenId() {
+    const icon = document.getElementById('regenIcon');
+    icon.classList.add('spin-once');
+    setTimeout(() => icon.classList.remove('spin-once'), 500);
+    pendingTenantId = await fetchNewTenantId();
+    document.getElementById('tenantIdDisplay').textContent = pendingTenantId;
+}
+
+// ─────────────────────────────────────────────────────────
+// Open Add / Edit modal
+// ─────────────────────────────────────────────────────────
+async function openAddModal(dbId = null) {
+    editingId = dbId;
+    clearAllErrors();
+
+    if (dbId) {
+        // ── EDIT mode ──
+        document.getElementById('modalEyebrow').textContent = 'Edit Tenant';
+        document.getElementById('modalTitle').textContent   = 'Update Tenant Account';
+        document.getElementById('saveBtnLabel').textContent = 'Update Tenant';
+
+        const tenant = allTenants.find(t => t.id === dbId);
+        document.getElementById('tenantIdDisplay').textContent = tenant.tenantId;
+        document.getElementById('f_company').value  = tenant.companyName;
+        document.getElementById('f_phone').value    = tenant.phone;
+        document.getElementById('f_address').value  = tenant.address;
+        document.getElementById('f_email').value    = tenant.email;
+        document.getElementById('f_password').value = '';
+        document.getElementById('f_confirm').value  = '';
+        document.getElementById('f_status').value   = tenant.status;
+
+        // Password optional on edit
+        document.getElementById('f_password').placeholder = 'Leave blank to keep current password';
+        document.getElementById('f_confirm').placeholder  = 'Leave blank to keep current password';
+        document.getElementById('pwStrengthWrap').style.display = 'none';
+    } else {
+        // ── CREATE mode ──
+        document.getElementById('modalEyebrow').textContent = 'New Tenant';
+        document.getElementById('modalTitle').textContent   = 'Add Tenant Account';
+        document.getElementById('saveBtnLabel').textContent = 'Save Tenant';
+
+        ['f_company','f_phone','f_address','f_email','f_password','f_confirm'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('f_password').placeholder = 'Create a strong password (min 8 chars)';
+        document.getElementById('f_confirm').placeholder  = 'Re-enter password';
+        document.getElementById('f_status').value = 'ACTIVE';
+        document.getElementById('pwStrengthWrap').style.display = 'none';
+
+        // Fetch a fresh tenant ID from the server
+        pendingTenantId = await fetchNewTenantId();
+        document.getElementById('tenantIdDisplay').textContent = pendingTenantId;
+    }
+
+    openModal('addModal');
+}
+
+// ─────────────────────────────────────────────────────────
+// Validation helpers
+// ─────────────────────────────────────────────────────────
+function showFieldError(inputId, errorId, msg) {
+    const inp = document.getElementById(inputId);
+    const err = document.getElementById(errorId);
+    inp.classList.add('input-error');
+    if (msg) err.textContent = msg;
+    err.classList.add('show');
+}
+
+function clearFieldError(inputId, errorId) {
+    document.getElementById(inputId).classList.remove('input-error');
+    document.getElementById(errorId).classList.remove('show');
+}
+
+function clearAllErrors() {
+    const pairs = [
+        ['f_company','e_company'], ['f_phone','e_phone'], ['f_address','e_address'],
+        ['f_email','e_email'],     ['f_password','e_password'], ['f_confirm','e_confirm']
+    ];
+    pairs.forEach(([i, e]) => clearFieldError(i, e));
+}
+
+function validate() {
+    let ok = true;
+    const company  = document.getElementById('f_company').value.trim();
+    const phone    = document.getElementById('f_phone').value.trim();
+    const address  = document.getElementById('f_address').value.trim();
+    const email    = document.getElementById('f_email').value.trim();
+    const pw       = document.getElementById('f_password').value;
+    const confirm  = document.getElementById('f_confirm').value;
+    const isEdit   = !!editingId;
+
+    if (!company) { showFieldError('f_company','e_company','Company name is required'); ok = false; }
+    if (!phone)   { showFieldError('f_phone','e_phone','Phone number is required'); ok = false; }
+    if (!address) { showFieldError('f_address','e_address','Address is required'); ok = false; }
+
+    const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRx.test(email)) {
+        showFieldError('f_email','e_email','Valid email address is required'); ok = false;
+    }
+
+    // Password: required on create, optional on edit
+    if (!isEdit || pw) {
+        if (pw.length < 8) {
+            showFieldError('f_password','e_password','Password must be at least 8 characters'); ok = false;
+        }
+        if (pw !== confirm) {
+            showFieldError('f_confirm','e_confirm','Passwords do not match'); ok = false;
+        }
+    }
+
+    return ok;
+}
+
+// ─────────────────────────────────────────────────────────
+// Save (Create or Update)
+// ─────────────────────────────────────────────────────────
+async function saveTenant() {
+    if (!validate()) return;
+
+    const btn = document.getElementById('saveTenantBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:.38rem"></i> Saving…';
+
+    const payload = {
+        companyName: document.getElementById('f_company').value.trim(),
+        phone:       document.getElementById('f_phone').value.trim(),
+        address:     document.getElementById('f_address').value.trim(),
+        email:       document.getElementById('f_email').value.trim(),
+        password:    document.getElementById('f_password').value,
+        status:      document.getElementById('f_status').value
+    };
+
+    const url    = editingId ? `/super-admin/tenants/${editingId}` : '/super-admin/tenants';
+    const method = editingId ? 'PUT' : 'POST';
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    
+    const headers = { 'Content-Type': 'application/json' };
+    headers[csrfHeader] = csrfToken;
+
+    try {
+        const res  = await fetch(url, {
+            method,
+            headers: headers,
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            showToast('error', data.error || 'Something went wrong');
+            return;
+        }
+
+        closeModal('addModal');
+        showToast('success', editingId
+            ? `${data.companyName} updated successfully`
+            : `Tenant <b>${data.companyName}</b> created · ID: <code style="font-family:monospace">${data.tenantId}</code>`
+        );
+        await loadTenants();
+
+    } catch (err) {
+        showToast('error', 'Network error — please try again');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save" style="margin-right:.38rem;font-size:.78rem"></i><span id="saveBtnLabel">${editingId ? 'Update' : 'Save'} Tenant</span>`;
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// View modal
+// ─────────────────────────────────────────────────────────
+function openView(dbId) {
+    const t = allTenants.find(x => x.id === dbId);
+    document.getElementById('viewModalTitle').textContent = t.companyName;
+    document.getElementById('viewModalBody').innerHTML = `
+        <div class="detail-row"><div class="detail-key">Tenant ID</div><div class="detail-val"><span class="tid-chip">${t.tenantId}</span></div></div>
+        <div class="detail-row"><div class="detail-key">Company</div><div class="detail-val">${t.companyName}</div></div>
+        <div class="detail-row"><div class="detail-key">Email</div><div class="detail-val">${t.email}</div></div>
+        <div class="detail-row"><div class="detail-key">Phone</div><div class="detail-val">${t.phone}</div></div>
+        <div class="detail-row"><div class="detail-key">Address</div><div class="detail-val" style="white-space:normal">${t.address}</div></div>
+        <div class="detail-row"><div class="detail-key">Password</div><div class="detail-val" style="font-family:monospace;letter-spacing:.12em;color:var(--muted)">••••••••••</div></div>
+        <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val"><span class="badge badge-${t.status}">${t.status}</span></div></div>
+        <div class="detail-row"><div class="detail-key">Created</div><div class="detail-val">${t.createdAt}</div></div>
+    `;
+    openModal('viewModal');
+}
+
+// ─────────────────────────────────────────────────────────
+// Delete
+// ─────────────────────────────────────────────────────────
+function openDeleteModal(dbId) {
+    deleteTargId = dbId;
+    const t = allTenants.find(x => x.id === dbId);
+    document.getElementById('deleteTargetName').textContent = t.companyName;
+    openModal('deleteModal');
+}
+
+async function confirmDelete() {
+    const t = allTenants.find(x => x.id === deleteTargId);
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    
+    try {
+        const res = await fetch(`/super-admin/tenants/${deleteTargId}`, { 
+            method: 'DELETE',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        });
+        if (!res.ok) {
+            const d = await res.json();
+            showToast('error', d.error || 'Delete failed');
+            return;
+        }
+        closeModal('deleteModal');
+        showToast('error', `${t.companyName} has been deleted`);
+        await loadTenants();
+    } catch {
+        showToast('error', 'Network error — please try again');
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// Load + Render tenants
+// ─────────────────────────────────────────────────────────
+async function loadTenants() {
+    try {
+        const [tenantsRes, statsRes] = await Promise.all([
+            fetch('/super-admin/tenants'),
+            fetch('/super-admin/tenants/stats')
+        ]);
+        allTenants = await tenantsRes.json();
+        const stats = await statsRes.json();
+
+        document.getElementById('statTotal').textContent   = stats.total;
+        document.getElementById('statActive').textContent  = stats.active;
+        document.getElementById('statPending').textContent = stats.pending;
+        document.getElementById('statInactive').textContent = stats.inactive;
+
+        renderTable(allTenants);
+    } catch {
+        document.getElementById('tenantTbody').innerHTML =
+            `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-circle-exclamation"></i><p>Failed to load tenants. Please refresh.</p></div></td></tr>`;
+    }
+}
+
+function renderTable(data) {
+    const tbody    = document.getElementById('tenantTbody');
+    const rowCount = document.getElementById('rowCount');
+
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-building"></i><p>No tenants found. Add your first tenant to get started.</p></div></td></tr>`;
+        rowCount.textContent = '0 tenants';
+        return;
+    }
+
+    rowCount.textContent = `${data.length} tenant${data.length !== 1 ? 's' : ''}`;
+
+    tbody.innerHTML = data.map((t, i) => `
+        <tr style="animation: fadeUp .3s ${i * 0.04}s ease both; opacity:0">
+            <td>
+                <div class="company-cell">
+                    <div class="company-av">${t.companyName.charAt(0).toUpperCase()}</div>
+                    <span class="company-name">${escHtml(t.companyName)}</span>
+                </div>
+            </td>
+            <td><span class="tid-chip">${escHtml(t.tenantId)}</span></td>
+            <td>${escHtml(t.email)}</td>
+            <td>${escHtml(t.phone)}</td>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${escHtml(t.address)}">${escHtml(t.address)}</td>
+            <td><span class="badge badge-${t.status}">${t.status}</span></td>
+            <td>${escHtml(t.createdAt)}</td>
+            <td>
+                <div class="act-btns">
+                    <button class="act-btn" onclick="openView(${t.id})"          title="View details"><i class="fas fa-eye"></i></button>
+                    <button class="act-btn" onclick="openAddModal(${t.id})"      title="Edit tenant"><i class="fas fa-pen"></i></button>
+                    <button class="act-btn danger" onclick="openDeleteModal(${t.id})" title="Delete tenant"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// Search + filter
+// ─────────────────────────────────────────────────────────
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const s = document.getElementById('statusFilter').value;
+    const filtered = allTenants.filter(t => {
+        const matchQ = !q ||
+            t.companyName.toLowerCase().includes(q) ||
+            t.email.toLowerCase().includes(q) ||
+            t.tenantId.toLowerCase().includes(q);
+        const matchS = !s || t.status === s;
+        return matchQ && matchS;
+    });
+    renderTable(filtered);
+}
+
+// ─────────────────────────────────────────────────────────
+// Password helpers
+// ─────────────────────────────────────────────────────────
+function togglePw(fieldId, btn) {
+    const el   = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (el.type === 'password') { el.type = 'text';     icon.className = 'fas fa-eye-slash'; }
+    else                        { el.type = 'password'; icon.className = 'fas fa-eye'; }
+}
+
+function checkPwStrength() {
+    const pw   = document.getElementById('f_password').value;
+    const wrap = document.getElementById('pwStrengthWrap');
+    if (!pw) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+
+    let score = 0;
+    if (pw.length >= 8)                                score++;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw))         score++;
+    if (/\d/.test(pw))                                 score++;
+    if (/[^A-Za-z0-9]/.test(pw))                      score++;
+
+    const cls    = ['', 'weak', 'medium', 'strong', 'strong'];
+    const labels = ['', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+
+    ['pwb1','pwb2','pwb3','pwb4'].forEach((id, i) => {
+        document.getElementById(id).className = 'pw-bar ' + (i < score ? cls[score] : '');
+    });
+    document.getElementById('pwHint').textContent = labels[score] || '';
+}
+
+// ─────────────────────────────────────────────────────────
+// Toast notifications
+// ─────────────────────────────────────────────────────────
+function showToast(type, msg) {
+    const container = document.getElementById('toastContainer');
+    const toast     = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark';
+    toast.innerHTML = `<i class="fas ${icon}"></i><span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// ─────────────────────────────────────────────────────────
+// Utility
+// ─────────────────────────────────────────────────────────
+function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────────────────
+// Sidebar submenu toggle (matches existing dashboard JS)
+// ─────────────────────────────────────────────────────────
+function toggleSub(navRow) {
+    const item = navRow.closest('.nav-item');
+    item.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadTenants);
+
+/*]]>*/
+</script>
+
+</body>
+</html>

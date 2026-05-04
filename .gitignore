@@ -4,6 +4,7 @@
 target/
 build/
 out/
+bin/
 
 # =========================
 # Java compiled files
@@ -53,10 +54,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # =========================
-# Environment files
+# Environment files (IMPORTANT)
 # =========================
 .env
 .env.*
+*.env
 
 # =========================
 # Temporary files
@@ -66,13 +68,15 @@ yarn-error.log*
 *.bak
 
 # =========================
-# Database files (optional)
+# Database files (be careful)
 # =========================
 *.db
 *.sqlite
-*.sql
+
+# ⚠️ Comment this if you WANT to push SQL files
+# *.sql
 
 # =========================
-# Maven wrapper (optional)
+# Maven wrapper
 # =========================
 .mvn/

@@ -6,47 +6,44 @@
    Fonts: DM Sans (body) + Outfit (headings)
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ──────────────────────────────────────────
    CSS CUSTOM PROPERTIES
    ────────────────────────────────────────── */
 :root {
-	/* ── Core Brand (deep warm brown, derived from #bd8c2d) ── */
-	--purple: #3d2c08;
-	--purple-l: #5c4412;
-	--purple-ll: #7d5e1c;
-	--purple-d: #221806;
-	--purple-dd: #110c03;
+	/* ── Manager Dashboard Palette ── */
+	--purple: #4CAF50; /* Changed to Green for primary accents */
+	--purple-l: #81C784;
+	--purple-ll: #A5D6A7;
+	--purple-d: #388E3C;
+	--purple-dd: #2E7D32;
 
-	/* ── Gold (Primary Accent / CTA) — #bd8c2d ── */
-	--orange: #bd8c2d;
-	--orange-l: #cb9e3e;
-	--orange-ll: #d8b055;
-	--orange-d: #9e7020;
-	--orange-dd: #7e5518;
+	--orange: #E53935; /* Red accent */
+	--orange-l: #EF5350;
+	--orange-ll: #E57373;
+	--orange-d: #C62828;
+	--orange-dd: #B71C1C;
 
-	/* ── Warm Tan (Secondary Accent) — #c2b490 ── */
-	--peach: #c2b490;
-	--peach-l: #d0c4a5;
-	--peach-ll: #ddd4bb;
-	--peach-d: #a09060;
-	--peach-dd: #7e6e44;
+	--peach: #FF9800; /* Yellow/Orange */
+	--peach-l: #FFB74D;
+	--peach-ll: #FFCC80;
+	--peach-d: #F57C00;
+	--peach-dd: #EF6C00;
 
-	/* ── Steel Blue-Grey (Neutral) — #8e8e90 / #bccbde ── */
-	--bluegrey: #8e8e90;
-	--bluegrey-l: #bccbde;
-	--bluegrey-ll: #d0dce8;
-	--bluegrey-d: #6c6c6e;
-	--bluegrey-dd: #484849;
+	--bluegrey: #2196F3; /* Blue */
+	--bluegrey-l: #64B5F6;
+	--bluegrey-ll: #90CAF9;
+	--bluegrey-d: #1976D2;
+	--bluegrey-dd: #1565C0;
 
 	/* ── Semantic shorthand ── */
-	--amber: #bd8c2d;
-	--amber-l: #cb9e3e;
-	--rose: #8e4a2a;
-	--rose-l: #a85835;
-	--violet: #3d2c08;
-	--violet-l: #5c4412;
+	--amber: #FF9800;
+	--amber-l: #FFB74D;
+	--rose: #E53935;
+	--rose-l: #EF5350;
+	--violet: #9C27B0;
+	--violet-l: #BA68C8;
 
 	/* Legacy alias (keeps existing selectors working) */
 	--teal: var(--purple);
@@ -54,82 +51,84 @@
 	--teal-ll: var(--purple-ll);
 	--teal-d: var(--purple-d);
 	--teal-dd: var(--purple-dd);
-	--teal-blue: var(--orange);
-	--teal-blue-l: var(--orange-l);
-	--teal-blue-ll: var(--orange-ll);
-	--teal-blue-d: var(--orange-dd);
-	--teal-green: var(--peach);
-	--teal-green-l: var(--peach-l);
-	--teal-green-ll: var(--peach-ll);
-	--teal-green-d: var(--peach-d);
+	--teal-blue: var(--bluegrey);
+	--teal-blue-l: var(--bluegrey-l);
+	--teal-blue-ll: var(--bluegrey-ll);
+	--teal-blue-d: var(--bluegrey-d);
+	--teal-green: var(--purple);
+	--teal-green-l: var(--purple-l);
+	--teal-green-ll: var(--purple-ll);
+	--teal-green-d: var(--purple-d);
 	--cyan: var(--bluegrey);
 	--cyan-l: var(--bluegrey-l);
-	--mint: #ddd4bb;
-	--aqua: #d0dce8;
+	--mint: #E8F5E9;
+	--aqua: #E3F2FD;
 
-	/* ── Backgrounds — built around #d1bfa7 warmth ── */
-	--bg: #f8f4ef;
-	--bg-2: #ede5d8;
-	--bg-3: #e3d8c8;
+	/* ── Backgrounds ── */
+	--bg: #F5F6F8;
+	--bg-2: #EEEEEE;
+	--bg-3: #E0E0E0;
 
 	/* ── Surfaces ── */
 	--surface: #FFFFFF;
-	--surface-2: #faf7f2;
-	--surface-3: #f3ece2;
+	--surface-2: #FAFAFA;
+	--surface-3: #F5F5F5;
 
 	/* ── Text ── */
-	--text: #1e1608;
-	--text-2: #3a2e18;
-	--muted: #8e8e90;
-	--muted-2: #bccbde;
+	--text: #333333;
+	--text-2: #555555;
+	--muted: #888888;
+	--muted-2: #AAAAAA;
 
-	/* ── Borders — #d1bfa7 / #c2b490 ── */
-	--border: #d1bfa7;
-	--border-2: #c2b490;
-	--border-focus: rgba(189, 140, 45, 0.30);
+	/* ── Borders ── */
+	--border: #E0E0E0;
+	--border-2: #EEEEEE;
+	--border-focus: rgba(76, 175, 80, 0.30);
 
 	/* ── Sidebar ── */
-	--sidebar-bg: #FFFFFF;
-	--sidebar-act: #f7f0e2;
+	--sidebar-bg: #2B2D31;
+	--sidebar-act: #3F4147;
+	--sidebar-text: #FFFFFF;
+	--sidebar-text-muted: #9BA1A6;
 
 	/* ── Semantic tokens ── */
 	--primary: var(--purple);
 	--primary-l: var(--purple-l);
 	--primary-ll: var(--purple-ll);
 	--primary-d: var(--purple-d);
-	--secondary: var(--orange);
-	--secondary-l: var(--orange-l);
+	--secondary: var(--bluegrey);
+	--secondary-l: var(--bluegrey-l);
 	--tertiary: var(--peach);
 	--tertiary-l: var(--peach-l);
 
 	/* ── Glows ── */
-	--glow-purple: rgba(61, 44, 8, 0.18);
-	--glow-orange: rgba(189, 140, 45, 0.25);
-	--glow-peach: rgba(194, 180, 144, 0.20);
-	--glow-blue: rgba(188, 203, 222, 0.20);
+	--glow-purple: rgba(76, 175, 80, 0.18);
+	--glow-orange: rgba(229, 57, 53, 0.25);
+	--glow-peach: rgba(255, 152, 0, 0.20);
+	--glow-blue: rgba(33, 150, 243, 0.20);
 	--glow-teal: var(--glow-purple);
-	--glow-green: var(--glow-peach);
-	--glow-amber: var(--glow-orange);
-	--glow-rose: rgba(142, 74, 42, 0.16);
+	--glow-green: var(--glow-purple);
+	--glow-amber: var(--glow-peach);
+	--glow-rose: rgba(229, 57, 53, 0.16);
 
 	/* ── Sizing ── */
-	--sidebar-w: 260px;
+	--sidebar-w: 240px;
 	--topbar-h: 64px;
 	--bottom-nav-h: 62px;
-	--r: 14px;
-	--r-sm: 10px;
-	--r-xs: 6px;
+	--r: 10px;
+	--r-sm: 6px;
+	--r-xs: 4px;
 	--r-full: 9999px;
 
-	/* ── Shadows (warm brown undertone) ── */
-	--shadow-xs: 0 1px 3px rgba(61, 44, 8, 0.07), 0 1px 2px rgba(61, 44, 8, 0.04);
-	--shadow-sm: 0 2px 8px rgba(61, 44, 8, 0.09), 0 1px 3px rgba(61, 44, 8, 0.04);
-	--shadow: 0 4px 20px rgba(61, 44, 8, 0.11), 0 1px 5px rgba(61, 44, 8, 0.05);
-	--shadow-md: 0 8px 38px rgba(61, 44, 8, 0.14), 0 2px 8px rgba(61, 44, 8, 0.06);
+	/* ── Shadows ── */
+	--shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+	--shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+	--shadow: 0 4px 12px rgba(0,0,0,0.05);
+	--shadow-md: 0 8px 24px rgba(0,0,0,0.08);
 
 	/* ── Typography ── */
-	--font: 'DM Sans', sans-serif;
-	--font-head: 'Outfit', sans-serif;
+	--font: 'Inter', sans-serif;
+	--font-head: 'Inter', sans-serif;
 
 	/* ── Motion ── */
 	--ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1179,14 +1178,14 @@ select {
 }
 
 .nav-section {
-	font-size: .59rem;
+	font-size: .65rem;
 	font-weight: 600;
-	letter-spacing: .1em;
-	color: var(--muted-2);
+	letter-spacing: .05em;
+	color: var(--sidebar-text-muted);
 	text-transform: uppercase;
 	padding: .58rem .78rem .28rem;
 	margin-top: .28rem;
-	display: block
+	display: none; /* Hide nav sections for cleaner look */
 }
 
 .nav-group {
@@ -1201,50 +1200,45 @@ select {
 	display: flex;
 	align-items: center;
 	gap: .62rem;
-	padding: .55rem .78rem;
+	padding: .75rem 1rem;
 	cursor: pointer;
 	transition: all var(--trans);
-	color: var(--muted);
-	font-size: .82rem;
-	font-weight: 400;
-	border-radius: var(--r-sm);
+	color: var(--sidebar-text-muted);
+	font-size: .88rem;
+	font-weight: 500;
+	border-radius: var(--r-xs);
 	letter-spacing: 0;
 }
 
 .nav-row:hover {
-	background: var(--bg-2);
-	color: var(--text-2)
+	background: var(--sidebar-hover);
+	color: var(--sidebar-text);
 }
 
 .nav-item.active>.nav-row {
 	background: var(--sidebar-act);
-	color: var(--orange);
-	font-weight: 500
+	color: var(--sidebar-text);
+	border-left: 4px solid var(--sidebar-text);
 }
 
 .nav-icon {
-	width: 30px;
-	height: 30px;
-	border-radius: var(--r-xs);
+	width: 24px;
+	height: 24px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: .76rem;
+	font-size: .9rem;
 	flex-shrink: 0;
-	background: var(--surface-3);
-	color: var(--muted);
+	color: var(--sidebar-text-muted);
 	transition: all var(--trans);
 }
 
 .nav-row:hover .nav-icon {
-	background: var(--bg-3);
-	color: var(--orange-d)
+	color: var(--sidebar-text);
 }
 
 .nav-item.active>.nav-row .nav-icon {
-	background: linear-gradient(135deg, var(--purple), var(--orange));
-	color: #fff;
-	box-shadow: 0 3px 10px var(--glow-orange)
+	color: var(--sidebar-text);
 }
 
 .nav-label {
@@ -1253,8 +1247,8 @@ select {
 }
 
 .nav-arrow {
-	font-size: .57rem;
-	color: var(--muted-2);
+	font-size: .6rem;
+	color: var(--sidebar-text-muted);
 	transition: transform var(--trans)
 }
 
@@ -1267,7 +1261,7 @@ select {
 	max-height: 0;
 	opacity: 0;
 	transition: max-height .3s var(--ease), opacity .2s var(--ease);
-	padding: 0 0 0 1.05rem
+	padding: 0 0 0 1.25rem
 }
 
 .nav-item.open .submenu {
@@ -1279,50 +1273,44 @@ select {
 	display: flex;
 	align-items: center;
 	gap: .52rem;
-	padding: .36rem .68rem;
-	font-size: .76rem;
+	padding: .4rem .68rem;
+	font-size: .8rem;
 	font-weight: 400;
-	color: var(--muted);
+	color: var(--sidebar-text-muted);
 	border-radius: var(--r-xs);
 	cursor: pointer;
 	transition: all var(--trans);
-	letter-spacing: 0;
 }
 
 .submenu li:hover {
-	color: var(--orange-d);
-	background: var(--bg)
+	color: var(--sidebar-text);
 }
 
 .submenu li.active {
-	color: var(--orange);
+	color: var(--sidebar-text);
 	font-weight: 500
 }
 
 .sub-dot {
-	width: 5px;
-	height: 5px;
+	width: 4px;
+	height: 4px;
 	border-radius: 50%;
-	background: var(--border-2);
+	background: var(--sidebar-text-muted);
 	flex-shrink: 0
 }
 
 .submenu li.active .sub-dot {
-	background: var(--orange)
+	background: var(--sidebar-text)
 }
 
 .sidebar-footer {
 	margin-top: auto;
 	padding: .58rem 0 0;
-	border-top: 1px solid var(--border)
+	border-top: 1px solid rgba(255,255,255,0.1)
 }
 
 .sidebar-footer-meta {
-	display: flex;
-	align-items: center;
-	gap: .58rem;
-	padding: .62rem .78rem;
-	margin-bottom: .28rem
+	display: none;
 }
 
 .sf-av {
@@ -1350,17 +1338,18 @@ select {
 	align-items: center;
 	gap: .52rem;
 	width: 100%;
-	padding: .58rem .78rem;
-	border-radius: var(--r-sm);
-	color: var(--muted);
-	font-size: .8rem;
+	padding: .75rem 1rem;
+	border-radius: var(--r-xs);
+	color: var(--rose);
+	font-size: .88rem;
 	font-weight: 500;
-	transition: all var(--trans)
+	transition: all var(--trans);
+    background: transparent;
 }
 
 .logout-btn:hover {
-	background: #f5e8e2;
-	color: var(--rose)
+	background: rgba(229, 57, 53, 0.1);
+	color: var(--rose-l)
 }
 
 .logout-btn i {

@@ -210,143 +210,76 @@
 		<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
 		<aside class="sidebar" id="sidebar">
 
-			<span class="nav-section">Main Menu</span>
-
 			<div class="nav-group">
-				<div class="nav-item has-sub open active">
-					<div class="nav-row" onclick="toggleSub(this)" data-tooltip="Dashboard">
-						<span class="nav-icon"><i class="fas fa-chart-tree-map"></i></span>
-						<span class="nav-label">Dashboard</span>
-						<i class="fas fa-chevron-down nav-arrow"></i>
-					</div>
-					<ul class="submenu">
-						<li class="active" onclick="setSubActive(this)"><span class="sub-dot"></span>Dashboard</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Sales Overview</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Executive Dashboard</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Deals Dashboard</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Leads Dashboard</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Project Dashboard</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Revenue Summary</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Growth Dashboard</li>
-					</ul>
-				</div>
-
-				<div class="nav-item has-sub">
-					<div class="nav-row" onclick="toggleSub(this)" data-tooltip="Applications">
-						<span class="nav-icon"><i class="fas fa-border-all"></i></span>
-						<span class="nav-label">Applications</span>
-						<i class="fas fa-chevron-down nav-arrow"></i>
-					</div>
-					<ul class="submenu">
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Email</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Chat</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>File Manager</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Kanban</li>
-					</ul>
-				</div>
-
-				<div class="nav-item has-sub">
-					<div class="nav-row" onclick="toggleSub(this)" data-tooltip="Super Admin">
-						<span class="nav-icon"><i class="fas fa-user-shield"></i></span>
-						<span class="nav-label">Super Admin</span>
-						<i class="fas fa-chevron-down nav-arrow"></i>
-					</div>
-					<ul class="submenu">
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Users</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Roles & Permissions</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Audit Log</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>System Settings</li>
-					</ul>
-				</div>
-
-				<div class="nav-item has-sub">
-					<div class="nav-row" onclick="toggleSub(this)" data-tooltip="Layouts">
-						<span class="nav-icon"><i class="fas fa-layer-group"></i></span>
-						<span class="nav-label">Layouts</span>
-						<i class="fas fa-chevron-down nav-arrow"></i>
-					</div>
-					<ul class="submenu">
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Default</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Compact</li>
-						<li onclick="setSubActive(this)"><span class="sub-dot"></span>Modern</li>
-					</ul>
-				</div>
-			</div>
-
-			<span class="nav-section">CRM</span>
-			<div class="nav-group">
-				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Contacts">
-						<span class="nav-icon"><i class="fas fa-address-book"></i></span>
-						<span class="nav-label">Contacts</span>
-					</div>
+				<div class="nav-item active">
+					<a th:href="@{/dashboard/super-admin}" class="nav-row" data-tooltip="Overview">
+						<span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+						<span class="nav-label">Overview</span>
+					</a>
 				</div>
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Employees">
-						<span class="nav-icon"><i class="fas fa-users"></i></span>
-						<span class="nav-label">Employees</span>
-					</div>
+					<a th:href="@{/super-admin/tenants/page}" class="nav-row" data-tooltip="Tenants">
+						<span class="nav-icon"><i class="fas fa-building"></i></span>
+						<span class="nav-label">Tenants</span>
+					</a>
 				</div>
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Attendance">
-						<span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
+					<a href="#" class="nav-row" data-tooltip="Attendance">
+						<span class="nav-icon"><i class="fas fa-user-clock"></i></span>
 						<span class="nav-label">Attendance</span>
-					</div>
+					</a>
 				</div>
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Tasks">
+					<a href="#" class="nav-row" data-tooltip="My Team">
+						<span class="nav-icon"><i class="fas fa-users"></i></span>
+						<span class="nav-label">My Team</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a href="#" class="nav-row" data-tooltip="Tasks">
 						<span class="nav-icon"><i class="fas fa-list-check"></i></span>
 						<span class="nav-label">Tasks</span>
-					</div>
+					</a>
 				</div>
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Teams">
-						<span class="nav-icon"><i class="fas fa-people-group"></i></span>
-						<span class="nav-label">Teams</span>
-					</div>
-				</div>
-				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Meetings">
+					<a href="#" class="nav-row" data-tooltip="Meetings">
 						<span class="nav-icon"><i class="fas fa-video"></i></span>
 						<span class="nav-label">Meetings</span>
-					</div>
+					</a>
 				</div>
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Calendar">
-						<span class="nav-icon"><i class="fas fa-calendar-days"></i></span>
-						<span class="nav-label">Calendar</span>
-					</div>
-				</div>
-				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this)" data-tooltip="Leave">
-						<span class="nav-icon"><i class="fas fa-umbrella-beach"></i></span>
+					<a href="#" class="nav-row" data-tooltip="Leave">
+						<span class="nav-icon"><i class="fas fa-calendar-times"></i></span>
 						<span class="nav-label">Leave</span>
-					</div>
+					</a>
 				</div>
-			</div>
-
-			<span class="nav-section">System</span>
-			<div class="nav-group">
 				<div class="nav-item">
-					<div class="nav-row" onclick="setNavActive(this); openSettingsModal()" data-tooltip="Settings">
-						<span class="nav-icon"><i class="fas fa-gear"></i></span>
-						<span class="nav-label">Settings</span>
-					</div>
+					<a href="#" class="nav-row" data-tooltip="Performance">
+						<span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+						<span class="nav-label">Performance</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a href="#" class="nav-row" data-tooltip="Calendar">
+						<span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
+						<span class="nav-label">Calendar</span>
+					</a>
 				</div>
 			</div>
 
 			<div class="sidebar-footer">
-				<div class="sidebar-footer-meta">
-					<div class="sf-av"></div>
-					<div>
-						<div class="sf-name">Admin User</div>
-						<div class="sf-role">Super Administrator</div>
-					</div>
+				<div class="nav-item" style="margin-bottom: 0.5rem">
+					<a href="#" class="nav-row" data-tooltip="Settings">
+						<span class="nav-icon"><i class="fas fa-gear"></i></span>
+						<span class="nav-label">Settings</span>
+					</a>
 				</div>
-				<button class="logout-btn" onclick="confirmLogout()">
-					<i class="fas fa-arrow-right-from-bracket"></i>
-					<span class="logout-text">Logout</span>
-				</button>
+				<form th:action="@{/logout}" method="post" style="display:inline; width:100%">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-arrow-right-from-bracket"></i>
+                        <span class="logout-text">Logout</span>
+                    </button>
+                </form>
 			</div>
 
 		</aside>
@@ -437,368 +370,99 @@
 				</div>
 			</section>
 
-			<!-- ── CHARTS ROW ── -->
-			<section class="charts-row">
-				<div class="card card--revenue">
+			<!-- ── CARDS ROW ── -->
+			<section class="charts-row" style="grid-template-columns: repeat(3, 1fr); margin-top: 1rem">
+				<div class="card">
 					<div class="card-head">
-						<h3 class="card-title"><span class="title-accent"></span>Revenue Analytics</h3>
-						<div class="tabs" id="revTabs">
-							<button class="tab-btn active" onclick="switchTab(this,'weekly')">Weekly</button>
-							<button class="tab-btn" onclick="switchTab(this,'monthly')">Monthly</button>
-							<button class="tab-btn" onclick="switchTab(this,'yearly')">Yearly</button>
-						</div>
+						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+                            <span style="color:var(--orange)"><i class="fas fa-chart-pie"></i></span>
+                            Task Status
+                        </h3>
+						<span style="font-size:0.75rem;color:var(--muted)">By current status</span>
 					</div>
-					<div class="rev-meta">
-						<div>
-							<span class="rev-big-num" id="revBigNum">$495K</span>
-							<span class="rev-label">Revenue with Sales (USD)</span>
-						</div>
-						<div class="legend">
-							<div class="leg-item">
-								<div class="leg-dot" style="background:var(--teal)"></div>
-								<span style="color:var(--text-2);font-size:.72rem;font-weight:600;">Revenue</span>
-							</div>
-							<div class="leg-item">
-								<div class="leg-dot" style="background:rgba(13,148,136,.3)"></div>
-								<span style="color:var(--muted);font-size:.72rem;font-weight:600;">Sales</span>
-							</div>
-						</div>
+					<div style="display:flex;justify-content:center;align-items:center;height:220px">
+                        <div style="width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--primary) 0% 70%, var(--orange) 70% 85%, var(--bluegrey) 85% 100%)"></div>
+                    </div>
+					<div class="legend" style="justify-content:center;margin-top:1.5rem;flex-wrap:wrap;gap:1rem">
+						<div class="leg-item"><div class="leg-dot" style="background:var(--bluegrey)"></div><span style="color:var(--muted);font-size:.75rem">Assigned: 0</span></div>
+						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Completed: 20</span></div>
+						<div class="leg-item"><div class="leg-dot" style="background:var(--peach)"></div><span style="color:var(--muted);font-size:.75rem">Submitted: 0</span></div>
+						<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">Processing: 0</span></div>
 					</div>
-					<div class="bar-chart-wrap">
-						<div class="y-axis">
-							<span>$60k</span><span>$50k</span><span>$40k</span><span>$30k</span><span>$20k</span><span>$10k</span><span>$0k</span>
-						</div>
-						<div class="bar-chart-area" id="revenueChart"></div>
-					</div>
-					<div class="x-axis" id="xAxisLabels"></div>
 				</div>
 
-				<div class="card card--traffic">
+				<div class="card">
 					<div class="card-head">
-						<h3 class="card-title"><span class="title-accent"></span>Traffic Sources</h3>
-						<button class="icon-btn-sm" onclick="showToast('Traffic report exported','success')"><i
-								class="fas fa-arrow-right"></i></button>
+						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+                            <span style="color:var(--rose)"><i class="fas fa-fire"></i></span>
+                            Task Priority
+                        </h3>
+						<span style="font-size:0.75rem;color:var(--muted)">Distribution by priority level</span>
 					</div>
-					<div class="donut-wrap">
-						<svg viewBox="0 0 160 160" class="donut-svg">
-							<circle class="donut-bg" cx="80" cy="80" r="60" />
-							<circle class="donut-seg seg-emerald" cx="80" cy="80" r="60" stroke-dashoffset="0"
-								transform="rotate(-90 80 80)" />
-							<circle class="donut-seg seg-indigo" cx="80" cy="80" r="60" stroke-dashoffset="-218"
-								transform="rotate(-90 80 80)" />
-							<circle class="donut-seg seg-amber" cx="80" cy="80" r="60" stroke-dashoffset="-301"
-								transform="rotate(-90 80 80)" />
-							<circle class="donut-seg seg-violet" cx="80" cy="80" r="60" stroke-dashoffset="-350"
-								transform="rotate(-90 80 80)" />
+					<div style="display:flex;justify-content:center;align-items:center;height:220px">
+                        <svg viewBox="0 0 160 160" class="donut-svg" style="width:180px;height:180px">
+							<circle class="donut-bg" cx="80" cy="80" r="60" style="stroke:var(--bg-2);stroke-width:30;fill:none"/>
+							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--orange);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:188;fill:none" transform="rotate(-90 80 80)" />
+							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--peach);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(90 80 80)" />
+							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--primary);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(180 80 80)" />
 						</svg>
-						<div class="donut-center">
-							<span class="donut-pct">58%</span>
-							<span class="donut-sub">Organic</span>
-						</div>
+                    </div>
+					<div class="legend" style="justify-content:center;margin-top:1.5rem;gap:1.5rem">
+						<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">High: 10</span></div>
+						<div class="leg-item"><div class="leg-dot" style="background:var(--peach)"></div><span style="color:var(--muted);font-size:.75rem">Med: 5</span></div>
+						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Low: 5</span></div>
 					</div>
-					<ul class="traffic-list">
-						<li onclick="showToast('Organic: 6,598 visitors','info')"><span
-								class="tl-dot tl-emerald"></span>Organic Search<strong>6,598</strong></li>
-						<li onclick="showToast('Direct: 2,458 visitors','info')"><span
-								class="tl-dot tl-indigo"></span>Direct Traffic<strong>2,458</strong></li>
-						<li onclick="showToast('Referral: 1,456 visitors','info')"><span
-								class="tl-dot tl-amber"></span>Referral Traffic<strong>1,456</strong></li>
-						<li onclick="showToast('Social: 845 visitors','info')"><span
-								class="tl-dot tl-violet"></span>Social Media<strong>845</strong></li>
-					</ul>
-				</div>
-			</section>
-
-			<!-- ── MID ROW ── -->
-			<section class="mid-row">
-
-				<!-- Top Deals -->
-				<div class="card card--deals">
-					<div class="card-head">
-						<h3 class="card-title"><span class="title-accent"></span>Top Deals</h3>
-						<select class="select-sm" onchange="showToast('Deals filter updated','success')">
-							<option>Last 30 Days</option>
-							<option>Last 7 Days</option>
-							<option>Last Year</option>
-						</select>
-					</div>
-					<ul class="deal-list">
-						<li class="deal-row" onclick="openDealModal('NovaWave LLC','$19,94,938','+12%','Germany')">
-							<div class="deal-logo dl-1"><i class="fas fa-paper-plane"></i></div>
-							<div class="deal-info">
-								<div class="deal-name">NovaWave LLC</div>
-								<div class="deal-loc"><i class="fas fa-location-dot"
-										style="font-size:.65rem;margin-right:3px;opacity:.6"></i>Germany</div>
-							</div>
-							<div style="text-align:right">
-								<div class="deal-amount">$19,94,938</div><span class="deal-badge">+12%</span>
-							</div>
-						</li>
-						<li class="deal-row" onclick="openDealModal('Silver Hawk','$15,44,540','+8%','Australia')">
-							<div class="deal-logo dl-2"><i class="fas fa-recycle"></i></div>
-							<div class="deal-info">
-								<div class="deal-name">Silver Hawk</div>
-								<div class="deal-loc"><i class="fas fa-location-dot"
-										style="font-size:.65rem;margin-right:3px;opacity:.6"></i>Australia</div>
-							</div>
-							<div style="text-align:right">
-								<div class="deal-amount">$15,44,540</div><span class="deal-badge">+8%</span>
-							</div>
-						</li>
-						<li class="deal-row" onclick="openDealModal('Summit LLC','$10,36,390','+5%','Italy')">
-							<div class="deal-logo dl-3"><i class="fas fa-fan"></i></div>
-							<div class="deal-info">
-								<div class="deal-name">Summit LLC</div>
-								<div class="deal-loc"><i class="fas fa-location-dot"
-										style="font-size:.65rem;margin-right:3px;opacity:.6"></i>Italy</div>
-							</div>
-							<div style="text-align:right">
-								<div class="deal-amount">$10,36,390</div><span class="deal-badge">+5%</span>
-							</div>
-						</li>
-						<li class="deal-row" onclick="openDealModal('Bluesky Industries','$10,15,280','+3%','Canada')">
-							<div class="deal-logo dl-4"><i class="fas fa-sun"></i></div>
-							<div class="deal-info">
-								<div class="deal-name">Bluesky Industries</div>
-								<div class="deal-loc"><i class="fas fa-location-dot"
-										style="font-size:.65rem;margin-right:3px;opacity:.6"></i>Canada</div>
-							</div>
-							<div style="text-align:right">
-								<div class="deal-amount">$10,15,280</div><span class="deal-badge">+3%</span>
-							</div>
-						</li>
-						<li class="deal-row" onclick="openDealModal('HealthTech Innovations','$10,14,112','+2%','UK')">
-							<div class="deal-logo dl-5"><i class="fas fa-heart-pulse"></i></div>
-							<div class="deal-info">
-								<div class="deal-name">HealthTech Innovations</div>
-								<div class="deal-loc"><i class="fas fa-location-dot"
-										style="font-size:.65rem;margin-right:3px;opacity:.6"></i>UK</div>
-							</div>
-							<div style="text-align:right">
-								<div class="deal-amount">$10,14,112</div><span class="deal-badge">+2%</span>
-							</div>
-						</li>
-					</ul>
-					<div class="card-link" onclick="showToast('Loading all deals...','info')">View All Deals <i
-							class="fas fa-arrow-right"></i></div>
 				</div>
 
-				<!-- Pipeline -->
-				<div class="card card--pipeline">
+				<div class="card">
 					<div class="card-head">
-						<h3 class="card-title"><span class="title-accent"></span>Pipeline</h3>
-						<select class="select-sm" onchange="showToast('Pipeline view updated','success')">
-							<option>Weekly</option>
-							<option>Monthly</option>
-						</select>
+						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+                            <span style="color:var(--primary)"><i class="fas fa-chart-line"></i></span>
+                            Completion Trend
+                        </h3>
+						<span style="font-size:0.75rem;color:var(--muted)">Tasks completed — last 4 weeks</span>
 					</div>
-					<div class="pipeline-grid">
-						<div class="pipe-item" onclick="showToast('Lead pipeline: 80 deals','info')">
-							<div class="pipe-label">Lead</div>
-							<div class="pipe-val">$20,010</div>
-							<div class="pipe-deals">80 Deals</div>
-							<div class="pipe-bar pipe-indigo"></div>
-						</div>
-						<div class="pipe-item" onclick="showToast('Proposal pipeline: 23 deals','info')">
-							<div class="pipe-label">Proposal</div>
-							<div class="pipe-val">$17,210</div>
-							<div class="pipe-deals">23 Deals</div>
-							<div class="pipe-bar pipe-amber"></div>
-						</div>
-						<div class="pipe-item" onclick="showToast('Sales pipeline: 12 deals','info')">
-							<div class="pipe-label">Sales</div>
-							<div class="pipe-val">$9,210</div>
-							<div class="pipe-deals">12 Deals</div>
-							<div class="pipe-bar pipe-violet"></div>
-						</div>
-						<div class="pipe-item" onclick="showToast('Won pipeline: 21 deals','info')">
-							<div class="pipe-label">Won</div>
-							<div class="pipe-val">$8,210</div>
-							<div class="pipe-deals">21 Deals</div>
-							<div class="pipe-bar pipe-emerald"></div>
-						</div>
-					</div>
-					<div class="profit-hdr">
-						<span>Profit Earned</span>
-						<strong>$85K</strong>
-						<select class="select-sm" style="margin-left:auto"
-							onchange="showToast('Year updated','success')">
-							<option>2025</option>
-							<option>2026</option>
-						</select>
-					</div>
-					<div class="profit-bars" id="profitBars"></div>
-				</div>
-
-				<!-- Deals Overview -->
-				<div class="card card--overview">
-					<div class="card-head">
-						<h3 class="card-title"><span class="title-accent"></span>Deals Overview</h3>
-						<button class="icon-btn-sm" onclick="showToast('Overview report exported','success')"><i
-								class="fas fa-arrow-right"></i></button>
-					</div>
-					<div class="ov-bar">
-						<div class="ov-seg ov-emerald" style="--w:37.6%"></div>
-						<div class="ov-seg ov-amber" style="--w:39.7%"></div>
-						<div class="ov-seg ov-violet" style="--w:18.8%"></div>
-						<div class="ov-seg ov-rose" style="--w:3.9%"></div>
-					</div>
-					<div class="ov-total">
-						<span class="ov-num">2,656</span>
-						<span class="ov-badge">+12.5%</span>
-						<span class="ov-sub">compared to last week</span>
-					</div>
-					<ul class="ov-list">
-						<li onclick="showToast('Successful deals: 1,000','success')"><span
-								class="ov-dot ov-d-emerald"></span>Successful Deals<strong>1,000 Deals</strong></li>
-						<li onclick="showToast('Pending deals: 1,056','warning')"><span
-								class="ov-dot ov-d-amber"></span>Pending Deals<strong>1,056 Deals</strong></li>
-						<li onclick="showToast('Rejected deals: 500','info')"><span
-								class="ov-dot ov-d-violet"></span>Rejected Deals<strong>500 Deals</strong></li>
-						<li onclick="showToast('Upcoming deals: 100','info')"><span
-								class="ov-dot ov-d-rose"></span>Upcoming Deals<strong>100 Deals</strong></li>
-					</ul>
-					<div class="won-box">
-						<div>
-							<div class="won-label">Deals Won</div>
-							<div class="won-val">689</div>
-						</div>
-						<div class="won-av-row">
-							<div class="av-item av-a"></div>
-							<div class="av-item av-b"></div>
-							<div class="av-item av-c"></div>
-							<div class="av-item av-d"></div>
-							<div class="av-item av-e"></div>
-						</div>
+					<div style="height:220px;position:relative;margin-top:1rem;border-left:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px;margin-bottom:1.5rem">
+                        <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible" preserveAspectRatio="none">
+                            <polyline points="0,80 33,40 66,20 100,40" fill="none" stroke="var(--primary)" stroke-width="2"/>
+                            <polygon points="0,100 0,80 33,40 66,20 100,40 100,100" fill="var(--glow-green)" />
+                            <circle cx="0" cy="80" r="3" fill="var(--primary)"/>
+                            <circle cx="33" cy="40" r="3" fill="var(--primary)"/>
+                            <circle cx="66" cy="20" r="3" fill="var(--primary)"/>
+                            <circle cx="100" cy="40" r="3" fill="var(--primary)"/>
+                        </svg>
+                        <div style="position:absolute;bottom:-20px;left:0;width:100%;display:flex;justify-content:space-between;font-size:0.6rem;color:var(--muted)">
+                            <span>Wk 11</span><span>Wk 12</span><span>Wk 13</span><span>Wk 14</span>
+                        </div>
+                    </div>
+					<div class="legend" style="justify-content:flex-start;margin-top:2rem">
+						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.8rem;font-weight:600">Total completed: 20</span></div>
 					</div>
 				</div>
 			</section>
 
-			<!-- ── RECENT DEALS TABLE ── -->
-			<div class="card card--table">
-				<div class="table-head">
-					<h3 class="card-title"><span class="title-accent"></span>Recent Deals</h3>
-					<a href="#" class="view-all" onclick="showToast('Loading all deals...','info');return false;">View
-						All <i class="fas fa-arrow-right"></i></a>
-				</div>
-				<div class="table-wrap">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>Deal Name</th>
-								<th>Stage</th>
-								<th>Deal Value</th>
-								<th>Tag</th>
-								<th>Owner</th>
-								<th>Probability</th>
-								<th>Status</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="row-in" style="animation-delay:.1s"
-								onclick="openDealModal('Annual Software','$19,94,938','+90%','USA')">
-								<td class="cell-name">Annual Software</td>
-								<td class="cell-stage">Appointment</td>
-								<td class="cell-val">$19,94,938</td>
-								<td><span class="tag tag-amber">Rated</span></td>
-								<td>
-									<div class="owner-cell">
-										<div class="owner-av ow-a"></div>Robert Johnson
-									</div>
-								</td>
-								<td>
-									<div class="prob-wrap">
-										<div class="prob-bar-bg">
-											<div class="prob-bar-fill" style="width:90%"></div>
-										</div><span class="prob-txt">90%</span>
-									</div>
-								</td>
-								<td><span class="status st-won">Won</span></td>
-							</tr>
-							<tr class="row-in" style="animation-delay:.18s"
-								onclick="openDealModal('CRM Onboarding','$15,44,540','+90%','USA')">
-								<td class="cell-name">CRM Onboarding</td>
-								<td class="cell-stage">Appointment</td>
-								<td class="cell-val">$15,44,540</td>
-								<td><span class="tag tag-indigo">Collab</span></td>
-								<td>
-									<div class="owner-cell">
-										<div class="owner-av ow-b"></div>Isabella Cooper
-									</div>
-								</td>
-								<td>
-									<div class="prob-wrap">
-										<div class="prob-bar-bg">
-											<div class="prob-bar-fill" style="width:90%"></div>
-										</div><span class="prob-txt">90%</span>
-									</div>
-								</td>
-								<td><span class="status st-lost">Lost</span></td>
-							</tr>
-							<tr class="row-in" style="animation-delay:.26s"
-								onclick="openDealModal('Enterprise Plan','$10,36,390','+80%','Italy')">
-								<td class="cell-name">Enterprise Plan</td>
-								<td class="cell-stage">Contact Made</td>
-								<td class="cell-val">$10,36,390</td>
-								<td><span class="tag tag-pink">Promotion</span></td>
-								<td>
-									<div class="owner-cell">
-										<div class="owner-av ow-c"></div>John Smith
-									</div>
-								</td>
-								<td>
-									<div class="prob-wrap">
-										<div class="prob-bar-bg">
-											<div class="prob-bar-fill" style="width:80%"></div>
-										</div><span class="prob-txt">80%</span>
-									</div>
-								</td>
-								<td><span class="status st-won">Won</span></td>
-							</tr>
-							<tr class="row-in" style="animation-delay:.34s"
-								onclick="openDealModal('BrightWorks','$16,11,420','+72%','Canada')">
-								<td class="cell-name">BrightWorks</td>
-								<td class="cell-stage">Presentation</td>
-								<td class="cell-val">$16,11,420</td>
-								<td><span class="tag tag-amber">Rated</span></td>
-								<td>
-									<div class="owner-cell">
-										<div class="owner-av ow-d"></div>Sophia Parker
-									</div>
-								</td>
-								<td>
-									<div class="prob-wrap">
-										<div class="prob-bar-bg">
-											<div class="prob-bar-fill" style="width:72%"></div>
-										</div><span class="prob-txt">72%</span>
-									</div>
-								</td>
-								<td><span class="status st-won">Won</span></td>
-							</tr>
-							<tr class="row-in" style="animation-delay:.42s"
-								onclick="openDealModal('Sales Pipeline','$90,59,472','+60%','UK')">
-								<td class="cell-name">Sales Pipeline</td>
-								<td class="cell-stage">Proposal Made</td>
-								<td class="cell-val">$90,59,472</td>
-								<td><span class="tag tag-rose">Rejected</span></td>
-								<td>
-									<div class="owner-cell">
-										<div class="owner-av ow-e"></div>Emma Reynolds
-									</div>
-								</td>
-								<td>
-									<div class="prob-wrap">
-										<div class="prob-bar-bg">
-											<div class="prob-bar-fill" style="width:60%"></div>
-										</div><span class="prob-txt">60%</span>
-									</div>
-								</td>
-								<td><span class="status st-open">Open</span></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
+            <!-- LEAVE ANALYTICS -->
+            <h3 style="margin-top:2rem;font-size:0.85rem;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:0.5rem"><i class="fas fa-calendar-times" style="color:var(--rose)"></i> LEAVE ANALYTICS</h3>
+            <section class="charts-row" style="margin-top:1rem;grid-template-columns: 1fr 1fr;">
+                <div class="card">
+                    <div class="card-head">
+                        <h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+                            <span style="color:var(--peach)"><i class="fas fa-umbrella-beach"></i></span>
+                            Leave Breakdown
+                        </h3>
+                    </div>
+                    <div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.85rem;font-weight:500">No leave data for this period</div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+                            <span style="color:var(--violet)"><i class="fas fa-chart-area"></i></span>
+                            Leave Trends & Approval
+                        </h3>
+                    </div>
+                    <div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.85rem;font-weight:500">No trend data available</div>
+                </div>
+            </section>
 
 			<footer class="dash-footer">
 				<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
