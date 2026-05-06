@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.springboot1.model.Role;
 import com.springboot1.service.EmployeeService;
 import com.springboot1.service.LeadService;
+import com.springboot1.service.UserService;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,10 +22,12 @@ public class AdminController {
 
 	private final EmployeeService empService;
 	private final LeadService leadService;
+	private final UserService userService;
 
-	public AdminController(EmployeeService empService, LeadService leadService) {
+	public AdminController(EmployeeService empService, LeadService leadService, UserService userService) {
 		this.empService = empService;
 		this.leadService = leadService;
+		this.userService = userService;
 	}
 
 	// ════════════════════════════════════════════════════════════════════════
@@ -228,5 +232,56 @@ public class AdminController {
 			ra.addFlashAttribute("error", "Cannot delete lead: " + e.getMessage());
 		}
 		return "redirect:/admin/leads";
+	}
+
+	// ════════════════════════════════════════════════════════════════════════
+	// USERS — Add User page
+	// ════════════════════════════════════════════════════════════════════════
+
+	@GetMapping("/users/add")
+	public String showAddUserPage(Model model) {
+		model.addAttribute("roles", new String[]{"MANAGER", "SALES_EXECUTIVE"});
+		return "admin-add-user";
+	}
+
+	@PostMapping("/users/add")
+	public String createUser(
+			@RequestParam String fullName,
+			@RequestParam String username,
+			@RequestParam String email,
+			@RequestParam String password,
+			@RequestParam String phone,
+			@RequestParam(required = false) String department,
+			@RequestParam String role,
+			RedirectAttributes ra) {
+		try {
+			Role userRole = Role.valueOf(role);
+			userService.createStaffUser(fullName, username, email, password, phone, department, userRole);
+			ra.addFlashAttribute("success",
+					userRole == Role.MANAGER
+							? "Manager '" + fullName + "' created successfully."
+							: "Sales Executive '" + fullName + "' created successfully.");
+			return "redirect:/admin/users/add";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("error", e.getMessage());
+			ra.addFlashAttribute("formFullName", fullName);
+			ra.addFlashAttribute("formUsername", username);
+			ra.addFlashAttribute("formEmail", email);
+			ra.addFlashAttribute("formPhone", phone);
+			ra.addFlashAttribute("formDepartment", department);
+			ra.addFlashAttribute("formRole", role);
+			return "redirect:/admin/users/add";
+		}
+	}
+
+	// ════════════════════════════════════════════════════════════════════════
+	// USERS — List Users
+	// ════════════════════════════════════════════════════════════════════════
+
+	@GetMapping("/users")
+	public String listUsers(Model model) {
+		model.addAttribute("managers", userService.getUsersByRole(Role.MANAGER));
+		model.addAttribute("salesExecs", userService.getUsersByRole(Role.SALES_EXECUTIVE));
+		return "admin-users";
 	}
 }
