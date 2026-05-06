@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Add User – Admin Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" th:href="@{/dashboard-admin.css}"/>
+<style>
+.form-container{max-width:800px;margin:2rem auto;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);padding:2.5rem}
+.form-header{margin-bottom:2rem;border-bottom:2px solid #f1f5f9;padding-bottom:1.5rem}
+.form-header h1{font-size:1.75rem;font-weight:700;color:#1e293b;margin-bottom:.5rem}
+.form-header p{color:#64748b;font-size:.95rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.form-group{display:flex;flex-direction:column}
+.form-group.full-width{grid-column:1/-1}
+.form-label{font-size:.875rem;font-weight:600;color:#334155;margin-bottom:.5rem;display:flex;align-items:center;gap:.25rem}
+.form-label .required{color:#dc2626}
+.form-input,.form-select{padding:.75rem 1rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.95rem;font-family:inherit;transition:all .2s;background:#fff}
+.form-input:focus,.form-select:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.form-input::placeholder{color:#94a3b8}
+.form-actions{display:flex;gap:1rem;justify-content:flex-end;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #f1f5f9}
+.btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;transition:all .2s;border:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;box-shadow:0 4px 12px rgba(220,38,38,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(220,38,38,.4)}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+.alert{padding:1rem 1.25rem;border-radius:8px;margin-bottom:1.5rem;font-size:.9rem;display:flex;align-items:center;gap:.75rem}
+.alert-success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.alert-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.alert svg{width:20px;height:20px;flex-shrink:0}
+.info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:1rem;margin-bottom:1.5rem;font-size:.875rem;color:#0c4a6e}
+.info-box svg{width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:.5rem}
+</style>
+</head>
+<body>
+<div class="form-container">
+<div class="form-header">
+<h1>➕ Add New User</h1>
+<p>Create a new Manager or Sales Executive account with login credentials</p>
+</div>
+
+<div th:if="${success}" class="alert alert-success">
+<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+<span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="alert alert-error">
+<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+<span th:text="${error}"></span>
+</div>
+
+<div class="info-box">
+<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+This will create both a User account (for login) and an Employee record (for CRM operations).
+</div>
+
+<form th:action="@{/admin/users/add}" method="post">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+<div class="form-grid">
+<div class="form-group full-width">
+<label class="form-label">Full Name <span class="required">*</span></label>
+<input type="text" name="fullName" class="form-input" placeholder="e.g. Sarah Mitchell" required th:value="${formFullName}"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Username <span class="required">*</span></label>
+<input type="text" name="username" class="form-input" placeholder="e.g. sarah.mitchell" required th:value="${formUsername}"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Email <span class="required">*</span></label>
+<input type="email" name="email" class="form-input" placeholder="e.g. sarah@company.com" required th:value="${formEmail}"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Password <span class="required">*</span></label>
+<input type="password" name="password" class="form-input" placeholder="Minimum 8 characters" required minlength="8"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Phone <span class="required">*</span></label>
+<input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" required th:value="${formPhone}"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Department</label>
+<input type="text" name="department" class="form-input" placeholder="e.g. Sales (default)" th:value="${formDepartment}"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Role <span class="required">*</span></label>
+<select name="role" class="form-select" required>
+<option value="">-- Select Role --</option>
+<option value="MANAGER" th:selected="${formRole == 'MANAGER'}">Manager</option>
+<option value="SALES_EXECUTIVE" th:selected="${formRole == 'SALES_EXECUTIVE'}">Sales Executive</option>
+</select>
+</div>
+</div>
+
+<div class="form-actions">
+<a th:href="@{/admin/dashboard}" class="btn btn-secondary">Cancel</a>
+<button type="submit" class="btn btn-primary">Create User</button>
+</div>
+</form>
+</div>
+</body>
+</html>
