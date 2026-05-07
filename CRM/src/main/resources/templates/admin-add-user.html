@@ -77,9 +77,14 @@
 						</td>
 						<td th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd MMM yyyy') : '—'}">—</td>
 						<td class="td-actions">
+							<!--
+							  th:onsubmit is blocked in Thymeleaf 3.1+ for string expressions.
+							  Use data-username + a plain JS helper instead.
+							-->
 							<form th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post"
 								style="display:inline"
-								th:onsubmit="|return confirm('Delete user ${u.username}? This cannot be undone.')|">
+								th:data-username="${u.username}"
+								onsubmit="return confirmDelete(this)">
 								<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 								<button type="submit" class="action-link action-delete">
 									<svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"
