@@ -344,9 +344,12 @@
                     </div>
                 </div>
                 <div class="user-drop-divider"></div>
-                <a th:href="@{/logout}" class="user-drop-item danger">
-                    <i class="fas fa-arrow-right-from-bracket"></i>Logout
-                </a>
+                <form th:action="@{/logout}" method="post" style="display:contents">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="user-drop-item danger" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font:inherit;padding:0">
+                        <i class="fas fa-arrow-right-from-bracket"></i>Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -403,10 +406,13 @@
                     <div class="sf-role">Super Administrator</div>
                 </div>
             </div>
-            <a th:href="@{/logout}" class="logout-btn">
-                <i class="fas fa-arrow-right-from-bracket"></i>
-                <span class="logout-text">Logout</span>
-            </a>
+            <form th:action="@{/logout}" method="post" style="display:block;width:100%">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="logout-btn" style="width:100%">
+                    <i class="fas fa-arrow-right-from-bracket"></i>
+                    <span class="logout-text">Logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 

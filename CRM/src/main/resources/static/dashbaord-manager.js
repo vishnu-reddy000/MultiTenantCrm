@@ -460,8 +460,23 @@ function confirmLogout() {
 
 function doLogout() {
 	closeModal('logoutModal');
-	showToast('Logged out successfully', 'success');
-	setTimeout(() => { window.location.href = '/login'; }, 1200);
+	showToast('Logging out…', 'info');
+	// Submit a hidden POST form so Spring Security processes the logout properly
+	setTimeout(() => {
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = '/logout';
+		const csrf = document.querySelector('meta[name="_csrf"]');
+		if (csrf) {
+			const input = document.createElement('input');
+			input.type  = 'hidden';
+			input.name  = '_csrf';
+			input.value = csrf.getAttribute('content');
+			form.appendChild(input);
+		}
+		document.body.appendChild(form);
+		form.submit();
+	}, 800);
 }
 
 /* ═══════════
