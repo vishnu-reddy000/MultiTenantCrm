@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Sales Team', 'sales-team', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Manager</div>
+      <h1 class="page-title">Sales Team</h1>
+      <p class="page-subtitle">View and manage your sales executives</p>
+    </div>
+  </div>
+
+  <!-- Team Cards -->
+  <div th:if="${salesExecs != null and !salesExecs.isEmpty()}">
+    <section class="team-grid" style="margin-top:1.2rem">
+      <div class="team-card" th:each="exec : ${salesExecs}">
+        <div class="team-av" style="background:linear-gradient(135deg,#667EEA,#764BA2)">
+          <span th:text="${exec.name != null ? exec.name.substring(0,1).toUpperCase() : 'S'}">S</span>
+        </div>
+        <div class="team-name" th:text="${exec.name ?: 'Sales Executive'}">Sales Executive</div>
+        <div class="team-role">Sales Executive</div>
+        <div class="team-leads" th:text="${exec.email ?: 'N/A'}">email</div>
+        <div class="team-status"></div>
+      </div>
+    </section>
+  </div>
+
+  <div th:if="${salesExecs == null or salesExecs.isEmpty()}" class="card" style="margin-top:1.2rem;text-align:center;padding:3rem">
+    <i class="fas fa-users" style="font-size:2.5rem;color:var(--muted-2);margin-bottom:1rem;display:block"></i>
+    <p style="color:var(--muted);font-size:.9rem">No sales executives assigned to your team yet.</p>
+    <a th:href="@{/manager/team/overview}" class="btn-add-lead" style="display:inline-flex;margin-top:1rem;text-decoration:none">
+      <i class="fas fa-arrow-left"></i> Back to Team Overview
+    </a>
+  </div>
+
+</section>
+</html>

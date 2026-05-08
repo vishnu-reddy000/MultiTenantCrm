@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Conversion Reports', 'conversion-reports', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Reports</div>
+      <h1 class="page-title">Conversion Reports</h1>
+      <p class="page-subtitle">Analyse lead-to-deal conversion rates across your team</p>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Total Leads</p><h2 class="kpi-value" th:text="${totalLeads ?: 0}">0</h2><span class="kpi-change kpi-up"><i class="fas fa-list"></i> All leads</span></div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-funnel-dollar"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Converted</p><h2 class="kpi-value" th:text="${approvedLeads ?: 0}">0</h2><span class="kpi-change kpi-up"><i class="fas fa-check"></i> Approved</span></div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Conversion Rate</p>
+        <h2 class="kpi-value"
+            th:text="${totalLeads != null and totalLeads > 0 and approvedLeads != null}
+                      ? #numbers.formatDecimal(approvedLeads * 100.0 / totalLeads, 1, 1) + '%'
+                      : '0%'">0%</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-percent"></i> Lead to deal</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-percent"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Pending</p><h2 class="kpi-value" th:text="${pendingLeads ?: 0}">0</h2><span class="kpi-change kpi-warn"><i class="fas fa-clock"></i> In review</span></div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+  </section>
+
+  <!-- Conversion Funnel -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-chart-bar" style="color:var(--primary)"></i> Conversion Funnel</h3>
+    </div>
+    <div class="pipeline-stages">
+      <div class="pipeline-stage">
+        <div class="ps-header"><span class="ps-label">Total Leads</span><span class="ps-count" th:text="${totalLeads ?: 0}">0</span></div>
+        <div class="ps-bar-bg"><div class="ps-bar-fill" style="width:100%;background:var(--primary)"></div></div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="ps-header"><span class="ps-label">Approved</span><span class="ps-count" th:text="${approvedLeads ?: 0}">0</span></div>
+        <div class="ps-bar-bg">
+          <div class="ps-bar-fill"
+               th:style="${totalLeads != null and totalLeads > 0 and approvedLeads != null}
+                          ? 'width:' + (approvedLeads * 100 / totalLeads) + '%;background:#22c55e'
+                          : 'width:0%;background:#22c55e'"></div>
+        </div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="ps-header"><span class="ps-label">Pending</span><span class="ps-count" th:text="${pendingLeads ?: 0}">0</span></div>
+        <div class="ps-bar-bg">
+          <div class="ps-bar-fill"
+               th:style="${totalLeads != null and totalLeads > 0 and pendingLeads != null}
+                          ? 'width:' + (pendingLeads * 100 / totalLeads) + '%;background:var(--orange)'
+                          : 'width:0%;background:var(--orange)'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

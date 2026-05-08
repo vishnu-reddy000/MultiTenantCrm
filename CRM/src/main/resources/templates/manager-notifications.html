@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Notifications', 'notifications', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Manager</div>
+      <h1 class="page-title">Notifications</h1>
+      <p class="page-subtitle">Stay updated on team activity and lead status changes</p>
+    </div>
+    <div class="ph-right">
+      <button class="btn-add-lead" style="background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:none">
+        <i class="fas fa-check-double"></i> Mark All Read
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification List -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-bell" style="color:var(--primary)"></i> Recent Notifications</h3>
+    </div>
+
+    <!-- Sample notifications -->
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div style="display:flex;align-items:flex-start;gap:.85rem;padding:1rem;border-bottom:1px solid var(--border);background:#f0f9ff;position:relative">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);border-radius:0 2px 2px 0"></div>
+        <div style="width:38px;height:38px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#1d4ed8"><i class="fas fa-circle-check"></i></div>
+        <div style="flex:1">
+          <div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:2px">Lead Approved</div>
+          <div style="font-size:.74rem;color:var(--muted)">Admin approved a lead from your team. Check the pipeline for updates.</div>
+          <div style="font-size:.66rem;color:var(--muted-2);margin-top:4px"><i class="fas fa-clock"></i> Just now</div>
+        </div>
+        <span style="font-size:.65rem;font-weight:600;padding:.2rem .6rem;border-radius:99px;background:#dbeafe;color:#1d4ed8">New</span>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:.85rem;padding:1rem;border-bottom:1px solid var(--border)">
+        <div style="width:38px;height:38px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#d97706"><i class="fas fa-hourglass-half"></i></div>
+        <div style="flex:1">
+          <div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:2px">Lead Pending Review</div>
+          <div style="font-size:.74rem;color:var(--muted)">A lead submitted by your team is awaiting admin approval.</div>
+          <div style="font-size:.66rem;color:var(--muted-2);margin-top:4px"><i class="fas fa-clock"></i> 1 hour ago</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:.85rem;padding:1rem">
+        <div style="width:38px;height:38px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#7c3aed"><i class="fas fa-handshake"></i></div>
+        <div style="flex:1">
+          <div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:2px">Deal Converted</div>
+          <div style="font-size:.74rem;color:var(--muted)">A lead has been successfully converted to a deal.</div>
+          <div style="font-size:.66rem;color:var(--muted-2);margin-top:4px"><i class="fas fa-clock"></i> 3 hours ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

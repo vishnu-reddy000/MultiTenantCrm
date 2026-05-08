@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Assigned Leads', 'assigned-leads', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Lead Management</div>
+      <h1 class="page-title">Assigned Leads</h1>
+      <p class="page-subtitle">All leads assigned to your team</p>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Total Leads</p>
+        <h2 class="kpi-value" th:text="${totalLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-funnel-dollar"></i> All leads</span>
+      </div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-list"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Approved</p>
+        <h2 class="kpi-value" th:text="${approvedCount ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-circle-check"></i> Approved</span>
+      </div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Pending</p>
+        <h2 class="kpi-value" th:text="${pendingCount ?: 0}">0</h2>
+        <span class="kpi-change kpi-warn"><i class="fas fa-clock"></i> Awaiting review</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Conversion Rate</p>
+        <h2 class="kpi-value">—</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-chart-line"></i> Track progress</span>
+      </div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-percent"></i></div>
+    </div>
+  </section>
+
+  <!-- Leads Table -->
+  <div class="card card--table" style="margin-top:1.2rem">
+    <div class="table-head">
+      <h3 class="card-title"><i class="fas fa-funnel-dollar" style="color:var(--primary)"></i> Lead List</h3>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Lead Name</th>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Value (₹)</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:if="${leads == null or leads.isEmpty()}">
+            <td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No leads found.</td>
+          </tr>
+          <tr th:each="lead : ${leads}">
+            <td class="cell-name" th:text="${lead.customerName ?: '—'}">—</td>
+            <td th:text="${lead.company ?: '—'}">—</td>
+            <td th:text="${lead.contactEmail ?: '—'}">—</td>
+            <td th:text="${lead.dealValue != null ? '₹' + lead.dealValue : '—'}">—</td>
+            <td>
+              <span class="status-badge sb-approved" th:if="${lead.status?.name() == 'APPROVED'}">Approved</span>
+              <span class="status-badge sb-pending"  th:if="${lead.status?.name() == 'PENDING'}">Pending</span>
+              <span class="status-badge sb-rejected" th:if="${lead.status?.name() == 'REJECTED'}">Rejected</span>
+            </td>
+            <td th:text="${lead.assignedTo?.name ?: 'Unassigned'}">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+</html>

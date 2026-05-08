@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Stage Monitoring', 'stage-monitoring', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Sales Pipeline</div>
+      <h1 class="page-title">Stage Monitoring</h1>
+      <p class="page-subtitle">Track leads across each stage of the sales pipeline</p>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Total Leads</p>
+        <h2 class="kpi-value" th:text="${totalLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-list"></i> In pipeline</span>
+      </div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-funnel-dollar"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Approved</p>
+        <h2 class="kpi-value" th:text="${approvedLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-check"></i> Closed won</span>
+      </div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Active Stages</p>
+        <h2 class="kpi-value">4</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-sitemap"></i> Pipeline stages</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-sitemap"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Avg Stage Time</p>
+        <h2 class="kpi-value">—</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-clock"></i> Days per stage</span>
+      </div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-clock"></i></div>
+    </div>
+  </section>
+
+  <!-- Stage Breakdown -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-sitemap" style="color:var(--primary)"></i> Stage Breakdown</h3>
+    </div>
+    <div class="pipeline-stages">
+      <div class="pipeline-stage" th:each="stage,i : ${ {'Prospecting','Qualification','Proposal','Negotiation','Closing'} }">
+        <div class="ps-header">
+          <span class="ps-label" th:text="${stage}">Stage</span>
+          <span class="ps-count">— leads</span>
+        </div>
+        <div class="ps-bar-bg">
+          <div class="ps-bar-fill"
+               th:style="${i.index == 0} ? 'width:80%;background:var(--primary)' :
+                          (${i.index == 1} ? 'width:60%;background:var(--secondary)' :
+                          (${i.index == 2} ? 'width:45%;background:var(--orange)' :
+                          (${i.index == 3} ? 'width:30%;background:var(--peach)' : 'width:15%;background:#22c55e')))"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

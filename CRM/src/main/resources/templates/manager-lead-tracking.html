@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Lead Tracking', 'lead-tracking', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Lead Management</div>
+      <h1 class="page-title">Lead Tracking</h1>
+      <p class="page-subtitle">Track the progress of every lead through the pipeline</p>
+    </div>
+  </div>
+
+  <!-- Status Summary -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Total Leads</p>
+        <h2 class="kpi-value" th:text="${totalLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-list"></i> All leads</span>
+      </div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-funnel-dollar"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Approved</p>
+        <h2 class="kpi-value" th:text="${approvedLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-check"></i> Converted</span>
+      </div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Pending</p>
+        <h2 class="kpi-value" th:text="${pendingLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-warn"><i class="fas fa-clock"></i> In review</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">In Progress</p>
+        <h2 class="kpi-value">Active</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-route"></i> Being tracked</span>
+      </div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-route"></i></div>
+    </div>
+  </section>
+
+  <!-- Tracking Table -->
+  <div class="card card--table" style="margin-top:1.2rem">
+    <div class="table-head">
+      <h3 class="card-title"><i class="fas fa-route" style="color:var(--primary)"></i> Lead Progress Tracker</h3>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Lead Name</th>
+            <th>Company</th>
+            <th>Value (₹)</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:if="${leads == null or leads.isEmpty()}">
+            <td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No leads to track.</td>
+          </tr>
+          <tr th:each="lead : ${leads}">
+            <td class="cell-name" th:text="${lead.customerName ?: '—'}">—</td>
+            <td th:text="${lead.company ?: '—'}">—</td>
+            <td th:text="${lead.dealValue != null ? '₹' + lead.dealValue : '—'}">—</td>
+            <td>
+              <span class="status-badge sb-approved" th:if="${lead.status?.name() == 'APPROVED'}">Approved</span>
+              <span class="status-badge sb-pending"  th:if="${lead.status?.name() == 'PENDING'}">Pending</span>
+              <span class="status-badge sb-rejected" th:if="${lead.status?.name() == 'REJECTED'}">Rejected</span>
+            </td>
+            <td th:text="${lead.assignedTo?.name ?: 'Unassigned'}">—</td>
+            <td>
+              <div class="prob-wrap">
+                <div class="prob-bar-bg">
+                  <div class="prob-bar-fill"
+                       th:style="${lead.status?.name() == 'APPROVED'} ? 'width:100%' : (${lead.status?.name() == 'PENDING'} ? 'width:50%' : 'width:10%')"></div>
+                </div>
+                <span class="prob-txt"
+                      th:text="${lead.status?.name() == 'APPROVED'} ? '100%' : (${lead.status?.name() == 'PENDING'} ? '50%' : '10%')">—</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+</html>

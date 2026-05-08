@@ -24,10 +24,11 @@
 	--text-sm: #334155;
 
 	/* Sidebar */
-	--sidebar-bg: #0F172A;
+	--sidebar-bg: #1E293B;
 	--sidebar-text: #94A3B8;
-	--sidebar-hover: #1E293B;
-	--sidebar-active: #667EEA;
+	--sidebar-hover: #334155;
+	--sidebar-active: rgba(102, 126, 234, 0.18);
+	--sidebar-active-text: #a5b4fc;
 
 	/* Accent colors */
 	--blue: #667EEA;
@@ -115,8 +116,8 @@ svg {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	padding: 20px 18px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	padding: 16px 18px 14px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 	flex-shrink: 0;
 }
 
@@ -193,7 +194,7 @@ svg {
 
 .nav-item.active {
 	background: var(--sidebar-active);
-	color: #fff;
+	color: var(--sidebar-active-text);
 	font-weight: 600;
 }
 

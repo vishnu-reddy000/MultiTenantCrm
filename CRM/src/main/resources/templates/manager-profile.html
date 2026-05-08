@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Profile', 'profile', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Manager</div>
+      <h1 class="page-title">Profile</h1>
+      <p class="page-subtitle">Manage your account information and preferences</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:1.2rem;margin-top:1.2rem;align-items:start">
+
+    <!-- Profile Card -->
+    <div class="card" style="text-align:center">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#667EEA,#764BA2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2rem;font-weight:700;color:#fff">
+        <span th:text="${#authentication?.name?.substring(0,1)?.toUpperCase() ?: 'M'}">M</span>
+      </div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text)" th:text="${#authentication?.name ?: 'Manager'}">Manager</div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:.25rem">Manager</div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.4rem 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted)">Role</span><span style="font-weight:600;color:var(--text)">Manager</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.4rem 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--muted)">Status</span>
+          <span style="font-weight:600;color:#22c55e"><i class="fas fa-circle" style="font-size:.5rem"></i> Active</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.4rem 0">
+          <span style="color:var(--muted)">Portal</span><span style="font-weight:600;color:var(--text)">Manager</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title"><i class="fas fa-user-pen" style="color:var(--primary)"></i> Account Details</h3>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-row">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" th:value="${#authentication?.name ?: ''}" placeholder="Your full name">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" th:value="${#authentication?.name ?: ''}" placeholder="Username" readonly style="background:var(--bg)">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="your@email.com">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-input" placeholder="+91 00000 00000">
+        </div>
+        <div class="form-row" style="grid-column:1/-1">
+          <label class="form-label">New Password</label>
+          <input type="password" class="form-input" placeholder="Leave blank to keep current password">
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <button class="btn-add-lead"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+</html>

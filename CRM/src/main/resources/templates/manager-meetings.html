@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Meetings', 'meetings', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Activities</div>
+      <h1 class="page-title">Meetings</h1>
+      <p class="page-subtitle">Schedule and track all team meetings</p>
+    </div>
+    <div class="ph-right">
+      <button class="btn-add-lead" onclick="document.getElementById('scheduleMeetingModal').classList.remove('hidden')">
+        <i class="fas fa-plus"></i> Schedule Meeting
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Total Meetings</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-calendar"></i> This month</span></div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-calendar-check"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Upcoming</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-clock"></i> Scheduled</span></div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-calendar-plus"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Completed</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-check"></i> Done</span></div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Cancelled</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-warn"><i class="fas fa-ban"></i> Cancelled</span></div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-calendar-xmark"></i></div>
+    </div>
+  </section>
+
+  <!-- Meetings Table -->
+  <div class="card card--table" style="margin-top:1.2rem">
+    <div class="table-head">
+      <h3 class="card-title"><i class="fas fa-calendar-check" style="color:var(--primary)"></i> Meeting Schedule</h3>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Title</th><th>Attendees</th><th>Date &amp; Time</th><th>Location</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" style="text-align:center;padding:2.5rem;color:var(--muted)">
+            <i class="fas fa-calendar-check" style="font-size:1.5rem;display:block;margin-bottom:.5rem;color:var(--muted-2)"></i>
+            No meetings scheduled. Click "Schedule Meeting" to add one.
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Schedule Meeting Modal -->
+  <div class="modal-overlay hidden" id="scheduleMeetingModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Schedule a Meeting</h3>
+        <button class="modal-close" onclick="document.getElementById('scheduleMeetingModal').classList.add('hidden')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row"><label class="form-label">Meeting Title</label><input type="text" class="form-input" placeholder="e.g. Q2 Pipeline Review"></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Date</label><input type="date" class="form-input"></div>
+          <div class="form-row"><label class="form-label">Time</label><input type="time" class="form-input"></div>
+        </div>
+        <div class="form-row"><label class="form-label">Location / Link</label><input type="text" class="form-input" placeholder="Room or video link"></div>
+        <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" rows="3" placeholder="Agenda…" style="resize:vertical"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('scheduleMeetingModal').classList.add('hidden')">Cancel</button>
+        <button class="btn btn-primary" onclick="document.getElementById('scheduleMeetingModal').classList.add('hidden')"><i class="fas fa-save"></i> Save Meeting</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

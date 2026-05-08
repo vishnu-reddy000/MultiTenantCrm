@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Calls', 'calls', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Activities</div>
+      <h1 class="page-title">Calls</h1>
+      <p class="page-subtitle">Track and manage all team call activities</p>
+    </div>
+    <div class="ph-right">
+      <button class="btn-add-lead" onclick="document.getElementById('logCallModal').classList.remove('hidden')">
+        <i class="fas fa-plus"></i> Log Call
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Total Calls</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-phone"></i> This month</span></div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-phone-alt"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Connected</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-check"></i> Answered</span></div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-phone-volume"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Missed</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-warn"><i class="fas fa-phone-slash"></i> No answer</span></div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-phone-slash"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body"><p class="kpi-label">Avg Duration</p><h2 class="kpi-value">—</h2><span class="kpi-change kpi-up"><i class="fas fa-clock"></i> Per call</span></div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-stopwatch"></i></div>
+    </div>
+  </section>
+
+  <!-- Calls Table -->
+  <div class="card card--table" style="margin-top:1.2rem">
+    <div class="table-head">
+      <h3 class="card-title"><i class="fas fa-phone-alt" style="color:var(--primary)"></i> Call Log</h3>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Contact</th><th>Lead</th><th>Duration</th><th>Status</th><th>Date</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--muted)">
+            <i class="fas fa-phone-alt" style="font-size:1.5rem;display:block;margin-bottom:.5rem;color:var(--muted-2)"></i>
+            No calls logged yet. Click "Log Call" to add one.
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Log Call Modal -->
+  <div class="modal-overlay hidden" id="logCallModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Log a Call</h3>
+        <button class="modal-close" onclick="document.getElementById('logCallModal').classList.add('hidden')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row"><label class="form-label">Contact Name</label><input type="text" class="form-input" placeholder="Who did you call?"></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Duration (mins)</label><input type="number" class="form-input" placeholder="0"></div>
+          <div class="form-row"><label class="form-label">Status</label>
+            <select class="form-input"><option>Connected</option><option>Missed</option><option>Voicemail</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label class="form-label">Notes</label><textarea class="form-input" rows="3" placeholder="Call summary…" style="resize:vertical"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('logCallModal').classList.add('hidden')">Cancel</button>
+        <button class="btn btn-primary" onclick="document.getElementById('logCallModal').classList.add('hidden')"><i class="fas fa-save"></i> Save Call</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

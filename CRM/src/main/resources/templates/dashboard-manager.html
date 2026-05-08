@@ -10,7 +10,8 @@
 		href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d9488'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EM%3C/text%3E%3C/svg%3E" />
 
 	<!-- CSRF token for JS-driven logout POST -->
-	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf"        th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
 	<link rel="stylesheet" th:href="@{/dashboard-manager.css}" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -174,80 +175,124 @@
 		<aside class="sidebar" id="sidebar">
 			<div class="nav-group">
 				<div class="nav-item active">
-					<a href="#" class="nav-row" data-tooltip="Overview">
+					<a th:href="@{/manager/dashboard}" class="nav-row" data-tooltip="Dashboard">
 						<span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-						<span class="nav-label">Overview</span>
+						<span class="nav-label">Dashboard</span>
 					</a>
 				</div>
+
+				<!-- Team -->
 				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Leads" onclick="showSection('leads')">
-						<span class="nav-icon"><i class="fas fa-funnel-dollar"></i></span>
-						<span class="nav-label">My Leads</span>
-						<span class="nav-badge">12</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Deals">
-						<span class="nav-icon"><i class="fas fa-handshake"></i></span>
-						<span class="nav-label">Deals</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Pending Approval">
-						<span class="nav-icon"><i class="fas fa-clock"></i></span>
-						<span class="nav-label">Pending</span>
-						<span class="nav-badge nav-badge-warn">3</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Contacts">
-						<span class="nav-icon"><i class="fas fa-address-book"></i></span>
-						<span class="nav-label">Contacts</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="My Team">
+					<a th:href="@{/manager/team/overview}" class="nav-row" data-tooltip="Team Overview">
 						<span class="nav-icon"><i class="fas fa-users"></i></span>
-						<span class="nav-label">My Team</span>
+						<span class="nav-label">Team Overview</span>
 					</a>
 				</div>
 				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Tasks">
-						<span class="nav-icon"><i class="fas fa-list-check"></i></span>
-						<span class="nav-label">Tasks</span>
+					<a th:href="@{/manager/team/sales}" class="nav-row" data-tooltip="Sales Team">
+						<span class="nav-icon"><i class="fas fa-user-tie"></i></span>
+						<span class="nav-label">Sales Team</span>
+					</a>
+				</div>
+
+				<!-- Lead Management -->
+				<div class="nav-item">
+					<a th:href="@{/manager/leads/assigned}" class="nav-row" data-tooltip="Assigned Leads">
+						<span class="nav-icon"><i class="fas fa-funnel-dollar"></i></span>
+						<span class="nav-label">Assigned Leads</span>
+						<span class="nav-badge" th:text="${totalLeads ?: 0}">0</span>
 					</a>
 				</div>
 				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Meetings">
-						<span class="nav-icon"><i class="fas fa-video"></i></span>
+					<a th:href="@{/manager/leads/tracking}" class="nav-row" data-tooltip="Lead Tracking">
+						<span class="nav-icon"><i class="fas fa-route"></i></span>
+						<span class="nav-label">Lead Tracking</span>
+					</a>
+				</div>
+
+				<!-- Sales Pipeline -->
+				<div class="nav-item">
+					<a th:href="@{/manager/pipeline/deals}" class="nav-row" data-tooltip="Deal Tracking">
+						<span class="nav-icon"><i class="fas fa-handshake"></i></span>
+						<span class="nav-label">Deal Tracking</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a th:href="@{/manager/pipeline/stages}" class="nav-row" data-tooltip="Stage Monitoring">
+						<span class="nav-icon"><i class="fas fa-sitemap"></i></span>
+						<span class="nav-label">Stage Monitoring</span>
+					</a>
+				</div>
+
+				<!-- Activities -->
+				<div class="nav-item">
+					<a th:href="@{/manager/activities/calls}" class="nav-row" data-tooltip="Calls">
+						<span class="nav-icon"><i class="fas fa-phone-alt"></i></span>
+						<span class="nav-label">Calls</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a th:href="@{/manager/activities/meetings}" class="nav-row" data-tooltip="Meetings">
+						<span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
 						<span class="nav-label">Meetings</span>
 					</a>
 				</div>
 				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Reports">
-						<span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
-						<span class="nav-label">Reports</span>
+					<a th:href="@{/manager/activities/followups}" class="nav-row" data-tooltip="Follow-ups">
+						<span class="nav-icon"><i class="fas fa-redo-alt"></i></span>
+						<span class="nav-label">Follow-ups</span>
+					</a>
+				</div>
+
+				<!-- Reports -->
+				<div class="nav-item">
+					<a th:href="@{/manager/reports/performance}" class="nav-row" data-tooltip="Team Performance">
+						<span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+						<span class="nav-label">Team Performance</span>
 					</a>
 				</div>
 				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Calendar">
+					<a th:href="@{/manager/reports/revenue}" class="nav-row" data-tooltip="Revenue">
+						<span class="nav-icon"><i class="fas fa-dollar-sign"></i></span>
+						<span class="nav-label">Revenue</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a th:href="@{/manager/reports/conversion}" class="nav-row" data-tooltip="Conversion Reports">
+						<span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+						<span class="nav-label">Conversion Reports</span>
+					</a>
+				</div>
+
+				<!-- System -->
+				<div class="nav-item">
+					<a th:href="@{/manager/calendar}" class="nav-row" data-tooltip="Calendar">
 						<span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
 						<span class="nav-label">Calendar</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a th:href="@{/manager/notifications}" class="nav-row" data-tooltip="Notifications">
+						<span class="nav-icon"><i class="fas fa-bell"></i></span>
+						<span class="nav-label">Notifications</span>
+					</a>
+				</div>
+				<div class="nav-item">
+					<a th:href="@{/manager/profile}" class="nav-row" data-tooltip="Profile">
+						<span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+						<span class="nav-label">Profile</span>
 					</a>
 				</div>
 			</div>
 
 			<div class="sidebar-footer">
-				<div class="nav-item" style="margin-bottom:0.5rem">
-					<a href="#" class="nav-row" data-tooltip="Settings">
-						<span class="nav-icon"><i class="fas fa-gear"></i></span>
-						<span class="nav-label">Settings</span>
-					</a>
-				</div>
-				<button class="logout-btn" onclick="confirmLogout()">
-					<i class="fas fa-arrow-right-from-bracket"></i>
-					<span class="logout-text">Logout</span>
-				</button>
+				<form th:action="@{/logout}" method="post" style="width:100%">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<button type="submit" class="logout-btn">
+						<i class="fas fa-arrow-right-from-bracket"></i>
+						<span class="logout-text">Logout</span>
+					</button>
+				</form>
 			</div>
 		</aside>
 

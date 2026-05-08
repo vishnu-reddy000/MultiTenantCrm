@@ -44,6 +44,7 @@ public class SecurityConfig {
 				.requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
 				.requestMatchers("/api/manager/**").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER")
 				.requestMatchers("/dashboard/manager").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER")
+				.requestMatchers("/manager/**").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER")
 				.requestMatchers("/sales/**").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER", "SALES_EXECUTIVE")
 				.requestMatchers("/dashboard/sales-executive").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER", "SALES_EXECUTIVE")
 				.requestMatchers("/user/**").hasAnyRole("SUPER_ADMIN", "ADMIN", "MANAGER", "USER", "SALES_EXECUTIVE")

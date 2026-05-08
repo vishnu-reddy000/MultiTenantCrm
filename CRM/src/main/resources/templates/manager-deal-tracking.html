@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Deal Tracking', 'deal-tracking', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Sales Pipeline</div>
+      <h1 class="page-title">Deal Tracking</h1>
+      <p class="page-subtitle">Monitor all active deals and their progress</p>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <section class="kpi-grid" style="margin-top:1.2rem">
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Total Deal Value</p>
+        <h2 class="kpi-value" th:text="${approvedValue != null ? '₹' + approvedValue : '₹0'}">₹0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i> Pipeline value</span>
+      </div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-sack-dollar"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Approved Deals</p>
+        <h2 class="kpi-value" th:text="${approvedLeads ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-handshake"></i> Closed</span>
+      </div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-handshake"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Win Rate</p>
+        <h2 class="kpi-value">—</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-trophy"></i> Track wins</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-trophy"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Avg Deal Size</p>
+        <h2 class="kpi-value">—</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-chart-bar"></i> Per deal</span>
+      </div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-chart-bar"></i></div>
+    </div>
+  </section>
+
+  <!-- Pipeline Stages Visual -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-sitemap" style="color:var(--primary)"></i> Pipeline Stages</h3>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+      <div th:each="stage,i : ${ {'Prospecting','Qualification','Proposal','Closing'} }"
+           style="padding:1rem;background:var(--bg);border-radius:var(--r-sm);text-align:center;border-top:3px solid var(--primary)">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem" th:text="${stage}">Stage</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--text)">—</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.25rem">deals</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-bolt" style="color:var(--peach)"></i> Quick Actions</h3>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a th:href="@{/manager/pipeline/stages}" class="btn-add-lead" style="text-decoration:none">
+        <i class="fas fa-sitemap"></i> Stage Monitoring
+      </a>
+      <a th:href="@{/manager/reports/revenue}" class="btn-add-lead" style="text-decoration:none;background:linear-gradient(135deg,var(--secondary),#9b6fc4)">
+        <i class="fas fa-dollar-sign"></i> Revenue Report
+      </a>
+    </div>
+  </div>
+
+</section>
+</html>

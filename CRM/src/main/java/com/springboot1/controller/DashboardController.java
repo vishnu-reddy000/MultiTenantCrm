@@ -23,7 +23,7 @@ public class DashboardController {
 
 	@GetMapping("/dashboard/manager")
 	public String managerDashboard() {
-		return "dashboard-manager"; // → templates/dashboard-manager.html
+		return "redirect:/manager/dashboard";
 	}
 
 	@GetMapping("/dashboard/sales-executive")

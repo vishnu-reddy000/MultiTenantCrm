@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Team Overview', 'team-overview', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Manager</div>
+      <h1 class="page-title">Team Overview</h1>
+      <p class="page-subtitle">Monitor your team's structure and performance at a glance</p>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Total Managers</p>
+        <h2 class="kpi-value" th:text="${totalManagers ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-users"></i> Active</span>
+      </div>
+      <div class="kpi-icon kpi-icon-1"><i class="fas fa-user-shield"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Sales Executives</p>
+        <h2 class="kpi-value" th:text="${totalSalesExecs ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-chart-line"></i> On team</span>
+      </div>
+      <div class="kpi-icon kpi-icon-2"><i class="fas fa-user-tie"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Active Employees</p>
+        <h2 class="kpi-value" th:text="${activeEmployees ?: 0}">0</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-circle-check"></i> Online now</span>
+      </div>
+      <div class="kpi-icon kpi-icon-3"><i class="fas fa-users-gear"></i></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-body">
+        <p class="kpi-label">Team Health</p>
+        <h2 class="kpi-value">Good</h2>
+        <span class="kpi-change kpi-up"><i class="fas fa-heart-pulse"></i> All systems go</span>
+      </div>
+      <div class="kpi-icon kpi-icon-4"><i class="fas fa-trophy"></i></div>
+    </div>
+  </section>
+
+  <!-- Team Summary Card -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-users" style="color:var(--primary)"></i> Team Structure</h3>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem">
+      <div style="padding:1.2rem;background:var(--bg);border-radius:var(--r-sm);text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--primary)" th:text="${totalManagers ?: 0}">0</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem">Managers</div>
+      </div>
+      <div style="padding:1.2rem;background:var(--bg);border-radius:var(--r-sm);text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--secondary)" th:text="${totalSalesExecs ?: 0}">0</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem">Sales Executives</div>
+      </div>
+      <div style="padding:1.2rem;background:var(--bg);border-radius:var(--r-sm);text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:#22c55e" th:text="${activeEmployees ?: 0}">0</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem">Active Members</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-bolt" style="color:var(--peach)"></i> Quick Actions</h3>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a th:href="@{/manager/team/sales}" class="btn-add-lead" style="text-decoration:none">
+        <i class="fas fa-user-tie"></i> View Sales Team
+      </a>
+      <a th:href="@{/manager/reports/performance}" class="btn-add-lead" style="text-decoration:none;background:linear-gradient(135deg,var(--secondary),#9b6fc4)">
+        <i class="fas fa-chart-line"></i> Performance Report
+      </a>
+    </div>
+  </div>
+
+</section>
+</html>

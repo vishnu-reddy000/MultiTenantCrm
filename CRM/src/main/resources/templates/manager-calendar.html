@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/manager-layout :: layout('Calendar', 'calendar', ~{::section})}">
+<section>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-eyebrow">Manager</div>
+      <h1 class="page-title">Calendar</h1>
+      <p class="page-subtitle">View and manage your schedule and team events</p>
+    </div>
+    <div class="ph-right">
+      <button class="btn-add-lead" onclick="document.getElementById('addEventModal').classList.remove('hidden')">
+        <i class="fas fa-plus"></i> Add Event
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Card -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-calendar-alt" style="color:var(--primary)"></i> May 2026</h3>
+      <div style="display:flex;gap:.5rem">
+        <button class="icon-btn"><i class="fas fa-chevron-left"></i></button>
+        <button class="icon-btn"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center">
+      <!-- Day headers -->
+      <div th:each="day : ${ {'Sun','Mon','Tue','Wed','Thu','Fri','Sat'} }"
+           style="padding:.5rem;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em"
+           th:text="${day}">Day</div>
+      <!-- Empty cells for May 2026 (starts Friday) -->
+      <div th:each="i : ${#numbers.sequence(1,5)}" style="padding:.6rem;min-height:60px"></div>
+      <!-- Days 1-31 -->
+      <div th:each="d : ${#numbers.sequence(1,31)}"
+           th:style="${d == 8} ? 'padding:.6rem;min-height:60px;background:linear-gradient(135deg,#667EEA,#764BA2);border-radius:var(--r-xs);color:#fff;font-weight:700' : 'padding:.6rem;min-height:60px;border-radius:var(--r-xs);cursor:pointer;transition:background .15s'"
+           style="padding:.6rem;min-height:60px;border-radius:var(--r-xs);cursor:pointer">
+        <div style="font-size:.78rem;font-weight:600" th:text="${d}">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Events -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head">
+      <h3 class="card-title"><i class="fas fa-clock" style="color:var(--secondary)"></i> Upcoming Events</h3>
+    </div>
+    <div style="text-align:center;padding:2rem;color:var(--muted)">
+      <i class="fas fa-calendar-alt" style="font-size:1.5rem;display:block;margin-bottom:.5rem;color:var(--muted-2)"></i>
+      No upcoming events. Click "Add Event" to schedule one.
+    </div>
+  </div>
+
+  <!-- Add Event Modal -->
+  <div class="modal-overlay hidden" id="addEventModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Add Event</h3>
+        <button class="modal-close" onclick="document.getElementById('addEventModal').classList.add('hidden')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row"><label class="form-label">Event Title</label><input type="text" class="form-input" placeholder="e.g. Team Standup"></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Date</label><input type="date" class="form-input"></div>
+          <div class="form-row"><label class="form-label">Time</label><input type="time" class="form-input"></div>
+        </div>
+        <div class="form-row"><label class="form-label">Description</label><textarea class="form-input" rows="3" placeholder="Event details…" style="resize:vertical"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('addEventModal').classList.add('hidden')">Cancel</button>
+        <button class="btn btn-primary" onclick="document.getElementById('addEventModal').classList.add('hidden')"><i class="fas fa-save"></i> Save Event</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+</html>

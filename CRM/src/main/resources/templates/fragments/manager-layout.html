@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!--
+  Manager Layout Fragment
+  Usage: th:replace="~{fragments/manager-layout :: layout('Page Title', 'active-nav-key', ~{::section})}"
+  Nav keys: dashboard, team-overview, sales-team,
+            assigned-leads, lead-tracking,
+            deal-tracking, stage-monitoring,
+            calls, meetings, followups,
+            team-performance, revenue, conversion-reports,
+            calendar, notifications, profile
+-->
+
+<th:block th:fragment="layout(pageTitle, activeNav, content)">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle} + ' | CRMS — Manager'">Manager | CRMS</title>
+  <meta name="_csrf"        th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23667EEA'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='18' font-weight='bold' text-anchor='middle' fill='white'%3EM%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" th:href="@{/dashboard-manager.css}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ═══════════════════ TOPBAR ═══════════════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a th:href="@{/manager/dashboard}" class="brand">
+      <div class="brand-icon"><i class="fas fa-users-gear"></i></div>
+      <span class="brand-name">CRMS</span>
+    </a>
+    <button class="sidebar-collapse-btn" id="sidebarToggle" title="Toggle sidebar">
+      <i class="fas fa-chevron-left" id="toggleIcon"></i>
+    </button>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search-box">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="text" th:placeholder="'Search ' + ${pageTitle} + '…'" />
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <a th:href="@{/manager/notifications}" class="tb-btn" title="Notifications" style="position:relative">
+      <i class="fas fa-bell"></i>
+    </a>
+    <div class="tb-divider"></div>
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar"><span class="user-dot"></span></div>
+      <div class="user-info">
+        <span class="user-name" th:text="${#authentication?.name ?: 'Manager'}">Manager</span>
+        <span class="user-role">Manager</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout" id="layout">
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-group">
+
+      <!-- ── Main ── -->
+      <div th:class="${activeNav=='dashboard'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/dashboard}" class="nav-row" data-tooltip="Dashboard">
+          <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+      </div>
+
+      <!-- ── Team Overview ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">Team</div>
+
+      <div th:class="${activeNav=='team-overview'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/team/overview}" class="nav-row" data-tooltip="Team Overview">
+          <span class="nav-icon"><i class="fas fa-users"></i></span>
+          <span class="nav-label">Team Overview</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='sales-team'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/team/sales}" class="nav-row" data-tooltip="Sales Team">
+          <span class="nav-icon"><i class="fas fa-user-tie"></i></span>
+          <span class="nav-label">Sales Team</span>
+        </a>
+      </div>
+
+      <!-- ── Lead Management ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">Lead Management</div>
+
+      <div th:class="${activeNav=='assigned-leads'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/leads/assigned}" class="nav-row" data-tooltip="Assigned Leads">
+          <span class="nav-icon"><i class="fas fa-funnel-dollar"></i></span>
+          <span class="nav-label">Assigned Leads</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='lead-tracking'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/leads/tracking}" class="nav-row" data-tooltip="Lead Tracking">
+          <span class="nav-icon"><i class="fas fa-route"></i></span>
+          <span class="nav-label">Lead Tracking</span>
+        </a>
+      </div>
+
+      <!-- ── Sales Pipeline ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">Sales Pipeline</div>
+
+      <div th:class="${activeNav=='deal-tracking'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/pipeline/deals}" class="nav-row" data-tooltip="Deal Tracking">
+          <span class="nav-icon"><i class="fas fa-handshake"></i></span>
+          <span class="nav-label">Deal Tracking</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='stage-monitoring'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/pipeline/stages}" class="nav-row" data-tooltip="Stage Monitoring">
+          <span class="nav-icon"><i class="fas fa-sitemap"></i></span>
+          <span class="nav-label">Stage Monitoring</span>
+        </a>
+      </div>
+
+      <!-- ── Activities ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">Activities</div>
+
+      <div th:class="${activeNav=='calls'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/activities/calls}" class="nav-row" data-tooltip="Calls">
+          <span class="nav-icon"><i class="fas fa-phone-alt"></i></span>
+          <span class="nav-label">Calls</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='meetings'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/activities/meetings}" class="nav-row" data-tooltip="Meetings">
+          <span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
+          <span class="nav-label">Meetings</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='followups'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/activities/followups}" class="nav-row" data-tooltip="Follow-ups">
+          <span class="nav-icon"><i class="fas fa-redo-alt"></i></span>
+          <span class="nav-label">Follow-ups</span>
+        </a>
+      </div>
+
+      <!-- ── Reports ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">Reports</div>
+
+      <div th:class="${activeNav=='team-performance'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/reports/performance}" class="nav-row" data-tooltip="Team Performance">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+          <span class="nav-label">Team Performance</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='revenue'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/reports/revenue}" class="nav-row" data-tooltip="Revenue">
+          <span class="nav-icon"><i class="fas fa-dollar-sign"></i></span>
+          <span class="nav-label">Revenue</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='conversion-reports'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/reports/conversion}" class="nav-row" data-tooltip="Conversion Reports">
+          <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+          <span class="nav-label">Conversion Reports</span>
+        </a>
+      </div>
+
+      <!-- ── System ── -->
+      <div class="nav-section-label" style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;padding:.75rem 1rem .25rem;">System</div>
+
+      <div th:class="${activeNav=='calendar'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/calendar}" class="nav-row" data-tooltip="Calendar">
+          <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
+          <span class="nav-label">Calendar</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='notifications'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/notifications}" class="nav-row" data-tooltip="Notifications">
+          <span class="nav-icon"><i class="fas fa-bell"></i></span>
+          <span class="nav-label">Notifications</span>
+        </a>
+      </div>
+
+      <div th:class="${activeNav=='profile'} ? 'nav-item active' : 'nav-item'">
+        <a th:href="@{/manager/profile}" class="nav-row" data-tooltip="Profile">
+          <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+          <span class="nav-label">Profile</span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Logout -->
+    <div class="sidebar-footer">
+      <form th:action="@{/logout}" method="post" style="width:100%">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit" class="logout-btn">
+          <i class="fas fa-arrow-right-from-bracket"></i>
+          <span class="logout-text">Logout</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <main class="main">
+
+    <!-- Flash messages -->
+    <div th:if="${success}" style="margin-bottom:1rem;padding:12px 16px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;font-size:.875rem;color:#166534;" th:text="${success}"></div>
+    <div th:if="${error}"   style="margin-bottom:1rem;padding:12px 16px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;font-size:.875rem;color:#991B1B;" th:text="${error}"></div>
+
+    <th:block th:replace="${content}" />
+
+    <footer class="dash-footer">
+      <span>© 2026 <a th:href="@{/manager/dashboard}" style="color:var(--primary)">CRMS</a> — Manager Portal</span>
+      <div class="footer-links">
+        <a th:href="@{/manager/profile}">Profile</a>
+        <a th:href="@{/manager/notifications}">Notifications</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script th:src="@{/dashbaord-manager.js}" th:if="${false}"></script>
+<script>
+  // Sidebar collapse toggle
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const layout        = document.getElementById('layout');
+  const sidebar       = document.getElementById('sidebar');
+  const toggleIcon    = document.getElementById('toggleIcon');
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      layout.classList.toggle('sidebar-collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.className = 'fas fa-chevron-right';
+      } else {
+        toggleIcon.className = 'fas fa-chevron-left';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
+</th:block>
+
+</html>
