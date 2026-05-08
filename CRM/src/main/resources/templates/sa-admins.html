@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Admin Management', 'admins', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Admin Management</h1>
+			<p class="page-subtitle">Manage all administrator accounts across the system</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-primary" onclick="showToast('Feature coming soon','info')"><i class="fas fa-plus"></i> Add Admin</button>
+		</div>
+	</div>
+
+	<!-- Stats Row -->
+	<section class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Admins</p>
+				<h2 class="kpi-value" th:text="${allAdmins != null ? allAdmins.size() : 0}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-user-shield"></i> All roles</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-user-shield"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Users</p>
+				<h2 class="kpi-value" th:text="${totalUsers}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-users"></i> Registered</span>
+			</div>
+			<div class="kpi-icon kpi-icon-2"><i class="fas fa-users"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Active Tenants</p>
+				<h2 class="kpi-value" th:text="${totalTenants}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-building"></i> Organizations</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-building"></i></div>
+		</div>
+	</section>
+
+	<!-- Admins Table -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-user-shield"></i></span>
+				All Administrators
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)" th:text="'Total: ' + (${allAdmins != null ? allAdmins.size() : 0}) + ' accounts'">Total: 0 accounts</span>
+		</div>
+		<div style="overflow-x:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+				<thead>
+					<tr style="border-bottom:1px solid var(--border)">
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">#</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Username</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Email</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Role</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Status</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Created</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(allAdmins)}">
+						<td colspan="6" style="padding:2rem;text-align:center;color:var(--muted)">No administrators found</td>
+					</tr>
+					<tr th:each="user, stat : ${allAdmins}" style="border-bottom:1px solid var(--border)">
+						<td style="padding:.65rem .75rem;color:var(--muted)" th:text="${stat.count}">1</td>
+						<td style="padding:.65rem .75rem">
+							<div style="display:flex;align-items:center;gap:.6rem">
+								<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4CAF50,#0d9488);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0"
+									th:text="${#strings.substring(user.username,0,1).toUpperCase()}">A</div>
+								<span style="font-weight:600;color:var(--text)" th:text="${user.username}">—</span>
+							</div>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2)" th:text="${user.email}">—</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${user.role}"
+								style="background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">
+								ROLE
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${user.status}"
+								th:style="${user.status != null and user.status.name() == 'ACTIVE'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' : 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600'">
+								ACTIVE
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem"
+							th:text="${user.createdAt != null ? #temporals.format(user.createdAt,'dd MMM yyyy') : '—'}">—</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

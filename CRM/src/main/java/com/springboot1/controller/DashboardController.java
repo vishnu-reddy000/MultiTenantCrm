@@ -8,7 +8,7 @@ public class DashboardController {
 
 	@GetMapping("/dashboard/super-admin")
 	public String superAdminDashboard() {
-		return "dashboard-super-admin"; // → templates/dashboard-super-admin.html
+		return "redirect:/super-admin/dashboard";
 	}
 
 	@GetMapping("/dashboard/admin")

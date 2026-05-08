@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Activity Tracking', 'activities', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Activity Tracking</h1>
+			<p class="page-subtitle">Monitor all recent lead and system activities in real time</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-ghost" onclick="showToast('Refreshed','info')"><i class="fas fa-arrows-rotate"></i> Refresh</button>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<section class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Activities</p>
+				<h2 class="kpi-value" th:text="${totalLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-bolt"></i> Lead events</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-bolt"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Approved</p>
+				<h2 class="kpi-value" th:text="${approvedLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-check"></i> Converted</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-check-circle"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Pending</p>
+				<h2 class="kpi-value" th:text="${pendingLeads}">0</h2>
+				<span class="kpi-change" style="color:#FF9800"><i class="fas fa-clock"></i> Awaiting</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(255,152,0,.15);color:#FF9800"><i class="fas fa-clock"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Rejected</p>
+				<h2 class="kpi-value" th:text="${rejectedLeads}">0</h2>
+				<span class="kpi-change" style="color:#E53935"><i class="fas fa-times"></i> Declined</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(229,57,53,.15);color:#E53935"><i class="fas fa-times-circle"></i></div>
+		</div>
+	</section>
+
+	<!-- Activity Feed -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-bolt"></i></span>
+				Recent Activity Feed
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)">Latest lead events</span>
+		</div>
+		<div style="display:flex;flex-direction:column;gap:0">
+			<div th:if="${#lists.isEmpty(allLeads)}" style="padding:2rem;text-align:center;color:var(--muted)">No activity found</div>
+			<div th:each="lead, stat : ${allLeads}" th:if="${stat.index < 20}"
+				style="display:flex;align-items:flex-start;gap:1rem;padding:.85rem .75rem;border-bottom:1px solid var(--border)">
+				<!-- Icon -->
+				<div th:style="${lead.status.name() == 'APPROVED'} ? 'width:36px;height:36px;border-radius:50%;background:rgba(76,175,80,.15);display:flex;align-items:center;justify-content:center;color:#4CAF50;flex-shrink:0' :
+				                (${lead.status.name() == 'REJECTED'} ? 'width:36px;height:36px;border-radius:50%;background:rgba(229,57,53,.15);display:flex;align-items:center;justify-content:center;color:#E53935;flex-shrink:0' :
+				                'width:36px;height:36px;border-radius:50%;background:rgba(255,152,0,.15);display:flex;align-items:center;justify-content:center;color:#FF9800;flex-shrink:0')">
+					<i th:class="${lead.status.name() == 'APPROVED'} ? 'fas fa-check' : (${lead.status.name() == 'REJECTED'} ? 'fas fa-times' : 'fas fa-clock')"></i>
+				</div>
+				<!-- Content -->
+				<div style="flex:1;min-width:0">
+					<div style="font-size:.85rem;font-weight:600;color:var(--text)">
+						Lead <span th:text="${lead.status.name() == 'APPROVED'} ? 'Approved' : (${lead.status.name() == 'REJECTED'} ? 'Rejected' : 'Submitted')">Updated</span>:
+						<span th:text="${lead.customerName}">Customer</span>
+					</div>
+					<div style="font-size:.78rem;color:var(--muted);margin-top:2px">
+						<span th:text="${lead.company ?: 'No company'}">Company</span>
+						&bull; Deal: $<span th:text="${lead.dealValue}">0</span>
+						<span th:if="${lead.createdBy != null}"> &bull; By: <span th:text="${lead.createdBy.name}">—</span></span>
+					</div>
+				</div>
+				<!-- Time -->
+				<div style="font-size:.72rem;color:var(--muted);white-space:nowrap;flex-shrink:0"
+					th:text="${#temporals.format(lead.createdAt,'dd MMM, HH:mm')}">—</div>
+			</div>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

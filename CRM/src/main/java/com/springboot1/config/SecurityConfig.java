@@ -35,6 +35,9 @@ public class SecurityConfig {
 				// (also enforced at method level via @PreAuthorize)
 				.requestMatchers("/super-admin/tenants/**").hasRole("SUPER_ADMIN")
 
+				// ── Super Admin pages — SUPER_ADMIN only ─────────────────────
+				.requestMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
+
 				// ── Role-based page access ───────────────────────────────────
 				.requestMatchers("/dashboard/super-admin").hasRole("SUPER_ADMIN")
 				.requestMatchers("/dashboard/admin").hasAnyRole("SUPER_ADMIN", "ADMIN")

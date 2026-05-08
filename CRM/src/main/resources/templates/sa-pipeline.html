@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Sales Pipeline', 'pipeline', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Sales Pipeline</h1>
+			<p class="page-subtitle">Track leads through each stage of the sales funnel</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-primary" onclick="showToast('Export started','success')"><i class="fas fa-download"></i> Export</button>
+		</div>
+	</div>
+
+	<!-- Pipeline Stage Cards -->
+	<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:1rem">
+
+		<!-- Pending Stage -->
+		<div class="card" style="border-top:3px solid #FF9800">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:700">
+					<span style="width:28px;height:28px;border-radius:6px;background:rgba(255,152,0,.15);display:flex;align-items:center;justify-content:center;color:#FF9800;font-size:.8rem">
+						<i class="fas fa-clock"></i>
+					</span>
+					Pending
+				</h3>
+				<span style="background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600"
+					th:text="${pendingLeads} + ' leads'">0 leads</span>
+			</div>
+			<div style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
+				<div th:if="${#lists.isEmpty(pendingList)}" style="padding:1rem;text-align:center;color:var(--muted);font-size:.8rem">No pending leads</div>
+				<div th:each="lead : ${pendingList}"
+					style="padding:.6rem .75rem;background:var(--bg);border-radius:6px;border-left:3px solid #FF9800">
+					<div style="font-weight:600;font-size:.82rem;color:var(--text)" th:text="${lead.customerName}">—</div>
+					<div style="font-size:.75rem;color:var(--muted);margin-top:2px" th:text="${lead.company ?: 'No company'}">—</div>
+					<div style="font-size:.75rem;color:#4CAF50;font-weight:600;margin-top:2px">$<span th:text="${lead.dealValue}">0</span></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Approved Stage -->
+		<div class="card" style="border-top:3px solid #4CAF50">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:700">
+					<span style="width:28px;height:28px;border-radius:6px;background:rgba(76,175,80,.15);display:flex;align-items:center;justify-content:center;color:#4CAF50;font-size:.8rem">
+						<i class="fas fa-check-circle"></i>
+					</span>
+					Approved
+				</h3>
+				<span style="background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600"
+					th:text="${approvedLeads} + ' leads'">0 leads</span>
+			</div>
+			<div style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
+				<div th:if="${#lists.isEmpty(approvedList)}" style="padding:1rem;text-align:center;color:var(--muted);font-size:.8rem">No approved leads</div>
+				<div th:each="lead : ${approvedList}"
+					style="padding:.6rem .75rem;background:var(--bg);border-radius:6px;border-left:3px solid #4CAF50">
+					<div style="font-weight:600;font-size:.82rem;color:var(--text)" th:text="${lead.customerName}">—</div>
+					<div style="font-size:.75rem;color:var(--muted);margin-top:2px" th:text="${lead.company ?: 'No company'}">—</div>
+					<div style="font-size:.75rem;color:#4CAF50;font-weight:600;margin-top:2px">$<span th:text="${lead.dealValue}">0</span></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Rejected Stage -->
+		<div class="card" style="border-top:3px solid #E53935">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:700">
+					<span style="width:28px;height:28px;border-radius:6px;background:rgba(229,57,53,.15);display:flex;align-items:center;justify-content:center;color:#E53935;font-size:.8rem">
+						<i class="fas fa-times-circle"></i>
+					</span>
+					Rejected
+				</h3>
+				<span style="background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600"
+					th:text="${rejectedLeads} + ' leads'">0 leads</span>
+			</div>
+			<div style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
+				<div th:if="${#lists.isEmpty(rejectedList)}" style="padding:1rem;text-align:center;color:var(--muted);font-size:.8rem">No rejected leads</div>
+				<div th:each="lead : ${rejectedList}"
+					style="padding:.6rem .75rem;background:var(--bg);border-radius:6px;border-left:3px solid #E53935">
+					<div style="font-weight:600;font-size:.82rem;color:var(--text)" th:text="${lead.customerName}">—</div>
+					<div style="font-size:.75rem;color:var(--muted);margin-top:2px" th:text="${lead.company ?: 'No company'}">—</div>
+					<div style="font-size:.75rem;color:#4CAF50;font-weight:600;margin-top:2px">$<span th:text="${lead.dealValue}">0</span></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Full Leads Table -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-sitemap"></i></span>
+				All Pipeline Leads
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)" th:text="'Total: ' + (${allLeads != null ? allLeads.size() : 0}) + ' leads'">Total: 0 leads</span>
+		</div>
+		<div style="overflow-x:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+				<thead>
+					<tr style="border-bottom:1px solid var(--border)">
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">#</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Customer</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Company</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Deal Value</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Status</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Assigned To</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(allLeads)}">
+						<td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">No leads found</td>
+					</tr>
+					<tr th:each="lead, stat : ${allLeads}" style="border-bottom:1px solid var(--border)">
+						<td style="padding:.65rem .75rem;color:var(--muted)" th:text="${stat.count}">1</td>
+						<td style="padding:.65rem .75rem;font-weight:600;color:var(--text)" th:text="${lead.customerName}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2)" th:text="${lead.company ?: '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:#4CAF50;font-weight:600">$<span th:text="${lead.dealValue}">0</span></td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${lead.status}"
+								th:style="${lead.status.name() == 'APPROVED'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           (${lead.status.name() == 'REJECTED'} ? 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           'background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600')">
+								PENDING
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem"
+							th:text="${lead.assignedTo != null ? lead.assignedTo.name : '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem"
+							th:text="${#temporals.format(lead.createdAt,'dd MMM yyyy')}">—</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

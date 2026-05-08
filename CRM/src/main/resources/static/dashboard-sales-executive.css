@@ -509,7 +509,6 @@ svg {
 	border-radius: var(--radius-sm);
 	font-size: 0.85rem;
 	font-weight: 500;
-	animation: slideDown .3s ease;
 }
 
 .toast--success {
@@ -522,18 +521,6 @@ svg {
 	background: #fef2f2;
 	border: 1px solid #fca5a5;
 	color: #991b1b;
-}
-
-@keyframes slideDown {
-	from {
-		opacity: 0;
-		transform: translateY(-8px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
 }
 
 /* ── Section Header ────────────────────────────────────────── */
@@ -595,7 +582,6 @@ svg {
 	border: 1px solid var(--border);
 	position: relative;
 	overflow: hidden;
-	animation: fadeUp .5s ease both;
 	transition: transform .2s, box-shadow .2s;
 }
 
@@ -640,30 +626,6 @@ svg {
 
 .stat-card--dark .stat-sub {
 	color: rgba(255, 255, 255, 0.35);
-}
-
-.stat-card:nth-child(1) {
-	animation-delay: .05s;
-}
-
-.stat-card:nth-child(2) {
-	animation-delay: .10s;
-}
-
-.stat-card:nth-child(3) {
-	animation-delay: .15s;
-}
-
-.stat-card:nth-child(4) {
-	animation-delay: .20s;
-}
-
-.stat-card:nth-child(5) {
-	animation-delay: .25s;
-}
-
-.stat-card:nth-child(6) {
-	animation-delay: .30s;
 }
 
 .stat-header {
@@ -743,7 +705,6 @@ svg {
 	height: 100%;
 	background: var(--orange);
 	border-radius: 99px;
-	transition: width 1.2s cubic-bezier(.4, 0, .2, 1);
 }
 
 .stat-sub {
@@ -839,7 +800,6 @@ svg {
 	padding: 1.3rem 1.4rem;
 	box-shadow: var(--shadow-sm);
 	border: 1px solid var(--border);
-	animation: fadeUp .5s ease both;
 }
 
 .chart-header {
@@ -957,7 +917,6 @@ svg {
 	flex: 1;
 	height: 0;
 	border-radius: 5px 5px 0 0;
-	transition: height .8s cubic-bezier(.4, 0, .2, 1);
 	position: relative;
 	cursor: pointer;
 }
@@ -1530,7 +1489,6 @@ tbody tr:hover td {
 	height: 100%;
 	border-radius: 99px;
 	background: var(--orange);
-	transition: width 1s cubic-bezier(.4, 0, .2, 1);
 }
 
 .perf-bar--blue>div {
@@ -1585,17 +1543,7 @@ tbody tr:hover td {
 /* ============================================================
    KEYFRAMES
    ============================================================ */
-@keyframes fadeUp {
-	from {
-		opacity: 0;
-		transform: translateY(16px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+/* Animations removed for performance */
 
 /* ============================================================
    SCROLLBAR

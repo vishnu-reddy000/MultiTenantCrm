@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Reports &amp; Analytics', 'reports', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Reports &amp; Analytics</h1>
+			<p class="page-subtitle">Comprehensive system-wide reports and performance insights</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-ghost" onclick="openDateModal()"><i class="far fa-calendar"></i> Date Range</button>
+			<button class="btn btn-primary" onclick="showToast('Report exported','success')"><i class="fas fa-download"></i> Export PDF</button>
+		</div>
+	</div>
+
+	<!-- Summary Stats -->
+	<section class="kpi-grid">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Leads</p>
+				<h2 class="kpi-value" th:text="${totalLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i> All time</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-funnel-dollar"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Approved Leads</p>
+				<h2 class="kpi-value" th:text="${approvedLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-check-circle"></i> Converted</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-check-circle"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Conversion Rate</p>
+				<h2 class="kpi-value"><span th:text="${conversionRate}">0</span>%</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-chart-line"></i> Overall</span>
+			</div>
+			<div class="kpi-icon kpi-icon-2"><i class="fas fa-chart-line"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Revenue</p>
+				<h2 class="kpi-value">$<span th:text="${totalRevenue}">0</span></h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-dollar-sign"></i> Approved deals</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(76,175,80,.15);color:#4CAF50"><i class="fas fa-dollar-sign"></i></div>
+		</div>
+	</section>
+
+	<!-- Charts Row -->
+	<section class="charts-row" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:var(--orange)"><i class="fas fa-chart-pie"></i></span>
+					Lead Status Breakdown
+				</h3>
+			</div>
+			<div style="display:flex;justify-content:center;align-items:center;height:200px">
+				<div style="width:160px;height:160px;border-radius:50%;background:conic-gradient(#4CAF50 0% 45%, #FF9800 45% 70%, #E53935 70% 100%)"></div>
+			</div>
+			<div class="legend" style="justify-content:center;margin-top:1rem;flex-wrap:wrap;gap:1rem">
+				<div class="leg-item"><div class="leg-dot" style="background:#4CAF50"></div><span style="color:var(--muted);font-size:.75rem">Approved: <span th:text="${approvedLeads}">0</span></span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:#FF9800"></div><span style="color:var(--muted);font-size:.75rem">Pending: <span th:text="${pendingLeads}">0</span></span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:#E53935"></div><span style="color:var(--muted);font-size:.75rem">Rejected: <span th:text="${rejectedLeads}">0</span></span></div>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:var(--primary)"><i class="fas fa-chart-bar"></i></span>
+					Performance Summary
+				</h3>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem">
+				<div>
+					<div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.3rem">
+						<span style="color:var(--text-2)">Lead Conversion</span>
+						<span style="color:#4CAF50;font-weight:600"><span th:text="${conversionRate}">0</span>%</span>
+					</div>
+					<div style="height:6px;background:var(--bg-2);border-radius:3px">
+						<div th:style="'height:6px;background:#4CAF50;border-radius:3px;width:' + ${conversionRate} + '%'"></div>
+					</div>
+				</div>
+				<div>
+					<div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.3rem">
+						<span style="color:var(--text-2)">Pending Rate</span>
+						<span style="color:#FF9800;font-weight:600"><span th:text="${totalLeads > 0 ? (pendingLeads * 100 / totalLeads) : 0}">0</span>%</span>
+					</div>
+					<div style="height:6px;background:var(--bg-2);border-radius:3px">
+						<div th:style="'height:6px;background:#FF9800;border-radius:3px;width:' + (${totalLeads > 0 ? (pendingLeads * 100 / totalLeads) : 0}) + '%'"></div>
+					</div>
+				</div>
+				<div>
+					<div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.3rem">
+						<span style="color:var(--text-2)">Rejection Rate</span>
+						<span style="color:#E53935;font-weight:600"><span th:text="${totalLeads > 0 ? (rejectedLeads * 100 / totalLeads) : 0}">0</span>%</span>
+					</div>
+					<div style="height:6px;background:var(--bg-2);border-radius:3px">
+						<div th:style="'height:6px;background:#E53935;border-radius:3px;width:' + (${totalLeads > 0 ? (rejectedLeads * 100 / totalLeads) : 0}) + '%'"></div>
+					</div>
+				</div>
+				<div style="margin-top:.5rem;padding:.75rem;background:var(--bg);border-radius:6px">
+					<div style="font-size:.75rem;color:var(--muted);margin-bottom:.25rem">Total Users</div>
+					<div style="font-size:1.4rem;font-weight:700;color:var(--text)" th:text="${totalUsers}">0</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Leads Table -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-table"></i></span>
+				Detailed Lead Report
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)" th:text="'Total: ' + (${allLeads != null ? allLeads.size() : 0}) + ' records'">Total: 0 records</span>
+		</div>
+		<div style="overflow-x:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+				<thead>
+					<tr style="border-bottom:1px solid var(--border)">
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">#</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Customer</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Company</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Deal Value</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Source</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Status</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Created By</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(allLeads)}">
+						<td colspan="8" style="padding:2rem;text-align:center;color:var(--muted)">No data found</td>
+					</tr>
+					<tr th:each="lead, stat : ${allLeads}" style="border-bottom:1px solid var(--border)">
+						<td style="padding:.65rem .75rem;color:var(--muted)" th:text="${stat.count}">1</td>
+						<td style="padding:.65rem .75rem;font-weight:600;color:var(--text)" th:text="${lead.customerName}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2)" th:text="${lead.company ?: '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:#4CAF50;font-weight:600">$<span th:text="${lead.dealValue}">0</span></td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem" th:text="${lead.source}">—</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${lead.status}"
+								th:style="${lead.status.name() == 'APPROVED'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           (${lead.status.name() == 'REJECTED'} ? 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           'background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600')">
+								PENDING
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem"
+							th:text="${lead.createdBy != null ? lead.createdBy.name : '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem"
+							th:text="${#temporals.format(lead.createdAt,'dd MMM yyyy')}">—</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

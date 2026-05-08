@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Subscription Plans', 'subscriptions', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Subscription Plans</h1>
+			<p class="page-subtitle">Manage pricing tiers and feature access for tenant organizations</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-primary" onclick="showToast('Feature coming soon','info')"><i class="fas fa-plus"></i> New Plan</button>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<section class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Active Plans</p>
+				<h2 class="kpi-value">3</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-credit-card"></i> Available tiers</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-credit-card"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Revenue</p>
+				<h2 class="kpi-value">$<span th:text="${totalRevenue}">0</span></h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-dollar-sign"></i> Approved deals</span>
+			</div>
+			<div class="kpi-icon kpi-icon-2"><i class="fas fa-dollar-sign"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Active Tenants</p>
+				<h2 class="kpi-value" th:text="${totalTenants}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-building"></i> Subscribed orgs</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-building"></i></div>
+		</div>
+	</section>
+
+	<!-- Plan Cards -->
+	<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:1.5rem">
+
+		<!-- Basic -->
+		<div class="card" style="border-top:3px solid #2196F3;position:relative">
+			<div style="text-align:center;padding:1rem 0 .5rem">
+				<div style="width:56px;height:56px;border-radius:50%;background:rgba(33,150,243,.15);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;color:#2196F3;font-size:1.4rem">
+					<i class="fas fa-seedling"></i>
+				</div>
+				<h3 style="font-size:1.1rem;font-weight:700;color:var(--text)">Basic</h3>
+				<p style="font-size:.8rem;color:var(--muted);margin:.25rem 0 1rem">For small teams getting started</p>
+				<div style="font-size:2.2rem;font-weight:800;color:var(--text)">$29<span style="font-size:.9rem;font-weight:400;color:var(--muted)">/mo</span></div>
+			</div>
+			<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
+			<div style="display:flex;flex-direction:column;gap:.6rem;padding:0 .5rem">
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Up to 5 users</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> 100 leads / month</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Basic reports</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Email support</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--muted)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Advanced analytics</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--muted)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> API access</div>
+			</div>
+			<div style="margin-top:1.5rem">
+				<button class="btn btn-ghost" style="width:100%" onclick="showToast('Plan edited','info')">Edit Plan</button>
+			</div>
+		</div>
+
+		<!-- Professional (Recommended) -->
+		<div class="card" style="border-top:3px solid #4CAF50;position:relative;box-shadow:0 0 0 2px rgba(76,175,80,.3)">
+			<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#4CAF50;color:#fff;font-size:.7rem;font-weight:700;padding:3px 12px;border-radius:20px">POPULAR</div>
+			<div style="text-align:center;padding:1rem 0 .5rem">
+				<div style="width:56px;height:56px;border-radius:50%;background:rgba(76,175,80,.15);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;color:#4CAF50;font-size:1.4rem">
+					<i class="fas fa-rocket"></i>
+				</div>
+				<h3 style="font-size:1.1rem;font-weight:700;color:var(--text)">Professional</h3>
+				<p style="font-size:.8rem;color:var(--muted);margin:.25rem 0 1rem">For growing businesses</p>
+				<div style="font-size:2.2rem;font-weight:800;color:var(--text)">$79<span style="font-size:.9rem;font-weight:400;color:var(--muted)">/mo</span></div>
+			</div>
+			<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
+			<div style="display:flex;flex-direction:column;gap:.6rem;padding:0 .5rem">
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Up to 25 users</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Unlimited leads</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Advanced reports</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Priority support</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Advanced analytics</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--muted)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> API access</div>
+			</div>
+			<div style="margin-top:1.5rem">
+				<button class="btn btn-primary" style="width:100%" onclick="showToast('Plan edited','info')">Edit Plan</button>
+			</div>
+		</div>
+
+		<!-- Enterprise -->
+		<div class="card" style="border-top:3px solid #E53935;position:relative">
+			<div style="text-align:center;padding:1rem 0 .5rem">
+				<div style="width:56px;height:56px;border-radius:50%;background:rgba(229,57,53,.15);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;color:#E53935;font-size:1.4rem">
+					<i class="fas fa-building"></i>
+				</div>
+				<h3 style="font-size:1.1rem;font-weight:700;color:var(--text)">Enterprise</h3>
+				<p style="font-size:.8rem;color:var(--muted);margin:.25rem 0 1rem">For large organizations</p>
+				<div style="font-size:2.2rem;font-weight:800;color:var(--text)">$199<span style="font-size:.9rem;font-weight:400;color:var(--muted)">/mo</span></div>
+			</div>
+			<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
+			<div style="display:flex;flex-direction:column;gap:.6rem;padding:0 .5rem">
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Unlimited users</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Unlimited leads</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Custom reports</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> 24/7 dedicated support</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Advanced analytics</div>
+				<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Full API access</div>
+			</div>
+			<div style="margin-top:1.5rem">
+				<button class="btn btn-ghost" style="width:100%" onclick="showToast('Plan edited','info')">Edit Plan</button>
+			</div>
+		</div>
+
+	</div>
+
+	<footer class="dash-footer" style="margin-top:2rem">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Profile', 'profile', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">My Profile</h1>
+			<p class="page-subtitle">Manage your Super Admin account and preferences</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-primary" onclick="showToast('Profile updated successfully','success')"><i class="fas fa-save"></i> Save Changes</button>
+		</div>
+	</div>
+
+	<div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;margin-top:1rem">
+
+		<!-- Profile Card -->
+		<div style="display:flex;flex-direction:column;gap:1.25rem">
+			<div class="card" style="text-align:center">
+				<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#4CAF50,#0d9488);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2rem;color:#fff;font-weight:700">
+					SA
+				</div>
+				<h3 style="font-size:1rem;font-weight:700;color:var(--text)">Admin User</h3>
+				<p style="font-size:.8rem;color:var(--muted);margin:.25rem 0 .5rem">Super Administrator</p>
+				<span style="background:rgba(229,57,53,.15);color:#E53935;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600">SUPER_ADMIN</span>
+				<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+					<div style="font-size:.75rem;color:var(--muted)">admin@crms.io</div>
+					<div style="font-size:.72rem;color:var(--muted);margin-top:.25rem">Member since Jan 2026</div>
+				</div>
+				<button class="btn btn-ghost" style="width:100%;margin-top:1rem;font-size:.8rem" onclick="showToast('Upload feature coming soon','info')">
+					<i class="fas fa-camera"></i> Change Photo
+				</button>
+			</div>
+
+			<!-- Quick Stats -->
+			<div class="card">
+				<div class="card-head">
+					<h3 class="card-title" style="font-size:.9rem;font-weight:600">System Stats</h3>
+				</div>
+				<div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem">
+					<div style="display:flex;justify-content:space-between;align-items:center">
+						<span style="font-size:.82rem;color:var(--muted)">Total Leads</span>
+						<span style="font-size:.88rem;font-weight:700;color:var(--text)" th:text="${totalLeads}">0</span>
+					</div>
+					<div style="display:flex;justify-content:space-between;align-items:center">
+						<span style="font-size:.82rem;color:var(--muted)">Total Users</span>
+						<span style="font-size:.88rem;font-weight:700;color:var(--text)" th:text="${totalUsers}">0</span>
+					</div>
+					<div style="display:flex;justify-content:space-between;align-items:center">
+						<span style="font-size:.82rem;color:var(--muted)">Approved Leads</span>
+						<span style="font-size:.88rem;font-weight:700;color:#4CAF50" th:text="${approvedLeads}">0</span>
+					</div>
+					<div style="display:flex;justify-content:space-between;align-items:center">
+						<span style="font-size:.82rem;color:var(--muted)">Total Revenue</span>
+						<span style="font-size:.88rem;font-weight:700;color:#4CAF50">$<span th:text="${totalRevenue}">0</span></span>
+					</div>
+					<div style="display:flex;justify-content:space-between;align-items:center">
+						<span style="font-size:.82rem;color:var(--muted)">Conversion Rate</span>
+						<span style="font-size:.88rem;font-weight:700;color:var(--text)"><span th:text="${conversionRate}">0</span>%</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Profile Edit Form -->
+		<div style="display:flex;flex-direction:column;gap:1.25rem">
+
+			<!-- Personal Info -->
+			<div class="card">
+				<div class="card-head">
+					<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+						<span style="color:var(--primary)"><i class="fas fa-user"></i></span>
+						Personal Information
+					</h3>
+				</div>
+				<div class="form-grid" style="margin-top:.5rem">
+					<div class="form-row">
+						<label class="form-label">First Name</label>
+						<input type="text" class="form-input" value="Admin">
+					</div>
+					<div class="form-row">
+						<label class="form-label">Last Name</label>
+						<input type="text" class="form-input" value="User">
+					</div>
+				</div>
+				<div class="form-row" style="margin-top:.75rem">
+					<label class="form-label">Email Address</label>
+					<input type="email" class="form-input" value="admin@crms.io">
+				</div>
+				<div class="form-grid" style="margin-top:.75rem">
+					<div class="form-row">
+						<label class="form-label">Phone</label>
+						<input type="text" class="form-input" placeholder="+1 000 000 0000">
+					</div>
+					<div class="form-row">
+						<label class="form-label">Location</label>
+						<input type="text" class="form-input" placeholder="City, Country">
+					</div>
+				</div>
+			</div>
+
+			<!-- Security -->
+			<div class="card">
+				<div class="card-head">
+					<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+						<span style="color:#E53935"><i class="fas fa-lock"></i></span>
+						Security
+					</h3>
+				</div>
+				<div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem">
+					<div class="form-row">
+						<label class="form-label">Current Password</label>
+						<input type="password" class="form-input" placeholder="Enter current password">
+					</div>
+					<div class="form-grid">
+						<div class="form-row">
+							<label class="form-label">New Password</label>
+							<input type="password" class="form-input" placeholder="New password">
+						</div>
+						<div class="form-row">
+							<label class="form-label">Confirm Password</label>
+							<input type="password" class="form-input" placeholder="Confirm new password">
+						</div>
+					</div>
+					<div style="padding:.75rem;background:rgba(229,57,53,.08);border-radius:6px;border-left:3px solid #E53935">
+						<p style="font-size:.78rem;color:var(--text-2);margin:0">Password must be at least 8 characters and include uppercase, lowercase, and a number.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Preferences -->
+			<div class="card">
+				<div class="card-head">
+					<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+						<span style="color:#2196F3"><i class="fas fa-palette"></i></span>
+						Preferences
+					</h3>
+				</div>
+				<div class="form-grid" style="margin-top:.5rem">
+					<div class="form-row">
+						<label class="form-label">Language</label>
+						<select class="form-input">
+							<option selected>English</option>
+							<option>Hindi</option>
+							<option>Spanish</option>
+							<option>French</option>
+						</select>
+					</div>
+					<div class="form-row">
+						<label class="form-label">Timezone</label>
+						<select class="form-input">
+							<option>UTC +5:30 (IST)</option>
+							<option selected>UTC +0:00 (GMT)</option>
+							<option>UTC -5:00 (EST)</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-row" style="margin-top:.75rem">
+					<label class="form-label">Email Notifications</label>
+					<select class="form-input">
+						<option selected>All notifications</option>
+						<option>Important only</option>
+						<option>None</option>
+					</select>
+				</div>
+			</div>
+
+			<div style="display:flex;justify-content:flex-end;gap:.75rem">
+				<button class="btn btn-ghost" onclick="showToast('Changes discarded','info')">Discard</button>
+				<button class="btn btn-primary" onclick="showToast('Profile updated successfully','success')"><i class="fas fa-save"></i> Save Profile</button>
+			</div>
+		</div>
+	</div>
+
+	<footer class="dash-footer" style="margin-top:1.5rem">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

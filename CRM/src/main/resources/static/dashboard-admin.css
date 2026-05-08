@@ -105,7 +105,6 @@ svg {
 	flex-direction: column;
 	z-index: 100;
 	overflow: hidden;
-	transition: transform .3s ease;
 }
 
 /* Logo */
@@ -506,7 +505,6 @@ svg {
 	font-size: 0.875rem;
 	font-weight: 500;
 	margin-bottom: 16px;
-	animation: slideDown .3s ease;
 }
 
 .toast-success {
@@ -519,18 +517,6 @@ svg {
 	background: #FEF2F2;
 	border: 1px solid #FCA5A5;
 	color: #991B1B;
-}
-
-@keyframes slideDown {
-	from {
-		opacity: 0;
-		transform: translateY(-8px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
 }
 
 /* ── Section Title ─────────────────────────────────────────── */
@@ -678,7 +664,6 @@ svg {
 	height: 100%;
 	background: linear-gradient(90deg, var(--blue), var(--cyan));
 	border-radius: 99px;
-	transition: width 1s cubic-bezier(.4, 0, .2, 1);
 }
 
 .kpi-blue .kpi-bar>div {
@@ -721,7 +706,6 @@ svg {
 	height: 100%;
 	background: linear-gradient(90deg, var(--orange), var(--yellow));
 	border-radius: 99px;
-	transition: width .8s cubic-bezier(.4, 0, .2, 1);
 }
 
 /* ── Quick Actions ─────────────────────────────────────────── */

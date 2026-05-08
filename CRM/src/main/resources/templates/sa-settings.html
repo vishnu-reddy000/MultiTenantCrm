@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('System Settings', 'settings', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">System Settings</h1>
+			<p class="page-subtitle">Configure global system parameters and defaults</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-ghost" onclick="showToast('Settings reset to defaults','info')"><i class="fas fa-rotate-left"></i> Reset</button>
+			<button class="btn btn-primary" onclick="showToast('Settings saved successfully','success')"><i class="fas fa-save"></i> Save Changes</button>
+		</div>
+	</div>
+
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+
+		<!-- General Settings -->
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:var(--primary)"><i class="fas fa-sliders"></i></span>
+					General Settings
+				</h3>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:1rem;margin-top:.5rem">
+				<div class="form-row">
+					<label class="form-label">System Name</label>
+					<input type="text" class="form-input" value="CRMS — Customer Relationship Management System">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Default Currency</label>
+					<select class="form-input">
+						<option selected>USD ($)</option>
+						<option>INR (₹)</option>
+						<option>EUR (€)</option>
+						<option>GBP (£)</option>
+						<option>JPY (¥)</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Timezone</label>
+					<select class="form-input">
+						<option>UTC +5:30 (IST)</option>
+						<option selected>UTC +0:00 (GMT)</option>
+						<option>UTC -5:00 (EST)</option>
+						<option>UTC -8:00 (PST)</option>
+						<option>UTC +9:00 (JST)</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Date Format</label>
+					<select class="form-input">
+						<option selected>DD MMM YYYY</option>
+						<option>MM/DD/YYYY</option>
+						<option>YYYY-MM-DD</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tenant Settings -->
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:var(--orange)"><i class="fas fa-building"></i></span>
+					Tenant Settings
+				</h3>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:1rem;margin-top:.5rem">
+				<div class="form-row">
+					<label class="form-label">Max Users per Tenant</label>
+					<input type="number" class="form-input" value="50" min="1" max="1000">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Max Leads per Tenant / Month</label>
+					<input type="number" class="form-input" value="500" min="1">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Default Tenant Plan</label>
+					<select class="form-input">
+						<option selected>Basic</option>
+						<option>Professional</option>
+						<option>Enterprise</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Auto-approve New Tenants</label>
+					<select class="form-input">
+						<option selected>No — Manual Review</option>
+						<option>Yes — Auto Approve</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<!-- Security Settings -->
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:#E53935"><i class="fas fa-shield-halved"></i></span>
+					Security Settings
+				</h3>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:1rem;margin-top:.5rem">
+				<div class="form-row">
+					<label class="form-label">Session Timeout (minutes)</label>
+					<input type="number" class="form-input" value="30" min="5" max="480">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Max Login Attempts</label>
+					<input type="number" class="form-input" value="5" min="1" max="20">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Password Min Length</label>
+					<input type="number" class="form-input" value="8" min="6" max="32">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Require 2FA for Admins</label>
+					<select class="form-input">
+						<option selected>No</option>
+						<option>Yes</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<!-- Notification Settings -->
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+					<span style="color:#2196F3"><i class="fas fa-bell"></i></span>
+					Notification Settings
+				</h3>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:1rem;margin-top:.5rem">
+				<div class="form-row">
+					<label class="form-label">Email Notifications</label>
+					<select class="form-input">
+						<option selected>Enabled</option>
+						<option>Disabled</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Lead Approval Alerts</label>
+					<select class="form-input">
+						<option selected>Enabled</option>
+						<option>Disabled</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">New Tenant Alerts</label>
+					<select class="form-input">
+						<option selected>Enabled</option>
+						<option>Disabled</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="form-label">System Alert Email</label>
+					<input type="email" class="form-input" value="admin@crms.io">
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Save Button Row -->
+	<div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.5rem">
+		<button class="btn btn-ghost" onclick="showToast('Settings reset','info')">Reset to Defaults</button>
+		<button class="btn btn-primary" onclick="showToast('Settings saved successfully','success')"><i class="fas fa-save"></i> Save All Settings</button>
+	</div>
+
+	<footer class="dash-footer" style="margin-top:1.5rem">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

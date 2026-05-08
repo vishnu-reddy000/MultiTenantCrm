@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!--
+  Super Admin Layout Fragment
+  Usage: th:replace="~{fragments/super-admin-layout :: layout('Page Title', 'active-nav-key', ~{::section})}"
+  Active nav keys: dashboard, analytics, tenants, admins, users, roles, subscriptions,
+                   leads, pipeline, activities, reports, revenue, settings, notifications, audit, profile
+-->
+
+<th:block th:fragment="layout(pageTitle, activeNav, content)">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title th:text="${pageTitle} + ' | CRMS — Super Admin'">Super Admin | CRMS</title>
+
+	<link rel="icon" type="image/svg+xml"
+		href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
+
+	<!-- CSRF token for JS-driven logout POST -->
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+	<link rel="stylesheet" th:href="@{/dashboard-super-admin.css}" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+	<!-- ═══════════════════ TOPBAR ═══════════════════ -->
+	<header class="topbar">
+		<div class="topbar-left">
+			<a th:href="@{/super-admin/dashboard}" class="brand">
+				<div class="brand-icon"><i class="fas fa-fire-flame-curved"></i></div>
+				<span class="brand-name">CRMS</span>
+			</a>
+			<button class="sidebar-collapse-btn" id="sidebarToggle" title="Toggle sidebar">
+				<i class="fas fa-chevron-left" id="toggleIcon"></i>
+			</button>
+		</div>
+
+		<div class="topbar-center">
+			<div class="search-box" id="searchBoxWrap">
+				<i class="fas fa-magnifying-glass"></i>
+				<input type="text" placeholder="Search anything…" id="searchInput">
+				<kbd id="searchKbd">⌘K</kbd>
+				<div class="search-dropdown" id="searchDropdown">
+					<div class="search-drop-section">Quick Actions</div>
+					<div class="search-drop-item"><i class="fas fa-plus"></i><span>New Deal</span></div>
+					<div class="search-drop-item"><i class="fas fa-user-plus"></i><span>Add Contact</span></div>
+					<div class="search-drop-item"><i class="fas fa-calendar-plus"></i><span>Schedule Meeting</span></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="topbar-right">
+			<button class="tb-btn" id="fullscreenBtn" title="Fullscreen"><i class="fas fa-expand" id="fullscreenIcon"></i></button>
+			<button class="tb-btn" id="darkModeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
+
+			<!-- Apps dropdown -->
+			<div class="apps-wrapper">
+				<button class="tb-btn" id="appsBtn" title="Apps"><i class="fas fa-border-all"></i></button>
+				<div class="apps-dropdown" id="appsDropdown">
+					<div class="apps-grid">
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#0d9488,#0891b2)"><i class="fas fa-chart-line"></i></div>
+							<span class="app-label">Analytics</span>
+						</div>
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#059669,#0d9488)"><i class="fas fa-users"></i></div>
+							<span class="app-label">Contacts</span>
+						</div>
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#0891b2,#06b6d4)"><i class="fas fa-tasks"></i></div>
+							<span class="app-label">Tasks</span>
+						</div>
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#0d9488,#059669)"><i class="fas fa-envelope"></i></div>
+							<span class="app-label">Email</span>
+						</div>
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#0369a1,#0891b2)"><i class="fas fa-calendar"></i></div>
+							<span class="app-label">Calendar</span>
+						</div>
+						<div class="app-item">
+							<div class="app-icon" style="background:linear-gradient(135deg,#14b8a6,#34d399)"><i class="fas fa-file-alt"></i></div>
+							<span class="app-label">Reports</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<button class="tb-btn" title="Security"><i class="fas fa-shield-halved"></i></button>
+			<div class="tb-divider"></div>
+
+			<!-- Messages dropdown -->
+			<div class="msg-wrapper">
+				<button class="tb-btn" id="msgBtn" title="Messages"><i class="fas fa-comment-dots"></i></button>
+				<div class="msg-dropdown" id="msgDropdown">
+					<div class="msg-header"><h4>Messages</h4></div>
+					<div class="msg-footer"><a href="#">View all messages</a></div>
+				</div>
+			</div>
+
+			<!-- Notifications dropdown -->
+			<div class="notif-wrapper">
+				<button class="tb-btn" id="notifBtn" title="Notifications" style="position:relative">
+					<i class="fas fa-bell"></i>
+					<span class="tb-badge" id="notifBadge">0</span>
+				</button>
+				<div class="notif-dropdown" id="notifDropdown">
+					<div class="notif-header">
+						<h4>Notifications</h4>
+						<span class="notif-mark-all" id="markAllRead">Mark all read</span>
+					</div>
+					<div class="notif-footer"><a href="#">View all notifications</a></div>
+				</div>
+			</div>
+
+			<div class="tb-divider"></div>
+
+			<!-- User chip with dropdown -->
+			<div class="user-chip" id="userChip">
+				<div class="user-avatar"><span class="user-dot"></span></div>
+				<div class="user-info">
+					<span class="user-name">Admin</span>
+					<span class="user-role">Super Admin</span>
+				</div>
+				<div class="user-dropdown" id="userDropdown">
+					<div class="user-drop-head">
+						<div class="udh-av"><div class="udh-dot"></div></div>
+						<div>
+							<div class="udh-name">Admin User</div>
+							<div class="udh-email">admin@crms.io</div>
+						</div>
+					</div>
+					<div class="user-drop-item" onclick="window.location.href='/super-admin/profile'"><i class="fas fa-user"></i>My Profile</div>
+					<div class="user-drop-item" onclick="openSettingsModal()"><i class="fas fa-gear"></i>Settings</div>
+					<div class="user-drop-item" onclick="window.location.href='/super-admin/notifications'"><i class="fas fa-bell"></i>Notifications</div>
+					<div class="user-drop-item"><i class="fas fa-palette"></i>Appearance</div>
+					<div class="user-drop-divider"></div>
+					<div class="user-drop-item danger" id="logoutBtn" onclick="openModal('logoutModal')">
+						<i class="fas fa-arrow-right-from-bracket"></i>Logout
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<div class="layout" id="layout">
+
+		<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+		<aside class="sidebar" id="sidebar">
+
+			<div class="nav-group">
+
+				<div th:class="${activeNav=='dashboard'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/dashboard}" class="nav-row" data-tooltip="Dashboard">
+						<span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+						<span class="nav-label">Dashboard</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='analytics'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/analytics}" class="nav-row" data-tooltip="Analytics">
+						<span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+						<span class="nav-label">Analytics</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='tenants'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/tenants/page}" class="nav-row" data-tooltip="Tenants">
+						<span class="nav-icon"><i class="fas fa-building"></i></span>
+						<span class="nav-label">Tenants</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='admins'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/admins}" class="nav-row" data-tooltip="Admin Management">
+						<span class="nav-icon"><i class="fas fa-user-shield"></i></span>
+						<span class="nav-label">Admin Mgmt</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='users'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/users}" class="nav-row" data-tooltip="User Management">
+						<span class="nav-icon"><i class="fas fa-users"></i></span>
+						<span class="nav-label">Users</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='roles'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/roles}" class="nav-row" data-tooltip="Roles &amp; Permissions">
+						<span class="nav-icon"><i class="fas fa-lock"></i></span>
+						<span class="nav-label">Roles &amp; Perms</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='subscriptions'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/subscriptions}" class="nav-row" data-tooltip="Subscription Plans">
+						<span class="nav-icon"><i class="fas fa-credit-card"></i></span>
+						<span class="nav-label">Subscriptions</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='leads'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/leads}" class="nav-row" data-tooltip="Lead Management">
+						<span class="nav-icon"><i class="fas fa-funnel-dollar"></i></span>
+						<span class="nav-label">Leads</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='pipeline'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/pipeline}" class="nav-row" data-tooltip="Sales Pipeline">
+						<span class="nav-icon"><i class="fas fa-sitemap"></i></span>
+						<span class="nav-label">Pipeline</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='activities'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/activities}" class="nav-row" data-tooltip="Activity Tracking">
+						<span class="nav-icon"><i class="fas fa-bolt"></i></span>
+						<span class="nav-label">Activities</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='reports'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/reports}" class="nav-row" data-tooltip="Reports &amp; Analytics">
+						<span class="nav-icon"><i class="fas fa-file-chart-column"></i></span>
+						<span class="nav-label">Reports</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='revenue'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/revenue}" class="nav-row" data-tooltip="Revenue Reports">
+						<span class="nav-icon"><i class="fas fa-dollar-sign"></i></span>
+						<span class="nav-label">Revenue</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='settings'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/settings}" class="nav-row" data-tooltip="System Settings">
+						<span class="nav-icon"><i class="fas fa-gear"></i></span>
+						<span class="nav-label">Settings</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='notifications'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/notifications}" class="nav-row" data-tooltip="Notifications">
+						<span class="nav-icon"><i class="fas fa-bell"></i></span>
+						<span class="nav-label">Notifications</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='audit'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/audit}" class="nav-row" data-tooltip="Audit Logs">
+						<span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+						<span class="nav-label">Audit Logs</span>
+					</a>
+				</div>
+
+				<div th:class="${activeNav=='profile'} ? 'nav-item active' : 'nav-item'">
+					<a th:href="@{/super-admin/profile}" class="nav-row" data-tooltip="Profile">
+						<span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+						<span class="nav-label">Profile</span>
+					</a>
+				</div>
+
+			</div>
+
+			<div class="sidebar-footer">
+				<form th:action="@{/logout}" method="post" style="display:inline;width:100%">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+					<button type="submit" class="logout-btn">
+						<i class="fas fa-arrow-right-from-bracket"></i>
+						<span class="logout-text">Logout</span>
+					</button>
+				</form>
+			</div>
+
+		</aside>
+
+		<!-- ═══════════════════ MAIN ═══════════════════ -->
+		<main class="main">
+			<th:block th:replace="${content}" />
+		</main>
+	</div>
+
+	<!-- FAB -->
+	<button class="fab" title="Settings" onclick="openSettingsModal()"><i class="fas fa-gear"></i></button>
+
+	<!-- Toast Container -->
+	<div class="toast-container" id="toastContainer"></div>
+
+	<!-- ═══ MODALS ═══ -->
+
+	<!-- Settings Modal -->
+	<div class="modal-overlay hidden" id="settingsModal">
+		<div class="modal">
+			<div class="modal-head">
+				<h3>Settings</h3>
+				<button class="modal-close" onclick="closeModal('settingsModal')"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<div class="form-row">
+					<label class="form-label">Display Name</label>
+					<input type="text" class="form-input" value="Admin User">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Email Address</label>
+					<input type="email" class="form-input" value="admin@crms.io">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Timezone</label>
+					<select class="form-input">
+						<option>UTC +5:30 (IST)</option>
+						<option>UTC +0:00 (GMT)</option>
+						<option>UTC -5:00 (EST)</option>
+						<option>UTC +9:00 (JST)</option>
+					</select>
+				</div>
+				<div class="form-grid">
+					<div class="form-row">
+						<label class="form-label">Language</label>
+						<select class="form-input">
+							<option>English</option>
+							<option>Hindi</option>
+							<option>Spanish</option>
+						</select>
+					</div>
+					<div class="form-row">
+						<label class="form-label">Currency</label>
+						<select class="form-input">
+							<option>USD ($)</option>
+							<option>INR (₹)</option>
+							<option>EUR (€)</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-ghost" onclick="closeModal('settingsModal')">Cancel</button>
+				<button class="btn btn-primary" onclick="closeModal('settingsModal');showToast('Settings saved!','success')">Save Changes</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Profile Modal -->
+	<div class="modal-overlay hidden" id="profileModal">
+		<div class="modal">
+			<div class="modal-head">
+				<h3>My Profile</h3>
+				<button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:1rem;background:var(--bg);border-radius:var(--r-sm)">
+					<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-blue));flex-shrink:0"></div>
+					<div>
+						<div style="font-size:.95rem;font-weight:700;color:var(--text)">Admin User</div>
+						<div style="font-size:.75rem;color:var(--muted)">Super Administrator</div>
+						<div style="font-size:.72rem;color:var(--teal);margin-top:2px">admin@crms.io</div>
+					</div>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Full Name</label>
+					<input type="text" class="form-input" value="Admin User">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Phone</label>
+					<input type="text" class="form-input" placeholder="+91 00000 00000">
+				</div>
+				<div class="form-row">
+					<label class="form-label">New Password</label>
+					<input type="password" class="form-input" placeholder="Leave blank to keep current">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-ghost" onclick="closeModal('profileModal')">Cancel</button>
+				<button class="btn btn-primary" onclick="closeModal('profileModal');showToast('Profile updated!','success')">Update Profile</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Logout Confirm Modal -->
+	<div class="modal-overlay hidden" id="logoutModal">
+		<div class="modal" style="width:360px">
+			<div class="modal-head">
+				<h3>Confirm Logout</h3>
+				<button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<p style="font-size:.82rem;color:var(--text-2);line-height:1.6">Are you sure you want to logout? Your session will be ended and you'll be redirected to the login page.</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-ghost" onclick="closeModal('logoutModal')">Cancel</button>
+				<button class="btn btn-danger" onclick="doLogout()">Logout</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Member Modal -->
+	<div class="modal-overlay hidden" id="addMemberModal">
+		<div class="modal">
+			<div class="modal-head">
+				<h3>Add Team Member</h3>
+				<button class="modal-close" onclick="closeModal('addMemberModal')"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<div class="form-row">
+					<label class="form-label">Name</label>
+					<input type="text" class="form-input" placeholder="Enter member's name">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Email</label>
+					<input type="email" class="form-input" placeholder="Enter email address">
+				</div>
+				<div class="form-row">
+					<label class="form-label">Role</label>
+					<select class="form-input">
+						<option>Sales Executive</option>
+						<option>Team Lead</option>
+						<option>Manager</option>
+						<option>Admin</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-ghost" onclick="closeModal('addMemberModal')">Cancel</button>
+				<button class="btn btn-primary" onclick="closeModal('addMemberModal');showToast('Member invited successfully!','success')">Send Invite</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Date Range Modal -->
+	<div class="modal-overlay hidden" id="dateModal">
+		<div class="modal" style="width:380px">
+			<div class="modal-head">
+				<h3>Select Date Range</h3>
+				<button class="modal-close" onclick="closeModal('dateModal')"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<div class="form-grid">
+					<div class="form-row">
+						<label class="form-label">Start Date</label>
+						<input type="date" class="form-input" value="2026-03-19">
+					</div>
+					<div class="form-row">
+						<label class="form-label">End Date</label>
+						<input type="date" class="form-input" value="2026-04-17">
+					</div>
+				</div>
+				<div class="form-row">
+					<label class="form-label">Quick Select</label>
+					<div style="display:flex;flex-wrap:wrap;gap:.42rem">
+						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('Last 7 Days')">Last 7 Days</button>
+						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('Last 30 Days')">Last 30 Days</button>
+						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('This Month')">This Month</button>
+						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('This Quarter')">This Quarter</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-ghost" onclick="closeModal('dateModal')">Cancel</button>
+				<button class="btn btn-primary" onclick="closeModal('dateModal');showToast('Date range applied','success')">Apply</button>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/dashboard-super-admin.js}"></script>
+	<script>
+		/* doLogout — creates a POST form dynamically using the CSRF token from meta tag */
+		function doLogout() {
+			var csrf = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var form = document.createElement('form');
+			form.method = 'POST';
+			form.action = '/logout';
+			var input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = '_csrf';
+			input.value = csrf;
+			form.appendChild(input);
+			document.body.appendChild(form);
+			form.submit();
+		}
+		function openProfileModal() { openModal('profileModal'); }
+		function openSettingsModal() { openModal('settingsModal'); }
+		function openAddMemberModal() { openModal('addMemberModal'); }
+		function openDateModal() { openModal('dateModal'); }
+	</script>
+
+</body>
+</html>
+</th:block>
+
+</html>

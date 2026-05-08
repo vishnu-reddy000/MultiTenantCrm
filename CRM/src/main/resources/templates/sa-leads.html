@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Lead Management', 'leads', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Lead Management</h1>
+			<p class="page-subtitle">Complete view of all leads across all tenants and teams</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-ghost" onclick="showToast('Filter applied','info')"><i class="fas fa-filter"></i> Filter</button>
+			<button class="btn btn-primary" onclick="showToast('Export started','success')"><i class="fas fa-download"></i> Export</button>
+		</div>
+	</div>
+
+	<!-- KPI Stats -->
+	<section class="kpi-grid">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Leads</p>
+				<h2 class="kpi-value" th:text="${totalLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i> All time</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-funnel-dollar"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Pending</p>
+				<h2 class="kpi-value" th:text="${pendingLeads}">0</h2>
+				<span class="kpi-change" style="color:#FF9800"><i class="fas fa-clock"></i> Awaiting review</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(255,152,0,.15);color:#FF9800"><i class="fas fa-clock"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Approved</p>
+				<h2 class="kpi-value" th:text="${approvedLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-check-circle"></i> Converted</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-check-circle"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Revenue</p>
+				<h2 class="kpi-value">$<span th:text="${totalRevenue}">0</span></h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-dollar-sign"></i> Approved deals</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(76,175,80,.15);color:#4CAF50"><i class="fas fa-dollar-sign"></i></div>
+		</div>
+	</section>
+
+	<!-- Leads Table -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-list"></i></span>
+				All Leads
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)" th:text="'Total: ' + (${allLeads != null ? allLeads.size() : 0}) + ' leads'">Total: 0 leads</span>
+		</div>
+		<div style="overflow-x:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+				<thead>
+					<tr style="border-bottom:1px solid var(--border)">
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">#</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Customer</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Company</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Deal Value</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Source</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Status</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Created By</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Assigned To</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(allLeads)}">
+						<td colspan="9" style="padding:2rem;text-align:center;color:var(--muted)">No leads found</td>
+					</tr>
+					<tr th:each="lead, stat : ${allLeads}" style="border-bottom:1px solid var(--border)">
+						<td style="padding:.65rem .75rem;color:var(--muted)" th:text="${stat.count}">1</td>
+						<td style="padding:.65rem .75rem;font-weight:600;color:var(--text)" th:text="${lead.customerName}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2)" th:text="${lead.company ?: '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:#4CAF50;font-weight:600">$<span th:text="${lead.dealValue}">0</span></td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem" th:text="${lead.source}">—</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${lead.status}"
+								th:style="${lead.status.name() == 'APPROVED'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           (${lead.status.name() == 'REJECTED'} ? 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           'background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600')">
+								PENDING
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem"
+							th:text="${lead.createdBy != null ? lead.createdBy.name : '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem"
+							th:text="${lead.assignedTo != null ? lead.assignedTo.name : '—'}">—</td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem"
+							th:text="${#temporals.format(lead.createdAt,'dd MMM yyyy')}">—</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

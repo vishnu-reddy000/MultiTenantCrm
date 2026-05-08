@@ -1,633 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Dashboard | CRMS — Super Admin</title>
-
-	<link rel="icon" type="image/svg+xml"
-		href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
-
-	<!-- CSRF token for JS-driven logout POST -->
-	<meta name="_csrf" th:content="${_csrf.token}"/>
-
-	<link rel="stylesheet" th:href="@{/dashboard-super-admin.css}" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Dashboard', 'dashboard', ~{::section})}">
+<head></head>
 <body>
+<section>
 
-	<!-- ═══════════════════ TOPBAR ═══════════════════ -->
-	<header class="topbar">
-		<div class="topbar-left">
-			<a href="#" class="brand">
-				<div class="brand-icon"><i class="fas fa-fire-flame-curved"></i></div>
-				<span class="brand-name">CRMS</span>
-			</a>
-			<button class="sidebar-collapse-btn" id="sidebarToggle" title="Toggle sidebar">
-				<i class="fas fa-chevron-left" id="toggleIcon"></i>
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Dashboard</h1>
+			<p class="page-subtitle">Real-time insights across attendance, tasks, leaves and workforce</p>
+		</div>
+		<div class="ph-right">
+			<div class="av-stack">
+				<div class="av-item av-a" title="Robert Johnson"></div>
+				<div class="av-item av-b" title="Isabella Cooper"></div>
+				<div class="av-item av-c" title="John Smith"></div>
+				<div class="av-item av-d" title="Sophia Parker"></div>
+				<div class="av-item av-e" title="Emma Reynolds"></div>
+				<div class="av-plus" title="Add member" onclick="openAddMemberModal()"><i class="fas fa-plus"></i></div>
+			</div>
+			<button class="date-btn" onclick="openDateModal()">
+				<i class="far fa-calendar"></i>
+				<span id="dateRange">19 Mar 26 – 17 Apr 26</span>
+				<i class="fas fa-chevron-down" style="font-size:.6rem;opacity:.6"></i>
 			</button>
-		</div>
-
-		<div class="topbar-center">
-			<div class="search-box" id="searchBoxWrap">
-				<i class="fas fa-magnifying-glass"></i>
-				<input type="text" placeholder="Search anything…" id="searchInput">
-				<kbd id="searchKbd">⌘K</kbd>
-				<div class="search-dropdown" id="searchDropdown">
-					<div class="search-drop-section">Quick Actions</div>
-					<div class="search-drop-item"><i class="fas fa-plus"></i><span>New Deal</span></div>
-					<div class="search-drop-item"><i class="fas fa-user-plus"></i><span>Add Contact</span></div>
-					<div class="search-drop-item"><i class="fas fa-calendar-plus"></i><span>Schedule Meeting</span></div>
-				</div>
-			</div>
-		</div>
-
-		<div class="topbar-right">
-			<button class="tb-btn" id="fullscreenBtn" title="Fullscreen"><i class="fas fa-expand" id="fullscreenIcon"></i></button>
-			<button class="tb-btn" id="darkModeBtn" title="Dark mode"><i class="fas fa-moon"></i></button>
-
-			<!-- Apps dropdown -->
-			<div class="apps-wrapper">
-				<button class="tb-btn" id="appsBtn" title="Apps"><i class="fas fa-border-all"></i></button>
-				<div class="apps-dropdown" id="appsDropdown">
-					<div class="apps-grid">
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#0d9488,#0891b2)"><i class="fas fa-chart-line"></i></div>
-							<span class="app-label">Analytics</span>
-						</div>
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#059669,#0d9488)"><i class="fas fa-users"></i></div>
-							<span class="app-label">Contacts</span>
-						</div>
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#0891b2,#06b6d4)"><i class="fas fa-tasks"></i></div>
-							<span class="app-label">Tasks</span>
-						</div>
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#0d9488,#059669)"><i class="fas fa-envelope"></i></div>
-							<span class="app-label">Email</span>
-						</div>
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#0369a1,#0891b2)"><i class="fas fa-calendar"></i></div>
-							<span class="app-label">Calendar</span>
-						</div>
-						<div class="app-item">
-							<div class="app-icon" style="background:linear-gradient(135deg,#14b8a6,#34d399)"><i class="fas fa-file-alt"></i></div>
-							<span class="app-label">Reports</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<button class="tb-btn" title="Security"><i class="fas fa-shield-halved"></i></button>
-			<div class="tb-divider"></div>
-
-			<!-- Messages dropdown -->
-			<div class="msg-wrapper">
-				<button class="tb-btn" id="msgBtn" title="Messages"><i class="fas fa-comment-dots"></i></button>
-				<div class="msg-dropdown" id="msgDropdown">
-					<div class="msg-header">
-						<h4>Messages</h4>
-					</div>
-					<div class="msg-footer"><a href="#">View all messages</a></div>
-				</div>
-			</div>
-
-			<!-- Notifications dropdown -->
-			<div class="notif-wrapper">
-				<button class="tb-btn" id="notifBtn" title="Notifications" style="position:relative">
-					<i class="fas fa-bell"></i>
-					<span class="tb-badge" id="notifBadge">0</span>
-				</button>
-				<div class="notif-dropdown" id="notifDropdown">
-					<div class="notif-header">
-						<h4>Notifications</h4>
-						<span class="notif-mark-all" id="markAllRead">Mark all read</span>
-					</div>
-					<div class="notif-footer"><a href="#">View all notifications</a></div>
-				</div>
-			</div>
-
-			<div class="tb-divider"></div>
-
-			<!-- User chip with dropdown -->
-			<div class="user-chip" id="userChip">
-				<div class="user-avatar"><span class="user-dot"></span></div>
-				<div class="user-info">
-					<span class="user-name">Admin</span>
-					<span class="user-role">Super Admin</span>
-				</div>
-				<div class="user-dropdown" id="userDropdown">
-					<div class="user-drop-head">
-						<div class="udh-av">
-							<div class="udh-dot"></div>
-						</div>
-						<div>
-							<div class="udh-name">Admin User</div>
-							<div class="udh-email">admin@crms.io</div>
-						</div>
-					</div>
-					<div class="user-drop-item"><i class="fas fa-user"></i>My Profile</div>
-					<div class="user-drop-item"><i class="fas fa-gear"></i>Settings</div>
-					<div class="user-drop-item"><i class="fas fa-bell"></i>Notifications</div>
-					<div class="user-drop-item"><i class="fas fa-palette"></i>Appearance</div>
-					<div class="user-drop-divider"></div>
-					<div class="user-drop-item danger" id="logoutBtn">
-						<i class="fas fa-arrow-right-from-bracket"></i>Logout
-					</div>
-				</div>
-			</div>
-		</div>
-	</header>
-
-	<div class="layout" id="layout">
-
-		<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
-		<aside class="sidebar" id="sidebar">
-
-			<div class="nav-group">
-				<div class="nav-item active">
-					<a th:href="@{/dashboard/super-admin}" class="nav-row" data-tooltip="Overview">
-						<span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-						<span class="nav-label">Overview</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a th:href="@{/super-admin/tenants/page}" class="nav-row" data-tooltip="Tenants">
-						<span class="nav-icon"><i class="fas fa-building"></i></span>
-						<span class="nav-label">Tenants</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Attendance">
-						<span class="nav-icon"><i class="fas fa-user-clock"></i></span>
-						<span class="nav-label">Attendance</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="My Team">
-						<span class="nav-icon"><i class="fas fa-users"></i></span>
-						<span class="nav-label">My Team</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Tasks">
-						<span class="nav-icon"><i class="fas fa-list-check"></i></span>
-						<span class="nav-label">Tasks</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Meetings">
-						<span class="nav-icon"><i class="fas fa-video"></i></span>
-						<span class="nav-label">Meetings</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Leave">
-						<span class="nav-icon"><i class="fas fa-calendar-times"></i></span>
-						<span class="nav-label">Leave</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Performance">
-						<span class="nav-icon"><i class="fas fa-chart-line"></i></span>
-						<span class="nav-label">Performance</span>
-					</a>
-				</div>
-				<div class="nav-item">
-					<a href="#" class="nav-row" data-tooltip="Calendar">
-						<span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
-						<span class="nav-label">Calendar</span>
-					</a>
-				</div>
-			</div>
-
-			<div class="sidebar-footer">
-				<div class="nav-item" style="margin-bottom: 0.5rem">
-					<a href="#" class="nav-row" data-tooltip="Settings">
-						<span class="nav-icon"><i class="fas fa-gear"></i></span>
-						<span class="nav-label">Settings</span>
-					</a>
-				</div>
-				<form th:action="@{/logout}" method="post" style="display:inline; width:100%">
-					<button type="submit" class="logout-btn">
-						<i class="fas fa-arrow-right-from-bracket"></i>
-						<span class="logout-text">Logout</span>
-					</button>
-				</form>
-			</div>
-
-		</aside>
-
-		<!-- ═══════════════════ MAIN ═══════════════════ -->
-		<main class="main">
-
-			<!-- Page Header -->
-			<div class="page-header">
-				<div class="ph-left">
-					<div class="page-eyebrow">Super Admin</div>
-					<h1 class="page-title">Dashboard</h1>
-					<p class="page-subtitle">Real-time insights across attendance, tasks, leaves and workforce</p>
-				</div>
-				<div class="ph-right">
-					<div class="av-stack">
-						<div class="av-item av-a" title="Robert Johnson"></div>
-						<div class="av-item av-b" title="Isabella Cooper"></div>
-						<div class="av-item av-c" title="John Smith"></div>
-						<div class="av-item av-d" title="Sophia Parker"></div>
-						<div class="av-item av-e" title="Emma Reynolds"></div>
-						<div class="av-plus" title="Add member" onclick="openAddMemberModal()"><i class="fas fa-plus"></i></div>
-					</div>
-					<button class="date-btn" onclick="openDateModal()">
-						<i class="far fa-calendar"></i>
-						<span id="dateRange">19 Mar 26 – 17 Apr 26</span>
-						<i class="fas fa-chevron-down" style="font-size:.6rem;opacity:.6"></i>
-					</button>
-					<button class="icon-btn" title="Download Report" onclick="downloadReport()"><i class="fas fa-arrow-down-to-line"></i></button>
-					<button class="icon-btn" title="Refresh" onclick="refreshDashboard()"><i class="fas fa-arrows-rotate" id="refreshIcon"></i></button>
-					<button class="icon-btn" title="Profile" onclick="openProfileModal()"><i class="fas fa-user-circle"></i></button>
-				</div>
-			</div>
-
-			<!-- ── KPI CARDS ── -->
-			<section class="kpi-grid">
-				<div class="kpi-card" onclick="showToast('Revenue details loaded','info')">
-					<div class="kpi-body">
-						<p class="kpi-label">Total Revenue</p>
-						<h2 class="kpi-value">$15,44,540</h2>
-						<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i>+2.5% vs Last Week</span>
-					</div>
-					<div class="kpi-icon kpi-icon-1"><i class="fas fa-dollar-sign"></i></div>
-				</div>
-				<div class="kpi-card" onclick="showToast('Deals data refreshed','info')">
-					<div class="kpi-body">
-						<p class="kpi-label">Active Deals</p>
-						<h2 class="kpi-value">147</h2>
-						<span class="kpi-change kpi-down"><i class="fas fa-arrow-trend-down"></i>-21.15% vs Last Week</span>
-					</div>
-					<div class="kpi-icon kpi-icon-2"><i class="fas fa-handshake"></i></div>
-				</div>
-				<div class="kpi-card" onclick="showToast('Conversion analytics loaded','info')">
-					<div class="kpi-body">
-						<p class="kpi-label">Conversion Rate</p>
-						<h2 class="kpi-value">32.8%</h2>
-						<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i>+15.5% vs Last Week</span>
-					</div>
-					<div class="kpi-icon kpi-icon-3"><i class="fas fa-chart-line"></i></div>
-				</div>
-				<div class="kpi-card" onclick="showToast('Contacts list opened','info')">
-					<div class="kpi-body">
-						<p class="kpi-label">Total Contacts</p>
-						<h2 class="kpi-value">4,569 <small style="font-size:.65rem;color:#0a6b60;background:rgba(13,148,136,.12);padding:2px 6px;border-radius:20px;font-family:var(--font);">+2.5%</small></h2>
-						<div class="kpi-av-row">
-							<div class="av-item av-a"></div>
-							<div class="av-item av-b"></div>
-							<div class="av-item av-c"></div>
-							<span class="kpi-av-more">+4 From Last Week</span>
-						</div>
-					</div>
-					<div class="sparkline" id="sparkline">
-						<div class="sp-bar" style="height:30%"></div>
-						<div class="sp-bar" style="height:50%"></div>
-						<div class="sp-bar" style="height:65%"></div>
-						<div class="sp-bar" style="height:45%"></div>
-						<div class="sp-bar" style="height:80%"></div>
-						<div class="sp-bar" style="height:60%"></div>
-						<div class="sp-bar" style="height:95%"></div>
-					</div>
-				</div>
-			</section>
-
-			<!-- ── CARDS ROW ── -->
-			<section class="charts-row" style="grid-template-columns: repeat(3, 1fr); margin-top: 1rem">
-				<div class="card">
-					<div class="card-head">
-						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
-							<span style="color:var(--orange)"><i class="fas fa-chart-pie"></i></span>
-							Task Status
-						</h3>
-						<span style="font-size:0.75rem;color:var(--muted)">By current status</span>
-					</div>
-					<div style="display:flex;justify-content:center;align-items:center;height:220px">
-						<div style="width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--primary) 0% 70%, var(--orange) 70% 85%, var(--bluegrey) 85% 100%)"></div>
-					</div>
-					<div class="legend" style="justify-content:center;margin-top:1.5rem;flex-wrap:wrap;gap:1rem">
-						<div class="leg-item"><div class="leg-dot" style="background:var(--bluegrey)"></div><span style="color:var(--muted);font-size:.75rem">Assigned: 0</span></div>
-						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Completed: 20</span></div>
-						<div class="leg-item"><div class="leg-dot" style="background:var(--peach)"></div><span style="color:var(--muted);font-size:.75rem">Submitted: 0</span></div>
-						<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">Processing: 0</span></div>
-					</div>
-				</div>
-
-				<div class="card">
-					<div class="card-head">
-						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
-							<span style="color:var(--rose)"><i class="fas fa-fire"></i></span>
-							Task Priority
-						</h3>
-						<span style="font-size:0.75rem;color:var(--muted)">Distribution by priority level</span>
-					</div>
-					<div style="display:flex;justify-content:center;align-items:center;height:220px">
-						<svg viewBox="0 0 160 160" class="donut-svg" style="width:180px;height:180px">
-							<circle class="donut-bg" cx="80" cy="80" r="60" style="stroke:var(--bg-2);stroke-width:30;fill:none"/>
-							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--orange);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:188;fill:none" transform="rotate(-90 80 80)" />
-							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--peach);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(90 80 80)" />
-							<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--primary);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(180 80 80)" />
-						</svg>
-					</div>
-					<div class="legend" style="justify-content:center;margin-top:1.5rem;gap:1.5rem">
-						<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">High: 10</span></div>
-						<div class="leg-item"><div class="leg-dot" style="background:var(--peach)"></div><span style="color:var(--muted);font-size:.75rem">Med: 5</span></div>
-						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Low: 5</span></div>
-					</div>
-				</div>
-
-				<div class="card">
-					<div class="card-head">
-						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
-							<span style="color:var(--primary)"><i class="fas fa-chart-line"></i></span>
-							Completion Trend
-						</h3>
-						<span style="font-size:0.75rem;color:var(--muted)">Tasks completed — last 4 weeks</span>
-					</div>
-					<div style="height:220px;position:relative;margin-top:1rem;border-left:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px;margin-bottom:1.5rem">
-						<svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible" preserveAspectRatio="none">
-							<polyline points="0,80 33,40 66,20 100,40" fill="none" stroke="var(--primary)" stroke-width="2"/>
-							<polygon points="0,100 0,80 33,40 66,20 100,40 100,100" fill="var(--glow-green)" />
-							<circle cx="0" cy="80" r="3" fill="var(--primary)"/>
-							<circle cx="33" cy="40" r="3" fill="var(--primary)"/>
-							<circle cx="66" cy="20" r="3" fill="var(--primary)"/>
-							<circle cx="100" cy="40" r="3" fill="var(--primary)"/>
-						</svg>
-						<div style="position:absolute;bottom:-20px;left:0;width:100%;display:flex;justify-content:space-between;font-size:0.6rem;color:var(--muted)">
-							<span>Wk 11</span><span>Wk 12</span><span>Wk 13</span><span>Wk 14</span>
-						</div>
-					</div>
-					<div class="legend" style="justify-content:flex-start;margin-top:2rem">
-						<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.8rem;font-weight:600">Total completed: 20</span></div>
-					</div>
-				</div>
-			</section>
-
-			<!-- LEAVE ANALYTICS -->
-			<h3 style="margin-top:2rem;font-size:0.85rem;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:0.5rem"><i class="fas fa-calendar-times" style="color:var(--rose)"></i> LEAVE ANALYTICS</h3>
-			<section class="charts-row" style="margin-top:1rem;grid-template-columns: 1fr 1fr;">
-				<div class="card">
-					<div class="card-head">
-						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
-							<span style="color:var(--peach)"><i class="fas fa-umbrella-beach"></i></span>
-							Leave Breakdown
-						</h3>
-					</div>
-					<div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.85rem;font-weight:500">No leave data for this period</div>
-				</div>
-				<div class="card">
-					<div class="card-head">
-						<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
-							<span style="color:var(--violet)"><i class="fas fa-chart-area"></i></span>
-							Leave Trends &amp; Approval
-						</h3>
-					</div>
-					<div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.85rem;font-weight:500">No trend data available</div>
-				</div>
-			</section>
-
-			<footer class="dash-footer">
-				<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
-				<div class="footer-links">
-					<a href="#">About</a>
-					<a href="#">Privacy</a>
-					<a href="#">Terms</a>
-					<a href="#">Contact</a>
-				</div>
-			</footer>
-
-		</main>
-	</div>
-
-	<!-- FAB -->
-	<button class="fab" title="Settings" onclick="openSettingsModal()"><i class="fas fa-gear"></i></button>
-
-	<!-- Toast Container -->
-	<div class="toast-container" id="toastContainer"></div>
-
-	<!-- ═══ MODALS ═══ -->
-
-	<!-- Deal Details Modal -->
-	<div class="modal-overlay hidden" id="dealModal">
-		<div class="modal">
-			<div class="modal-head">
-				<h3 id="dealModalTitle">Deal Details</h3>
-				<button class="modal-close" onclick="closeModal('dealModal')"><i class="fas fa-times"></i></button>
-			</div>
-			<div class="modal-body">
-				<div class="form-grid" style="margin-bottom:.85rem">
-					<div>
-						<div class="form-label">Company</div>
-						<div style="font-size:.85rem;font-weight:700;color:var(--text)" id="dealCompany">—</div>
-					</div>
-					<div>
-						<div class="form-label">Deal Value</div>
-						<div style="font-size:.85rem;font-weight:700;color:var(--teal)" id="dealValue">—</div>
-					</div>
-				</div>
-				<div class="form-grid" style="margin-bottom:.85rem">
-					<div>
-						<div class="form-label">Growth</div>
-						<div style="font-size:.85rem;font-weight:700;color:var(--teal-green)" id="dealGrowth">—</div>
-					</div>
-					<div>
-						<div class="form-label">Region</div>
-						<div style="font-size:.85rem;font-weight:700;color:var(--text)" id="dealRegion">—</div>
-					</div>
-				</div>
-				<div class="form-row">
-					<label class="form-label">Add Note</label>
-					<input type="text" class="form-input" placeholder="Enter a note about this deal…">
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('dealModal')">Close</button>
-				<button class="btn btn-primary" onclick="closeModal('dealModal');showToast('Note saved successfully','success')">Save Note</button>
-			</div>
+			<button class="icon-btn" title="Download Report" onclick="downloadReport()"><i class="fas fa-arrow-down-to-line"></i></button>
+			<button class="icon-btn" title="Refresh" onclick="refreshDashboard()"><i class="fas fa-arrows-rotate" id="refreshIcon"></i></button>
+			<button class="icon-btn" title="Profile" onclick="openProfileModal()"><i class="fas fa-user-circle"></i></button>
 		</div>
 	</div>
 
-	<!-- Settings Modal -->
-	<div class="modal-overlay hidden" id="settingsModal">
-		<div class="modal">
-			<div class="modal-head">
-				<h3>Settings</h3>
-				<button class="modal-close" onclick="closeModal('settingsModal')"><i class="fas fa-times"></i></button>
+	<!-- ── KPI CARDS ── -->
+	<section class="kpi-grid">
+		<div class="kpi-card" onclick="showToast('Revenue details loaded','info')">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Revenue</p>
+				<h2 class="kpi-value">$<span th:text="${totalRevenue != null ? totalRevenue : '0'}">0</span></h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i>+2.5% vs Last Week</span>
 			</div>
-			<div class="modal-body">
-				<div class="form-row">
-					<label class="form-label">Display Name</label>
-					<input type="text" class="form-input" value="Admin User">
-				</div>
-				<div class="form-row">
-					<label class="form-label">Email Address</label>
-					<input type="email" class="form-input" value="admin@crms.io">
-				</div>
-				<div class="form-row">
-					<label class="form-label">Timezone</label>
-					<select class="form-input">
-						<option>UTC +5:30 (IST)</option>
-						<option>UTC +0:00 (GMT)</option>
-						<option>UTC -5:00 (EST)</option>
-						<option>UTC +9:00 (JST)</option>
-					</select>
-				</div>
-				<div class="form-grid">
-					<div class="form-row">
-						<label class="form-label">Language</label>
-						<select class="form-input">
-							<option>English</option>
-							<option>Hindi</option>
-							<option>Spanish</option>
-						</select>
-					</div>
-					<div class="form-row">
-						<label class="form-label">Currency</label>
-						<select class="form-input">
-							<option>USD ($)</option>
-							<option>INR (₹)</option>
-							<option>EUR (€)</option>
-						</select>
-					</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-dollar-sign"></i></div>
+		</div>
+		<div class="kpi-card" onclick="showToast('Deals data refreshed','info')">
+			<div class="kpi-body">
+				<p class="kpi-label">Active Deals</p>
+				<h2 class="kpi-value" th:text="${approvedLeads != null ? approvedLeads : 0}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i>Approved leads</span>
+			</div>
+			<div class="kpi-icon kpi-icon-2"><i class="fas fa-handshake"></i></div>
+		</div>
+		<div class="kpi-card" onclick="showToast('Conversion analytics loaded','info')">
+			<div class="kpi-body">
+				<p class="kpi-label">Conversion Rate</p>
+				<h2 class="kpi-value"><span th:text="${conversionRate != null ? conversionRate : 0}">0</span>%</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-arrow-trend-up"></i>Approved / Total leads</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-chart-line"></i></div>
+		</div>
+		<div class="kpi-card" onclick="showToast('Contacts list opened','info')">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Users</p>
+				<h2 class="kpi-value" th:text="${totalUsers != null ? totalUsers : 0}">0</h2>
+				<div class="kpi-av-row">
+					<div class="av-item av-a"></div>
+					<div class="av-item av-b"></div>
+					<div class="av-item av-c"></div>
+					<span class="kpi-av-more">Registered accounts</span>
 				</div>
 			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('settingsModal')">Cancel</button>
-				<button class="btn btn-primary" onclick="closeModal('settingsModal');showToast('Settings saved!','success')">Save Changes</button>
+			<div class="sparkline" id="sparkline">
+				<div class="sp-bar" style="height:30%"></div>
+				<div class="sp-bar" style="height:50%"></div>
+				<div class="sp-bar" style="height:65%"></div>
+				<div class="sp-bar" style="height:45%"></div>
+				<div class="sp-bar" style="height:80%"></div>
+				<div class="sp-bar" style="height:60%"></div>
+				<div class="sp-bar" style="height:95%"></div>
 			</div>
 		</div>
-	</div>
+	</section>
 
-	<!-- Profile Modal -->
-	<div class="modal-overlay hidden" id="profileModal">
-		<div class="modal">
-			<div class="modal-head">
-				<h3>My Profile</h3>
-				<button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+	<!-- ── CARDS ROW ── -->
+	<section class="charts-row" style="grid-template-columns: repeat(3, 1fr); margin-top: 1rem">
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+					<span style="color:var(--orange)"><i class="fas fa-chart-pie"></i></span>
+					Lead Status
+				</h3>
+				<span style="font-size:0.75rem;color:var(--muted)">By current status</span>
 			</div>
-			<div class="modal-body">
-				<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:1rem;background:var(--bg);border-radius:var(--r-sm)">
-					<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-blue));flex-shrink:0"></div>
-					<div>
-						<div style="font-size:.95rem;font-weight:700;color:var(--text)">Admin User</div>
-						<div style="font-size:.75rem;color:var(--muted)">Super Administrator</div>
-						<div style="font-size:.72rem;color:var(--teal);margin-top:2px">admin@crms.io</div>
-					</div>
-				</div>
-				<div class="form-row">
-					<label class="form-label">Full Name</label>
-					<input type="text" class="form-input" value="Admin User">
-				</div>
-				<div class="form-row">
-					<label class="form-label">Phone</label>
-					<input type="text" class="form-input" placeholder="+91 00000 00000">
-				</div>
-				<div class="form-row">
-					<label class="form-label">New Password</label>
-					<input type="password" class="form-input" placeholder="Leave blank to keep current">
-				</div>
+			<div style="display:flex;justify-content:center;align-items:center;height:220px">
+				<div style="width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--primary) 0% 70%, var(--orange) 70% 85%, var(--bluegrey) 85% 100%)"></div>
 			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('profileModal')">Cancel</button>
-				<button class="btn btn-primary" onclick="closeModal('profileModal');showToast('Profile updated!','success')">Update Profile</button>
+			<div class="legend" style="justify-content:center;margin-top:1.5rem;flex-wrap:wrap;gap:1rem">
+				<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Approved: <span th:text="${approvedLeads}">0</span></span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">Pending: <span th:text="${pendingLeads}">0</span></span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:var(--bluegrey)"></div><span style="color:var(--muted);font-size:.75rem">Rejected: <span th:text="${rejectedLeads}">0</span></span></div>
 			</div>
 		</div>
-	</div>
 
-	<!-- Logout Confirm Modal -->
-	<div class="modal-overlay hidden" id="logoutModal">
-		<div class="modal" style="width:360px">
-			<div class="modal-head">
-				<h3>Confirm Logout</h3>
-				<button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+					<span style="color:var(--rose)"><i class="fas fa-fire"></i></span>
+					Lead Sources
+				</h3>
+				<span style="font-size:0.75rem;color:var(--muted)">Distribution by source</span>
 			</div>
-			<div class="modal-body">
-				<p style="font-size:.82rem;color:var(--text-2);line-height:1.6">Are you sure you want to logout? Your session will be ended and you'll be redirected to the login page.</p>
+			<div style="display:flex;justify-content:center;align-items:center;height:220px">
+				<svg viewBox="0 0 160 160" class="donut-svg" style="width:180px;height:180px">
+					<circle class="donut-bg" cx="80" cy="80" r="60" style="stroke:var(--bg-2);stroke-width:30;fill:none"/>
+					<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--orange);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:188;fill:none" transform="rotate(-90 80 80)" />
+					<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--peach);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(90 80 80)" />
+					<circle class="donut-seg" cx="80" cy="80" r="60" style="stroke:var(--primary);stroke-width:30;stroke-dasharray:377;stroke-dashoffset:280;fill:none" transform="rotate(180 80 80)" />
+				</svg>
 			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('logoutModal')">Cancel</button>
-				<button class="btn btn-danger">Logout</button>
+			<div class="legend" style="justify-content:center;margin-top:1.5rem;gap:1.5rem">
+				<div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><span style="color:var(--muted);font-size:.75rem">Website</span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:var(--peach)"></div><span style="color:var(--muted);font-size:.75rem">Referral</span></div>
+				<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.75rem">Other</span></div>
 			</div>
 		</div>
-	</div>
 
-	<!-- Add Member Modal -->
-	<div class="modal-overlay hidden" id="addMemberModal">
-		<div class="modal">
-			<div class="modal-head">
-				<h3>Add Team Member</h3>
-				<button class="modal-close" onclick="closeModal('addMemberModal')"><i class="fas fa-times"></i></button>
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+					<span style="color:var(--primary)"><i class="fas fa-chart-line"></i></span>
+					Revenue Trend
+				</h3>
+				<span style="font-size:0.75rem;color:var(--muted)">Approved deal value — last 4 weeks</span>
 			</div>
-			<div class="modal-body">
-				<div class="form-row">
-					<label class="form-label">Name</label>
-					<input type="text" class="form-input" placeholder="Enter member's name">
-				</div>
-				<div class="form-row">
-					<label class="form-label">Email</label>
-					<input type="email" class="form-input" placeholder="Enter email address">
-				</div>
-				<div class="form-row">
-					<label class="form-label">Role</label>
-					<select class="form-input">
-						<option>Sales Executive</option>
-						<option>Team Lead</option>
-						<option>Manager</option>
-						<option>Admin</option>
-					</select>
+			<div style="height:220px;position:relative;margin-top:1rem;border-left:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px;margin-bottom:1.5rem">
+				<svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible" preserveAspectRatio="none">
+					<polyline points="0,80 33,40 66,20 100,40" fill="none" stroke="var(--primary)" stroke-width="2"/>
+					<polygon points="0,100 0,80 33,40 66,20 100,40 100,100" fill="var(--glow-green)" />
+					<circle cx="0" cy="80" r="3" fill="var(--primary)"/>
+					<circle cx="33" cy="40" r="3" fill="var(--primary)"/>
+					<circle cx="66" cy="20" r="3" fill="var(--primary)"/>
+					<circle cx="100" cy="40" r="3" fill="var(--primary)"/>
+				</svg>
+				<div style="position:absolute;bottom:-20px;left:0;width:100%;display:flex;justify-content:space-between;font-size:0.6rem;color:var(--muted)">
+					<span>Wk 11</span><span>Wk 12</span><span>Wk 13</span><span>Wk 14</span>
 				</div>
 			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('addMemberModal')">Cancel</button>
-				<button class="btn btn-primary" onclick="closeModal('addMemberModal');showToast('Member invited successfully!','success')">Send Invite</button>
+			<div class="legend" style="justify-content:flex-start;margin-top:2rem">
+				<div class="leg-item"><div class="leg-dot" style="background:var(--primary)"></div><span style="color:var(--muted);font-size:.8rem;font-weight:600">Total leads: <span th:text="${totalLeads}">0</span></span></div>
 			</div>
 		</div>
-	</div>
+	</section>
 
-	<!-- Date Range Modal -->
-	<div class="modal-overlay hidden" id="dateModal">
-		<div class="modal" style="width:380px">
-			<div class="modal-head">
-				<h3>Select Date Range</h3>
-				<button class="modal-close" onclick="closeModal('dateModal')"><i class="fas fa-times"></i></button>
+	<!-- LEAVE ANALYTICS -->
+	<h3 style="margin-top:2rem;font-size:0.85rem;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:0.5rem"><i class="fas fa-calendar-times" style="color:var(--rose)"></i> SYSTEM OVERVIEW</h3>
+	<section class="charts-row" style="margin-top:1rem;grid-template-columns: 1fr 1fr;">
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+					<span style="color:var(--peach)"><i class="fas fa-building"></i></span>
+					Tenant Overview
+				</h3>
 			</div>
-			<div class="modal-body">
-				<div class="form-grid">
-					<div class="form-row">
-						<label class="form-label">Start Date</label>
-						<input type="date" class="form-input" value="2026-03-19">
-					</div>
-					<div class="form-row">
-						<label class="form-label">End Date</label>
-						<input type="date" class="form-input" value="2026-04-17">
-					</div>
-				</div>
-				<div class="form-row">
-					<label class="form-label">Quick Select</label>
-					<div style="display:flex;flex-wrap:wrap;gap:.42rem">
-						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('Last 7 Days')">Last 7 Days</button>
-						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('Last 30 Days')">Last 30 Days</button>
-						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('This Month')">This Month</button>
-						<button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.72rem" onclick="setDateRange('This Quarter')">This Quarter</button>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-ghost" onclick="closeModal('dateModal')">Cancel</button>
-				<button class="btn btn-primary" onclick="closeModal('dateModal');showToast('Date range applied','success')">Apply</button>
+			<div style="height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem">
+				<div style="font-size:2.5rem;font-weight:800;color:var(--primary)" th:text="${totalTenants}">0</div>
+				<div style="font-size:0.85rem;color:var(--muted)">Active Tenants</div>
 			</div>
 		</div>
-	</div>
+		<div class="card">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600">
+					<span style="color:var(--violet)"><i class="fas fa-users"></i></span>
+					User Overview
+				</h3>
+			</div>
+			<div style="height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem">
+				<div style="font-size:2.5rem;font-weight:800;color:var(--primary)" th:text="${totalUsers}">0</div>
+				<div style="font-size:0.85rem;color:var(--muted)">Registered Users</div>
+			</div>
+		</div>
+	</section>
 
-	<script th:src="@{/dashboard-super-admin.js}"></script>
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links">
+			<a href="#">About</a>
+			<a href="#">Privacy</a>
+			<a href="#">Terms</a>
+			<a href="#">Contact</a>
+		</div>
+	</footer>
 
+</section>
 </body>
 </html>

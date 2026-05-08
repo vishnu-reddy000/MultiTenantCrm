@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Roles &amp; Permissions', 'roles', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Roles &amp; Permissions</h1>
+			<p class="page-subtitle">Define and manage role-based access control across the system</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-primary" onclick="showToast('Feature coming soon','info')"><i class="fas fa-plus"></i> New Role</button>
+		</div>
+	</div>
+
+	<!-- Role Cards Grid -->
+	<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin-top:1rem">
+
+		<!-- SUPER_ADMIN -->
+		<div class="card" style="border-top:3px solid #E53935">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700">
+					<span style="width:34px;height:34px;border-radius:8px;background:rgba(229,57,53,.15);display:flex;align-items:center;justify-content:center;color:#E53935">
+						<i class="fas fa-crown"></i>
+					</span>
+					SUPER_ADMIN
+				</h3>
+				<span style="background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">System</span>
+			</div>
+			<p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Full unrestricted access to all system features, configurations, and data.</p>
+			<div style="display:flex;flex-direction:column;gap:.4rem">
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Manage all tenants</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Manage all users &amp; admins</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View all leads &amp; revenue</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> System settings &amp; audit logs</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Subscription management</div>
+			</div>
+		</div>
+
+		<!-- ADMIN -->
+		<div class="card" style="border-top:3px solid #4CAF50">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700">
+					<span style="width:34px;height:34px;border-radius:8px;background:rgba(76,175,80,.15);display:flex;align-items:center;justify-content:center;color:#4CAF50">
+						<i class="fas fa-user-shield"></i>
+					</span>
+					ADMIN
+				</h3>
+				<span style="background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">Tenant</span>
+			</div>
+			<p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Tenant-level administrator with full control over their organization's data.</p>
+			<div style="display:flex;flex-direction:column;gap:.4rem">
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Manage tenant users</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Approve / reject leads</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View reports &amp; analytics</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Assign leads to sales team</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Cross-tenant access</div>
+			</div>
+		</div>
+
+		<!-- MANAGER -->
+		<div class="card" style="border-top:3px solid #2196F3">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700">
+					<span style="width:34px;height:34px;border-radius:8px;background:rgba(33,150,243,.15);display:flex;align-items:center;justify-content:center;color:#2196F3">
+						<i class="fas fa-user-tie"></i>
+					</span>
+					MANAGER
+				</h3>
+				<span style="background:rgba(33,150,243,.15);color:#2196F3;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">Team</span>
+			</div>
+			<p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Team manager with lead creation and team oversight capabilities.</p>
+			<div style="display:flex;flex-direction:column;gap:.4rem">
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Create &amp; manage leads</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View team performance</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Access sales pipeline</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> User management</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> System settings</div>
+			</div>
+		</div>
+
+		<!-- SALES_EXECUTIVE -->
+		<div class="card" style="border-top:3px solid #FF9800">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700">
+					<span style="width:34px;height:34px;border-radius:8px;background:rgba(255,152,0,.15);display:flex;align-items:center;justify-content:center;color:#FF9800">
+						<i class="fas fa-briefcase"></i>
+					</span>
+					SALES_EXECUTIVE
+				</h3>
+				<span style="background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">Sales</span>
+			</div>
+			<p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Front-line sales representative working assigned leads and deals.</p>
+			<div style="display:flex;flex-direction:column;gap:.4rem">
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View assigned leads</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Update lead status</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> Log calls &amp; meetings</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Approve / reject leads</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Admin features</div>
+			</div>
+		</div>
+
+		<!-- USER -->
+		<div class="card" style="border-top:3px solid #9C27B0">
+			<div class="card-head">
+				<h3 class="card-title" style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700">
+					<span style="width:34px;height:34px;border-radius:8px;background:rgba(156,39,176,.15);display:flex;align-items:center;justify-content:center;color:#9C27B0">
+						<i class="fas fa-user"></i>
+					</span>
+					USER
+				</h3>
+				<span style="background:rgba(156,39,176,.15);color:#9C27B0;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600">Basic</span>
+			</div>
+			<p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Standard user with read-only access to their own data and basic features.</p>
+			<div style="display:flex;flex-direction:column;gap:.4rem">
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View own profile</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-check" style="color:#4CAF50;width:14px"></i> View assigned tasks</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Lead management</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Reports &amp; analytics</div>
+				<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-2)"><i class="fas fa-times" style="color:#E53935;width:14px"></i> Admin features</div>
+			</div>
+		</div>
+
+	</div>
+
+	<footer class="dash-footer" style="margin-top:2rem">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Audit Logs', 'audit', ~{::section})}">
+<head></head>
+<body>
+<section>
+
+	<div class="page-header">
+		<div class="ph-left">
+			<div class="page-eyebrow">Super Admin</div>
+			<h1 class="page-title">Audit Logs</h1>
+			<p class="page-subtitle">Track all system actions and changes for compliance and security</p>
+		</div>
+		<div class="ph-right">
+			<button class="btn btn-ghost" onclick="openDateModal()"><i class="far fa-calendar"></i> Filter by Date</button>
+			<button class="btn btn-primary" onclick="showToast('Audit log exported','success')"><i class="fas fa-download"></i> Export</button>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<section class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Events</p>
+				<h2 class="kpi-value" th:text="${totalLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-clipboard-list"></i> Logged actions</span>
+			</div>
+			<div class="kpi-icon kpi-icon-1"><i class="fas fa-clipboard-list"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Approvals</p>
+				<h2 class="kpi-value" th:text="${approvedLeads}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-check"></i> Lead approvals</span>
+			</div>
+			<div class="kpi-icon kpi-icon-3"><i class="fas fa-check-circle"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Rejections</p>
+				<h2 class="kpi-value" th:text="${rejectedLeads}">0</h2>
+				<span class="kpi-change" style="color:#E53935"><i class="fas fa-times"></i> Lead rejections</span>
+			</div>
+			<div class="kpi-icon" style="background:rgba(229,57,53,.15);color:#E53935"><i class="fas fa-times-circle"></i></div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-body">
+				<p class="kpi-label">Total Users</p>
+				<h2 class="kpi-value" th:text="${totalUsers}">0</h2>
+				<span class="kpi-change kpi-up"><i class="fas fa-users"></i> Active accounts</span>
+			</div>
+			<div class="kpi-icon kpi-icon-2"><i class="fas fa-users"></i></div>
+		</div>
+	</section>
+
+	<!-- Audit Log Table -->
+	<div class="card" style="margin-top:1.5rem">
+		<div class="card-head">
+			<h3 class="card-title" style="display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:600">
+				<span style="color:var(--primary)"><i class="fas fa-clipboard-list"></i></span>
+				System Audit Log
+			</h3>
+			<span style="font-size:.75rem;color:var(--muted)" th:text="'Total: ' + (${allLeads != null ? allLeads.size() : 0}) + ' events'">Total: 0 events</span>
+		</div>
+		<div style="overflow-x:auto">
+			<table style="width:100%;border-collapse:collapse;font-size:.82rem">
+				<thead>
+					<tr style="border-bottom:1px solid var(--border)">
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">#</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Timestamp</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Action</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Entity</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Details</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Performed By</th>
+						<th style="padding:.65rem .75rem;text-align:left;color:var(--muted);font-weight:600">Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(allLeads)}">
+						<td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">No audit events found</td>
+					</tr>
+					<tr th:each="lead, stat : ${allLeads}" style="border-bottom:1px solid var(--border)">
+						<td style="padding:.65rem .75rem;color:var(--muted)" th:text="${stat.count}">1</td>
+						<td style="padding:.65rem .75rem;color:var(--muted);font-size:.75rem"
+							th:text="${#temporals.format(lead.createdAt,'dd MMM yyyy, HH:mm')}">—</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${lead.status.name() == 'APPROVED'} ? 'LEAD_APPROVED' : (${lead.status.name() == 'REJECTED'} ? 'LEAD_REJECTED' : 'LEAD_CREATED')"
+								th:style="${lead.status.name() == 'APPROVED'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600;font-family:monospace' :
+								           (${lead.status.name() == 'REJECTED'} ? 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600;font-family:monospace' :
+								           'background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600;font-family:monospace')">
+								ACTION
+							</span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem">Lead</td>
+						<td style="padding:.65rem .75rem;color:var(--text);font-weight:500;font-size:.82rem">
+							<span th:text="${lead.customerName}">—</span>
+							<span style="color:var(--muted);font-weight:400"> — $<span th:text="${lead.dealValue}">0</span></span>
+						</td>
+						<td style="padding:.65rem .75rem;color:var(--text-2);font-size:.78rem"
+							th:text="${lead.createdBy != null ? lead.createdBy.name : 'System'}">—</td>
+						<td style="padding:.65rem .75rem">
+							<span th:text="${lead.status}"
+								th:style="${lead.status.name() == 'APPROVED'} ? 'background:rgba(76,175,80,.15);color:#4CAF50;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           (${lead.status.name() == 'REJECTED'} ? 'background:rgba(229,57,53,.15);color:#E53935;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600' :
+								           'background:rgba(255,152,0,.15);color:#FF9800;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600')">
+								PENDING
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<footer class="dash-footer">
+		<span>© 2026 <a href="#" style="color:var(--teal)">CRMS</a> — All rights reserved</span>
+		<div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+	</footer>
+
+</section>
+</body>
+</html>

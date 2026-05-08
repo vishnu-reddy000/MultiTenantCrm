@@ -1,20 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/super-admin-layout :: layout('Tenant Management', 'tenants', ~{::section})}">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenant Management | CRMS</title>
+<head></head>
+<body>
+<section>
 
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
-
-    <!-- Reuse the same CSS as the super-admin dashboard -->
-    <link rel="stylesheet" th:href="@{/dashboard-super-admin.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <!-- Tenant-page-specific styles injected inline -->
+    <style>
 
     <style>
         /* ── Tenant-page-specific additions ─────────────────────────────── */
@@ -303,121 +296,6 @@
             .modal-overlay { align-items: flex-end; }
         }
     </style>
-</head>
-
-<body>
-
-<!-- ═══════════════════ TOPBAR ═══════════════════ -->
-<header class="topbar">
-    <div class="topbar-left">
-        <a th:href="@{/dashboard/super-admin}" class="brand">
-            <div class="brand-icon"><i class="fas fa-fire-flame-curved"></i></div>
-            <span class="brand-name">CRMS</span>
-        </a>
-        <button class="sidebar-collapse-btn" id="sidebarToggle" title="Toggle sidebar">
-            <i class="fas fa-chevron-left" id="toggleIcon"></i>
-        </button>
-    </div>
-
-    <div class="topbar-center">
-        <div class="search-box">
-            <i class="fas fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search anything…">
-        </div>
-    </div>
-
-    <div class="topbar-right">
-        <button class="tb-btn" title="Dark mode"><i class="fas fa-moon"></i></button>
-        <div class="tb-divider"></div>
-        <div class="user-chip" id="userChip">
-            <div class="user-avatar"><span class="user-dot"></span></div>
-            <div class="user-info">
-                <span class="user-name">Admin</span>
-                <span class="user-role">Super Admin</span>
-            </div>
-            <div class="user-dropdown" id="userDropdown">
-                <div class="user-drop-head">
-                    <div class="udh-av"><div class="udh-dot"></div></div>
-                    <div>
-                        <div class="udh-name">Admin User</div>
-                        <div class="udh-email">admin@crms.io</div>
-                    </div>
-                </div>
-                <div class="user-drop-divider"></div>
-                <form th:action="@{/logout}" method="post" style="display:contents">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="user-drop-item danger" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font:inherit;padding:0">
-                        <i class="fas fa-arrow-right-from-bracket"></i>Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</header>
-
-<div class="layout" id="layout">
-
-    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
-    <aside class="sidebar" id="sidebar">
-        <span class="nav-section">Main Menu</span>
-        <div class="nav-group">
-            <div class="nav-item">
-                <a th:href="@{/dashboard/super-admin}" class="nav-row" data-tooltip="Dashboard">
-                    <span class="nav-icon"><i class="fas fa-chart-tree-map"></i></span>
-                    <span class="nav-label">Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-item active">
-                <a th:href="@{/super-admin/tenants/page}" class="nav-row" data-tooltip="Tenants">
-                    <span class="nav-icon"><i class="fas fa-building"></i></span>
-                    <span class="nav-label">Tenants</span>
-                </a>
-            </div>
-            <div class="nav-item has-sub">
-                <div class="nav-row" onclick="toggleSub(this)" data-tooltip="Super Admin">
-                    <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
-                    <span class="nav-label">Super Admin</span>
-                    <i class="fas fa-chevron-down nav-arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li><span class="sub-dot"></span>Users</li>
-                    <li><span class="sub-dot"></span>Roles &amp; Permissions</li>
-                    <li><span class="sub-dot"></span>Audit Log</li>
-                    <li><span class="sub-dot"></span>System Settings</li>
-                </ul>
-            </div>
-        </div>
-
-        <span class="nav-section">System</span>
-        <div class="nav-group">
-            <div class="nav-item">
-                <div class="nav-row" data-tooltip="Settings">
-                    <span class="nav-icon"><i class="fas fa-gear"></i></span>
-                    <span class="nav-label">Settings</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="sidebar-footer">
-            <div class="sidebar-footer-meta">
-                <div class="sf-av"></div>
-                <div>
-                    <div class="sf-name">Admin User</div>
-                    <div class="sf-role">Super Administrator</div>
-                </div>
-            </div>
-            <form th:action="@{/logout}" method="post" style="display:block;width:100%">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" class="logout-btn" style="width:100%">
-                    <i class="fas fa-arrow-right-from-bracket"></i>
-                    <span class="logout-text">Logout</span>
-                </button>
-            </form>
-        </div>
-    </aside>
-
-    <!-- ═══════════════════ MAIN ═══════════════════ -->
-    <main class="main">
 
         <!-- Page Header -->
         <div class="page-header">
@@ -531,10 +409,7 @@
             </div>
         </footer>
 
-    </main>
-</div>
-
-<!-- ═══════════════════ MODALS ═══════════════════ -->
+    <!-- ═══════════════════ MODALS ═══════════════════ -->
 
 <!-- ── Add / Edit Tenant Modal ── -->
 <div class="modal-overlay hidden" id="addModal">
@@ -723,28 +598,6 @@ let allTenants   = [];      // full list from server
 let editingId    = null;    // DB id of tenant being edited, or null on create
 let deleteTargId = null;    // DB id to delete
 let pendingTenantId = '';   // generated ID for the current create form
-
-// ─────────────────────────────────────────────────────────
-// Sidebar toggle (reuse existing pattern)
-// ─────────────────────────────────────────────────────────
-document.getElementById('sidebarToggle').addEventListener('click', function () {
-    const layout  = document.getElementById('layout');
-    const sidebar = document.getElementById('sidebar');
-    const icon    = document.getElementById('toggleIcon');
-    sidebar.classList.toggle('collapsed');
-    layout.classList.toggle('sidebar-collapsed');
-    icon.className = sidebar.classList.contains('collapsed')
-        ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
-});
-
-// User chip dropdown toggle
-document.getElementById('userChip').addEventListener('click', function (e) {
-    document.getElementById('userDropdown').classList.toggle('open');
-    e.stopPropagation();
-});
-document.addEventListener('click', () => {
-    document.getElementById('userDropdown').classList.remove('open');
-});
 
 // ─────────────────────────────────────────────────────────
 // Modal helpers
@@ -1121,14 +974,6 @@ function escHtml(str) {
 }
 
 // ─────────────────────────────────────────────────────────
-// Sidebar submenu toggle (matches existing dashboard JS)
-// ─────────────────────────────────────────────────────────
-function toggleSub(navRow) {
-    const item = navRow.closest('.nav-item');
-    item.classList.toggle('open');
-}
-
-// ─────────────────────────────────────────────────────────
 // Boot
 // ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', loadTenants);
@@ -1136,5 +981,6 @@ document.addEventListener('DOMContentLoaded', loadTenants);
 /*]]>*/
 </script>
 
+</section>
 </body>
 </html>
