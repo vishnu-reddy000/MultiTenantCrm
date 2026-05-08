@@ -1,29 +1,35 @@
 /* ============================================================
-   DASHBOARD CSS — John Don User Dashboard
+   DASHBOARD CSS — User Dashboard — Blue-Purple Theme (matches login page)
+   Palette: #667EEA → #764BA2
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 /* ---- CSS Variables ---- */
 :root {
-    --navy:      #2B2D31;
-    --navy-mid:  #3F4147;
-    --navy-light:#555555;
-    --orange:    #4CAF50;
-    --orange-hover:#388E3C;
-    --bg:        #F5F6F8;
-    --surface:   #ffffff;
-    --text:      #333333;
-    --muted:     #888888;
-    --border:    #E0E0E0;
-    --shadow:    0 4px 20px rgba(26,46,74,0.08);
-    --shadow-lg: 0 8px 32px rgba(26,46,74,0.14);
-    --radius:    14px;
-    --radius-sm: 8px;
-    --sidebar-w: 220px;
-    --font-main: 'Inter', sans-serif;
-    --font-mono: 'Space Mono', monospace;
-    --transition: 0.28s cubic-bezier(.4,0,.2,1);
+    --navy:         #0f172a;
+    --navy-mid:     #1e293b;
+    --navy-light:   #334155;
+    --orange:       #667EEA;
+    --orange-hover: #5a6fd6;
+    --bg:           #F8FAFC;
+    --surface:      #ffffff;
+    --text:         #1E293B;
+    --muted:        #64748b;
+    --border:       #e2e8f0;
+    --shadow:       0 4px 20px rgba(102,126,234,0.10);
+    --shadow-lg:    0 8px 32px rgba(102,126,234,0.16);
+    --radius:       14px;
+    --radius-sm:    8px;
+    --sidebar-w:    220px;
+    --font-main:    'Inter', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+    --transition:   0.28s cubic-bezier(.4,0,.2,1);
+    /* Brand gradient */
+    --brand-gradient: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+    --primary:      #667EEA;
+    --primary-d:    #5a6fd6;
+    --secondary:    #764BA2;
 }
 
 /* ---- Reset ---- */

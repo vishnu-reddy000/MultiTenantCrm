@@ -1,5 +1,6 @@
 /* ============================================================
    dashboard-admin.css – CRM Portal Admin Dashboard
+   Color Palette: Blue-Purple (#667EEA → #764BA2) — matches login page
    ============================================================ */
 
 /* ── CSS Variables ─────────────────────────────────────────── */
@@ -7,28 +8,30 @@
 	--sidebar-w: 260px;
 	--topbar-h: 64px;
 
-	/* Brand */
-	--brand: #DC2626;
-	--brand-dark: #B91C1C;
-	--brand-light: #FEF2F2;
+	/* Brand — blue-purple gradient from login page */
+	--brand: #667EEA;
+	--brand-dark: #5a6fd6;
+	--brand-deep: #764BA2;
+	--brand-light: #EEF2FF;
+	--brand-gradient: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
 
 	/* Neutrals */
 	--bg: #F8FAFC;
 	--surface: #FFFFFF;
 	--border: #E5E7EB;
 	--muted: #6B7280;
-	--text: #111827;
-	--text-sm: #374151;
+	--text: #1E293B;
+	--text-sm: #334155;
 
 	/* Sidebar */
 	--sidebar-bg: #0F172A;
 	--sidebar-text: #94A3B8;
 	--sidebar-hover: #1E293B;
-	--sidebar-active: #1D4ED8;
+	--sidebar-active: #667EEA;
 
 	/* Accent colors */
-	--blue: #3B82F6;
-	--purple: #8B5CF6;
+	--blue: #667EEA;
+	--purple: #764BA2;
 	--cyan: #06B6D4;
 	--green: #10B981;
 	--orange: #F97316;
@@ -120,7 +123,7 @@ svg {
 .logo-icon {
 	width: 36px;
 	height: 36px;
-	background: var(--brand);
+	background: var(--brand-gradient);
 	border-radius: 8px;
 	display: flex;
 	align-items: center;
@@ -340,8 +343,8 @@ svg {
 }
 
 .search-box input:focus {
-	border-color: var(--blue);
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+	border-color: var(--brand);
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
 }
 
 /* Topbar right */
@@ -398,7 +401,7 @@ svg {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	background: linear-gradient(135deg, var(--brand), #F97316);
+	background: var(--brand-gradient);
 	color: #fff;
 	font-weight: 700;
 	font-size: 0.875rem;
@@ -464,18 +467,19 @@ svg {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	background: var(--brand);
+	background: var(--brand-gradient);
 	color: #fff;
 	padding: 9px 18px;
 	border-radius: var(--radius-sm);
 	font-weight: 600;
 	font-size: 0.875rem;
-	transition: background .15s, transform .1s;
+	transition: opacity .15s, transform .1s;
 	white-space: nowrap;
+	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.28);
 }
 
 .btn-primary:hover {
-	background: var(--brand-dark);
+	opacity: .9;
 	transform: translateY(-1px);
 }
 
@@ -635,8 +639,8 @@ svg {
 }
 
 .kpi-trend.neutral {
-	background: #EFF6FF;
-	color: #1D4ED8;
+	background: #EEF2FF;
+	color: #4338CA;
 }
 
 .kpi-value {
@@ -662,12 +666,12 @@ svg {
 
 .kpi-bar>div {
 	height: 100%;
-	background: linear-gradient(90deg, var(--blue), var(--cyan));
+	background: var(--brand-gradient);
 	border-radius: 99px;
 }
 
 .kpi-blue .kpi-bar>div {
-	background: linear-gradient(90deg, var(--blue), #60A5FA);
+	background: var(--brand-gradient);
 }
 
 .kpi-purple .kpi-bar>div {
@@ -755,7 +759,7 @@ svg {
 }
 
 .action-icon-blue {
-	background: var(--blue);
+	background: var(--brand-gradient);
 }
 
 .action-icon-green {
@@ -883,8 +887,6 @@ svg {
 .link-sm:hover {
 	opacity: .75;
 }
-
-.activity-list {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -1087,8 +1089,8 @@ tbody tr:hover td {
 }
 
 .action-assign {
-	background: #EFF6FF;
-	color: #1D4ED8;
+	background: #EEF2FF;
+	color: #667EEA;
 }
 
 .action-assign:hover {
@@ -1176,7 +1178,7 @@ tbody tr:hover td {
 .form-select:focus,
 .form-textarea:focus {
 	border-color: var(--brand);
-	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.10);
 }
 
 .form-input::placeholder {

@@ -1,42 +1,48 @@
 /* ============================================================
-   dashboard-sales-executive.css  —  Sales Executive Dashboard
-   Dark sidebar + warm amber accent on clean white content area
+   dashboard-sales-executive.css — Blue-Purple Theme (matches login page)
+   Palette: #667EEA → #764BA2
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 /* ── Design Tokens ─────────────────────────────────────────── */
 :root {
-	--navy: #0f1e35;
-	--navy-deep: #0b1628;
-	--navy-mid: #1a2e4a;
-	--navy-light: #2e3d60;
-	--navy-soft: #1e3a5f;
-	--orange: #f5a623;
-	--orange-dim: #e89a1a;
-	--orange-glow: rgba(245, 166, 35, 0.22);
-	--green: #34d399;
-	--blue: #4f8ef7;
-	--red: #fc8181;
+	--navy:       #0f172a;
+	--navy-deep:  #0a0f1e;
+	--navy-mid:   #1e293b;
+	--navy-light: #334155;
+	--navy-soft:  #1e2d4a;
+	--orange:     #667EEA;
+	--orange-dim: #5a6fd6;
+	--orange-glow:rgba(102,126,234,.22);
+	--green:      #34d399;
+	--blue:       #764BA2;
+	--red:        #fc8181;
 
-	--page-bg: #f4f6fb;
-	--surface: #ffffff;
-	--border: #e4e8f0;
-	--muted: #8a95b0;
-	--text: #0f1e35;
-	--text-sm: #374151;
+	--page-bg:  #F8FAFC;
+	--surface:  #ffffff;
+	--border:   #e2e8f0;
+	--muted:    #64748b;
+	--text:     #1E293B;
+	--text-sm:  #334155;
+
+	/* Brand */
+	--primary:          #667EEA;
+	--primary-d:        #5a6fd6;
+	--secondary:        #764BA2;
+	--brand-gradient:   linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
 
 	/* Sidebar */
-	--sidebar-bg: #0b1628;
-	--sidebar-text: rgba(255, 255, 255, 0.55);
-	--sidebar-hover: rgba(255, 255, 255, 0.06);
-	--sidebar-active-bg: rgba(245, 166, 35, 0.15);
-	--sidebar-border: rgba(255, 255, 255, 0.07);
+	--sidebar-bg:        #0f172a;
+	--sidebar-text:      rgba(255,255,255,.55);
+	--sidebar-hover:     rgba(255,255,255,.06);
+	--sidebar-active-bg: rgba(102,126,234,.18);
+	--sidebar-border:    rgba(255,255,255,.07);
 
 	/* Shadows */
-	--shadow-sm: 0 2px 8px rgba(15, 30, 53, 0.07);
-	--shadow-md: 0 6px 24px rgba(15, 30, 53, 0.11);
-	--shadow-lg: 0 12px 40px rgba(15, 30, 53, 0.16);
+	--shadow-sm: 0 2px 8px rgba(102,126,234,.08);
+	--shadow-md: 0 6px 24px rgba(102,126,234,.12);
+	--shadow-lg: 0 12px 40px rgba(102,126,234,.16);
 
 	/* Layout */
 	--sidebar-w: 250px;
@@ -44,7 +50,7 @@
 	--radius-md: 14px;
 	--radius-lg: 20px;
 
-	--font: 'DM Sans', sans-serif;
+	--font:      'DM Sans', sans-serif;
 	--font-mono: 'Space Mono', monospace;
 }
 

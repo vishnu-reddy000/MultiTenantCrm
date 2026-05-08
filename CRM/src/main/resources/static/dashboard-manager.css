@@ -1,6 +1,6 @@
 /* ============================================================
-   CRMS MANAGER DASHBOARD — "Teal Depths" Theme
-   Palette: Teal · Cyan · Orange · Peach · Blue-Grey
+   CRMS MANAGER DASHBOARD — Blue-Purple Theme (matches login page)
+   Palette: #667EEA → #764BA2
    Font: Inter
    ============================================================ */
 
@@ -10,17 +10,20 @@
    CSS CUSTOM PROPERTIES
    ────────────────────────────────────────── */
 :root {
-	/* ── Primary Palette: Teal ── */
-	--primary:     #0d9488;
-	--primary-l:   #14b8a6;
-	--primary-ll:  #5eead4;
-	--primary-d:   #0f766e;
-	--primary-dd:  #115e59;
+	/* ── Primary Palette: Blue-Purple (login page colors) ── */
+	--primary:     #667EEA;
+	--primary-l:   #7c91ee;
+	--primary-ll:  #c7d0f9;
+	--primary-d:   #5a6fd6;
+	--primary-dd:  #4d60c2;
 
-	/* ── Secondary: Blue ── */
-	--secondary:   #0891b2;
-	--secondary-l: #06b6d4;
-	--secondary-d: #0e7490;
+	/* ── Secondary: Deep Purple ── */
+	--secondary:   #764BA2;
+	--secondary-l: #8b62b8;
+	--secondary-d: #623d8a;
+
+	/* ── Gradient ── */
+	--brand-gradient: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
 
 	/* ── Accent: Orange (warnings/CTAs) ── */
 	--orange:      #f97316;
@@ -39,21 +42,21 @@
 	/* ── Semantic ── */
 	--rose:        #ef4444;
 	--rose-l:      #f87171;
-	--violet:      #8b5cf6;
+	--violet:      #764BA2;
 	--green:       #22c55e;
 
 	/* ── Backgrounds ── */
-	--bg:          #f0fdfa;
-	--bg-2:        #e6f7f5;
-	--bg-3:        #ccf0ec;
+	--bg:          #F8FAFC;
+	--bg-2:        #EEF2FF;
+	--bg-3:        #e0e7ff;
 
 	/* ── Surfaces ── */
 	--surface:     #ffffff;
-	--surface-2:   #f8fffe;
-	--surface-3:   #f0fdfb;
+	--surface-2:   #fafbff;
+	--surface-3:   #f5f7ff;
 
 	/* ── Text ── */
-	--text:        #0f172a;
+	--text:        #1E293B;
 	--text-2:      #334155;
 	--muted:       #64748b;
 	--muted-2:     #94a3b8;
@@ -61,7 +64,7 @@
 	/* ── Borders ── */
 	--border:      #e2e8f0;
 	--border-2:    #f1f5f9;
-	--border-focus: rgba(13,148,136,.30);
+	--border-focus: rgba(102,126,234,.30);
 
 	/* ── Sidebar ── */
 	--sidebar-bg:        #0f172a;
@@ -71,7 +74,7 @@
 	--sidebar-text-muted:#64748b;
 
 	/* ── Glows ── */
-	--glow-primary: rgba(13,148,136,.20);
+	--glow-primary: rgba(102,126,234,.20);
 	--glow-orange:  rgba(249,115,22,.20);
 	--glow-peach:   rgba(251,191,36,.18);
 	--glow-rose:    rgba(239,68,68,.18);
@@ -144,7 +147,7 @@ button,select{cursor:pointer;font-family:var(--font);border:none;outline:none;ba
 .brand{display:flex;align-items:center;gap:.62rem;text-decoration:none}
 .brand-icon{
 	width:36px;height:36px;border-radius:10px;
-	background:linear-gradient(135deg,#22c55e,#f97316,#ef4444);
+	background:linear-gradient(135deg,#667EEA,#764BA2);
 	display:flex;align-items:center;justify-content:center;
 	color:#fff;font-size:.88rem;
 	box-shadow:0 3px 12px var(--glow-primary);
@@ -295,7 +298,7 @@ button,select{cursor:pointer;font-family:var(--font);border:none;outline:none;ba
 .nav-item{margin-bottom:1px}
 .nav-row{display:flex;align-items:center;gap:.62rem;padding:.72rem 1rem;cursor:pointer;transition:all var(--trans);color:var(--sidebar-text-muted);font-size:.85rem;font-weight:500;border-radius:var(--r-xs);letter-spacing:0;text-decoration:none}
 .nav-row:hover{background:var(--sidebar-hover);color:var(--sidebar-text)}
-.nav-item.active > .nav-row{background:linear-gradient(90deg,rgba(13,148,136,.25),rgba(13,148,136,.05));color:var(--primary-ll);border-left:3px solid var(--primary-l)}
+.nav-item.active > .nav-row{background:linear-gradient(90deg,rgba(102,126,234,.25),rgba(102,126,234,.05));color:var(--primary-ll);border-left:3px solid var(--primary-l)}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0;transition:all var(--trans)}
 .nav-label{flex:1;white-space:nowrap}
 .nav-badge{font-size:.6rem;font-weight:700;background:var(--primary);color:#fff;border-radius:var(--r-full);padding:1px 6px;min-width:18px;text-align:center}

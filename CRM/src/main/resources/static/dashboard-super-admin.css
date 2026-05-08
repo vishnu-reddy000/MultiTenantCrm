@@ -1,9 +1,6 @@
 /* ============================================================
-   CRMS SUPER ADMIN — "Warm Gold" Theme
-   Full Desktop + Mobile-First Responsive CSS
-   Palette: Deep Warm Brown · Gold · Warm Tan · Steel Blue-Grey · Neutral Grey
-   Hex Keys: #8e8e90 · #bd8c2d · #d1bfa7 · #bccbde · #c2b490
-   Fonts: DM Sans (body) + Outfit (headings)
+   CRMS SUPER ADMIN — Blue-Purple Theme (matches login page)
+   Palette: #667EEA → #764BA2
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -12,129 +9,129 @@
    CSS CUSTOM PROPERTIES
    ────────────────────────────────────────── */
 :root {
-	/* ── Manager Dashboard Palette ── */
-	--purple: #4CAF50; /* Changed to Green for primary accents */
-	--purple-l: #81C784;
-	--purple-ll: #A5D6A7;
-	--purple-d: #388E3C;
-	--purple-dd: #2E7D32;
+	/* ── Primary: Blue-Purple (login page) ── */
+	--purple:    #667EEA;
+	--purple-l:  #7c91ee;
+	--purple-ll: #c7d0f9;
+	--purple-d:  #5a6fd6;
+	--purple-dd: #4d60c2;
 
-	--orange: #E53935; /* Red accent */
-	--orange-l: #EF5350;
-	--orange-ll: #E57373;
-	--orange-d: #C62828;
-	--orange-dd: #B71C1C;
+	--orange:    #f97316;
+	--orange-l:  #fb923c;
+	--orange-ll: #fed7aa;
+	--orange-d:  #ea580c;
+	--orange-dd: #c2410c;
 
-	--peach: #FF9800; /* Yellow/Orange */
-	--peach-l: #FFB74D;
-	--peach-ll: #FFCC80;
-	--peach-d: #F57C00;
-	--peach-dd: #EF6C00;
+	--peach:     #fbbf24;
+	--peach-l:   #fcd34d;
+	--peach-ll:  #fde68a;
+	--peach-d:   #d97706;
+	--peach-dd:  #b45309;
 
-	--bluegrey: #2196F3; /* Blue */
-	--bluegrey-l: #64B5F6;
-	--bluegrey-ll: #90CAF9;
-	--bluegrey-d: #1976D2;
-	--bluegrey-dd: #1565C0;
+	--bluegrey:  #764BA2;
+	--bluegrey-l:#8b62b8;
+	--bluegrey-ll:#c4a8d8;
+	--bluegrey-d:#623d8a;
+	--bluegrey-dd:#4e3070;
 
 	/* ── Semantic shorthand ── */
-	--amber: #FF9800;
-	--amber-l: #FFB74D;
-	--rose: #E53935;
-	--rose-l: #EF5350;
-	--violet: #9C27B0;
-	--violet-l: #BA68C8;
+	--amber:   #fbbf24;
+	--amber-l: #fcd34d;
+	--rose:    #ef4444;
+	--rose-l:  #f87171;
+	--violet:  #764BA2;
+	--violet-l:#8b62b8;
 
-	/* Legacy alias (keeps existing selectors working) */
-	--teal: var(--purple);
-	--teal-l: var(--purple-l);
-	--teal-ll: var(--purple-ll);
-	--teal-d: var(--purple-d);
-	--teal-dd: var(--purple-dd);
-	--teal-blue: var(--bluegrey);
-	--teal-blue-l: var(--bluegrey-l);
+	/* Legacy aliases */
+	--teal:         var(--purple);
+	--teal-l:       var(--purple-l);
+	--teal-ll:      var(--purple-ll);
+	--teal-d:       var(--purple-d);
+	--teal-dd:      var(--purple-dd);
+	--teal-blue:    var(--bluegrey);
+	--teal-blue-l:  var(--bluegrey-l);
 	--teal-blue-ll: var(--bluegrey-ll);
-	--teal-blue-d: var(--bluegrey-d);
-	--teal-green: var(--purple);
+	--teal-blue-d:  var(--bluegrey-d);
+	--teal-green:   var(--purple);
 	--teal-green-l: var(--purple-l);
-	--teal-green-ll: var(--purple-ll);
+	--teal-green-ll:var(--purple-ll);
 	--teal-green-d: var(--purple-d);
-	--cyan: var(--bluegrey);
-	--cyan-l: var(--bluegrey-l);
-	--mint: #E8F5E9;
-	--aqua: #E3F2FD;
+	--cyan:         var(--bluegrey);
+	--cyan-l:       var(--bluegrey-l);
+	--mint:         #EEF2FF;
+	--aqua:         #EEF2FF;
 
 	/* ── Backgrounds ── */
-	--bg: #F5F6F8;
-	--bg-2: #EEEEEE;
-	--bg-3: #E0E0E0;
+	--bg:       #F8FAFC;
+	--bg-2:     #EEF2FF;
+	--bg-3:     #e0e7ff;
 
 	/* ── Surfaces ── */
-	--surface: #FFFFFF;
-	--surface-2: #FAFAFA;
-	--surface-3: #F5F5F5;
+	--surface:   #FFFFFF;
+	--surface-2: #fafbff;
+	--surface-3: #f5f7ff;
 
 	/* ── Text ── */
-	--text: #333333;
-	--text-2: #555555;
-	--muted: #888888;
-	--muted-2: #AAAAAA;
+	--text:    #1E293B;
+	--text-2:  #334155;
+	--muted:   #64748b;
+	--muted-2: #94a3b8;
 
 	/* ── Borders ── */
-	--border: #E0E0E0;
-	--border-2: #EEEEEE;
-	--border-focus: rgba(76, 175, 80, 0.30);
+	--border:       #e2e8f0;
+	--border-2:     #f1f5f9;
+	--border-focus: rgba(102,126,234,.30);
 
 	/* ── Sidebar ── */
-	--sidebar-bg: #2B2D31;
-	--sidebar-act: #3F4147;
-	--sidebar-text: #FFFFFF;
-	--sidebar-text-muted: #9BA1A6;
+	--sidebar-bg:        #0f172a;
+	--sidebar-act:       #1e293b;
+	--sidebar-text:      #f1f5f9;
+	--sidebar-text-muted:#64748b;
 
 	/* ── Semantic tokens ── */
-	--primary: var(--purple);
-	--primary-l: var(--purple-l);
+	--primary:    var(--purple);
+	--primary-l:  var(--purple-l);
 	--primary-ll: var(--purple-ll);
-	--primary-d: var(--purple-d);
-	--secondary: var(--bluegrey);
-	--secondary-l: var(--bluegrey-l);
-	--tertiary: var(--peach);
+	--primary-d:  var(--purple-d);
+	--secondary:  var(--bluegrey);
+	--secondary-l:var(--bluegrey-l);
+	--tertiary:   var(--peach);
 	--tertiary-l: var(--peach-l);
 
 	/* ── Glows ── */
-	--glow-purple: rgba(76, 175, 80, 0.18);
-	--glow-orange: rgba(229, 57, 53, 0.25);
-	--glow-peach: rgba(255, 152, 0, 0.20);
-	--glow-blue: rgba(33, 150, 243, 0.20);
-	--glow-teal: var(--glow-purple);
-	--glow-green: var(--glow-purple);
-	--glow-amber: var(--glow-peach);
-	--glow-rose: rgba(229, 57, 53, 0.16);
+	--glow-purple: rgba(102,126,234,.18);
+	--glow-orange: rgba(249,115,22,.20);
+	--glow-peach:  rgba(251,191,36,.18);
+	--glow-blue:   rgba(118,75,162,.20);
+	--glow-teal:   var(--glow-purple);
+	--glow-green:  var(--glow-purple);
+	--glow-amber:  var(--glow-peach);
+	--glow-rose:   rgba(239,68,68,.16);
 
 	/* ── Sizing ── */
-	--sidebar-w: 240px;
-	--topbar-h: 64px;
+	--sidebar-w:    240px;
+	--topbar-h:     64px;
 	--bottom-nav-h: 62px;
-	--r: 10px;
-	--r-sm: 6px;
-	--r-xs: 4px;
-	--r-full: 9999px;
+	--r:            10px;
+	--r-sm:         6px;
+	--r-xs:         4px;
+	--r-full:       9999px;
 
 	/* ── Shadows ── */
-	--shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-	--shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-	--shadow: 0 4px 12px rgba(0,0,0,0.05);
-	--shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+	--shadow-xs: 0 1px 2px rgba(0,0,0,.05);
+	--shadow-sm: 0 2px 4px rgba(0,0,0,.05);
+	--shadow:    0 4px 12px rgba(0,0,0,.05);
+	--shadow-md: 0 8px 24px rgba(0,0,0,.08);
 
 	/* ── Typography ── */
-	--font: 'Inter', sans-serif;
+	--font:      'Inter', sans-serif;
 	--font-head: 'Inter', sans-serif;
 
 	/* ── Motion ── */
-	--ease: cubic-bezier(0.4, 0, 0.2, 1);
-	--spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-	--trans: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-	--trans-slow: 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+	--ease:       cubic-bezier(0.4,0,0.2,1);
+	--spring:     cubic-bezier(0.34,1.56,0.64,1);
+	--trans:      0.22s cubic-bezier(0.4,0,0.2,1);
+	--trans-slow: 0.38s cubic-bezier(0.4,0,0.2,1);
 }
 
 /* ══════════════════════════════════════════
