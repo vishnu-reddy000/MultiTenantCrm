@@ -1,3 +1,8 @@
+/* ============================================================
+   Modern Professional Login Page
+   Color Scheme: Blue & White with subtle gradients
+   ============================================================ */
+
 /* ── Reset ─────────────────────────────────────────── */
 *,
 *::before,
@@ -11,8 +16,8 @@
 html,
 body {
 	height: 100%;
-	font-family: 'Inter', sans-serif;
-	background: #F5F6F8;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	background: #F8FAFC;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -21,303 +26,438 @@ body {
 	overflow: hidden;
 }
 
-/* ── Decorative blobs ──────────────────────────────── */
-.blob-tr {
+/* ── Background Pattern ────────────────────────────── */
+.bg-pattern {
 	position: fixed;
-	top: -40px;
-	right: -40px;
-	width: 180px;
-	height: 180px;
-	background: #E53935;
-	border-radius: 50%;
+	inset: 0;
+	background: 
+		linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+	opacity: 0.03;
 	z-index: 0;
 }
 
-.blob-bl {
-	position: fixed;
-	bottom: -50px;
-	left: -50px;
-	width: 200px;
-	height: 200px;
-	background: #FF9800;
-	border-radius: 50%;
-	z-index: 0;
+.bg-pattern::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: 
+		radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+		radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
 }
 
-/* ── Card ──────────────────────────────────────────── */
-.card {
-	display: flex;
-	width: min(860px, 96vw);
-	min-height: 500px;
-	border-radius: 20px;
+/* ── Login Container ───────────────────────────────── */
+.login-container {
+	display: grid;
+	grid-template-columns: 480px 520px;
+	width: 1000px;
+	max-width: 96vw;
+	min-height: 640px;
+	background: #FFFFFF;
+	border-radius: 24px;
 	overflow: hidden;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.13);
+	box-shadow: 
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	position: relative;
 	z-index: 1;
 }
 
-/* ── Left panel ────────────────────────────────────── */
-.panel-left {
-	width: 290px;
-	background: linear-gradient(145deg, #81C784, #4CAF50);
-	padding: 40px;
-	color: #fff;
+/* ── Brand Side (Left) ─────────────────────────────── */
+.brand-side {
+	background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+	padding: 60px 50px;
+	color: #FFFFFF;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	position: relative;
+	overflow: hidden;
 }
 
-.logo-row {
+.brand-side::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	right: -20%;
+	width: 400px;
+	height: 400px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+	filter: blur(60px);
+}
+
+.brand-content {
+	position: relative;
+	z-index: 1;
 	display: flex;
-	align-items: center;
-	gap: 10px;
+	flex-direction: column;
+	gap: 48px;
+	height: 100%;
 }
 
-.logo-icon {
-	width: 36px;
-	height: 36px;
-	background: rgba(255, 255, 255, 0.25);
-	border-radius: 8px;
+/* ── Brand Logo ────────────────────────────────────── */
+.brand-logo {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.logo-circle {
+	width: 64px;
+	height: 64px;
+	background: rgba(255, 255, 255, 0.15);
+	backdrop-filter: blur(10px);
+	border-radius: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.logo-icon svg {
-	width: 20px;
-	height: 20px;
-	fill: #fff;
+.logo-circle svg {
+	width: 32px;
+	height: 32px;
+	color: #FFFFFF;
 }
 
-.logo-name {
-	font-size: 1rem;
-	font-weight: 600;
-	letter-spacing: 0.5px;
+.brand-name {
+	font-size: 2rem;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: #FFFFFF;
 }
 
-/* ── Diamond decorations ───────────────────────────── */
-.diamonds {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 14px;
-}
-
-.diamond {
-	width: 40px;
-	height: 40px;
-	border: 3px solid rgba(255, 255, 255, 0.5);
-	transform: rotate(45deg);
-	border-radius: 4px;
-}
-
-.diamond.lg {
-	width: 60px;
-	height: 60px;
-	border-color: rgba(255, 255, 255, 0.8);
-}
-
-/* ── Diamond Animations ────────────────────────────── */
-
-/*
-  Keyframe: slides from -18px (top) down to +18px (bottom) and back.
-  The base rotate(45deg) is preserved so the diamond shape stays intact.
-*/
-@keyframes diamondFloat {
-	0% {
-		transform: rotate(45deg) translateY(-18px);
-		opacity: 0.6;
-	}
-
-	50% {
-		transform: rotate(45deg) translateY(18px);
-		opacity: 1;
-	}
-
-	100% {
-		transform: rotate(45deg) translateY(-18px);
-		opacity: 0.6;
-	}
-}
-
-/*
-  Each diamond gets the same animation but with a staggered delay so they
-  ripple top → middle → bottom, then reverse naturally on the way back up.
-  - duration  : 3s  — comfortable, not too fast or slow
-  - timing    : ease-in-out — smooth acceleration / deceleration
-  - iteration : infinite — loops forever
-*/
-.diamonds .diamond:nth-child(1) {
-	animation: diamondFloat 3s ease-in-out infinite;
-	animation-delay: 0s;
-}
-
-.diamonds .diamond:nth-child(2) {
-	animation: diamondFloat 3s ease-in-out infinite;
-	animation-delay: 0.4s;
-	/* starts slightly after the first  */
-}
-
-.diamonds .diamond:nth-child(3) {
-	animation: diamondFloat 3s ease-in-out infinite;
-	animation-delay: 0.8s;
-	/* starts slightly after the second */
-}
-
-/* ── Panel bottom ──────────────────────────────────── */
-.panel-bottom h2 {
-	font-size: 1.4rem;
-	margin-bottom: 10px;
-}
-
-.panel-bottom p {
-	font-size: 0.85rem;
-	opacity: 0.85;
-	line-height: 1.5;
-}
-
-/* ── Right panel ───────────────────────────────────── */
-.panel-right {
+/* ── Brand Tagline ─────────────────────────────────── */
+.brand-tagline {
 	flex: 1;
-	background: #fff;
-	padding: 50px 45px;
 	display: flex;
 	flex-direction: column;
+	gap: 16px;
+}
+
+.brand-tagline h2 {
+	font-size: 1.75rem;
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: -0.01em;
+}
+
+.brand-tagline p {
+	font-size: 1rem;
+	line-height: 1.6;
+	opacity: 0.9;
+	color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Feature List ──────────────────────────────────── */
+.feature-list {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.feature-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateX(4px);
+}
+
+.feature-icon {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.feature-icon svg {
+	width: 100%;
+	height: 100%;
+	color: #FFFFFF;
+}
+
+.feature-item span {
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: #FFFFFF;
+}
+
+/* ── Form Side (Right) ─────────────────────────────── */
+.form-side {
+	background: #FFFFFF;
+	padding: 60px 50px;
+	display: flex;
+	align-items: center;
 	justify-content: center;
 }
 
-.panel-right h1 {
-	text-align: center;
-	color: #2E7D32;
-	font-size: 1.8rem;
-	margin-bottom: 6px;
+.form-wrapper {
+	width: 100%;
+	max-width: 400px;
 }
 
-.or-text {
+/* ── Form Header ───────────────────────────────────── */
+.form-header {
+	margin-bottom: 32px;
 	text-align: center;
-	font-size: 0.82rem;
-	color: #aaa;
-	margin-bottom: 24px;
+}
+
+.form-header h2 {
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: #1E293B;
+	margin-bottom: 8px;
+	letter-spacing: -0.02em;
+}
+
+.form-header p {
+	font-size: 0.95rem;
+	color: #64748B;
+	font-weight: 400;
 }
 
 /* ── Alerts ────────────────────────────────────────── */
 .alert {
-	padding: 10px 14px;
-	border-radius: 8px;
-	margin-bottom: 14px;
-	font-size: 0.85rem;
-	text-align: center;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	border-radius: 12px;
+	margin-bottom: 24px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	border: 1px solid;
+}
+
+.alert svg {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
 }
 
 .alert-error {
-	background: #fdecea;
-	color: #c0392b;
+	background: #FEF2F2;
+	border-color: #FCA5A5;
+	color: #991B1B;
+}
+
+.alert-error svg {
+	color: #DC2626;
 }
 
 .alert-success {
-	background: #eafaf1;
-	color: #1e8449;
+	background: #F0FDF4;
+	border-color: #86EFAC;
+	color: #166534;
 }
 
-/* ── Form ──────────────────────────────────────────── */
-.form-group {
-	margin-bottom: 16px;
+.alert-success svg {
+	color: #16A34A;
+}
+
+/* ── Login Form ────────────────────────────────────── */
+.login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* ── Input Group ───────────────────────────────────── */
+.input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.input-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #334155;
+	letter-spacing: -0.01em;
+}
+
+.input-wrapper {
 	position: relative;
-	/* ← needed for icon positioning */
+	display: flex;
+	align-items: center;
 }
 
-/* FIX: icon positioned inside the input */
+/* ── Input Icon ────────────────────────────────────── */
 .input-icon {
 	position: absolute;
-	left: 14px;
+	left: 16px;
 	top: 50%;
 	transform: translateY(-50%);
-	width: 18px;
-	/* ← explicit size */
-	height: 18px;
-	pointer-events: none;
+	width: 20px;
+	height: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #aaa;
+	pointer-events: none;
+	color: #94A3B8;
+	z-index: 1;
 }
 
-/* FIX: SVG inherits parent size, no fill so stroke shows */
 .input-icon svg {
 	width: 100%;
 	height: 100%;
-	fill: none;
-	stroke: currentColor;
-	stroke-width: 2;
-	stroke-linecap: round;
-	stroke-linejoin: round;
 }
 
-/* FIX: left padding makes room for the icon */
+/* ── Form Input ────────────────────────────────────── */
 .form-input {
 	width: 100%;
-	padding: 12px 15px 12px 42px;
-	/* ← left padding = icon space */
-	border-radius: 8px;
-	border: 1px solid #ddd;
-	font-size: 0.9rem;
+	padding: 14px 16px 14px 48px;
+	border: 1.5px solid #E2E8F0;
+	border-radius: 12px;
+	font-size: 0.9375rem;
 	font-family: inherit;
+	color: #1E293B;
+	background: #FFFFFF;
 	outline: none;
-	transition: border-color 0.2s;
+	transition: all 0.2s ease;
+}
+
+.form-input::placeholder {
+	color: #94A3B8;
+}
+
+.form-input:hover {
+	border-color: #CBD5E1;
 }
 
 .form-input:focus {
-	border-color: #4CAF50;
-	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+	border-color: #667EEA;
+	box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+	background: #FAFBFC;
 }
 
-/* ── Button ────────────────────────────────────────── */
-.btn-primary {
-	width: 100%;
-	padding: 13px;
-	background: #4CAF50;
-	color: #fff;
-	border: none;
-	border-radius: 50px;
-	font-size: 0.95rem;
-	font-weight: 600;
-	cursor: pointer;
-	margin-top: 8px;
-	transition: background 0.2s, transform 0.1s;
-}
-
-/* Eye icon (right side) */
+/* ── Toggle Password ───────────────────────────────── */
 .toggle-password {
 	position: absolute;
-	right: 14px;
+	right: 16px;
 	top: 50%;
 	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	cursor: pointer;
+	color: #94A3B8;
+	background: none;
+	border: none;
+	padding: 0;
+	transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+	color: #667EEA;
+}
+
+.toggle-password.active {
+	color: #667EEA;
 }
 
 .toggle-password svg {
-	width: 18px;
-	height: 18px;
-	stroke: #bbc3d4;
-	fill: none;
-	stroke-width: 2;
+	width: 100%;
+	height: 100%;
 }
 
-.btn-primary:hover {
-	background: #388E3C;
+/* ── Submit Button ─────────────────────────────────── */
+.btn-submit {
+	width: 100%;
+	padding: 14px 24px;
+	background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+	color: #FFFFFF;
+	border: none;
+	border-radius: 12px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+	margin-top: 8px;
 }
 
-.btn-primary:active {
-	transform: scale(0.98);
+.btn-submit:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-submit svg {
+	width: 20px;
+	height: 20px;
+}
+
+/* ── Form Footer ───────────────────────────────────── */
+.form-footer {
+	margin-top: 32px;
+	text-align: center;
+}
+
+.form-footer p {
+	font-size: 0.8125rem;
+	color: #94A3B8;
+	font-weight: 400;
 }
 
 /* ── Responsive ────────────────────────────────────── */
-@media (max-width: 620px) {
-	.panel-left {
+@media (max-width: 1024px) {
+	.login-container {
+		grid-template-columns: 1fr;
+		width: 500px;
+		max-width: 94vw;
+	}
+
+	.brand-side {
 		display: none;
 	}
 
-	.panel-right {
-		padding: 40px 28px;
+	.form-side {
+		padding: 50px 40px;
+	}
+}
+
+@media (max-width: 640px) {
+	.login-container {
+		width: 100%;
+		border-radius: 0;
+		min-height: 100vh;
+	}
+
+	.form-side {
+		padding: 40px 24px;
+	}
+
+	.form-wrapper {
+		max-width: 100%;
+	}
+
+	.form-header h2 {
+		font-size: 1.5rem;
+	}
+
+	.brand-tagline h2 {
+		font-size: 1.5rem;
 	}
 }

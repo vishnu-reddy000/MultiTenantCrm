@@ -4,13 +4,13 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>CRM Login</title>
+	<title>Sign In - CRM Portal</title>
 
 	<link rel="icon" type="image/svg+xml"
-		href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC2626'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
+		href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232563EB'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E" />
 
-	<!-- Google Font -->
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 	<!-- CSS connected via Thymeleaf -->
 	<link rel="stylesheet" th:href="@{/login.css}" />
@@ -18,119 +18,179 @@
 
 <body>
 
-	<div class="card">
+	<!-- Background Pattern -->
+	<div class="bg-pattern"></div>
 
-		<!-- ── Left Panel ────────────────────────────── -->
-		<div class="panel-left">
+	<!-- Login Container -->
+	<div class="login-container">
 
-			<div class="logo-row">
-				<div class="logo-icon">
-					<!-- Grid / app icon -->
-					<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-						<rect x="3" y="3" width="7" height="7" rx="1" />
-						<rect x="14" y="3" width="7" height="7" rx="1" />
-						<rect x="3" y="14" width="7" height="7" rx="1" />
-						<rect x="14" y="14" width="7" height="7" rx="1" />
+		<!-- Left Side - Branding -->
+		<div class="brand-side">
+			<div class="brand-content">
+				<div class="brand-logo">
+					<div class="logo-circle">
+						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+					<h1 class="brand-name">CRM Portal</h1>
+				</div>
+
+				<div class="brand-tagline">
+					<h2>Manage Your Business</h2>
+					<p>Streamline your customer relationships and boost productivity with our comprehensive CRM solution.</p>
+				</div>
+
+				<div class="feature-list">
+					<div class="feature-item">
+						<div class="feature-icon">
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								<polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</div>
+						<span>Real-time Analytics</span>
+					</div>
+					<div class="feature-item">
+						<div class="feature-icon">
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								<polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</div>
+						<span>Team Collaboration</span>
+					</div>
+					<div class="feature-item">
+						<div class="feature-icon">
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								<polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</div>
+						<span>Secure & Reliable</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Right Side - Login Form -->
+		<div class="form-side">
+			<div class="form-wrapper">
+				
+				<div class="form-header">
+					<h2>Welcome Back</h2>
+					<p>Sign in to your account to continue</p>
+				</div>
+
+				<!-- Error alert -->
+				<div th:if="${param.error}" class="alert alert-error">
+					<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+						<line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
-				</div>
-				<span class="logo-name">CRM Portal</span>
-			</div>
-
-			<div class="diamonds">
-				<div class="diamond"></div>
-				<div class="diamond lg"></div>
-				<div class="diamond"></div>
-			</div>
-
-			<div class="panel-bottom">
-				<h2>Welcome Back!</h2>
-				<p>To keep connected with us please login with your personal info.</p>
-			</div>
-
-		</div><!-- /panel-left -->
-
-		<!-- ── Right Panel ───────────────────────────── -->
-		<div class="panel-right">
-
-			<h1>Login</h1>
-
-			<!-- Error alert (shown when ?error is in URL — set by Spring Security) -->
-			<div th:if="${param.error}" class="alert alert-error">
-				Invalid username or password. Please try again.
-			</div>
-
-			<!-- Logout alert (shown when ?logout is in URL) -->
-			<div th:if="${param.logout}" class="alert alert-success">
-				Logged out successfully.
-			</div>
-
-			<!--
-				Login form.
-				action   → POST /login  (processed by Spring Security, not a controller)
-				fields   → name="usernameOrEmail"  matched by .usernameParameter() in SecurityConfig
-				         → name="password"         matched by .passwordParameter() in SecurityConfig
-				CSRF     → required by Spring Security
-			-->
-			<form th:action="@{/login}" method="post">
-
-				<!-- Username / Email -->
-				<div class="form-group">
-					<span class="input-icon">
-						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-							<circle cx="12" cy="7" r="4" />
-						</svg>
-					</span>
-					<input class="form-input" type="text" name="usernameOrEmail" placeholder="Username or Email"
-						autocomplete="username" required />
+					<span>Invalid username or password. Please try again.</span>
 				</div>
 
-				<!-- Password -->
-				<div class="form-group">
-
-					<!-- Left lock icon -->
-					<span class="input-icon">
-						<svg viewBox="0 0 24 24">
-							<rect x="3" y="11" width="18" height="11" rx="2" />
-							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
-						</svg>
-					</span>
-
-					<input id="password" class="form-input" type="password" name="password" placeholder="Password"
-						autocomplete="current-password" required />
-
-					<!-- Eye / toggle icon -->
-					<span class="toggle-password" onclick="togglePassword()">
-						<svg id="eyeIcon" viewBox="0 0 24 24">
-							<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
-							<circle cx="12" cy="12" r="3" />
-						</svg>
-					</span>
-
+				<!-- Success alert -->
+				<div th:if="${param.logout}" class="alert alert-success">
+					<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span>You have been logged out successfully.</span>
 				</div>
 
-				<!-- CSRF token — Spring Security requires this on every POST -->
-				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+				<!-- Login Form -->
+				<form th:action="@{/login}" method="post" class="login-form">
 
-				<button type="submit" class="btn-primary">Sign In</button>
+					<!-- Username/Email Field -->
+					<div class="input-group">
+						<label for="usernameOrEmail" class="input-label">Username or Email</label>
+						<div class="input-wrapper">
+							<span class="input-icon">
+								<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+									<circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+								</svg>
+							</span>
+							<input 
+								id="usernameOrEmail"
+								class="form-input" 
+								type="text" 
+								name="usernameOrEmail" 
+								placeholder="Enter your username or email"
+								autocomplete="username" 
+								required 
+							/>
+						</div>
+					</div>
 
-			</form>
+					<!-- Password Field -->
+					<div class="input-group">
+						<label for="password" class="input-label">Password</label>
+						<div class="input-wrapper">
+							<span class="input-icon">
+								<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+									<path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</span>
+							<input 
+								id="password"
+								class="form-input" 
+								type="password" 
+								name="password" 
+								placeholder="Enter your password"
+								autocomplete="current-password" 
+								required 
+							/>
+							<button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">
+								<svg id="eyeIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+									<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+								</svg>
+							</button>
+						</div>
+					</div>
 
-		</div><!-- /panel-right -->
+					<!-- CSRF Token -->
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-	</div><!-- /card -->
+					<!-- Submit Button -->
+					<button type="submit" class="btn-submit">
+						<span>Sign In</span>
+						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							<polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</button>
+
+				</form>
+
+				<div class="form-footer">
+					<p>&copy; 2024 CRM Portal. All rights reserved.</p>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
 
 	<script>
 		function togglePassword() {
 			const passwordInput = document.getElementById("password");
 			const eyeIcon = document.getElementById("eyeIcon");
+			const toggleBtn = eyeIcon.parentElement;
 
 			if (passwordInput.type === "password") {
 				passwordInput.type = "text";
-				eyeIcon.style.opacity = "0.5";
+				toggleBtn.classList.add("active");
 			} else {
 				passwordInput.type = "password";
-				eyeIcon.style.opacity = "1";
+				toggleBtn.classList.remove("active");
 			}
 		}
 	</script>
