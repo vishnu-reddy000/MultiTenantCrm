@@ -7,9 +7,9 @@
 
 /* ---- CSS Variables ---- */
 :root {
-    --navy:         #0f172a;
-    --navy-mid:     #1e293b;
-    --navy-light:   #334155;
+    --navy:         #1E293B;
+    --navy-mid:     #334155;
+    --navy-light:   #475569;
     --orange:       #667EEA;
     --orange-hover: #5a6fd6;
     --bg:           #F8FAFC;
@@ -17,8 +17,8 @@
     --text:         #1E293B;
     --muted:        #64748b;
     --border:       #e2e8f0;
-    --shadow:       0 4px 20px rgba(102,126,234,0.10);
-    --shadow-lg:    0 8px 32px rgba(102,126,234,0.16);
+    --shadow:       0 4px 20px rgba(0,0,0,0.06);
+    --shadow-lg:    0 8px 32px rgba(0,0,0,0.10);
     --radius:       14px;
     --radius-sm:    8px;
     --sidebar-w:    220px;
@@ -594,3 +594,27 @@ ul { list-style: none; }
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
 }
+/* -- Sidebar collapse (same as manager/super-admin) -- */
+.sidebar.collapsed {
+  width: 62px !important;
+  overflow: hidden;
+}
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .user-email,
+.sidebar.collapsed .user-role-badge,
+.sidebar.collapsed .logout-btn span,
+.sidebar.collapsed .nav-badge {
+  display: none !important;
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px !important;
+}
+.sidebar.collapsed .sidebar-profile {
+  padding: 12px 8px !important;
+}
+
+/* Hide hamburger on desktop — only show on mobile */
+.menu-toggle { display: none; }

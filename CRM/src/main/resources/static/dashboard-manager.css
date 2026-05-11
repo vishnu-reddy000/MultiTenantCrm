@@ -13,7 +13,7 @@
 	/* ── Primary Palette: Blue-Purple (login page colors) ── */
 	--primary:     #667EEA;
 	--primary-l:   #7c91ee;
-	--primary-ll:  #c7d0f9;
+	--primary-ll:  #a5b4fc;
 	--primary-d:   #5a6fd6;
 	--primary-dd:  #4d60c2;
 
@@ -67,9 +67,9 @@
 	--border-focus: rgba(102,126,234,.30);
 
 	/* ── Sidebar ── */
-	--sidebar-bg:        #0f172a;
-	--sidebar-act:       #1e293b;
-	--sidebar-hover:     rgba(255,255,255,0.05);
+	--sidebar-bg:        #1E293B;
+	--sidebar-act:       #334155;
+	--sidebar-hover:     rgba(255,255,255,0.07);
 	--sidebar-text:      #f1f5f9;
 	--sidebar-text-muted:#64748b;
 
@@ -682,3 +682,6 @@ body.dark-mode{
 	.kpi-grid { grid-template-columns:1fr }
 	.team-grid { grid-template-columns:1fr }
 }
+
+/* Hide hamburger on desktop � only show on mobile */
+.menu-toggle { display: none; }

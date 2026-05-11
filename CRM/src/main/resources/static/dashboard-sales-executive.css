@@ -7,42 +7,43 @@
 
 /* ── Design Tokens ─────────────────────────────────────────── */
 :root {
-	--navy:       #0f172a;
-	--navy-deep:  #0a0f1e;
-	--navy-mid:   #1e293b;
-	--navy-light: #334155;
-	--navy-soft:  #1e2d4a;
+	/* Sidebar — dark slate matching login brand side */
+	--navy:       #1E293B;
+	--navy-deep:  #0F172A;
+	--navy-mid:   #334155;
+	--navy-light: #475569;
+	--navy-soft:  #1E293B;
 	--orange:     #667EEA;
 	--orange-dim: #5a6fd6;
 	--orange-glow:rgba(102,126,234,.22);
-	--green:      #34d399;
-	--blue:       #764BA2;
-	--red:        #fc8181;
+	--green:      #10B981;
+	--blue:       #3B82F6;
+	--red:        #EF4444;
 
 	--page-bg:  #F8FAFC;
-	--surface:  #ffffff;
-	--border:   #e2e8f0;
-	--muted:    #64748b;
+	--surface:  #FFFFFF;
+	--border:   #E2E8F0;
+	--muted:    #64748B;
 	--text:     #1E293B;
 	--text-sm:  #334155;
 
-	/* Brand */
+	/* Brand — matches login page */
 	--primary:          #667EEA;
 	--primary-d:        #5a6fd6;
 	--secondary:        #764BA2;
 	--brand-gradient:   linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
 
 	/* Sidebar */
-	--sidebar-bg:        #0f172a;
-	--sidebar-text:      rgba(255,255,255,.55);
-	--sidebar-hover:     rgba(255,255,255,.06);
-	--sidebar-active-bg: rgba(102,126,234,.18);
-	--sidebar-border:    rgba(255,255,255,.07);
+	--sidebar-bg:        #1E293B;
+	--sidebar-text:      rgba(255,255,255,.60);
+	--sidebar-hover:     rgba(255,255,255,.07);
+	--sidebar-active-bg: rgba(102,126,234,.15);
+	--sidebar-border:    rgba(255,255,255,.08);
 
 	/* Shadows */
-	--shadow-sm: 0 2px 8px rgba(102,126,234,.08);
-	--shadow-md: 0 6px 24px rgba(102,126,234,.12);
-	--shadow-lg: 0 12px 40px rgba(102,126,234,.16);
+	--shadow-sm: 0 2px 8px rgba(0,0,0,.06);
+	--shadow-md: 0 6px 24px rgba(0,0,0,.10);
+	--shadow-lg: 0 12px 40px rgba(0,0,0,.14);
 
 	/* Layout */
 	--sidebar-w: 250px;
@@ -1648,4 +1649,25 @@ tbody tr:hover td {
 	.top-bar-right .top-avatar span {
 		display: none;
 	}
+}
+/* -- Sidebar collapse (same as manager/super-admin) -- */
+.sidebar.collapsed {
+  width: 62px !important;
+  overflow: hidden;
+}
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .user-email,
+.sidebar.collapsed .user-role-badge,
+.sidebar.collapsed .logout-btn span,
+.sidebar.collapsed .nav-badge {
+  display: none !important;
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px !important;
+}
+.sidebar.collapsed .sidebar-profile {
+  padding: 12px 8px !important;
 }

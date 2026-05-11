@@ -8,7 +8,7 @@
 	--sidebar-w: 260px;
 	--topbar-h: 64px;
 
-	/* Brand — blue-purple gradient from login page */
+	/* Brand — matches login page blue-purple gradient */
 	--brand: #667EEA;
 	--brand-dark: #5a6fd6;
 	--brand-deep: #764BA2;
@@ -18,12 +18,12 @@
 	/* Neutrals */
 	--bg: #F8FAFC;
 	--surface: #FFFFFF;
-	--border: #E5E7EB;
-	--muted: #6B7280;
+	--border: #E2E8F0;
+	--muted: #64748B;
 	--text: #1E293B;
 	--text-sm: #334155;
 
-	/* Sidebar */
+	/* Sidebar — dark slate matching login brand side */
 	--sidebar-bg: #1E293B;
 	--sidebar-text: #94A3B8;
 	--sidebar-hover: #334155;
@@ -1286,3 +1286,5 @@ tbody tr:hover td {
 		grid-template-columns: 1fr;
 	}
 }
+/* Hide hamburger on desktop � only show on mobile */
+.menu-toggle { display: none; }

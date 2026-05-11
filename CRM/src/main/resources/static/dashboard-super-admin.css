@@ -16,7 +16,7 @@
 	--purple-d:  #5a6fd6;
 	--purple-dd: #4d60c2;
 
-	--orange:    #f97316;
+	--orange:    #F97316;
 	--orange-l:  #fb923c;
 	--orange-ll: #fed7aa;
 	--orange-d:  #ea580c;
@@ -83,8 +83,8 @@
 	--border-focus: rgba(102,126,234,.30);
 
 	/* ── Sidebar ── */
-	--sidebar-bg:        #0f172a;
-	--sidebar-act:       #1e293b;
+	--sidebar-bg: #1E293B;
+	--sidebar-act: #334155;
 	--sidebar-text:      #f1f5f9;
 	--sidebar-text-muted:#64748b;
 
@@ -223,7 +223,7 @@ select {
 	align-items: center;
 	padding: 0 1.5rem;
 	z-index: 300;
-	box-shadow: 0 2px 12px rgba(61, 44, 8, .07);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
 }
 
 .topbar-left {
@@ -259,13 +259,13 @@ select {
 	width: 36px;
 	height: 36px;
 	border-radius: 10px;
-	background: linear-gradient(135deg, var(--purple), var(--orange));
+	background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: #fff;
 	font-size: .88rem;
-	box-shadow: 0 3px 12px var(--glow-orange);
+	box-shadow: 0 3px 12px rgba(102, 126, 234, .30);
 	transition: transform var(--trans);
 	flex-shrink: 0;
 }
@@ -539,7 +539,7 @@ select {
 }
 
 .notif-item.unread {
-	background: #faf4e8
+	background: #EEF2FF
 }
 
 .notif-item.unread::before {
@@ -571,12 +571,12 @@ select {
 }
 
 .ni-emerald {
-	background: #f7f0e2;
+	background: #EEF2FF;
 	color: var(--orange)
 }
 
 .ni-amber {
-	background: #ede8dc;
+	background: #F3E8FF;
 	color: var(--peach-d)
 }
 
@@ -986,7 +986,7 @@ select {
 	flex-direction: column;
 	transition: width var(--trans-slow);
 	z-index: 200;
-	box-shadow: 1px 0 12px rgba(61, 44, 8, .05);
+	box-shadow: 1px 0 12px rgba(0,0,0,.04);
 }
 
 .sidebar::-webkit-scrollbar {
@@ -1079,14 +1079,14 @@ select {
 }
 
 .nav-row:hover {
-	background: var(--sidebar-hover);
+	background: #334155;
 	color: var(--sidebar-text);
 }
 
 .nav-item.active>.nav-row {
-	background: var(--sidebar-act);
-	color: var(--sidebar-text);
-	border-left: 4px solid var(--sidebar-text);
+	background: rgba(102, 126, 234, 0.18);
+	color: #a5b4fc;
+	border-left: 4px solid #667EEA;
 }
 
 .nav-icon {
@@ -1582,13 +1582,13 @@ select {
 }
 
 .kpi-up {
-	background: #f5edd8;
-	color: #7e5518
+	background: #EEF2FF;
+	color: #4338ca
 }
 
 .kpi-down {
-	background: #f2e8e0;
-	color: #7e3818
+	background: #FEF2F2;
+	color: #991b1b
 }
 
 .kpi-icon {
@@ -1610,17 +1610,17 @@ select {
 
 /* KPI icon backgrounds — new palette */
 .kpi-icon-1 {
-	background: #f0ead8;
+	background: #EEF2FF;
 	color: var(--purple)
 }
 
 .kpi-icon-2 {
-	background: #f7f0e2;
+	background: #F3E8FF;
 	color: var(--orange)
 }
 
 .kpi-icon-3 {
-	background: #ede8dc;
+	background: #FEF3C7;
 	color: var(--peach-d)
 }
 
@@ -2116,8 +2116,8 @@ select {
 	font-weight: 600;
 	padding: 2px 7px;
 	border-radius: var(--r-full);
-	background: #f5edd8;
-	color: #7e5518
+	background: #EEF2FF;
+	color: #4338ca
 }
 
 .card-link {
@@ -2323,8 +2323,8 @@ select {
 .ov-badge {
 	font-size: .67rem;
 	font-weight: 600;
-	background: #f5edd8;
-	color: #7e5518;
+	background: #EEF2FF;
+	color: #4338ca;
 	border-radius: var(--r-full);
 	padding: 2px 8px
 }
@@ -2389,7 +2389,7 @@ select {
 }
 
 .won-box {
-	background: linear-gradient(135deg, #f7f0e2, #ede8dc);
+	background: linear-gradient(135deg, #EEF2FF, #F3E8FF);
 	border: 1px solid var(--border);
 	border-radius: var(--r-sm);
 	padding: .78rem .92rem;
@@ -2595,17 +2595,17 @@ select {
 }
 
 .tag-amber {
-	background: #f5edd8;
-	color: #7e5518
+	background: #EEF2FF;
+	color: #4338ca
 }
 
 .tag-indigo {
-	background: #f0ead8;
+	background: #EEF2FF;
 	color: var(--purple-l)
 }
 
 .tag-pink {
-	background: #ede8dc;
+	background: #F3E8FF;
 	color: var(--peach-d)
 }
 
@@ -2644,17 +2644,17 @@ select {
 }
 
 .st-won {
-	background: #f5edd8;
-	color: #7e5518
+	background: #EEF2FF;
+	color: #4338ca
 }
 
 .st-lost {
-	background: #f2e8e0;
-	color: #7e3818
+	background: #FEF2F2;
+	color: #991b1b
 }
 
 .st-open {
-	background: #f0ead8;
+	background: #F3E8FF;
 	color: var(--purple-l)
 }
 
@@ -2972,7 +2972,7 @@ select {
 	z-index: 1200;
 	display: flex;
 	flex-direction: column;
-	box-shadow: 4px 0 32px rgba(61, 44, 8, .18);
+	box-shadow: 4px 0 32px rgba(0,0,0,.14);
 	animation: drawerIn .28s var(--ease);
 	overflow-y: auto;
 	padding-bottom: env(safe-area-inset-bottom);
@@ -3172,7 +3172,7 @@ select {
 	background: var(--surface);
 	border-top: 1px solid var(--border);
 	z-index: 290;
-	box-shadow: 0 -4px 24px rgba(61, 44, 8, .10);
+	box-shadow: 0 -4px 24px rgba(0,0,0,.08);
 	padding: 0 .5rem;
 	padding-bottom: env(safe-area-inset-bottom);
 	align-items: center;
@@ -3790,3 +3790,5 @@ select {
 		padding: .75rem .65rem
 	}
 }
+/* Hide hamburger on desktop � only show on mobile */
+.menu-toggle { display: none; }
