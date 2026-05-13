@@ -7,7 +7,7 @@
   <div style="background:linear-gradient(135deg,#667EEA 0%,#764BA2 100%);border-radius:14px;padding:1.6rem 2rem;color:#fff;margin-bottom:1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
     <div>
       <p style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:.3rem">Welcome back</p>
-      <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem" th:text="${#authentication?.name ?: 'User'}">User</h2>
+      <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem" th:text="${currentUser?.username ?: #authentication?.name ?: 'User'}">User</h2>
       <p style="font-size:.82rem;opacity:.85">Here's an overview of your account activity.</p>
     </div>
     <div style="display:flex;gap:.75rem;flex-wrap:wrap">

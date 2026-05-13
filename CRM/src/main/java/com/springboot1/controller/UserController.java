@@ -1,6 +1,7 @@
 package com.springboot1.controller;
 
 import java.security.Principal;
+import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springboot1.controller.Lead.LeadStatus;
+import com.springboot1.model.User;
 import com.springboot1.repository.LeadRepository;
+import com.springboot1.repository.UserRepository;
 import com.springboot1.service.LeadService;
 
 @Controller
@@ -20,10 +23,20 @@ public class UserController {
 
     private final LeadService leadService;
     private final LeadRepository leadRepo;
+    private final UserRepository userRepo;
 
-    public UserController(LeadService leadService, LeadRepository leadRepo) {
+    public UserController(LeadService leadService, LeadRepository leadRepo, UserRepository userRepo) {
         this.leadService = leadService;
         this.leadRepo = leadRepo;
+        this.userRepo = userRepo;
+    }
+
+    // ── Fetch the logged-in user from DB and add to model ─────────────────────
+    private void addCurrentUser(Model model, Principal principal) {
+        if (principal != null) {
+            Optional<User> userOpt = userRepo.findByUsername(principal.getName());
+            userOpt.ifPresent(u -> model.addAttribute("currentUser", u));
+        }
     }
 
     // ── Shared sidebar counts ─────────────────────────────────────────────────
@@ -49,8 +62,9 @@ public class UserController {
     // ════════════════════════════════════════════════════════════════════════
 
     @GetMapping({"/home", ""})
-    public String home(Model model) {
+    public String home(Model model, Principal principal) {
         addCounts(model);
+        addCurrentUser(model, principal);
         model.addAttribute("recentLeads", leadRepo.findAllByOrderByCreatedAtDesc());
         return "user-home";
     }
@@ -62,6 +76,7 @@ public class UserController {
     @GetMapping("/profile")
     public String profile(Model model, Principal principal) {
         addCounts(model);
+        addCurrentUser(model, principal);
         return "user-profile";
     }
 
@@ -163,8 +178,9 @@ public class UserController {
     // ════════════════════════════════════════════════════════════════════════
 
     @GetMapping("/settings")
-    public String settings(Model model) {
+    public String settings(Model model, Principal principal) {
         addCounts(model);
+        addCurrentUser(model, principal);
         return "user-settings";
     }
 
