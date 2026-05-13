@@ -7,20 +7,25 @@
 
   <div class="section-header" style="margin-bottom:1.4rem">
     <h2 class="section-title"><i class="fas fa-user-circle"></i> My Profile</h2>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.3rem" th:text="${pageSubtitle}">Your account and performance summary.</p>
   </div>
 
   <div style="display:grid;grid-template-columns:280px 1fr;gap:1.4rem;align-items:start">
 
-    <!-- Profile card -->
+    <!-- ── Profile card ──────────────────────────────────────────────────── -->
     <div style="background:var(--navy);border-radius:var(--radius-md);padding:2rem;text-align:center;box-shadow:var(--shadow-md)">
       <div style="width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,var(--orange),var(--navy-light));padding:3px;margin:0 auto 1rem">
         <div style="width:100%;height:100%;border-radius:15px;background:var(--navy-mid);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--orange)">
           <i class="fas fa-user"></i>
         </div>
       </div>
-      <h3 style="font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.3rem" th:text="${#authentication?.name ?: 'Sales Executive'}">Sales Exec</h3>
+
+      <!-- Name from employees table -->
+      <h3 style="font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.3rem"
+          th:text="${profileEmployee?.name ?: (profileUser?.username ?: 'Sales Executive')}">Sales Exec</h3>
       <p style="font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:.8rem">Sales Executive</p>
-      <span style="display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:rgba(245,166,35,.18);color:var(--orange);border:1px solid rgba(245,166,35,.25)">Active</span>
+      <span style="display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:rgba(245,166,35,.18);color:var(--orange);border:1px solid rgba(245,166,35,.25)"
+            th:text="${profileEmployee?.status?.name() ?: 'ACTIVE'}">ACTIVE</span>
 
       <div style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.07)">
         <div style="display:flex;justify-content:space-between;margin-bottom:.6rem">
@@ -33,37 +38,79 @@
         </div>
         <div style="display:flex;justify-content:space-between">
           <span style="font-size:.72rem;color:rgba(255,255,255,.35)">Revenue</span>
-          <span style="font-size:.72rem;font-weight:700;color:var(--orange)" th:text="'₹' + ${#numbers.formatDecimal(myRevenue ?: 0, 1, 'COMMA', 0, 'POINT')}">₹0</span>
+          <span style="font-size:.72rem;font-weight:700;color:var(--orange)"
+                th:text="'₹' + ${#numbers.formatDecimal(myRevenue ?: 0, 1, 'COMMA', 0, 'POINT')}">₹0</span>
         </div>
       </div>
     </div>
 
-    <!-- Profile details -->
+    <!-- ── Account Information ───────────────────────────────────────────── -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.6rem;box-shadow:var(--shadow-sm)">
       <h3 style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)">
         Account Information
       </h3>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.4rem">
+
+        <!-- Name (from employees.name) -->
         <div>
-          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Full Name</label>
-          <p style="font-size:.88rem;font-weight:600;color:var(--text)" th:text="${#authentication?.name ?: '—'}">—</p>
+          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Name</label>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)"
+             th:text="${profileEmployee?.name ?: '—'}">—</p>
         </div>
+
+        <!-- Role -->
         <div>
           <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Role</label>
-          <p style="font-size:.88rem;font-weight:600;color:var(--text)">Sales Executive</p>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)">Sales Executive</p>
         </div>
+
+        <!-- Email (from employees.email) -->
+        <div>
+          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Email</label>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)"
+             th:text="${profileEmployee?.email ?: (profileUser?.email ?: '—')}">—</p>
+        </div>
+
+        <!-- Phone (from employees.phone) -->
+        <div>
+          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Phone Number</label>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)"
+             th:text="${profileEmployee?.phone ?: (profileUser?.phone ?: '—')}">—</p>
+        </div>
+
+        <!-- User ID (from user.id) -->
+        <div>
+          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">User ID</label>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)"
+             th:text="${profileUser?.id ?: '—'}">—</p>
+        </div>
+
+        <!-- Tenant ID (from user.tenantId) -->
+        <div>
+          <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Tenant ID</label>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0;border-bottom:1px solid var(--border)"
+             th:text="${profileUser?.tenantId ?: '—'}">—</p>
+        </div>
+
+        <!-- Status -->
         <div>
           <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Status</label>
-          <span class="badge badge--green">Active</span>
+          <span class="badge badge--green"
+                th:text="${profileEmployee?.status?.name() ?: 'ACTIVE'}">ACTIVE</span>
         </div>
+
+        <!-- Conversion Rate -->
         <div>
           <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">Conversion Rate</label>
-          <p style="font-size:.88rem;font-weight:600;color:var(--text)" th:text="${conversionRate ?: 0} + '%'">0%</p>
+          <p style="font-size:.88rem;font-weight:600;color:var(--text);padding:9px 0"
+             th:text="${conversionRate ?: 0} + '%'">0%</p>
         </div>
+
       </div>
 
-      <h3 style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:1rem;padding-bottom:.8rem;border-top:1px solid var(--border);padding-top:1rem">
+      <!-- ── Performance Summary ──────────────────────────────────────────── -->
+      <h3 style="font-size:.88rem;font-weight:700;color:var(--text);margin-top:.4rem;margin-bottom:1rem;padding-top:1rem;padding-bottom:.8rem;border-top:1px solid var(--border)">
         Performance Summary
       </h3>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">

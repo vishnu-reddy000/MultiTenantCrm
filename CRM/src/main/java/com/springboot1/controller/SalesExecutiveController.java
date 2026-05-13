@@ -285,6 +285,19 @@ public class SalesExecutiveController {
     public String profile(Model model, Principal principal) {
         addCounts(model, principal);
         model.addAttribute("pageSubtitle", "Your account and performance summary.");
+
+        if (principal != null) {
+            // 1. Load the User row (gives us userId, email, tenantId)
+            userRepo.findByUsername(principal.getName()).ifPresent(u -> {
+                model.addAttribute("profileUser", u);
+
+                // 2. Load the Employee row (gives us name, phone, department, status)
+                empRepo.findByUserId(u.getId())
+                       .or(() -> empRepo.findByEmail(u.getEmail()))
+                       .ifPresent(e -> model.addAttribute("profileEmployee", e));
+            });
+        }
+
         return "sales-profile";
     }
 }
