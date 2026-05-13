@@ -234,7 +234,19 @@
 
 <script th:src="@{/dashbaord-manager.js}" th:if="${false}"></script>
 <script>
-  // Sidebar collapse toggle
+  // ── Modal helpers (available on every manager page) ──────────────────────
+  function openModal(id)       { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+  function closeModal(id)      { var el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+  function openAddLeadModal()  { openModal('leadModal'); }
+
+  // Close modal on backdrop click
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('modal-overlay')) {
+      e.target.classList.add('hidden');
+    }
+  });
+
+  // ── Sidebar collapse toggle ───────────────────────────────────────────────
   const sidebarToggle = document.getElementById('sidebarToggle');
   const layout        = document.getElementById('layout');
   const sidebar       = document.getElementById('sidebar');

@@ -425,8 +425,14 @@
 											<a th:if="${lead.status?.name() == 'PENDING' or lead.status?.name() == 'REJECTED'}"
 											   th:href="@{/manager/leads/assigned}"
 											   class="act-btn edit" title="Edit"
-											   th:onclick="'openEditLeadModal(' + ${lead.id} + ',\'' + ${lead.customerName} + '\',\'' + (${lead.company} ?: '') + '\',' + (${lead.dealValue} ?: 0) + ',\'' + (${lead.email} ?: '') + '\',\'' + (${lead.phone} ?: '') + '\',\'' + (${lead.notes} ?: '') + '\')'"
-											   onclick="return false;">
+											   th:data-id="${lead.id}"
+											   th:data-name="${lead.customerName}"
+											   th:data-company="${lead.company ?: ''}"
+											   th:data-value="${lead.dealValue ?: 0}"
+											   th:data-email="${lead.email ?: ''}"
+											   th:data-phone="${lead.phone ?: ''}"
+											   th:data-notes="${lead.notes ?: ''}"
+											   onclick="openEditLeadModal(this);return false;">
 												<i class="fas fa-pen"></i>
 											</a>
 											<span th:if="${lead.status?.name() != 'PENDING' and lead.status?.name() != 'REJECTED'}"

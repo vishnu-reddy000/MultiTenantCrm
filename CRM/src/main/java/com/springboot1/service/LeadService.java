@@ -13,6 +13,7 @@ import com.springboot1.controller.Lead;
 import com.springboot1.controller.Lead.LeadStatus;
 import com.springboot1.repository.EmployeeRepository;
 import com.springboot1.repository.LeadRepository;
+import com.springboot1.repository.UserRepository;
 
 @Service
 @Transactional
@@ -20,10 +21,12 @@ public class LeadService {
 
 	private final LeadRepository leadRepo;
 	private final EmployeeRepository empRepo;
+	private final UserRepository userRepo;
 
-	public LeadService(LeadRepository leadRepo, EmployeeRepository empRepo) {
+	public LeadService(LeadRepository leadRepo, EmployeeRepository empRepo, UserRepository userRepo) {
 		this.leadRepo = leadRepo;
 		this.empRepo = empRepo;
+		this.userRepo = userRepo;
 	}
 
 	// ── Save (create or update) ───────────────────────────────────────────────
@@ -64,6 +67,11 @@ public class LeadService {
 			Employee salesExec = empRepo.findById(assignToEmployeeId).orElseThrow(
 					() -> new IllegalArgumentException("Sales Executive not found: " + assignToEmployeeId));
 			lead.setAssignedTo(salesExec);
+			// Also store the username directly for easy DB visibility
+			String username = salesExec.getUserId() != null
+					? userRepo.findById(salesExec.getUserId()).map(u -> u.getUsername()).orElse(salesExec.getEmail())
+					: salesExec.getEmail();
+			lead.setAssignedToUsername(username);
 		}
 
 		return leadRepo.save(lead);

@@ -1,6 +1,8 @@
 package com.springboot1.controller;
 
 import java.math.BigDecimal;
+import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springboot1.controller.Lead.LeadStatus;
+import com.springboot1.repository.EmployeeRepository;
 import com.springboot1.repository.LeadRepository;
+import com.springboot1.repository.UserRepository;
 import com.springboot1.service.LeadService;
 
 @Controller
@@ -22,20 +26,54 @@ public class SalesExecutiveController {
 
     private final LeadService leadService;
     private final LeadRepository leadRepo;
+    private final UserRepository userRepo;
+    private final EmployeeRepository empRepo;
 
-    public SalesExecutiveController(LeadService leadService, LeadRepository leadRepo) {
+    public SalesExecutiveController(LeadService leadService, LeadRepository leadRepo,
+                                    UserRepository userRepo, EmployeeRepository empRepo) {
         this.leadService = leadService;
-        this.leadRepo = leadRepo;
+        this.leadRepo    = leadRepo;
+        this.userRepo    = userRepo;
+        this.empRepo     = empRepo;
+    }
+
+    // ── Resolve the logged-in sales exec's Employee ID ────────────────────────
+    private Long resolveEmployeeId(Principal principal) {
+        if (principal == null) return null;
+        return userRepo.findByUsername(principal.getName())
+                .flatMap(u -> {
+                    // First try by userId link
+                    if (u.getId() != null) {
+                        var byUserId = empRepo.findByUserId(u.getId());
+                        if (byUserId.isPresent()) return byUserId;
+                    }
+                    // Fallback: match by email
+                    return empRepo.findByEmail(u.getEmail());
+                })
+                .map(Employee::getId)
+                .orElse(null);
+    }
+
+    // ── Leads assigned to this sales exec ─────────────────────────────────────
+    private List<Lead> myLeads(Principal principal) {
+        Long empId = resolveEmployeeId(principal);
+        if (empId == null) return Collections.emptyList();
+        return leadRepo.findByAssignedToId(empId);
     }
 
     // ── Shared sidebar counts ─────────────────────────────────────────────────
 
-    private void addCounts(Model model) {
-        long total    = leadService.countTotal();
-        long pending  = leadService.countPending();
-        long approved = leadService.countApproved();
-        long rejected = leadService.countRejected();
-        BigDecimal revenue = leadService.sumApprovedValue();
+    private void addCounts(Model model, Principal principal) {
+        List<Lead> assigned = myLeads(principal);
+        long total    = assigned.size();
+        long pending  = assigned.stream().filter(l -> l.getStatus() == LeadStatus.PENDING).count();
+        long approved = assigned.stream().filter(l -> l.getStatus() == LeadStatus.APPROVED).count();
+        long rejected = assigned.stream().filter(l -> l.getStatus() == LeadStatus.REJECTED).count();
+        BigDecimal revenue = assigned.stream()
+                .filter(l -> l.getStatus() == LeadStatus.APPROVED || l.getStatus() == LeadStatus.WON)
+                .map(Lead::getDealValue)
+                .filter(v -> v != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         model.addAttribute("totalLeads",        total);
         model.addAttribute("myLeadsCount",       total);
@@ -67,9 +105,9 @@ public class SalesExecutiveController {
     // ── Dashboard ─────────────────────────────────────────────────────────────
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        addCounts(model);
-        model.addAttribute("myLeads", leadRepo.findAllByOrderByCreatedAtDesc());
+    public String dashboard(Model model, Principal principal) {
+        addCounts(model, principal);
+        model.addAttribute("myLeads", myLeads(principal));
         model.addAttribute("pageSubtitle", "Welcome back — here's your daily overview.");
         return "dashboard-sales-executive";
     }
@@ -77,9 +115,9 @@ public class SalesExecutiveController {
     // ── My Leads ──────────────────────────────────────────────────────────────
 
     @GetMapping("/leads")
-    public String myLeads(Model model) {
-        addCounts(model);
-        model.addAttribute("myLeads", leadRepo.findAllByOrderByCreatedAtDesc());
+    public String myLeadsPage(Model model, Principal principal) {
+        addCounts(model, principal);
+        model.addAttribute("myLeads", myLeads(principal));
         model.addAttribute("pageSubtitle", "All leads assigned to you.");
         return "sales-my-leads";
     }
@@ -87,8 +125,8 @@ public class SalesExecutiveController {
     // ── Add Lead ──────────────────────────────────────────────────────────────
 
     @GetMapping("/leads/add")
-    public String addLeadForm(Model model) {
-        addCounts(model);
+    public String addLeadForm(Model model, Principal principal) {
+        addCounts(model, principal);
         model.addAttribute("pageSubtitle", "Submit a new lead for manager approval.");
         return "sales-add-lead";
     }
@@ -124,9 +162,11 @@ public class SalesExecutiveController {
     // ── Follow-ups ────────────────────────────────────────────────────────────
 
     @GetMapping("/leads/followups")
-    public String followups(Model model) {
-        addCounts(model);
-        model.addAttribute("pendingLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.PENDING));
+    public String followups(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("pendingLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.PENDING).toList());
         model.addAttribute("pageSubtitle", "Leads awaiting your follow-up.");
         return "sales-followups";
     }
@@ -134,9 +174,9 @@ public class SalesExecutiveController {
     // ── View Lead ─────────────────────────────────────────────────────────────
 
     @GetMapping("/leads/{id}")
-    public String viewLead(@PathVariable Long id, Model model, RedirectAttributes ra) {
+    public String viewLead(@PathVariable Long id, Model model, Principal principal, RedirectAttributes ra) {
         return leadService.getById(id).map(lead -> {
-            addCounts(model);
+            addCounts(model, principal);
             model.addAttribute("lead", lead);
             model.addAttribute("pageSubtitle", "Lead details for " + lead.getCustomerName());
             return "sales-view-lead";
@@ -149,9 +189,11 @@ public class SalesExecutiveController {
     // ── Pipeline: Deals ───────────────────────────────────────────────────────
 
     @GetMapping("/pipeline/deals")
-    public String myDeals(Model model) {
-        addCounts(model);
-        model.addAttribute("approvedLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.APPROVED));
+    public String myDeals(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("approvedLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.APPROVED).toList());
         model.addAttribute("pageSubtitle", "Your active deals and pipeline.");
         return "sales-deals";
     }
@@ -159,8 +201,8 @@ public class SalesExecutiveController {
     // ── Pipeline: Stages ──────────────────────────────────────────────────────
 
     @GetMapping("/pipeline/stages")
-    public String dealStages(Model model) {
-        addCounts(model);
+    public String dealStages(Model model, Principal principal) {
+        addCounts(model, principal);
         model.addAttribute("pageSubtitle", "Overview of all deal stages.");
         return "sales-stages";
     }
@@ -168,9 +210,9 @@ public class SalesExecutiveController {
     // ── Activities: Calls ─────────────────────────────────────────────────────
 
     @GetMapping("/activities/calls")
-    public String calls(Model model) {
-        addCounts(model);
-        model.addAttribute("myLeads", leadRepo.findAllByOrderByCreatedAtDesc());
+    public String calls(Model model, Principal principal) {
+        addCounts(model, principal);
+        model.addAttribute("myLeads", myLeads(principal));
         model.addAttribute("pageSubtitle", "Track and log your calls.");
         return "sales-calls";
     }
@@ -178,9 +220,11 @@ public class SalesExecutiveController {
     // ── Activities: Meetings ──────────────────────────────────────────────────
 
     @GetMapping("/activities/meetings")
-    public String meetings(Model model) {
-        addCounts(model);
-        model.addAttribute("approvedLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.APPROVED));
+    public String meetings(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("approvedLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.APPROVED).toList());
         model.addAttribute("pageSubtitle", "Schedule and track meetings.");
         return "sales-meetings";
     }
@@ -188,10 +232,12 @@ public class SalesExecutiveController {
     // ── Activities: Tasks ─────────────────────────────────────────────────────
 
     @GetMapping("/activities/tasks")
-    public String tasks(Model model) {
-        addCounts(model);
-        model.addAttribute("pendingLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.PENDING));
-        model.addAttribute("myLeads", leadRepo.findAllByOrderByCreatedAtDesc());
+    public String tasks(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("pendingLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.PENDING).toList());
+        model.addAttribute("myLeads", assigned);
         model.addAttribute("pageSubtitle", "Your pending tasks and actions.");
         return "sales-tasks";
     }
@@ -199,9 +245,11 @@ public class SalesExecutiveController {
     // ── Calendar ──────────────────────────────────────────────────────────────
 
     @GetMapping("/calendar")
-    public String calendar(Model model) {
-        addCounts(model);
-        model.addAttribute("approvedLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.APPROVED));
+    public String calendar(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("approvedLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.APPROVED).toList());
         model.addAttribute("pageSubtitle", "Your schedule and upcoming events.");
         return "sales-calendar";
     }
@@ -209,8 +257,8 @@ public class SalesExecutiveController {
     // ── Performance ───────────────────────────────────────────────────────────
 
     @GetMapping("/performance")
-    public String performance(Model model) {
-        addCounts(model);
+    public String performance(Model model, Principal principal) {
+        addCounts(model, principal);
         model.addAttribute("pageSubtitle", "Your sales performance metrics.");
         return "sales-performance";
     }
@@ -218,11 +266,15 @@ public class SalesExecutiveController {
     // ── Notifications ─────────────────────────────────────────────────────────
 
     @GetMapping("/notifications")
-    public String notifications(Model model) {
-        addCounts(model);
-        model.addAttribute("approvedLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.APPROVED));
-        model.addAttribute("rejectedLeadsList", leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.REJECTED));
-        model.addAttribute("pendingLeadsList",  leadRepo.findByStatusOrderByCreatedAtDesc(LeadStatus.PENDING));
+    public String notifications(Model model, Principal principal) {
+        addCounts(model, principal);
+        List<Lead> assigned = myLeads(principal);
+        model.addAttribute("approvedLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.APPROVED).toList());
+        model.addAttribute("rejectedLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.REJECTED).toList());
+        model.addAttribute("pendingLeadsList",
+            assigned.stream().filter(l -> l.getStatus() == LeadStatus.PENDING).toList());
         model.addAttribute("pageSubtitle", "Your latest updates and alerts.");
         return "sales-notifications";
     }
@@ -230,8 +282,8 @@ public class SalesExecutiveController {
     // ── Profile ───────────────────────────────────────────────────────────────
 
     @GetMapping("/profile")
-    public String profile(Model model) {
-        addCounts(model);
+    public String profile(Model model, Principal principal) {
+        addCounts(model, principal);
         model.addAttribute("pageSubtitle", "Your account and performance summary.");
         return "sales-profile";
     }

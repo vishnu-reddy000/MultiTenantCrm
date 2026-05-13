@@ -15,16 +15,24 @@ function openAddLeadModal() {
 	openModal('leadModal');
 }
 
-/* Open the edit modal and populate fields from inline data attributes */
-function openEditLeadModal(id, customerName, company, dealValue, email, phone, notes) {
+/* Open the edit modal and populate fields from data-* attributes */
+function openEditLeadModal(el) {
+	var id          = el.getAttribute('data-id');
+	var customerName= el.getAttribute('data-name')    || '';
+	var company     = el.getAttribute('data-company') || '';
+	var dealValue   = el.getAttribute('data-value')   || 0;
+	var email       = el.getAttribute('data-email')   || '';
+	var phone       = el.getAttribute('data-phone')   || '';
+	var notes       = el.getAttribute('data-notes')   || '';
+
 	const form = document.getElementById('editLeadForm');
 	form.action = '/manager/leads/' + id + '/edit';
-	document.getElementById('editCustomerName').value = customerName || '';
-	document.getElementById('editCompany').value      = company      || '';
-	document.getElementById('editDealValue').value    = dealValue    || '';
-	document.getElementById('editEmail').value        = email        || '';
-	document.getElementById('editPhone').value        = phone        || '';
-	document.getElementById('editNotes').value        = notes        || '';
+	document.getElementById('editCustomerName').value = customerName;
+	document.getElementById('editCompany').value      = company;
+	document.getElementById('editDealValue').value    = dealValue;
+	document.getElementById('editEmail').value        = email;
+	document.getElementById('editPhone').value        = phone;
+	document.getElementById('editNotes').value        = notes;
 	closeAllDropdowns();
 	openModal('editLeadModal');
 }

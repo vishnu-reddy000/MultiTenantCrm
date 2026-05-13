@@ -48,6 +48,10 @@ public class Lead {
 	@JoinColumn(name = "assigned_to")
 	private Employee assignedTo;
 
+	// Stores the username of the assigned sales executive directly for easy DB visibility
+	@Column(name = "assigned_to_username", length = 100)
+	private String assignedToUsername;
+
 	// Direct tenant reference — set when createdBy employee is not available
 	@Column(name = "tenant_id", length = 30)
 	private String tenantId;
@@ -184,6 +188,14 @@ public class Lead {
 
 	public void setAssignedTo(Employee assignedTo) {
 		this.assignedTo = assignedTo;
+	}
+
+	public String getAssignedToUsername() {
+		return assignedToUsername;
+	}
+
+	public void setAssignedToUsername(String assignedToUsername) {
+		this.assignedToUsername = assignedToUsername;
 	}
 
 	public LocalDateTime getApprovedAt() {

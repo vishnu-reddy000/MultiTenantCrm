@@ -100,6 +100,7 @@ public class ManagerController {
 		model.addAttribute("pendingCount",   leadService.countPendingByTenant(t));
 		model.addAttribute("approvedCount",  leadService.countApprovedByTenant(t));
 		model.addAttribute("rejectedCount",  leadService.countRejectedByTenant(t));
+		model.addAttribute("salesExecs",     empService.getActiveSalesExecutivesByTenant(t));
 		return "manager-assigned-leads";
 	}
 
@@ -154,7 +155,14 @@ public class ManagerController {
 			}
 
 			if (assignToId != null) {
-				empService.getById(assignToId).ifPresent(lead::setAssignedTo);
+				empService.getById(assignToId).ifPresent(exec -> {
+					lead.setAssignedTo(exec);
+					// Store username directly for DB visibility
+					String username = exec.getUserId() != null
+							? userRepository.findById(exec.getUserId()).map(u -> u.getUsername()).orElse(exec.getEmail())
+							: exec.getEmail();
+					lead.setAssignedToUsername(username);
+				});
 			}
 
 			leadService.saveLead(lead);
