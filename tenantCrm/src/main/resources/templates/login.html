@@ -2,36 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>Login</title>
-	<link rel="stylesheet" th:href="@{/login.css}">
+    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 
 <body>
 
-	<div class="login-container">
+    <div class="login-container">
 
+        <h2>Login</h2>
+        <p class="subtitle">Login in to your account to continue</p>
 
+        <form th:action="@{/login}" method="post">
 
-		<h2>Login</h2>
-		<p class="subtitle">Login in to your account to continue</p>
+            <label>Email</label>
+            <input type="text" name="username" placeholder="you@example.com">
 
-		<form th:action="@{/login}" method="post">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••">
 
-			<label>Email</label>
-			<input type="text" name="username" placeholder="you@example.com">
+            <button type="submit">Sign In</button>
 
-			<label>Password</label>
-			<input type="password" name="password" placeholder="••••••••">
+        </form>
 
-			<button type="submit">Sign In</button>
+        <p th:text="${error}" style="color:red;"></p>
 
-		</form>
+        <div class="login-footer">
+            Don't have an account? <a href="#">Sign up</a>
+        </div>
 
-		<div class="login-footer">
-			Don't have an account? <a href="#">Sign up</a>
-		</div>
-
-	</div>
+    </div>
 
 </body>
 
