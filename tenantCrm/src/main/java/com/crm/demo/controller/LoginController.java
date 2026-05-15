@@ -45,9 +45,9 @@ public class LoginController {
 			} else if ("ADMIN".equalsIgnoreCase(role)) {
 				return "redirect:/admin/dashboard";
 			} else if ("MANAGER".equalsIgnoreCase(role)) {
-				return "redirect:/manager";
+				return "redirect:/manager/dashboard";
 			} else if ("HR".equalsIgnoreCase(role)) {
-				return "redirect:/hr";
+				return "redirect:/hr/dashboard";
 			} else {
 				model.addAttribute("error", "You do not have permission to access this panel.");
 				return "login";

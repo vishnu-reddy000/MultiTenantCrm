@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Users — CRM</title>
+
+    <link rel="stylesheet" th:href="@{/manager.css}" />
+    <link rel="stylesheet"
+          href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="#fff"
+                     stroke-width="2.5"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+
+            <div class="logo-text">
+                <span class="logo-name">CRM</span>
+                <span class="logo-tagline">Admin Portal</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="nav-section-label">Menu</p>
+
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <span class="nav-icon">
+                    <i class="bx bxs-dashboard"></i>
+                </span>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/manager/add}" class="nav-item active">
+                <span class="nav-icon">
+                    <i class="bx bxs-user-plus"></i>
+                </span>
+                <span>Add Users</span>
+            </a>
+
+            <p class="nav-section-label">System</p>
+
+            <a th:href="@{/admin/settings}" class="nav-item">
+                <span class="nav-icon">
+                    <i class="bx bxs-cog"></i>
+                </span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a th:href="@{/logout}" class="nav-item logout">
+                <span class="nav-icon">
+                    <i class="bx bx-log-out"></i>
+                </span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="hamburger"
+                    id="hamburgerBtn"
+                    aria-label="Toggle menu">
+
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="topbar-title">
+                <h1>Add <span>Users</span></h1>
+                <span>Create a new user account</span>
+            </div>
+
+            <div class="topbar-actions">
+                <a th:href="@{/admin/dashboard}" class="btn btn-ghost">
+                    <i class="bx bx-arrow-back"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <div class="page-content">
+
+            <div class="page-header">
+                <div>
+                    <h2>User Management</h2>
+                    <p>Add new users and view existing ones</p>
+                </div>
+            </div>
+
+            <!-- STAT CARD -->
+            <div class="stats-grid"
+                 style="grid-template-columns: repeat(1, 280px);">
+
+                <div class="stat-card purple">
+
+                    <div class="stat-header">
+
+                        <div class="stat-icon purple">
+                            <i class="bx bxs-user-badge"
+                               style="font-size:20px;"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value"
+                         th:text="${totalManagers} ?: '0'">
+                        0
+                    </div>
+
+                    <div class="stat-label">
+                        Total Users
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- MAIN GRID -->
+            <div class="grid-3col">
+
+                <!-- ADD USER FORM -->
+                <div class="card">
+
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">
+                                Add New User
+                            </div>
+
+                            <div class="card-subtitle">
+                                Fill in the details below
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- SUCCESS -->
+                        <div th:if="${successMessage}"
+                             style="background:rgba(34,197,94,0.1);
+                                    color:#16a34a;
+                                    border:1px solid rgba(34,197,94,0.3);
+                                    border-radius:10px;
+                                    padding:12px 16px;
+                                    margin-bottom:20px;
+                                    font-size:13px;
+                                    font-weight:500;">
+
+                            <i class="bx bx-check-circle"></i>
+
+                            <span th:text="${successMessage}"></span>
+                        </div>
+
+                        <!-- ERROR -->
+                        <div th:if="${errorMessage}"
+                             style="background:rgba(239,68,68,0.1);
+                                    color:#dc2626;
+                                    border:1px solid rgba(239,68,68,0.3);
+                                    border-radius:10px;
+                                    padding:12px 16px;
+                                    margin-bottom:20px;
+                                    font-size:13px;
+                                    font-weight:500;">
+
+                            <i class="bx bx-error-circle"></i>
+
+                            <span th:text="${errorMessage}"></span>
+                        </div>
+
+                        <form th:action="@{/manager/add}" method="post">
+
+                            <!-- EMAIL -->
+                            <div style="margin-bottom:18px;">
+
+                                <label style="display:block;
+                                              font-size:13px;
+                                              font-weight:600;
+                                              color:var(--text-primary);
+                                              margin-bottom:8px;">
+
+                                    Email Address
+                                </label>
+
+                                <div class="topbar-search"
+                                     style="border-radius:10px;
+                                            padding:10px 14px;">
+
+                                    <i class="bx bx-envelope"
+                                       style="color:var(--text-muted);
+                                              font-size:16px;"></i>
+
+                                    <input type="email"
+                                           name="email"
+                                           placeholder="user@example.com"
+                                           required
+                                           style="width:100%;
+                                                  font-size:14px;" />
+
+                                </div>
+
+                            </div>
+
+                            <!-- USERNAME -->
+                            <div style="margin-bottom:18px;">
+
+                                <label style="display:block;
+                                              font-size:13px;
+                                              font-weight:600;
+                                              color:var(--text-primary);
+                                              margin-bottom:8px;">
+
+                                    Username
+                                </label>
+
+                                <div class="topbar-search"
+                                     style="border-radius:10px;
+                                            padding:10px 14px;">
+
+                                    <i class="bx bx-user"
+                                       style="color:var(--text-muted);
+                                              font-size:16px;"></i>
+
+                                    <input type="text"
+                                           name="username"
+                                           placeholder="Enter username"
+                                           required
+                                           style="width:100%;
+                                                  font-size:14px;" />
+
+                                </div>
+
+                            </div>
+
+                            <!-- PASSWORD -->
+                            <div style="margin-bottom:18px;">
+
+                                <label style="display:block;
+                                              font-size:13px;
+                                              font-weight:600;
+                                              color:var(--text-primary);
+                                              margin-bottom:8px;">
+
+                                    Password
+                                </label>
+
+                                <div class="topbar-search"
+                                     style="border-radius:10px;
+                                            padding:10px 14px;">
+
+                                    <i class="bx bx-lock-alt"
+                                       style="color:var(--text-muted);
+                                              font-size:16px;"></i>
+
+                                    <input type="password"
+                                           name="password"
+                                           placeholder="Create password"
+                                           required
+                                           style="width:100%;
+                                                  font-size:14px;" />
+
+                                </div>
+
+                            </div>
+
+                            <!-- CONFIRM PASSWORD -->
+                            <div style="margin-bottom:18px;">
+
+                                <label style="display:block;
+                                              font-size:13px;
+                                              font-weight:600;
+                                              color:var(--text-primary);
+                                              margin-bottom:8px;">
+
+                                    Confirm Password
+                                </label>
+
+                                <div class="topbar-search"
+                                     style="border-radius:10px;
+                                            padding:10px 14px;">
+
+                                    <i class="bx bx-lock"
+                                       style="color:var(--text-muted);
+                                              font-size:16px;"></i>
+
+                                    <input type="password"
+                                           name="confirmPassword"
+                                           placeholder="Confirm password"
+                                           required
+                                           style="width:100%;
+                                                  font-size:14px;" />
+
+                                </div>
+
+                            </div>
+
+                            <!-- ROLE DROPDOWN -->
+                            <div style="margin-bottom:24px;">
+
+                                <label style="display:block;
+                                              font-size:13px;
+                                              font-weight:600;
+                                              color:var(--text-primary);
+                                              margin-bottom:8px;">
+
+                                    Role
+                                </label>
+
+                                <select name="role"
+                                        required
+                                        style="width:100%;
+                                               padding:14px;
+                                               border:1px solid #dcd6ff;
+                                               border-radius:12px;
+                                               font-size:14px;
+                                               background:#fff;
+                                               color:#111827;
+                                               outline:none;">
+
+                                    <option value="">
+                                        Select Role
+                                    </option>
+
+                                    <option value="HR">
+                                        HR
+                                    </option>
+
+                                    <option value="MANAGER">
+                                        Manager
+                                    </option>
+
+                                    <option value="EMPLOYEE">
+                                        Employee
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- BUTTONS -->
+                            <div style="display:flex;
+                                        gap:12px;
+                                        justify-content:flex-end;">
+
+                                <button type="reset"
+                                        class="btn btn-ghost">
+
+                                    Clear
+                                </button>
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+
+                                    <i class="bx bx-user-plus"></i>
+
+                                    Add User
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <!-- USERS LIST -->
+                <div class="card">
+
+                    <div class="card-header">
+                        <div>
+
+                            <div class="card-title">
+                                Existing Users
+                            </div>
+
+                            <div class="card-subtitle">
+                                All registered users
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+
+                            <tr th:each="mgr : ${managers}">
+
+                                <td>
+
+                                    <div style="display:flex;
+                                                align-items:center;
+                                                gap:10px;">
+
+                                        <div class="avatar-img"
+                                             th:text="${#strings.substring(mgr.username,0,1)}">
+
+                                            U
+                                        </div>
+
+                                        <div>
+
+                                            <div style="font-weight:600;
+                                                        font-size:13px;"
+                                                 th:text="${mgr.username}">
+
+                                                User
+                                            </div>
+
+                                            <div style="font-size:11px;
+                                                        color:var(--text-muted);"
+                                                 th:text="${mgr.email}">
+
+                                                email
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-green">
+                                        Active
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                            <tr th:if="${managers == null or #lists.isEmpty(managers)}">
+
+                                <td colspan="2">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-icon">
+                                            👤
+                                        </div>
+
+                                        <h3>No users yet</h3>
+
+                                        <p>
+                                            Add your first user using the form.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
+
+    hamburger.addEventListener('click', () => {
+
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+
+    });
+
+    overlay.addEventListener('click', () => {
+
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+
+    });
+
+</script>
+
+</body>
+</html>
