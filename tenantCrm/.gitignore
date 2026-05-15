@@ -33,16 +33,26 @@ Thumbs.db
 *.iml
 
 # =========================
-# IDE - Eclipse
+# IDE - Eclipse / STS
 # =========================
 .classpath
 .project
 .settings/
+.factorypath
 
 # =========================
 # IDE - VS Code
 # =========================
 .vscode/
+
+# =========================
+# Spring Boot / Application Config
+# =========================
+src/main/resources/application.properties
+
+# Optional:
+# Uncomment if you want to ignore all properties files
+# *.properties
 
 # =========================
 # Node (if frontend exists)
@@ -54,7 +64,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # =========================
-# Environment files (IMPORTANT)
+# Environment files
 # =========================
 .env
 .env.*
@@ -68,15 +78,11 @@ yarn-error.log*
 *.bak
 
 # =========================
-# Database files (be careful)
+# Database files
 # =========================
 *.db
 *.sqlite
 
-# ⚠️ Comment this if you WANT to push SQL files
+# Optional:
+# Uncomment if you DON'T want SQL files in Git
 # *.sql
-
-# =========================
-# Maven wrapper
-# =========================
-.mvn/
