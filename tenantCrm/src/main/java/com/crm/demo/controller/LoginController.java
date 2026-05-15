@@ -1,6 +1,7 @@
 package com.crm.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,47 +14,52 @@ import com.crm.demo.repository.UserRepository;
 @Controller
 public class LoginController {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@GetMapping("/login")
-	public String loginPage() {
-		return "login";
-	}
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-	// ─── LOGIN PROCESS ───────────────────────────────────────────────────────────
-	@PostMapping("/login")
-	public String loginUser(@RequestParam String username, @RequestParam String password, Model model) {
+    // ─── LOGIN PAGE ───────────────────────────────────────────────────────────────
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
 
-		// Find user by username OR email
-		User user = userRepository.findByUsernameOrEmail(username, username);
+    // ─── LOGIN PROCESS ────────────────────────────────────────────────────────────
+    @PostMapping("/login")
+    public String loginUser(@RequestParam String username,
+                            @RequestParam String password,
+                            Model model) {
 
-		// ✅ FIX: Check credentials ONCE, then branch by ROLE
-		if (user != null && user.getPassword().equals(password)) {
+        // Find user by username OR email
+        User user = userRepository.findByUsernameOrEmail(username, username);
 
-			String role = user.getRole(); // e.g. "SUPERADMIN" or "ADMIN"
+        // Verify user exists and BCrypt hash matches the submitted password
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
 
-			if ("SUPER_ADMIN".equalsIgnoreCase(role)) {
-				return "superadmin"; // → templates/superadmin.html
-			} else if ("ADMIN".equalsIgnoreCase(role)) {
-				return "admin"; // → templates/admin.html (your dashboard.html)
-			} else if ("MANAGER".equalsIgnoreCase(role)) {
-				return "manager";
-			} else {
-				// Any other role — redirect to a default page or show error
-				model.addAttribute("error", "You do not have permission to access this panel.");
-				return "login";
-			}
-		}
+            String role = user.getRole();
 
-		// Wrong username/password
-		model.addAttribute("error", "Invalid Username or Password");
-		return "login";
-	}
+            if ("SUPER_ADMIN".equalsIgnoreCase(role)) {
+                return "superadmin";
+            } else if ("ADMIN".equalsIgnoreCase(role)) {
+                return "admin";
+            } else if ("MANAGER".equalsIgnoreCase(role)) {
+                return "manager";
+            } else {
+                model.addAttribute("error", "You do not have permission to access this panel.");
+                return "login";
+            }
+        }
 
-	// ─── LOGOUT ──────────────────────────────────────────────────────────────────
-	@GetMapping("/logout")
-	public String logout() {
-		return "redirect:/login";
-	}
+        // Wrong credentials
+        model.addAttribute("error", "Invalid Username or Password");
+        return "login";
+    }
+
+    // ─── LOGOUT ───────────────────────────────────────────────────────────────────
+    @GetMapping("/logout")
+    public String logout() {
+        return "redirect:/login";
+    }
 }
