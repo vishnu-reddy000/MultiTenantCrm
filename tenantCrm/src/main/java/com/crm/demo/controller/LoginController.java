@@ -21,11 +21,14 @@ public class LoginController {
 		return "login";
 	}
 
-	// Login Process
+	// LOGIN PROCESS
 	@PostMapping("/login")
-	public String loginUser(@RequestParam String username, @RequestParam String password, Model model) {
+	public String loginUser(@RequestParam String username,
+			                @RequestParam String password,
+			                Model model) {
 
-		User user = userRepository.findByUsername(username);
+		// CHECK USERNAME OR EMAIL
+		User user = userRepository.findByUsernameOrEmail(username, username);
 
 		if (user != null && user.getPassword().equals(password)) {
 
@@ -35,5 +38,12 @@ public class LoginController {
 		model.addAttribute("error", "Invalid Username or Password");
 
 		return "login";
+	}
+
+	// LOGOUT
+	@GetMapping("/logout")
+	public String logout() {
+
+		return "redirect:/login";
 	}
 }

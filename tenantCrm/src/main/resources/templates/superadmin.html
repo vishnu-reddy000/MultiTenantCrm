@@ -15,11 +15,22 @@
 
 <body>
 
+    <!-- MOBILE TOPBAR (hamburger) -->
+    <div class="mobile-topbar">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+        <span class="mobile-title">SuperAdmin</span>
+    </div>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- =========================
          SIDEBAR
     ========================== -->
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
 
         <!-- LOGO -->
 
@@ -85,9 +96,11 @@
 
         <!-- LOGOUT -->
 
-        <button class="logout-btn">
-            🚪 Logout
-        </button>
+		<a th:href="@{/logout}">
+		    <button class="logout-btn">
+		        🚪 Logout
+		    </button>
+		</a>
 
     </div>
 
@@ -481,6 +494,32 @@
 
     </div>
 
+    <script>
+        const hamburger = document.getElementById('hamburgerBtn');
+        const sidebar   = document.getElementById('sidebar');
+        const overlay   = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        hamburger.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar when a menu link is tapped on mobile
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 900) closeSidebar();
+            });
+        });
+    </script>
 </body>
 
 </html>
