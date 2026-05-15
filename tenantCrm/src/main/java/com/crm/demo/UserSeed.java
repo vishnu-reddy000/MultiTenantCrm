@@ -18,22 +18,22 @@ public class UserSeed implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        User existingUser = userRepository.findByUsername("superadmin");
+        User user = userRepository.findByUsername("superadmin");
 
-        if (existingUser == null) {
+        // IF USER NOT EXISTS
+        if (user == null) {
 
-            User user = new User();
-
-            user.setUsername("superadmin");
-            user.setEmail("superadmin@gmail.com");
-            user.setPassword("admin123");
-            user.setRole("SUPER_ADMIN");
-
-            userRepository.save(user);
-
-            System.out.println("Super Admin Created");
+            user = new User();
         }
 
-    }
+        // ALWAYS UPDATE VALUES
+        user.setUsername("superadmin");
+        user.setEmail("superadmin@crm.com");
+        user.setPassword("superadmin123");
+        user.setRole("SUPER_ADMIN");
 
+        userRepository.save(user);
+
+        System.out.println("Super Admin Created/Updated");
+    }
 }
