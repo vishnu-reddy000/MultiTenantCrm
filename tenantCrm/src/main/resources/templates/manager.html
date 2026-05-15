@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Manager Dashboard</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+		rel="stylesheet" />
+	<link rel="stylesheet" th:href="@{/manager.css}" />
+</head>
+
+<body>
+
+	<div class="app-layout">
+
+		<!-- ========== SIDEBAR ========== -->
+		<aside class="sidebar" id="sidebar">
+			<div class="sidebar-logo">
+				<div class="logo-icon">
+					<svg viewBox="0 0 24 24" fill="none">
+						<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2"
+							stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</div>
+				<div class="logo-text">
+					<span class="logo-name">WorkCRM</span>
+					<span class="logo-tagline">Manager Portal</span>
+				</div>
+			</div>
+
+			<nav class="sidebar-nav">
+				<div class="nav-section-label">Main Menu</div>
+
+				<div class="nav-item" data-page="page-dashboard">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="3" width="7" height="7" />
+							<rect x="14" y="3" width="7" height="7" />
+							<rect x="14" y="14" width="7" height="7" />
+							<rect x="3" y="14" width="7" height="7" />
+						</svg>
+					</span>
+					<span class="nav-label">Dashboard</span>
+				</div>
+
+				<div class="nav-item" data-page="page-team">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+							<circle cx="9" cy="7" r="4" />
+							<path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+						</svg>
+					</span>
+					<span class="nav-label">Team Members</span>
+				</div>
+
+				<div class="nav-item" data-page="page-projects">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polygon points="12 2 2 7 12 12 22 7 12 2" />
+							<polyline points="2 17 12 22 22 17" />
+							<polyline points="2 12 12 17 22 12" />
+						</svg>
+					</span>
+					<span class="nav-label">Projects</span>
+					<span class="nav-badge">0</span>
+				</div>
+
+				<div class="nav-item" data-page="page-tasks">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+					</span>
+					<span class="nav-label">Tasks</span>
+					<span class="nav-badge orange">0</span>
+				</div>
+
+				<div class="nav-section-label">HR &amp; Reports</div>
+
+				<div class="nav-item" data-page="page-attendance">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+							<line x1="16" y1="2" x2="16" y2="6" />
+							<line x1="8" y1="2" x2="8" y2="6" />
+							<line x1="3" y1="10" x2="21" y2="10" />
+						</svg>
+					</span>
+					<span class="nav-label">Team Attendance</span>
+				</div>
+
+				<div class="nav-item" data-page="page-performance">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="18" y1="20" x2="18" y2="10" />
+							<line x1="12" y1="20" x2="12" y2="4" />
+							<line x1="6" y1="20" x2="6" y2="14" />
+						</svg>
+					</span>
+					<span class="nav-label">Performance</span>
+				</div>
+
+				<div class="nav-item" data-page="page-notices">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+							<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+						</svg>
+					</span>
+					<span class="nav-label">Team Notices</span>
+					<span class="nav-badge green">0</span>
+				</div>
+			</nav>
+
+			<div class="sidebar-bottom">
+				<div class="nav-item" data-page="page-settings">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="3" />
+							<path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14" />
+						</svg>
+					</span>
+					<span class="nav-label">Settings</span>
+				</div>
+				<div class="nav-item logout">
+					<span class="nav-icon">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+							<polyline points="16 17 21 12 16 7" />
+							<line x1="21" y1="12" x2="9" y2="12" />
+						</svg>
+					</span>
+					<span class="nav-label">Log Out</span>
+				</div>
+			</div>
+		</aside>
+
+		<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+		<!-- ========== MAIN CONTENT ========== -->
+		<main class="main-content">
+
+			<!-- TOP BAR -->
+			<header class="topbar">
+				<button class="hamburger" id="hamburger" aria-label="Toggle menu">
+					<span></span><span></span><span></span>
+				</button>
+				<div class="topbar-title">
+					<h1 id="topbarTitle">Dashboard</h1>
+					<span id="topbarSub">Welcome back! Here's what's happening today.</span>
+				</div>
+				<div class="topbar-actions">
+					<div class="topbar-search">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2">
+							<circle cx="11" cy="11" r="8" />
+							<line x1="21" y1="21" x2="16.65" y2="16.65" />
+						</svg>
+						<input type="text" placeholder="Search anything..." />
+					</div>
+
+					<!-- Notification Bell -->
+					<div class="notif-wrapper">
+						<button class="icon-btn" id="notifBtn" aria-label="Notifications">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+								<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+							</svg>
+							<span class="notif-badge count" style="background:#FF6B6B;">4</span>
+						</button>
+						<div class="notif-dropdown" id="notifDropdown">
+							<div class="notif-header">
+								<h3>Notifications</h3>
+								<span id="markAllNotif">Mark all read</span>
+							</div>
+							<div class="notif-list">
+								<div class="notif-item unread">
+									<div class="notif-dot purple">📋</div>
+									<div class="notif-text">
+										<p>New project assigned to your team</p>
+										<span>2 minutes ago</span>
+									</div>
+								</div>
+								<div class="notif-item unread">
+									<div class="notif-dot green">✅</div>
+									<div class="notif-text">
+										<p>Task marked as complete</p>
+										<span>15 minutes ago</span>
+									</div>
+								</div>
+								<div class="notif-item unread">
+									<div class="notif-dot orange">⏰</div>
+									<div class="notif-text">
+										<p>Team standup meeting in 30 minutes</p>
+										<span>30 minutes ago</span>
+									</div>
+								</div>
+								<div class="notif-item unread">
+									<div class="notif-dot red">⚠️</div>
+									<div class="notif-text">
+										<p>Project deadline approaching — 2 days left</p>
+										<span>1 hour ago</span>
+									</div>
+								</div>
+								<div class="notif-item">
+									<div class="notif-dot purple">👋</div>
+									<div class="notif-text">
+										<p>New team member joined the workspace</p>
+										<span>Yesterday</span>
+									</div>
+								</div>
+							</div>
+							<div class="notif-footer">
+								<a href="#">View all notifications</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="user-avatar">
+						<div class="avatar-img">M</div>
+						<div class="avatar-info">
+							<span class="avatar-name">Manager</span>
+							<span class="avatar-role">Admin</span>
+						</div>
+					</div>
+				</div>
+			</header>
+
+			<!-- ============================================
+         PAGE CONTENT AREA
+         ============================================ -->
+			<div class="page-content">
+
+				<!-- ===== PAGE: DASHBOARD ===== -->
+				<div id="page-dashboard" class="page-section">
+					<div class="page-header">
+						<div>
+							<h2>Overview</h2>
+							<p>Here's a summary of your team's activity</p>
+						</div>
+						<button class="btn btn-primary">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							Add New
+						</button>
+					</div>
+
+					<!-- Stat Cards -->
+					<div class="stats-grid">
+						<div class="stat-card purple">
+							<div class="stat-header">
+								<div class="stat-icon purple">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+										<circle cx="9" cy="7" r="4" />
+										<path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+									</svg>
+								</div>
+								<div class="stat-trend up">↑ 0%</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Total Team Members</div>
+						</div>
+						<div class="stat-card green">
+							<div class="stat-header">
+								<div class="stat-icon green">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<polygon points="12 2 2 7 12 12 22 7 12 2" />
+										<polyline points="2 17 12 22 22 17" />
+										<polyline points="2 12 12 17 22 12" />
+									</svg>
+								</div>
+								<div class="stat-trend up">↑ 0%</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Active Projects</div>
+						</div>
+						<div class="stat-card orange">
+							<div class="stat-header">
+								<div class="stat-icon orange">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M9 11l3 3L22 4" />
+										<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+									</svg>
+								</div>
+								<div class="stat-trend down">↓ 0%</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Pending Tasks</div>
+						</div>
+						<div class="stat-card blue">
+							<div class="stat-header">
+								<div class="stat-icon blue">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="18" y1="20" x2="18" y2="10" />
+										<line x1="12" y1="20" x2="12" y2="4" />
+										<line x1="6" y1="20" x2="6" y2="14" />
+									</svg>
+								</div>
+								<div class="stat-trend up">↑ 0%</div>
+							</div>
+							<div class="stat-value">0%</div>
+							<div class="stat-label">Avg Performance</div>
+						</div>
+					</div>
+
+					<!-- Middle Row -->
+					<div class="grid-2col">
+						<!-- Recent Tasks -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Recent Tasks</div>
+									<div class="card-subtitle">Latest task activity</div>
+								</div>
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">View All</button>
+							</div>
+							<div class="card-body">
+								<div class="empty-state">
+									<div class="empty-icon">📋</div>
+									<h3>No tasks yet</h3>
+									<p>Tasks assigned to your team will appear here</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Team Notices Preview -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Latest Notices</div>
+									<div class="card-subtitle">Team announcements</div>
+								</div>
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;"
+									onclick="showPage('page-notices')">View All</button>
+							</div>
+							<div class="card-body">
+								<div class="empty-state">
+									<div class="empty-icon">📢</div>
+									<h3>No notices posted</h3>
+									<p>Team announcements will appear here</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Bottom Row -->
+					<div class="grid-3col">
+						<!-- Projects Overview -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Projects Overview</div>
+									<div class="card-subtitle">Current active projects</div>
+								</div>
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">View All</button>
+							</div>
+							<div class="card-body">
+								<div class="empty-state">
+									<div class="empty-icon">🗂️</div>
+									<h3>No projects yet</h3>
+									<p>Add your first project to get started</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Attendance Summary -->
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title">Today's Attendance</div>
+							</div>
+							<div class="card-body">
+								<div class="empty-state" style="padding: 24px 12px;">
+									<div class="empty-icon">📅</div>
+									<h3>No data yet</h3>
+									<p>Attendance records will appear here</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div><!-- end dashboard -->
+
+				<!-- ===== PAGE: TEAM MEMBERS ===== -->
+				<div id="page-team" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Team Members</h2>
+							<p>Manage your team roster</p>
+						</div>
+						<button class="btn btn-primary">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							Add Member
+						</button>
+					</div>
+
+					<div class="card" style="margin-bottom:20px;">
+						<div class="card-header">
+							<div class="card-title">All Members</div>
+							<div style="display:flex;gap:8px;flex-wrap:wrap;">
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">Filter</button>
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">Export</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="empty-state">
+								<div class="empty-icon">👥</div>
+								<h3>No team members added</h3>
+								<p>Click "Add Member" to start building your team roster</p>
+								<button class="btn btn-primary" style="margin-top:16px;">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<line x1="5" y1="12" x2="19" y2="12" />
+									</svg>
+									Add First Member
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- Member Table -->
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Member Directory</div>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Member</th>
+										<th>Role</th>
+										<th>Department</th>
+										<th>Status</th>
+										<th>Projects</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">
+											No members to display. Add your team members to get started.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div><!-- end team -->
+
+				<!-- ===== PAGE: PROJECTS ===== -->
+				<div id="page-projects" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Projects</h2>
+							<p>Track and manage all projects</p>
+						</div>
+						<button class="btn btn-primary">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							New Project
+						</button>
+					</div>
+
+					<!-- Filter Tabs -->
+					<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+						<button class="btn btn-primary" style="font-size:12px;padding:7px 16px;">All</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">Active</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">Completed</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">On Hold</button>
+					</div>
+
+					<div class="card">
+						<div class="card-body">
+							<div class="empty-state">
+								<div class="empty-icon">🗂️</div>
+								<h3>No projects yet</h3>
+								<p>Create your first project and assign team members to get started</p>
+								<button class="btn btn-primary" style="margin-top:16px;">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<line x1="5" y1="12" x2="19" y2="12" />
+									</svg>
+									Create First Project
+								</button>
+							</div>
+						</div>
+					</div>
+				</div><!-- end projects -->
+
+				<!-- ===== PAGE: TASKS ===== -->
+				<div id="page-tasks" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Tasks</h2>
+							<p>Manage and track team tasks</p>
+						</div>
+						<button class="btn btn-primary">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							Add Task
+						</button>
+					</div>
+
+					<div class="grid-2col">
+						<!-- Pending -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Pending Tasks</div>
+									<div class="card-subtitle">0 tasks remaining</div>
+								</div>
+								<span class="badge badge-orange">0</span>
+							</div>
+							<div class="card-body">
+								<div class="empty-state" style="padding:28px 12px;">
+									<div class="empty-icon">⏳</div>
+									<h3>No pending tasks</h3>
+									<p>All caught up! Add tasks to track work.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Completed -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Completed Tasks</div>
+									<div class="card-subtitle">0 tasks done</div>
+								</div>
+								<span class="badge badge-green">0</span>
+							</div>
+							<div class="card-body">
+								<div class="empty-state" style="padding:28px 12px;">
+									<div class="empty-icon">✅</div>
+									<h3>No completed tasks yet</h3>
+									<p>Completed tasks will appear here.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- All Tasks Table -->
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">All Tasks</div>
+							<div style="display:flex;gap:8px;">
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">Filter</button>
+								<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">Sort</button>
+							</div>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Task Name</th>
+										<th>Assignee</th>
+										<th>Project</th>
+										<th>Priority</th>
+										<th>Due Date</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+											No tasks created yet. Click "Add Task" to begin.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div><!-- end tasks -->
+
+				<!-- ===== PAGE: ATTENDANCE ===== -->
+				<div id="page-attendance" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Team Attendance</h2>
+							<p>Monitor and track attendance records</p>
+						</div>
+						<div style="display:flex;gap:10px;flex-wrap:wrap;">
+							<button class="btn btn-ghost">
+								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+									<line x1="16" y1="2" x2="16" y2="6" />
+									<line x1="8" y1="2" x2="8" y2="6" />
+									<line x1="3" y1="10" x2="21" y2="10" />
+								</svg>
+								Filter by Date
+							</button>
+							<button class="btn btn-primary">Mark Attendance</button>
+						</div>
+					</div>
+
+					<!-- Summary Cards -->
+					<div class="stats-grid" style="margin-bottom:20px;">
+						<div class="stat-card green">
+							<div class="stat-header">
+								<div class="stat-icon green">✅</div>
+								<div class="stat-trend up">Today</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Present</div>
+						</div>
+						<div class="stat-card" style="border-color:var(--border);">
+							<div class="stat-header">
+								<div class="stat-icon" style="background:rgba(239,68,68,0.1);color:#EF4444;">❌</div>
+								<div class="stat-trend down">Today</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Absent</div>
+						</div>
+						<div class="stat-card orange">
+							<div class="stat-header">
+								<div class="stat-icon orange">🕐</div>
+								<div class="stat-trend"
+									style="background:rgba(245,158,11,0.1);color:var(--accent-orange);">Today</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">Late Arrivals</div>
+						</div>
+						<div class="stat-card blue">
+							<div class="stat-header">
+								<div class="stat-icon blue">🏖️</div>
+								<div class="stat-trend"
+									style="background:rgba(59,130,246,0.1);color:var(--accent-blue);">Today</div>
+							</div>
+							<div class="stat-value">0</div>
+							<div class="stat-label">On Leave</div>
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Attendance Records</div>
+							<button class="btn btn-ghost" style="font-size:12px;padding:7px 14px;">Export CSV</button>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Date</th>
+										<th>Check In</th>
+										<th>Check Out</th>
+										<th>Hours</th>
+										<th>Status</th>
+										<th>Notes</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+											No attendance records found. Mark attendance to start tracking.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div><!-- end attendance -->
+
+				<!-- ===== PAGE: PERFORMANCE ===== -->
+				<div id="page-performance" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Performance</h2>
+							<p>Review team and individual performance</p>
+						</div>
+						<div style="display:flex;gap:10px;">
+							<button class="btn btn-ghost">This Month</button>
+							<button class="btn btn-primary">Generate Report</button>
+						</div>
+					</div>
+
+					<div class="grid-2col" style="margin-bottom:20px;">
+						<!-- Team Chart -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Monthly Performance</div>
+									<div class="card-subtitle">Team productivity overview</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<div style="padding:10px 0;">
+									<div class="perf-chart" id="perfChart">
+										<div class="perf-bar" title="Jan" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="Feb" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="Mar" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="Apr" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="May" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="Jun" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+										<div class="perf-bar" title="Jul" style="height:100%;">
+											<div class="bar-fill" data-height="0" style="height:0%;"></div>
+										</div>
+									</div>
+									<div class="chart-labels">
+										<span>Jan</span><span>Feb</span><span>Mar</span>
+										<span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
+									</div>
+								</div>
+								<div class="empty-state" style="padding:16px 0;">
+									<p>Add team data to see performance trends</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Individual Rankings -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<div class="card-title">Top Performers</div>
+									<div class="card-subtitle">Ranked by score this month</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="empty-state">
+									<div class="empty-icon">🏆</div>
+									<h3>No performance data</h3>
+									<p>Add team members and track tasks to generate performance scores</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Performance Table -->
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Individual Performance</div>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Department</th>
+										<th>Tasks Done</th>
+										<th>On Time</th>
+										<th>Attendance</th>
+										<th>Score</th>
+										<th>Rating</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+											No performance data available. Add team members to start tracking.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div><!-- end performance -->
+
+				<!-- ===== PAGE: NOTICES ===== -->
+				<div id="page-notices" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Team Notices</h2>
+							<p>Announcements and important updates</p>
+						</div>
+						<button class="btn btn-primary">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							Post Notice
+						</button>
+					</div>
+
+					<!-- Filter Tabs -->
+					<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+						<button class="btn btn-primary" style="font-size:12px;padding:7px 16px;">All</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">Important</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">HR</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">Events</button>
+						<button class="btn btn-ghost" style="font-size:12px;padding:7px 16px;">General</button>
+					</div>
+
+					<div class="card">
+						<div class="card-body">
+							<div class="empty-state">
+								<div class="empty-icon">📢</div>
+								<h3>No notices posted yet</h3>
+								<p>Post your first team announcement or notice to keep everyone informed</p>
+								<button class="btn btn-primary" style="margin-top:16px;">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+										stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<line x1="5" y1="12" x2="19" y2="12" />
+									</svg>
+									Post First Notice
+								</button>
+							</div>
+						</div>
+					</div>
+				</div><!-- end notices -->
+
+				<!-- ===== PAGE: SETTINGS ===== -->
+				<div id="page-settings" class="page-section" style="display:none;">
+					<div class="page-header">
+						<div>
+							<h2>Settings</h2>
+							<p>Configure your workspace preferences</p>
+						</div>
+						<button class="btn btn-primary">Save Changes</button>
+					</div>
+
+					<div class="grid-2col">
+						<!-- Profile Settings -->
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title">Profile Settings</div>
+							</div>
+							<div class="card-body">
+								<div class="settings-section">
+									<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+										<div class="avatar-img"
+											style="width:60px;height:60px;font-size:22px;border-radius:16px;">M</div>
+										<div>
+											<div style="font-weight:700;font-size:15px;margin-bottom:4px;">Manager Name
+											</div>
+											<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Admin
+												· manager@company.com</div>
+											<button class="btn btn-ghost"
+												style="font-size:11px;padding:5px 12px;">Change Photo</button>
+										</div>
+									</div>
+								</div>
+								<div class="settings-section">
+									<div class="settings-section-title">Account Info</div>
+									<div style="display:flex;flex-direction:column;gap:12px;">
+										<div>
+											<label
+												style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:5px;">Full
+												Name</label>
+											<input type="text" placeholder="Enter your name"
+												style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:all 0.2s;color:var(--text-primary);background:#fff;"
+												onfocus="this.style.borderColor='var(--primary)'"
+												onblur="this.style.borderColor='var(--border)'" />
+										</div>
+										<div>
+											<label
+												style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:5px;">Email
+												Address</label>
+											<input type="email" placeholder="Enter your email"
+												style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:all 0.2s;color:var(--text-primary);background:#fff;"
+												onfocus="this.style.borderColor='var(--primary)'"
+												onblur="this.style.borderColor='var(--border)'" />
+										</div>
+										<div>
+											<label
+												style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:5px;">Job
+												Title</label>
+											<input type="text" placeholder="e.g. Project Manager"
+												style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:all 0.2s;color:var(--text-primary);background:#fff;"
+												onfocus="this.style.borderColor='var(--primary)'"
+												onblur="this.style.borderColor='var(--border)'" />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Preferences -->
+						<div style="display:flex;flex-direction:column;gap:18px;">
+							<div class="card">
+								<div class="card-header">
+									<div class="card-title">Notifications</div>
+								</div>
+								<div class="card-body">
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Email Notifications</div>
+											<div class="settings-desc">Receive updates via email</div>
+										</div>
+										<div class="toggle on"></div>
+									</div>
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Task Reminders</div>
+											<div class="settings-desc">Get reminded before deadlines</div>
+										</div>
+										<div class="toggle on"></div>
+									</div>
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Team Notices</div>
+											<div class="settings-desc">Be notified of new announcements</div>
+										</div>
+										<div class="toggle"></div>
+									</div>
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Performance Reports</div>
+											<div class="settings-desc">Weekly performance summaries</div>
+										</div>
+										<div class="toggle on"></div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-header">
+									<div class="card-title">Appearance</div>
+								</div>
+								<div class="card-body">
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Compact Mode</div>
+											<div class="settings-desc">Reduce spacing and density</div>
+										</div>
+										<div class="toggle"></div>
+									</div>
+									<div class="settings-row">
+										<div>
+											<div class="settings-label">Show Avatars</div>
+											<div class="settings-desc">Display user avatars in tables</div>
+										</div>
+										<div class="toggle on"></div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-header">
+									<div class="card-title">Security</div>
+								</div>
+								<div class="card-body">
+									<div style="display:flex;flex-direction:column;gap:10px;">
+										<button class="btn btn-ghost" style="justify-content:flex-start;">
+											<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+												stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												stroke-linejoin="round">
+												<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+												<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+											</svg>
+											Change Password
+										</button>
+										<button class="btn btn-ghost" style="justify-content:flex-start;">
+											<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+												stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												stroke-linejoin="round">
+												<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+											</svg>
+											Two-Factor Authentication
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div><!-- end settings -->
+
+			</div><!-- end page-content -->
+		</main>
+	</div>
+
+	<script th:src="@{/js/dashboard.js}"></script>
+</body>
+
+</html>

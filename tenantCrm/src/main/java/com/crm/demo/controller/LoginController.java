@@ -37,6 +37,8 @@ public class LoginController {
 				return "superadmin"; // → templates/superadmin.html
 			} else if ("ADMIN".equalsIgnoreCase(role)) {
 				return "admin"; // → templates/admin.html (your dashboard.html)
+			} else if ("MANAGER".equalsIgnoreCase(role)) {
+				return "manager";
 			} else {
 				// Any other role — redirect to a default page or show error
 				model.addAttribute("error", "You do not have permission to access this panel.");
