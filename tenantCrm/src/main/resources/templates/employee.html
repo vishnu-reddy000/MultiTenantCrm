@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+	<title>Employee Dashboard | LifeCare CRM</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" th:href="@{/employee.css}" href="/employee.css">
+</head>
+
+<body>
+
+	<div class="app-container">
+		<!-- SIDEBAR (left) -->
+		<aside class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<div class="sidebar-logo">
+					<i class="fas fa-user-circle"></i>
+					<span>EmpPortal</span>
+				</div>
+				<button class="close-sidebar-mobile" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
+			</div>
+			<nav class="sidebar-nav">
+				<ul>
+					<li class="nav-item active"><a href="#" class="nav-link"><i
+								class="fas fa-tachometer-alt"></i><span>Dashboards</span></a></li>
+					<li class="nav-item"><a href="#" class="nav-link"><i
+								class="fas fa-folder-open"></i><span>MyProjects</span></a></li>
+					<li class="nav-item"><a href="#" class="nav-link"><i
+								class="fas fa-tasks"></i><span>MyTasks</span></a></li>
+					<li class="nav-item"><a href="#" class="nav-link"><i
+								class="fas fa-calendar-check"></i><span>Attendance</span></a></li>
+					<li class="nav-item"><a href="#" class="nav-link"><i
+								class="fas fa-envelope-open-text"></i><span>Leave Request</span></a></li>
+					<li class="nav-item"><a href="#" class="nav-link"><i
+								class="fas fa-cog"></i><span>Settings</span></a></li>
+					<li class="nav-item logout-item"><a href="#" class="nav-link"><i
+								class="fas fa-sign-out-alt"></i><span>Log out</span></a></li>
+				</ul>
+			</nav>
+		</aside>
+
+		<div class="mobile-overlay" id="mobileOverlay"></div>
+
+		<!-- MAIN CONTENT -->
+		<main class="main-content">
+			<!-- TOP BAR with logo, heading, notifications -->
+			<header class="top-bar">
+				<div class="top-bar-left">
+					<button class="hamburger-menu" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+					<div class="logo-area">
+						<i class="fas fa-hand-holding-heart logo-icon"></i>
+						<h2>LifeCare <span>Employee CRM</span></h2>
+					</div>
+				</div>
+				<div class="top-bar-right">
+					<div class="notification-bell">
+						<i class="fas fa-bell"></i>
+						<span class="badge" th:text="${notificationCount}">0</span>
+						<div class="notification-dropdown">
+							<div class="notif-header"><span>Notifications</span><a href="#">Mark all read</a></div>
+							<ul>
+								<li th:each="notif : ${notifications}" th:text="${notif.message}">New notification</li>
+							</ul>
+						</div>
+					</div>
+					<div class="employee-profile">
+						<img th:src="@{${employeeAvatar}}"
+							src="https://ui-avatars.com/api/?background=0D6EFD&color=fff&name=Employee" alt="profile">
+						<div class="profile-info">
+							<span class="emp-name" th:text="${employeeName}">Employee Name</span>
+							<span class="emp-role" th:text="${employeeRole}">Role</span>
+						</div>
+						<i class="fas fa-chevron-down"></i>
+					</div>
+				</div>
+			</header>
+
+			<!-- WELCOME -->
+			<div class="welcome-section">
+				<div class="welcome-text">
+					<h1 th:text="'Welcome back, ' + ${employeeName}">Welcome, User</h1>
+					<p>Here’s your personal dashboard – track projects, tasks, attendance and leaves.</p>
+				</div>
+			</div>
+
+			<!-- STATS CARDS (empty placeholders) -->
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon blue-bg"><i class="fas fa-project-diagram"></i></div>
+					<div class="stat-details">
+						<h3>Active Projects</h3>
+						<div class="stat-value" th:text="${activeProjectsCount}">---</div>
+						<div class="stat-trend positive" th:text="${projectsTrend}">+0%</div>
+						<span class="stat-period">this month</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green-bg"><i class="fas fa-check-circle"></i></div>
+					<div class="stat-details">
+						<h3>Tasks Completed</h3>
+						<div class="stat-value" th:text="${completedTasks}">---</div>
+						<div class="stat-trend positive" th:text="${tasksTrend}">+0%</div>
+						<span class="stat-period">this week</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange-bg"><i class="fas fa-calendar-week"></i></div>
+					<div class="stat-details">
+						<h3>Attendance</h3>
+						<div class="stat-value" th:text="${attendanceRate}">---</div>
+						<div class="stat-trend neutral" th:text="${attendanceTrend}">0%</div>
+						<span class="stat-period">present rate</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon purple-bg"><i class="fas fa-hourglass-half"></i></div>
+					<div class="stat-details">
+						<h3>Pending Leaves</h3>
+						<div class="stat-value" th:text="${pendingLeaves}">---</div>
+						<div class="stat-trend neutral" th:text="${leaveStatus}">pending</div>
+						<span class="stat-period">awaiting approval</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- TWO COLUMN LAYOUT -->
+			<div class="dashboard-row">
+				<!-- LEFT COLUMN: MyProjects & Recent Tasks -->
+				<div class="col-left">
+					<div class="card projects-card">
+						<div class="card-header">
+							<h3><i class="fas fa-folder-open"></i> My Projects</h3>
+							<a href="#" class="link-more">View all <i class="fas fa-arrow-right"></i></a>
+						</div>
+						<div class="projects-list">
+							<div th:each="proj : ${myProjects}" class="project-item">
+								<div class="project-info">
+									<strong th:text="${proj.name}">Project name</strong>
+									<p th:text="${proj.deadline}">Deadline</p>
+								</div>
+								<div class="project-progress">
+									<div class="progress-bar-small">
+										<div class="progress-fill-small" th:style="'width:' + ${proj.progress} + '%'">
+										</div>
+									</div>
+									<span th:text="${proj.progress} + '%'">0%</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="card tasks-card">
+						<div class="card-header">
+							<h3><i class="fas fa-tasks"></i> My Tasks (Pending)</h3>
+							<a href="#" class="link-more">All tasks</a>
+						</div>
+						<div class="table-responsive">
+							<table class="simple-table">
+								<thead>
+									<tr>
+										<th>Task</th>
+										<th>Project</th>
+										<th>Due Date</th>
+										<th>Priority</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="task : ${pendingTasks}">
+										<td th:text="${task.title}">Task title</td>
+										<td th:text="${task.projectName}">Project</td>
+										<td th:text="${task.dueDate}">Date</td>
+										<td><span class="priority-badge" th:text="${task.priority}">High</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- RIGHT COLUMN: Attendance summary + Leave Request quick view -->
+				<div class="col-right">
+					<div class="card attendance-card">
+						<div class="card-header">
+							<h3><i class="fas fa-calendar-check"></i> Attendance This Month</h3>
+							<span th:text="${attendanceMonth}">April 2025</span>
+						</div>
+						<div class="attendance-stats">
+							<div><span>Present</span> <strong th:text="${presentDays}">0</strong> days</div>
+							<div><span>Absent</span> <strong th:text="${absentDays}">0</strong> days</div>
+							<div><span>Leave</span> <strong th:text="${leaveDays}">0</strong> days</div>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div>
+						</div>
+						<div class="checkin-status">
+							<i class="fas fa-clock"></i> Last check-in: <span th:text="${lastCheckin}">Today 09:15
+								AM</span>
+						</div>
+					</div>
+
+					<div class="card leave-request-card">
+						<div class="card-header">
+							<h3><i class="fas fa-envelope-open-text"></i> My Leave Requests</h3>
+							<a href="#" class="link-more">New request</a>
+						</div>
+						<div class="leave-list">
+							<div th:each="req : ${leaveRequests}" class="leave-item">
+								<div class="leave-date" th:text="${req.dateRange}">Apr 10-12</div>
+								<div class="leave-details">
+									<span class="leave-type" th:text="${req.type}">Sick Leave</span>
+									<span class="leave-status" th:text="${req.status}">Pending</span>
+								</div>
+							</div>
+							<p th:if="${#lists.isEmpty(leaveRequests)}" class="empty-placeholder">No recent requests.
+							</p>
+						</div>
+					</div>
+
+					<div class="card upcoming-events">
+						<div class="card-header">
+							<h3><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h3>
+						</div>
+						<div class="event-list">
+							<div th:each="event : ${upcomingDeadlines}" class="event-item">
+								<div class="event-date" th:text="${event.date}">May 5</div>
+								<div class="event-desc" th:text="${event.description}">Submit report</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- simple footer -->
+			<footer class="dashboard-footer">
+				<p>© 2025 LifeCare Employee Dashboard – Ready for backend integration.</p>
+			</footer>
+		</main>
+	</div>
+
+	<!-- JS for responsive sidebar + demo (no hardcoded data) -->
+	<script>
+		const hamburger = document.getElementById('hamburgerBtn');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('mobileOverlay');
+		const closeSidebar = document.getElementById('closeSidebarBtn');
+		function openSidebar() {sidebar.classList.add('mobile-open'); if (overlay) overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebarFunc() {sidebar.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (closeSidebar) closeSidebar.addEventListener('click', closeSidebarFunc);
+		if (overlay) overlay.addEventListener('click', closeSidebarFunc);
+		window.addEventListener('resize', function () {if (window.innerWidth > 768 && sidebar.classList.contains('mobile-open')) {closeSidebarFunc();} });
+		// notification dropdown toggle
+		const bell = document.querySelector('.notification-bell');
+		if (bell) {
+			bell.addEventListener('click', (e) => {e.stopPropagation(); const drop = bell.querySelector('.notification-dropdown'); if (drop) drop.classList.toggle('show-dropdown');});
+			document.addEventListener('click', function (e) {if (!bell.contains(e.target)) {const drop = bell.querySelector('.notification-dropdown'); if (drop) drop.classList.remove('show-dropdown');} });
+		}
+	</script>
+</body>
+
+</html>
