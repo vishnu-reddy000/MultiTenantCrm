@@ -34,21 +34,24 @@ public class SuperAdminController {
 
     // ── Dashboard (default page) ──────────────────────────────────────────────
     @GetMapping
+    public String dashboardRoot(Model model) {
+        return "redirect:/superadmin/dashboard";
+    }
+
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
         loadAdmins(model);
-        model.addAttribute("activePage", "dashboard");
-        return "superadmin";
+        return "superadmin-dashboard";
     }
 
     // ── Admins list page ──────────────────────────────────────────────────────
     @GetMapping("/admins")
     public String adminsPage(Model model) {
         loadAdmins(model);
-        model.addAttribute("activePage", "admins");
-        return "superadmin";
+        return "superadmin-admins";
     }
 
-    // ── Add Admin page (GET) — no longer a separate page, redirect to admins ──
+    // ── Add Admin page (GET) — redirect to admins ──
     @GetMapping("/add-admin")
     public String addAdminPage() {
         return "redirect:/superadmin/admins";
@@ -94,9 +97,8 @@ public class SuperAdminController {
             return "redirect:/superadmin/admins";
         }
         loadAdmins(model);
-        model.addAttribute("editAdmin",  admin);
-        model.addAttribute("activePage", "admins");
-        return "superadmin";
+        model.addAttribute("editAdmin", admin);
+        return "superadmin-admins";
     }
 
     // ── Edit Admin (POST) — no password change, only username/email/status ────
@@ -158,8 +160,7 @@ public class SuperAdminController {
     @GetMapping("/views")
     public String viewsPage(Model model) {
         loadAdmins(model);
-        model.addAttribute("activePage", "views");
-        return "superadmin";
+        return "superadmin-views";
     }
 
     // ── Profile page ──────────────────────────────────────────────────────────
@@ -170,8 +171,7 @@ public class SuperAdminController {
                 .getAuthentication().getName();
         User superAdmin = userRepository.findByUsername(currentUsername);
         model.addAttribute("superAdminUser", superAdmin);
-        model.addAttribute("activePage",     "profile");
-        return "superadmin";
+        return "superadmin-profile";
     }
 
     // ── Update Profile (POST) ─────────────────────────────────────────────────

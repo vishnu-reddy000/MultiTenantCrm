@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR — Leave Requests</title>
+    <link rel="stylesheet" th:href="@{/hr.css}">
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128101; HR</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">&#128101;</div><h2>HR</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+        <p th:text="${adminRole} ?: 'HR'">HR</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/hr/dashboard}">&#128202; Dashboard</a></li>
+        <li><a th:href="@{/hr/employees}">&#128101; Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}">&#128100; Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}">&#128197; Attendance</a></li>
+        <li class="active"><a th:href="@{/hr/leaves}">&#128140; Leave Requests</a></li>
+        <li><a th:href="@{/hr/settings}">&#9881; Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+</div>
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>Leave Requests</h1>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" placeholder="Search requests…"></div>
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card"><div class="stat-icon orange">&#128140;</div><div class="stat-info"><h3 th:text="${onLeaveToday} ?: '0'">0</h3><p>On Leave Today</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue">&#9203;</div><div class="stat-info"><h3>0</h3><p>Pending Approvals</p></div></div>
+            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3>0</h3><p>Approved This Month</p></div></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><div><h2>Leave Requests</h2><p>Pending approvals</p></div></div>
+            <div th:each="req : ${leaveRequests}" class="leave-item">
+                <div><div class="leave-name" th:text="${req.employeeName}">Name</div><div class="leave-type" th:text="${req.type}">Leave type</div></div>
+                <div class="leave-actions"><button class="btn-approve">&#10003;</button><button class="btn-reject">&#10005;</button></div>
+            </div>
+            <div th:if="${leaveRequests == null or #lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:40px;">
+                <div style="font-size:48px;">&#128140;</div>
+                <h3>No Pending Requests</h3>
+                <p>Leave requests will appear here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

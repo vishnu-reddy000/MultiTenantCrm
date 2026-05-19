@@ -53,7 +53,6 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/**/*.woff"),
                     new AntPathRequestMatcher("/**/*.woff2")
                 ).permitAll()
-                // Role-specific dashboard routes
                 .requestMatchers(new AntPathRequestMatcher("/superadmin/**")).hasRole("SUPER_ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/manager/**")).hasRole("MANAGER")

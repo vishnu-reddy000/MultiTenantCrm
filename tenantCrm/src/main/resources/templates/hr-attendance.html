@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR — Attendance</title>
+    <link rel="stylesheet" th:href="@{/hr.css}">
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128101; HR</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">&#128101;</div><h2>HR</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+        <p th:text="${adminRole} ?: 'HR'">HR</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/hr/dashboard}">&#128202; Dashboard</a></li>
+        <li><a th:href="@{/hr/employees}">&#128101; Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}">&#128100; Recruitment</a></li>
+        <li class="active"><a th:href="@{/hr/attendance}">&#128197; Attendance</a></li>
+        <li><a th:href="@{/hr/leaves}">&#128140; Leave Requests</a></li>
+        <li><a th:href="@{/hr/settings}">&#9881; Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+</div>
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>Attendance</h1>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" placeholder="Search…"></div>
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3 th:text="${presentPercent} ?: '0%'">0%</h3><p>Present</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange">&#10060;</div><div class="stat-info"><h3 th:text="${absentPercent} ?: '0%'">0%</h3><p>Absent</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue">&#127968;</div><div class="stat-info"><h3 th:text="${wfhPercent} ?: '0%'">0%</h3><p>WFH</p></div></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><div><h2>Attendance Overview</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
+            <div class="attendance-row">
+                <div class="att-item"><strong th:text="${presentPercent} ?: '0%'">0%</strong><span>Present</span></div>
+                <div class="att-item"><strong th:text="${absentPercent} ?: '0%'">0%</strong><span>Absent</span></div>
+                <div class="att-item"><strong th:text="${wfhPercent} ?: '0%'">0%</strong><span>WFH</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" th:style="'width:' + ${presentPercent} ?: '0%'"></div></div>
+            <div class="empty-state" style="padding:30px;"><div style="font-size:40px;">&#128197;</div><h3>No Attendance Records</h3><p>Attendance data will appear here.</p></div>
+        </div>
+    </div>
+</div>
+<script>
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

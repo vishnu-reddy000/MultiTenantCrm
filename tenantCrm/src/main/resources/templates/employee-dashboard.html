@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128100; Employee</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">&#128100;</div><h2>Employee</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="active"><a th:href="@{/employee/dashboard}">&#128202; Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}">&#128193; My Projects</a></li>
+        <li><a th:href="@{/employee/tasks}">&#9989; My Tasks</a></li>
+        <li><a th:href="@{/employee/attendance}">&#128197; Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}">&#128140; Leave Request</a></li>
+        <li><a th:href="@{/employee/settings}">&#9881; Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+</div>
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>My Dashboard</h1>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" placeholder="Search projects, tasks…"></div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon blue">&#128193;</div><div class="stat-info"><h3 th:text="${activeProjectsCount} ?: '0'">0</h3><p>Active Projects</p></div></div>
+            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3 th:text="${completedTasks} ?: '0'">0</h3><p>Tasks Completed</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange">&#128197;</div><div class="stat-info"><h3 th:text="${attendanceRate} ?: '0%'">0%</h3><p>Attendance</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple">&#9203;</div><div class="stat-info"><h3 th:text="${pendingLeaves} ?: '0'">0</h3><p>Pending Leaves</p></div></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="left-col">
+                <div class="card">
+                    <div class="card-header"><div><h2>My Projects</h2><p>Active project assignments</p></div><a th:href="@{/employee/projects}" class="btn-link">View All &#8594;</a></div>
+                    <div th:if="${myProjects == null or #lists.isEmpty(myProjects)}" class="empty-state" style="padding:20px;"><div style="font-size:32px;">&#128193;</div><h3>No Projects Assigned</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div><h2>My Tasks</h2><p>Pending tasks</p></div><a th:href="@{/employee/tasks}" class="btn-link">All Tasks &#8594;</a></div>
+                    <div th:if="${pendingTasks == null or #lists.isEmpty(pendingTasks)}" class="empty-state" style="padding:20px;"><div style="font-size:32px;">&#9989;</div><h3>No Pending Tasks</h3></div>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="card">
+                    <div class="card-header"><div><h2>Attendance</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
+                    <div class="attendance-row">
+                        <div class="att-item"><strong th:text="${presentDays} ?: '0'">0</strong><span>Present</span></div>
+                        <div class="att-item"><strong th:text="${absentDays} ?: '0'">0</strong><span>Absent</span></div>
+                        <div class="att-item"><strong th:text="${leaveDays} ?: '0'">0</strong><span>Leave</span></div>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div></div>
+                    <div class="checkin-info">Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div><h2>Quick Actions</h2></div></div>
+                    <div class="quick-actions">
+                        <a th:href="@{/employee/projects}" class="quick-action-btn"><span class="qa-icon" style="background:#dcecf5;">&#128193;</span><span>My Projects</span></a>
+                        <a th:href="@{/employee/tasks}" class="quick-action-btn"><span class="qa-icon" style="background:#dff5ea;">&#9989;</span><span>My Tasks</span></a>
+                        <a th:href="@{/employee/attendance}" class="quick-action-btn"><span class="qa-icon" style="background:#fce9d8;">&#128197;</span><span>Attendance</span></a>
+                        <a th:href="@{/employee/leaves}" class="quick-action-btn"><span class="qa-icon" style="background:#e9e2ff;">&#128140;</span><span>Leave</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

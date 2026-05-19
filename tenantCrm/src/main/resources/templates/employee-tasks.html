@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee — My Tasks</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128100; Employee</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">&#128100;</div><h2>Employee</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/employee/dashboard}">&#128202; Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}">&#128193; My Projects</a></li>
+        <li class="active"><a th:href="@{/employee/tasks}">&#9989; My Tasks</a></li>
+        <li><a th:href="@{/employee/attendance}">&#128197; Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}">&#128140; Leave Request</a></li>
+        <li><a th:href="@{/employee/settings}">&#9881; Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+</div>
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>My Tasks</h1>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" id="globalSearch" placeholder="Search tasks…"></div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card"><div class="stat-icon orange">&#9989;</div><div class="stat-info"><h3 th:text="${completedTasks} ?: '0'">0</h3><p>Completed</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue">&#9203;</div><div class="stat-info"><h3>0</h3><p>In Progress</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple">&#128203;</div><div class="stat-info"><h3>0</h3><p>Pending</p></div></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><div><h2>My Tasks</h2><p>All assigned tasks</p></div></div>
+            <div class="table-wrap">
+                <table id="taskTable">
+                    <thead><tr><th>Task</th><th>Project</th><th>Due Date</th><th>Priority</th></tr></thead>
+                    <tbody>
+                        <tr th:each="task : ${pendingTasks}">
+                            <td th:text="${task.title}">Task title</td>
+                            <td th:text="${task.projectName}">Project</td>
+                            <td th:text="${task.dueDate}">Date</td>
+                            <td><span class="priority-badge" th:text="${task.priority}">High</span></td>
+                        </tr>
+                        <tr th:if="${pendingTasks == null or #lists.isEmpty(pendingTasks)}">
+                            <td colspan="4"><div class="empty-state" style="padding:40px;"><div style="font-size:48px;">&#9989;</div><h3>No Tasks Assigned</h3><p>Tasks assigned to you will appear here.</p></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+    var gs=document.getElementById('globalSearch');if(gs)gs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#taskTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

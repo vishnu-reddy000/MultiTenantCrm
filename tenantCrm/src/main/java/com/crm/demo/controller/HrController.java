@@ -1,50 +1,123 @@
 package com.crm.demo.controller;
 
+import com.crm.demo.model.User;
+import com.crm.demo.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
+import java.util.List;
 
 @Controller
 @RequestMapping("/hr")
 public class HrController {
 
+    @Autowired private UserRepository        userRepository;
+    @Autowired private BCryptPasswordEncoder passwordEncoder;
+
+    private void injectUser(HttpServletRequest request, Model model) {
+        String username = (String) request.getAttribute("loggedInUser");
+        model.addAttribute("adminName", username != null ? username : "HR User");
+        model.addAttribute("adminRole", "HR");
+    }
+
+    private void injectStats(Model model) {
+        List<User> employees = userRepository.findAll().stream()
+                .filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole())).toList();
+        long active   = employees.stream().filter(User::isActive).count();
+        long inactive = employees.size() - active;
+
+        model.addAttribute("employees",         employees);
+        model.addAttribute("totalEmployees",    employees.size());
+        model.addAttribute("activeEmployees",   active);
+        model.addAttribute("inactiveEmployees", inactive);
+        model.addAttribute("newHires",          0);
+        model.addAttribute("onLeaveToday",      0);
+        model.addAttribute("openPositions",     0);
+        model.addAttribute("leaveRequests",     Collections.emptyList());
+        model.addAttribute("attendanceMonth",   "May 2026");
+        model.addAttribute("presentPercent",    "0%");
+        model.addAttribute("absentPercent",     "0%");
+        model.addAttribute("wfhPercent",        "0%");
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        return "hr-dashboard";
+    }
 
-        String username = (String) request.getAttribute("loggedInUser");
+    @GetMapping("/employees")
+    public String employeesPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        return "hr-employees";
+    }
 
-        model.addAttribute("adminName",   username != null ? username : "HR User");
-        model.addAttribute("adminRole",   "HR");
-        model.addAttribute("adminAvatar",
-                "https://ui-avatars.com/api/?background=0D6EFD&color=fff&name="
-                + (username != null ? username.replace(" ", "+") : "HR"));
-        model.addAttribute("notificationCount", 0);
-        model.addAttribute("notifications",     Collections.emptyList());
+    @GetMapping("/recruitment")
+    public String recruitmentPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        return "hr-recruitment";
+    }
 
-        model.addAttribute("totalEmployees",  0);
-        model.addAttribute("employeesTrend", "+0%");
-        model.addAttribute("newHires",        0);
-        model.addAttribute("hiresTrend",     "+0%");
-        model.addAttribute("onLeaveToday",    0);
-        model.addAttribute("leaveTrend",     "0 pending");
-        model.addAttribute("openPositions",   0);
-        model.addAttribute("positionsTrend", "+0");
-        model.addAttribute("hiresGrowth",    "0%");
+    @GetMapping("/attendance")
+    public String attendancePage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        return "hr-attendance";
+    }
 
-        model.addAttribute("recentApplicants", Collections.emptyList());
-        model.addAttribute("upcomingEvents",   Collections.emptyList());
-        model.addAttribute("leaveRequests",    Collections.emptyList());
-        model.addAttribute("employees",        Collections.emptyList());
+    @GetMapping("/leaves")
+    public String leavesPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        return "hr-leaves";
+    }
 
-        model.addAttribute("attendanceMonth", "May 2026");
-        model.addAttribute("presentPercent",  "0%");
-        model.addAttribute("absentPercent",   "0%");
-        model.addAttribute("wfhPercent",      "0%");
+    @GetMapping("/settings")
+    public String settingsPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(model);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User hr = userRepository.findByUsername(currentUsername);
+        model.addAttribute("hrEmail", hr != null ? hr.getEmail() : "");
+        return "hr-settings";
+    }
 
-        return "hr";
+    @PostMapping("/settings/profile")
+    public String updateProfile(@RequestParam String username,
+                                @RequestParam String email,
+                                @RequestParam(required = false) String password,
+                                @RequestParam(required = false) String confirmPassword,
+                                RedirectAttributes ra) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User hr = userRepository.findByUsername(currentUsername);
+        if (hr == null) return "redirect:/hr/settings";
+
+        User existing = userRepository.findByUsernameOrEmail(username, email);
+        if (existing != null && !existing.getId().equals(hr.getId())) {
+            ra.addFlashAttribute("errorMessage", "Username or email already in use.");
+            return "redirect:/hr/settings";
+        }
+        hr.setUsername(username);
+        hr.setEmail(email);
+        if (password != null && !password.isBlank()) {
+            if (!password.equals(confirmPassword)) {
+                ra.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/hr/settings";
+            }
+            hr.setPassword(passwordEncoder.encode(password));
+        }
+        userRepository.save(hr);
+        ra.addFlashAttribute("successMessage", "Profile updated successfully.");
+        return "redirect:/hr/settings";
     }
 }

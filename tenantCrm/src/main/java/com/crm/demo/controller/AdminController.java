@@ -113,7 +113,7 @@ public class AdminController {
 
         model.addAttribute("notificationCount", 0);
         model.addAttribute("recentActivities", Collections.emptyList());
-        return "admin";
+        return "admin-dashboard";
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -134,7 +134,7 @@ public class AdminController {
         model.addAttribute("totalEmployees",   employees.size());
         model.addAttribute("activeEmployees",  active);
         model.addAttribute("inactiveEmployees",inactive);
-        return "admin";
+        return "add-users";
     }
 
     @PostMapping("/employees")
@@ -205,7 +205,7 @@ public class AdminController {
         model.addAttribute("totalProjects",     projects.size());
         model.addAttribute("activeProjects",    active);
         model.addAttribute("completedProjects", completed);
-        return "admin";
+        return "admin-projects";
     }
 
     @PostMapping("/projects")
@@ -248,7 +248,7 @@ public class AdminController {
         model.addAttribute("totalTasks",     tasks.size());
         model.addAttribute("doneTasks",      done);
         model.addAttribute("pendingTaskCount", pending);
-        return "admin";
+        return "admin-tasks";
     }
 
     @PostMapping("/tasks")
@@ -301,7 +301,7 @@ public class AdminController {
         model.addAttribute("roleEmployee", allUsers.stream().filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole())).count());
         model.addAttribute("roleManager",  allUsers.stream().filter(u -> "MANAGER".equalsIgnoreCase(u.getRole())).count());
         model.addAttribute("roleHr",       allUsers.stream().filter(u -> "HR".equalsIgnoreCase(u.getRole())).count());
-        return "admin";
+        return "admin-reports";
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -368,7 +368,7 @@ public class AdminController {
         model.addAttribute("activePage",  "settings");
         model.addAttribute("adminEmail",  admin != null ? admin.getEmail() : "");
         model.addAttribute("settingsTotalUsers", getTenantUsers(request).size());
-        return "admin";
+        return "admin-settings";
     }
 
     @PostMapping("/settings/profile")
