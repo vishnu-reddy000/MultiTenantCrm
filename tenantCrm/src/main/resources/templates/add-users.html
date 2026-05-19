@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employees — CRM</title>
     <link rel="stylesheet" th:href="@{/admin.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
     <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-    <span class="mobile-title">&#128737; CRM Admin</span>
+    <span class="mobile-title">CRM Admin</span>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">&#128737;</div>
+        <div class="logo-icon"><i data-lucide="layout-dashboard"></i></div>
         <h2>Admin</h2>
     </div>
     <div class="profile-box">
@@ -28,26 +29,26 @@
     </div>
     <ul class="sidebar-menu">
         <li>
-            <a th:href="@{/admin/dashboard}">&#128202; Dashboard</a>
+            <a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a>
         </li>
         <li class="active">
-            <a th:href="@{/admin/add-user}">&#128101; Employees</a>
+            <a th:href="@{/admin/add-user}"><i data-lucide="users"></i> Employees</a>
         </li>
         <li>
-            <a th:href="@{/admin/projects}">&#128193; Projects</a>
+            <a th:href="@{/admin/projects}"><i data-lucide="folder-open"></i> Projects</a>
         </li>
         <li>
-            <a th:href="@{/admin/tasks}">&#9989; Tasks</a>
+            <a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a>
         </li>
         <li>
-            <a th:href="@{/admin/reports}">&#128196; Reports</a>
+            <a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a>
         </li>
         <li>
-            <a th:href="@{/admin/settings}">&#9881; Settings</a>
+            <a th:href="@{/admin/settings}"><i data-lucide="settings"></i> Settings</a>
         </li>
     </ul>
     <a href="#" data-logout style="text-decoration:none;">
-        <button class="logout-btn">&#128682; Logout</button>
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
     </a>
 </div>
 
@@ -61,7 +62,6 @@
             <div class="search-box">
                 <input type="text" id="userSearch" placeholder="Search employees…">
             </div>
-            <a th:href="@{/admin/dashboard}" class="back-btn">&#8592; Dashboard</a>
             <div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
         </div>
     </div>
@@ -72,25 +72,16 @@
         <!-- STAT ROW -->
         <div class="stats-row au-stats">
             <div class="stat-card">
-                <div class="stat-icon green">&#128101;</div>
-                <div class="stat-info">
-                    <h3 th:text="${totalManagers} ?: '0'">0</h3>
-                    <p>Total Employees</p>
-                </div>
+                <div class="stat-icon green"><i data-lucide="users"></i></div>
+                <div class="stat-info"><h3 th:text="${totalManagers} ?: '0'">0</h3><p>Total Employees</p></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon blue">&#9989;</div>
-                <div class="stat-info">
-                    <h3 th:text="${activeCount} ?: '0'">0</h3>
-                    <p>Active Employees</p>
-                </div>
+                <div class="stat-icon blue"><i data-lucide="user-check"></i></div>
+                <div class="stat-info"><h3 th:text="${activeCount} ?: '0'">0</h3><p>Active Employees</p></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon orange">&#128100;</div>
-                <div class="stat-info">
-                    <h3 th:text="${roleCount} ?: '0'">0</h3>
-                    <p>Roles Assigned</p>
-                </div>
+                <div class="stat-icon orange"><i data-lucide="shield"></i></div>
+                <div class="stat-info"><h3 th:text="${roleCount} ?: '0'">0</h3><p>Roles Assigned</p></div>
             </div>
         </div>
 
@@ -106,7 +97,7 @@
                     <h2>Add New Employee</h2>
                     <p>Fill in the details below</p>
                 </div>
-                <button type="button" class="au-close-btn" id="closeAddForm" title="Close">&#10005;</button>
+                <button type="button" class="au-close-btn" id="closeAddForm" title="Close"><i data-lucide="x"></i></button>
             </div>
             <form th:action="@{/admin/add-user}" method="post">
                 <div class="au-form-grid">
@@ -148,7 +139,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-clear" id="cancelAddForm">Cancel</button>
-                    <button type="submit" class="btn btn-primary">&#10133; Add Employee</button>
+                    <button type="submit" class="btn btn-primary"><i data-lucide="user-plus"></i> Add Employee</button>
                 </div>
             </form>
         </div>
@@ -169,7 +160,7 @@
                     </select>
                     <button type="button" class="btn btn-primary" id="openAddForm"
                             style="display:inline-flex;align-items:center;gap:6px;">
-                        &#10133; Add Employee
+                        <i data-lucide="user-plus"></i> Add Employee
                     </button>
                 </div>
             </div>
@@ -284,5 +275,6 @@
     }
 </script>
 <script th:src="@{/auth.js}"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

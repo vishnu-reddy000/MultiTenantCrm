@@ -4,25 +4,26 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager — My Team</title>
     <link rel="stylesheet" th:href="@{/manager.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128202; Manager</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128202;</div><h2>Manager</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="briefcase"></i></div><h2>Manager</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
         <h3 th:text="${managerName} ?: 'Manager'">Manager</h3><p>Manager</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/manager/dashboard}">&#128202; Dashboard</a></li>
-        <li class="active"><a th:href="@{/manager/team}">&#128101; My Team</a></li>
-        <li><a th:href="@{/manager/projects}">&#128193; Projects</a></li>
-        <li><a th:href="@{/manager/tasks}">&#9989; Tasks</a></li>
-        <li><a th:href="@{/manager/reports}">&#128196; Reports</a></li>
-        <li><a th:href="@{/manager/settings}">&#9881; Settings</a></li>
+        <li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="active"><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+        <li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
+        <li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+        <li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+        <li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -34,9 +35,9 @@
     </div>
     <div class="page-content">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon purple">&#128101;</div><div class="stat-info"><h3 th:text="${teamCount} ?: '0'">0</h3><p>Total Members</p></div></div>
-            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3 th:text="${activeTeam} ?: '0'">0</h3><p>Active</p></div></div>
-            <div class="stat-card"><div class="stat-icon orange">&#128100;</div><div class="stat-info"><h3 th:text="${inactiveTeam} ?: '0'">0</h3><p>Inactive</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${teamCount} ?: '0'">0</h3><p>Total Members</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${activeTeam} ?: '0'">0</h3><p>Active</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="user-x"></i></div><div class="stat-info"><h3 th:text="${inactiveTeam} ?: '0'">0</h3><p>Inactive</p></div></div>
         </div>
         <div class="card">
             <div class="card-header"><div><h2>Team Members</h2><p th:text="${teamCount} + ' member(s)'">0 member(s)</p></div></div>
@@ -51,7 +52,7 @@
                             <td><span class="role-badge" th:text="${member.role}">Role</span></td>
                             <td><span class="status-badge active" th:if="${member.status == 'active' or member.status == null}">Active</span><span class="status-badge inactive" th:unless="${member.status == 'active' or member.status == null}">Inactive</span></td>
                         </tr>
-                        <tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}"><td colspan="5"><div class="empty-state"><div style="font-size:48px;">&#128101;</div><h3>No Team Members</h3></div></td></tr>
+                        <tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}"><td colspan="5"><div class="empty-state"><i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i><h3>No Team Members</h3></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -65,6 +66,7 @@
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
     var gs=document.getElementById('globalSearch');if(gs)gs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#teamTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

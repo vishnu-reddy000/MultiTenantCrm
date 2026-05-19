@@ -4,25 +4,26 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager — Tasks</title>
     <link rel="stylesheet" th:href="@{/manager.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128202; Manager</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128202;</div><h2>Manager</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="briefcase"></i></div><h2>Manager</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
         <h3 th:text="${managerName} ?: 'Manager'">Manager</h3><p>Manager</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/manager/dashboard}">&#128202; Dashboard</a></li>
-        <li><a th:href="@{/manager/team}">&#128101; My Team</a></li>
-        <li><a th:href="@{/manager/projects}">&#128193; Projects</a></li>
-        <li class="active"><a th:href="@{/manager/tasks}">&#9989; Tasks</a></li>
-        <li><a th:href="@{/manager/reports}">&#128196; Reports</a></li>
-        <li><a th:href="@{/manager/settings}">&#9881; Settings</a></li>
+        <li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+        <li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
+        <li class="active"><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+        <li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+        <li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -34,9 +35,9 @@
     </div>
     <div class="page-content">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon orange">&#9989;</div><div class="stat-info"><h3 th:text="${totalTasks} ?: '0'">0</h3><p>Total Tasks</p></div></div>
-            <div class="stat-card"><div class="stat-icon green">&#128203;</div><div class="stat-info"><h3 th:text="${doneTasks} ?: '0'">0</h3><p>Completed</p></div></div>
-            <div class="stat-card"><div class="stat-icon purple">&#9203;</div><div class="stat-info"><h3 th:text="${pendingTaskCount} ?: '0'">0</h3><p>Pending</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="list-checks"></i></div><div class="stat-info"><h3 th:text="${totalTasks} ?: '0'">0</h3><p>Total Tasks</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="check-circle-2"></i></div><div class="stat-info"><h3 th:text="${doneTasks} ?: '0'">0</h3><p>Completed</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="clock"></i></div><div class="stat-info"><h3 th:text="${pendingTaskCount} ?: '0'">0</h3><p>Pending</p></div></div>
         </div>
         <div class="card">
             <div class="card-header"><div><h2>All Tasks</h2><p th:text="${totalTasks} + ' task(s)'">0 task(s)</p></div></div>
@@ -51,7 +52,7 @@
                             <td><span class="status-badge active" th:if="${task.status == 'done'}">Done</span><span class="status-badge" style="background:#fce9d8;color:#b45309;" th:if="${task.status == 'in-progress'}">In Progress</span><span class="status-badge inactive" th:if="${task.status == 'pending'}">Pending</span></td>
                             <td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
                         </tr>
-                        <tr th:if="${tasks == null or #lists.isEmpty(tasks)}"><td colspan="5"><div class="empty-state"><div style="font-size:48px;">&#9989;</div><h3>No Tasks Yet</h3></div></td></tr>
+                        <tr th:if="${tasks == null or #lists.isEmpty(tasks)}"><td colspan="5"><div class="empty-state"><i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i><h3>No Tasks Yet</h3></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -65,6 +66,7 @@
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
     var gs=document.getElementById('globalSearch');if(gs)gs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#taskTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

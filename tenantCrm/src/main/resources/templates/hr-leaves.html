@@ -4,26 +4,26 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR — Leave Requests</title>
     <link rel="stylesheet" th:href="@{/hr.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128101; HR</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128101;</div><h2>HR</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
-        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
-        <p th:text="${adminRole} ?: 'HR'">HR</p>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3><p th:text="${adminRole} ?: 'HR'">HR</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/hr/dashboard}">&#128202; Dashboard</a></li>
-        <li><a th:href="@{/hr/employees}">&#128101; Employees</a></li>
-        <li><a th:href="@{/hr/recruitment}">&#128100; Recruitment</a></li>
-        <li><a th:href="@{/hr/attendance}">&#128197; Attendance</a></li>
-        <li class="active"><a th:href="@{/hr/leaves}">&#128140; Leave Requests</a></li>
-        <li><a th:href="@{/hr/settings}">&#9881; Settings</a></li>
+        <li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}"><i data-lucide="calendar"></i> Attendance</a></li>
+        <li class="active"><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+        <li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -35,18 +35,21 @@
     </div>
     <div class="page-content">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon orange">&#128140;</div><div class="stat-info"><h3 th:text="${onLeaveToday} ?: '0'">0</h3><p>On Leave Today</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue">&#9203;</div><div class="stat-info"><h3>0</h3><p>Pending Approvals</p></div></div>
-            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3>0</h3><p>Approved This Month</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="file-text"></i></div><div class="stat-info"><h3 th:text="${onLeaveToday} ?: '0'">0</h3><p>On Leave Today</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="clock"></i></div><div class="stat-info"><h3>0</h3><p>Pending Approvals</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="check-circle"></i></div><div class="stat-info"><h3>0</h3><p>Approved This Month</p></div></div>
         </div>
         <div class="card">
             <div class="card-header"><div><h2>Leave Requests</h2><p>Pending approvals</p></div></div>
             <div th:each="req : ${leaveRequests}" class="leave-item">
                 <div><div class="leave-name" th:text="${req.employeeName}">Name</div><div class="leave-type" th:text="${req.type}">Leave type</div></div>
-                <div class="leave-actions"><button class="btn-approve">&#10003;</button><button class="btn-reject">&#10005;</button></div>
+                <div class="leave-actions">
+                    <button class="btn-approve"><i data-lucide="check"></i></button>
+                    <button class="btn-reject"><i data-lucide="x"></i></button>
+                </div>
             </div>
             <div th:if="${leaveRequests == null or #lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:40px;">
-                <div style="font-size:48px;">&#128140;</div>
+                <i data-lucide="file-text" style="width:48px;height:48px;opacity:.3;"></i>
                 <h3>No Pending Requests</h3>
                 <p>Leave requests will appear here.</p>
             </div>
@@ -59,6 +62,7 @@
     function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

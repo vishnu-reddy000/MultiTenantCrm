@@ -4,26 +4,27 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee — Attendance</title>
     <link rel="stylesheet" th:href="@{/employee.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128100; Employee</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128100;</div><h2>Employee</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
         <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/employee/dashboard}">&#128202; Dashboard</a></li>
-        <li><a th:href="@{/employee/projects}">&#128193; My Projects</a></li>
-        <li><a th:href="@{/employee/tasks}">&#9989; My Tasks</a></li>
-        <li class="active"><a th:href="@{/employee/attendance}">&#128197; Attendance</a></li>
-        <li><a th:href="@{/employee/leaves}">&#128140; Leave Request</a></li>
-        <li><a th:href="@{/employee/settings}">&#9881; Settings</a></li>
+        <li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+        <li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+        <li class="active"><a th:href="@{/employee/attendance}"><i data-lucide="calendar"></i> Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+        <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -35,9 +36,9 @@
     </div>
     <div class="page-content">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon green">&#9989;</div><div class="stat-info"><h3 th:text="${presentDays} ?: '0'">0</h3><p>Present Days</p></div></div>
-            <div class="stat-card"><div class="stat-icon orange">&#10060;</div><div class="stat-info"><h3 th:text="${absentDays} ?: '0'">0</h3><p>Absent Days</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue">&#128140;</div><div class="stat-info"><h3 th:text="${leaveDays} ?: '0'">0</h3><p>Leave Days</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${presentDays} ?: '0'">0</h3><p>Present Days</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="user-x"></i></div><div class="stat-info"><h3 th:text="${absentDays} ?: '0'">0</h3><p>Absent Days</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="file-text"></i></div><div class="stat-info"><h3 th:text="${leaveDays} ?: '0'">0</h3><p>Leave Days</p></div></div>
         </div>
         <div class="card">
             <div class="card-header"><div><h2>Attendance Summary</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
@@ -57,6 +58,7 @@
     function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

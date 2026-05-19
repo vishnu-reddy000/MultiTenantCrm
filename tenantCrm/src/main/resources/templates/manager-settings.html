@@ -4,25 +4,26 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager — Settings</title>
     <link rel="stylesheet" th:href="@{/manager.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128202; Manager</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128202;</div><h2>Manager</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="briefcase"></i></div><h2>Manager</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
         <h3 th:text="${managerName} ?: 'Manager'">Manager</h3><p>Manager</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/manager/dashboard}">&#128202; Dashboard</a></li>
-        <li><a th:href="@{/manager/team}">&#128101; My Team</a></li>
-        <li><a th:href="@{/manager/projects}">&#128193; Projects</a></li>
-        <li><a th:href="@{/manager/tasks}">&#9989; Tasks</a></li>
-        <li><a th:href="@{/manager/reports}">&#128196; Reports</a></li>
-        <li class="active"><a th:href="@{/manager/settings}">&#9881; Settings</a></li>
+        <li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+        <li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
+        <li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+        <li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+        <li class="active"><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -37,18 +38,18 @@
         <div class="toast error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-header"><div><h2>&#128100; Profile Settings</h2><p>Update your account information</p></div></div>
+                <div class="card-header"><div><h2>Profile Settings</h2><p>Update your account information</p></div></div>
                 <form th:action="@{/manager/settings/profile}" method="post">
                     <div class="form-group"><label>Username</label><div class="input-wrap"><input type="text" name="username" th:value="${managerName}" required></div></div>
                     <div class="form-group"><label>Email Address</label><div class="input-wrap"><input type="email" name="email" th:value="${managerEmail}" placeholder="manager@example.com" required></div></div>
                     <div class="form-group"><label>New Password <span style="color:#6b7280;font-weight:400;">(leave blank to keep)</span></label><div class="input-wrap"><input type="password" name="password" placeholder="New password"></div></div>
                     <div class="form-group"><label>Confirm New Password</label><div class="input-wrap"><input type="password" name="confirmPassword" placeholder="Confirm new password"></div></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary">&#128190; Save Changes</button></div>
+                    <div class="form-actions"><button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Save Changes</button></div>
                 </form>
             </div>
             <div class="right-col">
                 <div class="card">
-                    <div class="card-header"><div><h2>&#128736; Info</h2></div></div>
+                    <div class="card-header"><div><h2>Info</h2></div></div>
                     <div class="summary-list">
                         <div class="summary-row"><span class="summary-label">Role</span><span class="summary-value"><span class="role-badge">MANAGER</span></span></div>
                         <div class="summary-row"><span class="summary-label">Status</span><span class="summary-value"><span class="status-badge active">Active</span></span></div>
@@ -65,6 +66,7 @@
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
     document.querySelectorAll('.toast').forEach(t=>{setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .5s';},4000);});
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

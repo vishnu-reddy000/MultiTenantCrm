@@ -1,55 +1,51 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin — Views</title>
     <link rel="stylesheet" th:href="@{/superadmin.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar">
-    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-    <span class="mobile-title">&#128737; SuperAdmin</span>
-</div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">SuperAdmin</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128737;</div><h2>SuperAdmin</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="shield"></i></div><h2>SuperAdmin</h2></div>
     <div class="profile-box">
-        <div class="profile-avatar">S</div>
-        <h3>Super Admin</h3>
+        <div class="profile-avatar">S</div><h3>Super Admin</h3>
         <p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com</p>
     </div>
     <ul class="sidebar-menu">
-        <li><a th:href="@{/superadmin/dashboard}"><span class="menu-icon">&#128202;</span> Dashboard</a></li>
-        <li><a th:href="@{/superadmin/admins}"><span class="menu-icon">&#128101;</span> Admins</a></li>
-        <li class="active"><a th:href="@{/superadmin/views}"><span class="menu-icon">&#128065;</span> Views</a></li>
-        <li><a th:href="@{/superadmin/profile}"><span class="menu-icon">&#128100;</span> Profile</a></li>
+        <li><a th:href="@{/superadmin/dashboard}"><span class="menu-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a></li>
+        <li><a th:href="@{/superadmin/admins}"><span class="menu-icon"><i data-lucide="users"></i></span> Admins</a></li>
+        <li class="active"><a th:href="@{/superadmin/views}"><span class="menu-icon"><i data-lucide="eye"></i></span> Views</a></li>
+        <li><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i data-lucide="user"></i></span> Profile</a></li>
     </ul>
     <div class="sidebar-divider"></div>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
         <div><h1>Views</h1><p class="topbar-subtitle">Analytics and overview reports</p></div>
         <div class="topbar-right">
-            <div class="search-box"><span class="search-icon">&#128269;</span><input type="text" placeholder="Search…"></div>
-            <button class="notif-btn">&#128276;<span class="notif-dot"></span></button>
+            <div class="search-box"><span class="search-icon"><i data-lucide="search"></i></span><input type="text" placeholder="Search…"></div>
+            <button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
             <div class="user-badge">S</div>
         </div>
     </div>
     <div class="page-content">
-        <div class="breadcrumb"><a th:href="@{/superadmin/dashboard}">&#127968; Home</a><span>&#8250;</span><span>Views</span></div>
+        <div class="breadcrumb"><a th:href="@{/superadmin/dashboard}"><i data-lucide="home"></i> Home</a><span>&#8250;</span><span>Views</span></div>
         <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon green">&#128101;</div><div class="stat-info"><h3 th:text="${totalAdmins}">0</h3><p>Total Admins</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue">&#9989;</div><div class="stat-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p></div></div>
-            <div class="stat-card"><div class="stat-icon orange">&#128197;</div><div class="stat-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p></div></div>
-            <div class="stat-card"><div class="stat-icon purple">&#128065;</div><div class="stat-info"><h3>120</h3><p>Total Views</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${totalAdmins}">0</h3><p>Total Admins</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="check-square"></i></div><div class="stat-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="calendar"></i></div><div class="stat-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="bar-chart-2"></i></div><div class="stat-info"><h3>120</h3><p>Total Views</p></div></div>
         </div>
         <div class="views-grid">
-            <div class="card views-card"><div class="views-icon" style="background:var(--green-bg);color:var(--green-fg);">&#128100;</div><div class="views-info"><h3 th:text="${totalAdmins}">0</h3><p>Registered Admins</p></div></div>
-            <div class="card views-card"><div class="views-icon" style="background:var(--blue-bg);color:var(--blue-fg);">&#9989;</div><div class="views-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p></div></div>
-            <div class="card views-card"><div class="views-icon" style="background:var(--orange-bg);color:var(--orange-fg);">&#128197;</div><div class="views-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p></div></div>
-            <div class="card views-card"><div class="views-icon" style="background:var(--purple-bg);color:var(--purple-fg);">&#128065;</div><div class="views-info"><h3>120</h3><p>Page Views</p></div></div>
+            <div class="card views-card"><div class="views-icon" style="background:var(--green-bg);color:var(--green-fg);"><i data-lucide="user"></i></div><div class="views-info"><h3 th:text="${totalAdmins}">0</h3><p>Registered Admins</p></div></div>
+            <div class="card views-card"><div class="views-icon" style="background:var(--blue-bg);color:var(--blue-fg);"><i data-lucide="check-square"></i></div><div class="views-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p></div></div>
+            <div class="card views-card"><div class="views-icon" style="background:var(--orange-bg);color:var(--orange-fg);"><i data-lucide="calendar-plus"></i></div><div class="views-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p></div></div>
+            <div class="card views-card"><div class="views-icon" style="background:var(--purple-bg);color:var(--purple-fg);"><i data-lucide="eye"></i></div><div class="views-info"><h3>120</h3><p>Page Views</p></div></div>
         </div>
         <div class="card" style="margin-top:4px;">
             <div class="card-header"><div><h2>Admin Overview</h2><p>All registered administrators at a glance</p></div></div>
@@ -79,6 +75,7 @@
     function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

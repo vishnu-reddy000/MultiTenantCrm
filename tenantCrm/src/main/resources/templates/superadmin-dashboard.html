@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin — Dashboard</title>
     <link rel="stylesheet" th:href="@{/superadmin.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 <div class="mobile-topbar">
     <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-    <span class="mobile-title">&#128737; SuperAdmin</span>
+    <span class="mobile-title">SuperAdmin</span>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128737;</div><h2>SuperAdmin</h2></div>
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="shield"></i></div>
+        <h2>SuperAdmin</h2>
+    </div>
     <div class="profile-box">
         <div class="profile-avatar">S</div>
         <h3>Super Admin</h3>
@@ -21,36 +25,41 @@
         <div style="margin-top:8px"><span style="font-size:11px;color:#b8d8ea;font-weight:500;"><span class="online-dot"></span>Online</span></div>
     </div>
     <ul class="sidebar-menu">
-        <li class="active"><a th:href="@{/superadmin/dashboard}"><span class="menu-icon">&#128202;</span> Dashboard</a></li>
-        <li><a th:href="@{/superadmin/admins}"><span class="menu-icon">&#128101;</span> Admins</a></li>
-        <li><a th:href="@{/superadmin/views}"><span class="menu-icon">&#128065;</span> Views</a></li>
-        <li><a th:href="@{/superadmin/profile}"><span class="menu-icon">&#128100;</span> Profile</a></li>
+        <li class="active"><a th:href="@{/superadmin/dashboard}"><span class="menu-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a></li>
+        <li><a th:href="@{/superadmin/admins}"><span class="menu-icon"><i data-lucide="users"></i></span> Admins</a></li>
+        <li><a th:href="@{/superadmin/views}"><span class="menu-icon"><i data-lucide="eye"></i></span> Views</a></li>
+        <li><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i data-lucide="user"></i></span> Profile</a></li>
     </ul>
     <div class="sidebar-divider"></div>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
         <div><h1>Dashboard</h1><p class="topbar-subtitle">Welcome back, Super Admin</p></div>
         <div class="topbar-right">
-            <div class="search-box"><span class="search-icon">&#128269;</span><input type="text" id="globalSearch" placeholder="Search admins…"></div>
-            <button class="notif-btn" title="Notifications">&#128276;<span class="notif-dot"></span></button>
+            <div class="search-box">
+                <span class="search-icon"><i data-lucide="search"></i></span>
+                <input type="text" id="globalSearch" placeholder="Search admins…">
+            </div>
+            <button class="notif-btn" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
             <div class="user-badge">S</div>
         </div>
     </div>
     <div class="page-content">
-        <div class="toast success" th:if="${successMessage}">&#10003; <span th:text="${successMessage}"></span></div>
-        <div class="toast error"   th:if="${errorMessage}">&#9888; <span th:text="${errorMessage}"></span></div>
-        <div class="breadcrumb"><span>&#127968;</span><span>&#8250;</span><span>Dashboard</span></div>
+        <div class="toast success" th:if="${successMessage}"><i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span></div>
+        <div class="toast error"   th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span></div>
+        <div class="breadcrumb"><i data-lucide="home"></i><span>&#8250;</span><span>Dashboard</span></div>
         <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon green">&#128101;</div><div class="stat-info"><h3 th:text="${totalAdmins}">0</h3><p>Total Admins</p><span class="stat-trend up">&#8593; All time</span></div></div>
-            <div class="stat-card"><div class="stat-icon blue">&#9989;</div><div class="stat-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p><span class="stat-trend up">&#8593; Live</span></div></div>
-            <div class="stat-card"><div class="stat-icon orange">&#128197;</div><div class="stat-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p><span class="stat-trend up">&#8593; Today</span></div></div>
-            <div class="stat-card"><div class="stat-icon purple">&#128065;</div><div class="stat-info"><h3>120</h3><p>Total Views</p><span class="stat-trend up">&#8593; +12%</span></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${totalAdmins}">0</h3><p>Total Admins</p><span class="stat-trend up">All time</span></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="check-square"></i></div><div class="stat-info"><h3 th:text="${activeAdmins}">0</h3><p>Active Admins</p><span class="stat-trend up">Live</span></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="calendar"></i></div><div class="stat-info"><h3 th:text="${todayAdmins}">0</h3><p>Added Today</p><span class="stat-trend up">Today</span></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="eye"></i></div><div class="stat-info"><h3>120</h3><p>Total Views</p><span class="stat-trend up">+12%</span></div></div>
         </div>
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-header"><div><h2>Recent Admins</h2><p>Latest registered administrators</p></div><a th:href="@{/superadmin/admins}" class="btn-link">View All &#8594;</a></div>
+                <div class="card-header"><div><h2>Recent Admins</h2><p>Latest registered administrators</p></div><a th:href="@{/superadmin/admins}" class="btn-link">View All &rarr;</a></div>
                 <div class="card-body">
                     <div class="table-wrap">
                         <table>
@@ -61,7 +70,7 @@
                                     <td style="color:var(--text-muted);font-size:13px;" th:text="${admin.email}">admin@example.com</td>
                                     <td><span class="status-badge active" th:if="${admin.status == 'active'}">Active</span><span class="status-badge inactive" th:unless="${admin.status == 'active'}">Inactive</span></td>
                                 </tr>
-                                <tr th:if="${#lists.isEmpty(admins)}"><td colspan="3"><div class="empty-state"><div style="font-size:42px">&#128100;</div><h3>No Admins Yet</h3></div></td></tr>
+                                <tr th:if="${#lists.isEmpty(admins)}"><td colspan="3"><div class="empty-state"><i data-lucide="user" style="width:42px;height:42px;opacity:.3;"></i><h3>No Admins Yet</h3></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -72,10 +81,10 @@
                     <div class="card-header"><div><h2>Quick Actions</h2><p>Common tasks at a glance</p></div></div>
                     <div class="card-body" style="padding:6px 0 4px;">
                         <div class="quick-actions">
-                            <a th:href="@{/superadmin/admins}" class="quick-action-btn"><span class="qa-icon" style="background:var(--green-bg);color:var(--green-fg);">&#128101;</span><span>Manage Admins</span></a>
-                            <a th:href="@{/superadmin/admins}" class="quick-action-btn"><span class="qa-icon" style="background:var(--blue-bg);color:var(--blue-fg);">&#10133;</span><span>Add Admin</span></a>
-                            <a th:href="@{/superadmin/views}" class="quick-action-btn"><span class="qa-icon" style="background:var(--purple-bg);color:var(--purple-fg);">&#128065;</span><span>View Reports</span></a>
-                            <a th:href="@{/superadmin/profile}" class="quick-action-btn"><span class="qa-icon" style="background:var(--orange-bg);color:var(--orange-fg);">&#128100;</span><span>My Profile</span></a>
+                            <a th:href="@{/superadmin/admins}" class="quick-action-btn"><span class="qa-icon" style="background:var(--green-bg);color:var(--green-fg);"><i data-lucide="users"></i></span><span>Manage Admins</span></a>
+                            <a th:href="@{/superadmin/admins}" class="quick-action-btn"><span class="qa-icon" style="background:var(--blue-bg);color:var(--blue-fg);"><i data-lucide="user-plus"></i></span><span>Add Admin</span></a>
+                            <a th:href="@{/superadmin/views}" class="quick-action-btn"><span class="qa-icon" style="background:var(--purple-bg);color:var(--purple-fg);"><i data-lucide="bar-chart-2"></i></span><span>View Reports</span></a>
+                            <a th:href="@{/superadmin/profile}" class="quick-action-btn"><span class="qa-icon" style="background:var(--orange-bg);color:var(--orange-fg);"><i data-lucide="user"></i></span><span>My Profile</span></a>
                         </div>
                     </div>
                 </div>
@@ -101,6 +110,7 @@
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
     document.querySelectorAll('.toast').forEach(t=>{setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .5s';},4000);});
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

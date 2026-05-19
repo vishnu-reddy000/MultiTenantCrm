@@ -4,26 +4,27 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR — Dashboard</title>
     <link rel="stylesheet" th:href="@{/hr.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">&#128101; HR Dashboard</span></div>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR Dashboard</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#128101;</div><h2>HR</h2></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
         <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
         <p th:text="${adminRole} ?: 'HR'">HR</p>
     </div>
     <ul class="sidebar-menu">
-        <li class="active"><a th:href="@{/hr/dashboard}">&#128202; Dashboard</a></li>
-        <li><a th:href="@{/hr/employees}">&#128101; Employees</a></li>
-        <li><a th:href="@{/hr/recruitment}">&#128100; Recruitment</a></li>
-        <li><a th:href="@{/hr/attendance}">&#128197; Attendance</a></li>
-        <li><a th:href="@{/hr/leaves}">&#128140; Leave Requests</a></li>
-        <li><a th:href="@{/hr/settings}">&#9881; Settings</a></li>
+        <li class="active"><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}"><i data-lucide="calendar"></i> Attendance</a></li>
+        <li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+        <li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn">&#128682; Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
 </div>
 <div class="main-wrapper">
     <div class="topbar">
@@ -35,14 +36,14 @@
     </div>
     <div class="page-content">
         <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon green">&#128101;</div><div class="stat-info"><h3 th:text="${totalEmployees} ?: '0'">0</h3><p>Total Employees</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue">&#128100;</div><div class="stat-info"><h3 th:text="${newHires} ?: '0'">0</h3><p>New Hires</p></div></div>
-            <div class="stat-card"><div class="stat-icon orange">&#128197;</div><div class="stat-info"><h3 th:text="${onLeaveToday} ?: '0'">0</h3><p>On Leave Today</p></div></div>
-            <div class="stat-card"><div class="stat-icon purple">&#128203;</div><div class="stat-info"><h3 th:text="${openPositions} ?: '0'">0</h3><p>Open Positions</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${totalEmployees} ?: '0'">0</h3><p>Total Employees</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="user-plus"></i></div><div class="stat-info"><h3 th:text="${newHires} ?: '0'">0</h3><p>New Hires</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="calendar"></i></div><div class="stat-info"><h3 th:text="${onLeaveToday} ?: '0'">0</h3><p>On Leave Today</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="briefcase"></i></div><div class="stat-info"><h3 th:text="${openPositions} ?: '0'">0</h3><p>Open Positions</p></div></div>
         </div>
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-header"><div><h2>Employee Management</h2><p>All registered employees</p></div><a th:href="@{/hr/employees}" class="btn-link">View All &#8594;</a></div>
+                <div class="card-header"><div><h2>Employee Management</h2><p>All registered employees</p></div><a th:href="@{/hr/employees}" class="btn-link">View All &rarr;</a></div>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>Employee</th><th>Status</th></tr></thead>
@@ -51,7 +52,7 @@
                                 <td><div class="member-cell"><div class="member-avatar" th:text="${#strings.substring(emp.username ?: 'E', 0, 1).toUpperCase()}">E</div><div><div style="font-weight:600;" th:text="${emp.username}">Name</div><div style="font-size:11px;color:#6b7280;" th:text="${emp.email}">email</div></div></div></td>
                                 <td><span class="status-badge active" th:if="${emp.status == 'active' or emp.status == null}">Active</span><span class="status-badge inactive" th:unless="${emp.status == 'active' or emp.status == null}">Inactive</span></td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(employees)}"><td colspan="2"><div class="empty-state"><div style="font-size:40px;">&#128101;</div><h3>No Employees Yet</h3></div></td></tr>
+                            <tr th:if="${#lists.isEmpty(employees)}"><td colspan="2"><div class="empty-state"><i data-lucide="users" style="width:40px;height:40px;opacity:.3;"></i><h3>No Employees Yet</h3></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -59,7 +60,7 @@
             <div class="right-col">
                 <div class="card">
                     <div class="card-header"><div><h2>Leave Requests</h2><p>Pending approvals</p></div></div>
-                    <div th:if="${#lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:20px;"><div style="font-size:32px;">&#128140;</div><h3>No Pending Requests</h3></div>
+                    <div th:if="${#lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:20px;"><i data-lucide="file-text" style="width:32px;height:32px;opacity:.3;"></i><h3>No Pending Requests</h3></div>
                 </div>
                 <div class="card">
                     <div class="card-header"><div><h2>Attendance Overview</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
@@ -72,10 +73,10 @@
                 <div class="card">
                     <div class="card-header"><div><h2>Quick Actions</h2></div></div>
                     <div class="quick-actions">
-                        <a th:href="@{/hr/employees}" class="quick-action-btn"><span class="qa-icon" style="background:#dff5ea;">&#128100;</span><span>Employees</span></a>
-                        <a th:href="@{/hr/attendance}" class="quick-action-btn"><span class="qa-icon" style="background:#dcecf5;">&#128197;</span><span>Attendance</span></a>
-                        <a th:href="@{/hr/leaves}" class="quick-action-btn"><span class="qa-icon" style="background:#fce9d8;">&#128140;</span><span>Leave Mgmt</span></a>
-                        <a th:href="@{/hr/recruitment}" class="quick-action-btn"><span class="qa-icon" style="background:#e9e2ff;">&#128203;</span><span>Recruitment</span></a>
+                        <a th:href="@{/hr/employees}" class="quick-action-btn"><span class="qa-icon" style="background:#dff5ea;color:#1b7a46;"><i data-lucide="users"></i></span><span>Employees</span></a>
+                        <a th:href="@{/hr/attendance}" class="quick-action-btn"><span class="qa-icon" style="background:#dcecf5;color:#17455e;"><i data-lucide="calendar"></i></span><span>Attendance</span></a>
+                        <a th:href="@{/hr/leaves}" class="quick-action-btn"><span class="qa-icon" style="background:#fce9d8;color:#b45309;"><i data-lucide="file-text"></i></span><span>Leave Mgmt</span></a>
+                        <a th:href="@{/hr/recruitment}" class="quick-action-btn"><span class="qa-icon" style="background:#e9e2ff;color:#5b21b6;"><i data-lucide="briefcase"></i></span><span>Recruitment</span></a>
                     </div>
                 </div>
             </div>
@@ -88,6 +89,7 @@
     function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
     if(hamburger)hamburger.addEventListener('click',openSidebar);
     if(overlay)overlay.addEventListener('click',closeSidebar);
+    lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
 </body>

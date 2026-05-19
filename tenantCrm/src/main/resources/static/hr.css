@@ -118,3 +118,11 @@ tbody tr:hover { background:#f7fbfd; }
 }
 @media (max-width:600px) { .stats-row { grid-template-columns:1fr 1fr; gap:12px; } }
 @media (max-width:400px) { .stats-row { grid-template-columns:1fr; } }
+
+/* LUCIDE ICONS */
+i[data-lucide] { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; stroke-width:2; vertical-align:middle; flex-shrink:0; }
+.stat-icon i[data-lucide] { width:26px; height:26px; stroke-width:1.8; }
+.sidebar-menu i[data-lucide] { width:17px; height:17px; }
+.logo-icon i[data-lucide] { width:22px; height:22px; color:white; }
+.logout-btn i[data-lucide] { width:16px; height:16px; margin-right:6px; }
+.qa-icon i[data-lucide] { width:20px; height:20px; }
