@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
 import java.util.List;
@@ -63,10 +64,16 @@ public class AdminController {
 
     // ── Add User page (GET) ───────────────────────────────────────────────────
     @GetMapping("/add-user")
-    public String addUserPage(Model model) {
+    public String addUserPage(HttpServletRequest request, Model model) {
         List<User> users = userRepository.findAll();
+        String username = (String) request.getAttribute("loggedInUser");
+        String role     = (String) request.getAttribute("loggedInRole");
+        model.addAttribute("adminName",     username != null ? username : "Admin");
+        model.addAttribute("adminRole",     role     != null ? role     : "Admin");
         model.addAttribute("managers",      users);
         model.addAttribute("totalManagers", users.size());
+        model.addAttribute("activeCount",   users.stream().filter(u -> u.getStatus() == null || "active".equalsIgnoreCase(u.getStatus())).count());
+        model.addAttribute("roleCount",     users.stream().map(User::getRole).filter(r -> r != null && !r.isBlank()).distinct().count());
         return "add-users";
     }
 
@@ -77,19 +84,16 @@ public class AdminController {
                           @RequestParam String password,
                           @RequestParam String confirmPassword,
                           @RequestParam String role,
-                          Model model) {
-
-        List<User> users = userRepository.findAll();
-        model.addAttribute("managers",      users);
-        model.addAttribute("totalManagers", users.size());
+                          HttpServletRequest request,
+                          RedirectAttributes ra) {
 
         if (!password.equals(confirmPassword)) {
-            model.addAttribute("errorMessage", "Passwords do not match.");
-            return "add-users";
+            ra.addFlashAttribute("errorMessage", "Passwords do not match.");
+            return "redirect:/admin/add-user";
         }
         if (userRepository.findByUsernameOrEmail(username, email) != null) {
-            model.addAttribute("errorMessage", "Username or email already exists.");
-            return "add-users";
+            ra.addFlashAttribute("errorMessage", "Username or email already exists.");
+            return "redirect:/admin/add-user";
         }
 
         User user = new User();
@@ -97,12 +101,10 @@ public class AdminController {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(role);
+        user.setStatus("active");
         userRepository.save(user);
 
-        // Refresh list after save
-        model.addAttribute("managers",      userRepository.findAll());
-        model.addAttribute("totalManagers", userRepository.findAll().size());
-        model.addAttribute("successMessage", "User '" + username + "' added successfully.");
-        return "add-users";
+        ra.addFlashAttribute("successMessage", "User '" + username + "' added successfully.");
+        return "redirect:/admin/add-user";
     }
 }

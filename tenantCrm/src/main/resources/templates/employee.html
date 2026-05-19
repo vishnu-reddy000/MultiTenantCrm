@@ -1,345 +1,273 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-	<title>Employee Dashboard | LifeCare CRM</title>
-	<!-- ✅ Poppins — matches CSS font-family -->
-	<link
-		href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
-		rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-	<link rel="stylesheet" th:href="@{/employee.css}" href="/employee.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
 </head>
-
 <body>
 
-	<div class="app-container">
-		<!-- SIDEBAR -->
-		<aside class="sidebar" id="sidebar">
-			<div class="sidebar-header">
-				<div class="sidebar-logo">
-					<i class="fas fa-user-circle"></i>
-					<span>Employee</span>
-				</div>
-				<button class="close-sidebar-mobile" id="closeSidebarBtn">
-					<i class="fas fa-times"></i>
-				</button>
-			</div>
-			<nav class="sidebar-nav">
-				<ul>
-					<li class="nav-item active">
-						<a href="#" class="nav-link">
-							<i class="fas fa-tachometer-alt"></i>
-							<span>Dashboards</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a href="#" class="nav-link">
-							<i class="fas fa-folder-open"></i>
-							<span>MyProjects</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a href="#" class="nav-link">
-							<i class="fas fa-tasks"></i>
-							<span>MyTasks</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a href="#" class="nav-link">
-							<i class="fas fa-calendar-check"></i>
-							<span>Attendance</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a href="#" class="nav-link">
-							<i class="fas fa-envelope-open-text"></i>
-							<span>Leave Request</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a href="#" class="nav-link">
-							<i class="fas fa-cog"></i>
-							<span>Settings</span>
-						</a>
-					</li>
-					<li class="nav-item logout-item">
-						<a href="#" data-logout class="nav-link">
-							<i class="fas fa-sign-out-alt"></i>
-							<span>Log out</span>
-						</a>
-					</li>
-				</ul>
-			</nav>
-		</aside>
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">&#128100; Employee</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-		<div class="mobile-overlay" id="mobileOverlay"></div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">&#128100;</div>
+        <h2>CRM</h2>
+    </div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'Employee', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="active">
+            <a href="#">&#128202; Dashboard</a>
+        </li>
+        <li>
+            <a href="#">&#128193; My Projects</a>
+        </li>
+        <li>
+            <a href="#">&#9989; My Tasks</a>
+        </li>
+        <li>
+            <a href="#">&#128197; Attendance</a>
+        </li>
+        <li>
+            <a href="#">&#128140; Leave Request</a>
+        </li>
+        <li>
+            <a href="#">&#9881; Settings</a>
+        </li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn">&#128682; Logout</button>
+    </a>
+</div>
 
-		<!-- MAIN CONTENT -->
-		<main class="main-content">
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>My Dashboard</h1>
+        <div class="topbar-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search projects, tasks…">
+            </div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'Employee', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
 
-			<!-- TOP BAR -->
-			<header class="top-bar">
-				<div class="top-bar-left">
-					<button class="hamburger-menu" id="hamburgerBtn">
-						<i class="fas fa-bars"></i>
-					</button>
-					<div class="logo-area">
-						<i class="fas fa-hand-holding-heart logo-icon"></i>
-						<h2><span>Employee Dashboard</span></h2>
-					</div>
-				</div>
-				<div class="top-bar-right">
-					<div class="notification-bell">
-						<i class="fas fa-bell"></i>
-						<span class="badge" th:text="${notificationCount}">0</span>
-						<div class="notification-dropdown">
-							<div class="notif-header">
-								<span>Notifications</span>
-								<a href="#">Mark all read</a>
-							</div>
-							<ul>
-								<li th:each="notif : ${notifications}" th:text="${notif.message}">New notification</li>
-							</ul>
-						</div>
-					</div>
-					<div class="employee-profile">
-						<img th:src="@{${employeeAvatar}}"
-							src="https://ui-avatars.com/api/?background=7BA05B&color=fff&name=Employee" alt="profile">
-						<div class="profile-info">
-							<span class="emp-name" th:text="${employeeName}">Employee Name</span>
-							<span class="emp-role" th:text="${employeeRole}">Role</span>
-						</div>
-						<i class="fas fa-chevron-down"></i>
-					</div>
-				</div>
-			</header>
+    <div class="page-content">
 
-			<!-- WELCOME -->
-			<div class="welcome-section">
-				<div class="welcome-text">
-					<h1 th:text="'Welcome back, ' + ${employeeName}">Welcome, User</h1>
-					<p>Here's your personal dashboard – track projects, tasks, attendance and leaves.</p>
-				</div>
-			</div>
+        <!-- STATS ROW -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon blue">&#128193;</div>
+                <div class="stat-info">
+                    <h3 th:text="${activeProjectsCount} ?: '0'">0</h3>
+                    <p>Active Projects</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">&#9989;</div>
+                <div class="stat-info">
+                    <h3 th:text="${completedTasks} ?: '0'">0</h3>
+                    <p>Tasks Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">&#128197;</div>
+                <div class="stat-info">
+                    <h3 th:text="${attendanceRate} ?: '0%'">0%</h3>
+                    <p>Attendance</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">&#9203;</div>
+                <div class="stat-info">
+                    <h3 th:text="${pendingLeaves} ?: '0'">0</h3>
+                    <p>Pending Leaves</p>
+                </div>
+            </div>
+        </div>
 
-			<!-- STATS CARDS -->
-			<div class="stats-grid">
-				<div class="stat-card">
-					<div class="stat-icon blue-bg">
-						<i class="fas fa-project-diagram"></i>
-					</div>
-					<div class="stat-details">
-						<h3>Active Projects</h3>
-						<div class="stat-value" th:text="${activeProjectsCount}">0</div>
-						<div class="stat-trend positive" th:text="${projectsTrend}">+0%</div>
-						<span class="stat-period">this month</span>
-					</div>
-				</div>
-				<div class="stat-card">
-					<div class="stat-icon green-bg">
-						<i class="fas fa-check-circle"></i>
-					</div>
-					<div class="stat-details">
-						<h3>Tasks Completed</h3>
-						<div class="stat-value" th:text="${completedTasks}">0</div>
-						<div class="stat-trend positive" th:text="${tasksTrend}">+0%</div>
-						<span class="stat-period">this week</span>
-					</div>
-				</div>
-				<div class="stat-card">
-					<div class="stat-icon orange-bg">
-						<i class="fas fa-calendar-week"></i>
-					</div>
-					<div class="stat-details">
-						<h3>Attendance</h3>
-						<div class="stat-value" th:text="${attendanceRate}">0%</div>
-						<div class="stat-trend neutral" th:text="${attendanceTrend}">0%</div>
-						<span class="stat-period">present rate</span>
-					</div>
-				</div>
-				<div class="stat-card">
-					<div class="stat-icon purple-bg">
-						<i class="fas fa-hourglass-half"></i>
-					</div>
-					<div class="stat-details">
-						<h3>Pending Leaves</h3>
-						<div class="stat-value" th:text="${pendingLeaves}">0</div>
-						<div class="stat-trend neutral" th:text="${leaveStatus}">pending</div>
-						<span class="stat-period">awaiting approval</span>
-					</div>
-				</div>
-			</div>
+        <!-- DASHBOARD GRID -->
+        <div class="dashboard-grid">
 
-			<!-- TWO COLUMN LAYOUT -->
-			<div class="dashboard-row">
+            <!-- LEFT COLUMN: My Projects + My Tasks -->
+            <div class="left-col">
 
-				<!-- LEFT COLUMN -->
-				<div class="col-left">
+                <!-- My Projects -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>My Projects</h2>
+                            <p>Active project assignments</p>
+                        </div>
+                        <a href="#" class="btn-link">View All &#8594;</a>
+                    </div>
+                    <div th:each="proj : ${myProjects}" class="project-item">
+                        <div>
+                            <div class="project-name" th:text="${proj.name}">Project Name</div>
+                            <div class="project-deadline" th:text="${proj.deadline}">Deadline</div>
+                        </div>
+                        <div class="project-progress-wrap">
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill-sm" th:style="'width:' + ${proj.progress} + '%'"></div>
+                            </div>
+                            <span class="progress-pct" th:text="${proj.progress} + '%'">0%</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(myProjects)}" class="empty-state" style="padding:20px;">
+                        <div style="font-size:32px;">&#128193;</div>
+                        <h3>No Projects Assigned</h3>
+                    </div>
+                </div>
 
-					<div class="card projects-card">
-						<div class="card-header">
-							<h3><i class="fas fa-folder-open"></i> My Projects</h3>
-							<a href="#" class="link-more">View all <i class="fas fa-arrow-right"></i></a>
-						</div>
-						<div class="projects-list">
-							<div th:each="proj : ${myProjects}" class="project-item">
-								<div class="project-info">
-									<strong th:text="${proj.name}">Project name</strong>
-									<p th:text="${proj.deadline}">Deadline</p>
-								</div>
-								<div class="project-progress">
-									<div class="progress-bar-small">
-										<div class="progress-fill-small" th:style="'width:' + ${proj.progress} + '%'">
-										</div>
-									</div>
-									<span th:text="${proj.progress} + '%'">0%</span>
-								</div>
-							</div>
-						</div>
-					</div>
+                <!-- My Tasks -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>My Tasks</h2>
+                            <p>Pending tasks</p>
+                        </div>
+                        <a href="#" class="btn-link">All Tasks &#8594;</a>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Project</th>
+                                    <th>Due Date</th>
+                                    <th>Priority</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="task : ${pendingTasks}">
+                                    <td th:text="${task.title}">Task title</td>
+                                    <td th:text="${task.projectName}">Project</td>
+                                    <td th:text="${task.dueDate}">Date</td>
+                                    <td><span class="priority-badge" th:text="${task.priority}">High</span></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(pendingTasks)}">
+                                    <td colspan="4">
+                                        <div class="empty-state" style="padding:20px;">
+                                            <div style="font-size:32px;">&#9989;</div>
+                                            <h3>No Pending Tasks</h3>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-					<div class="card tasks-card">
-						<div class="card-header">
-							<h3><i class="fas fa-tasks"></i> My Tasks (Pending)</h3>
-							<a href="#" class="link-more">All tasks</a>
-						</div>
-						<div class="table-responsive">
-							<table class="simple-table">
-								<thead>
-									<tr>
-										<th>Task</th>
-										<th>Project</th>
-										<th>Due Date</th>
-										<th>Priority</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr th:each="task : ${pendingTasks}">
-										<td th:text="${task.title}">Task title</td>
-										<td th:text="${task.projectName}">Project</td>
-										<td th:text="${task.dueDate}">Date</td>
-										<td><span class="priority-badge" th:text="${task.priority}">High</span></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
+            </div>
 
-				</div>
+            <!-- RIGHT COLUMN -->
+            <div class="right-col">
 
-				<!-- RIGHT COLUMN -->
-				<div class="col-right">
+                <!-- Attendance Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Attendance</h2>
+                            <p th:text="${attendanceMonth} ?: 'This Month'">This Month</p>
+                        </div>
+                    </div>
+                    <div class="attendance-row">
+                        <div class="att-item">
+                            <strong th:text="${presentDays} ?: '0'">0</strong>
+                            <span>Present</span>
+                        </div>
+                        <div class="att-item">
+                            <strong th:text="${absentDays} ?: '0'">0</strong>
+                            <span>Absent</span>
+                        </div>
+                        <div class="att-item">
+                            <strong th:text="${leaveDays} ?: '0'">0</strong>
+                            <span>Leave</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div>
+                    </div>
+                    <div class="checkin-info">
+                        Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong>
+                    </div>
+                </div>
 
-					<div class="card attendance-card">
-						<div class="card-header">
-							<h3><i class="fas fa-calendar-check"></i> Attendance This Month</h3>
-							<span th:text="${attendanceMonth}">May 2026</span>
-						</div>
-						<div class="attendance-stats">
-							<div>
-								<span>Present</span>
-								<strong th:text="${presentDays}">0</strong>
-								<span class="days-label">days</span>
-							</div>
-							<div>
-								<span>Absent</span>
-								<strong th:text="${absentDays}">0</strong>
-								<span class="days-label">days</span>
-							</div>
-							<div>
-								<span>Leave</span>
-								<strong th:text="${leaveDays}">0</strong>
-								<span class="days-label">days</span>
-							</div>
-						</div>
-						<div class="progress-bar">
-							<div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div>
-						</div>
-						<div class="checkin-status">
-							<i class="fas fa-clock"></i>
-							Last check-in: <span th:text="${lastCheckin}">—</span>
-						</div>
-					</div>
+                <!-- Leave Requests -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Leave Requests</h2>
+                            <p>My recent requests</p>
+                        </div>
+                        <a href="#" class="btn-link">New &#43;</a>
+                    </div>
+                    <div th:each="req : ${leaveRequests}" class="leave-item">
+                        <div>
+                            <div class="leave-type" th:text="${req.type}">Sick Leave</div>
+                            <div class="leave-date" th:text="${req.dateRange}">Apr 10–12</div>
+                        </div>
+                        <span class="leave-status" th:text="${req.status}">Pending</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:20px;">
+                        <div style="font-size:32px;">&#128140;</div>
+                        <h3>No Requests</h3>
+                    </div>
+                </div>
 
-					<div class="card leave-request-card">
-						<div class="card-header">
-							<h3><i class="fas fa-envelope-open-text"></i> My Leave Requests</h3>
-							<a href="#" class="link-more">New request</a>
-						</div>
-						<div class="leave-list">
-							<div th:each="req : ${leaveRequests}" class="leave-item">
-								<div class="leave-date" th:text="${req.dateRange}">Apr 10–12</div>
-								<div class="leave-details">
-									<span class="leave-type" th:text="${req.type}">Sick Leave</span>
-									<span class="leave-status" th:text="${req.status}">Pending</span>
-								</div>
-							</div>
-							<p th:if="${#lists.isEmpty(leaveRequests)}" class="empty-placeholder">
-								No recent requests.
-							</p>
-						</div>
-					</div>
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Quick Actions</h2>
+                            <p>Common tasks</p>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#dcecf5;">&#128193;</span>
+                            <span>My Projects</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#dff5ea;">&#9989;</span>
+                            <span>My Tasks</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#fce9d8;">&#128197;</span>
+                            <span>Attendance</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#e9e2ff;">&#128140;</span>
+                            <span>Leave</span>
+                        </a>
+                    </div>
+                </div>
 
-					<div class="card upcoming-events">
-						<div class="card-header">
-							<h3><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h3>
-						</div>
-						<div class="event-list">
-							<div th:each="event : ${upcomingDeadlines}" class="event-item">
-								<div class="event-date" th:text="${event.date}">May 5</div>
-								<div class="event-desc" th:text="${event.description}">Submit report</div>
-							</div>
-						</div>
-					</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-				</div>
-			</div>
-
-			<footer class="dashboard-footer">
-				<p>© 2025 LifeCare Employee Dashboard – Ready for backend integration.</p>
-			</footer>
-
-		</main>
-	</div>
-
-	<script>
-		const hamburger = document.getElementById('hamburgerBtn');
-		const sidebar = document.getElementById('sidebar');
-		const overlay = document.getElementById('mobileOverlay');
-		const closeSidebar = document.getElementById('closeSidebarBtn');
-
-		function openSidebar() {sidebar.classList.add('mobile-open'); if (overlay) overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
-		function closeSidebarFunc() {sidebar.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = '';}
-
-		if (hamburger) hamburger.addEventListener('click', openSidebar);
-		if (closeSidebar) closeSidebar.addEventListener('click', closeSidebarFunc);
-		if (overlay) overlay.addEventListener('click', closeSidebarFunc);
-
-		window.addEventListener('resize', function () {
-			if (window.innerWidth > 768 && sidebar.classList.contains('mobile-open')) {closeSidebarFunc();}
-		});
-
-		// Notification dropdown toggle
-		const bell = document.querySelector('.notification-bell');
-		if (bell) {
-			bell.addEventListener('click', (e) => {
-				e.stopPropagation();
-				const drop = bell.querySelector('.notification-dropdown');
-				if (drop) drop.classList.toggle('show-dropdown');
-			});
-			document.addEventListener('click', function (e) {
-				if (!bell.contains(e.target)) {
-					const drop = bell.querySelector('.notification-dropdown');
-					if (drop) drop.classList.remove('show-dropdown');
-				}
-			});
-		}
-	</script>
-	<script th:src="@{/auth.js}" src="/auth.js"></script>
-
+<script>
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+    hamburger.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+</script>
+<script th:src="@{/auth.js}"></script>
 </body>
-
 </html>
