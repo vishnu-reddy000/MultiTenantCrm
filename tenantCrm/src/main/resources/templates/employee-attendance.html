@@ -1,16 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee — Attendance</title>
     <link rel="stylesheet" th:href="@{/employee.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">Employee</span>
+</div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="user"></i></div>
+        <h2>Employee</h2>
+    </div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
@@ -20,44 +31,254 @@
         <li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
         <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
         <li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
-        <li class="active"><a th:href="@{/employee/attendance}"><i data-lucide="calendar"></i> Attendance</a></li>
+        <li class="active"><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
         <li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
         <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
 </div>
+
+<!-- MAIN WRAPPER -->
 <div class="main-wrapper">
+
+    <!-- TOPBAR -->
     <div class="topbar">
-        <h1>Attendance</h1>
+        <div>
+            <h1>Attendance</h1>
+            <p class="topbar-subtitle">Track your daily punch-in &amp; punch-out</p>
+        </div>
         <div class="topbar-right">
-            <div class="search-box"><input type="text" placeholder="Search…"></div>
+            <div class="search-box">
+                <input type="text" id="attSearch" placeholder="Search records…">
+            </div>
             <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         </div>
     </div>
+
+    <!-- PAGE CONTENT -->
     <div class="page-content">
-        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon green"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${presentDays} ?: '0'">0</h3><p>Present Days</p></div></div>
-            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="user-x"></i></div><div class="stat-info"><h3 th:text="${absentDays} ?: '0'">0</h3><p>Absent Days</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="file-text"></i></div><div class="stat-info"><h3 th:text="${leaveDays} ?: '0'">0</h3><p>Leave Days</p></div></div>
+
+        <!-- Toast messages -->
+        <div class="toast success" th:if="${successMessage}">
+            <i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
         </div>
-        <div class="card">
-            <div class="card-header"><div><h2>Attendance Summary</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
-            <div class="attendance-row">
-                <div class="att-item"><strong th:text="${presentDays} ?: '0'">0</strong><span>Present</span></div>
-                <div class="att-item"><strong th:text="${absentDays} ?: '0'">0</strong><span>Absent</span></div>
-                <div class="att-item"><strong th:text="${leaveDays} ?: '0'">0</strong><span>Leave</span></div>
+        <div class="toast error" th:if="${errorMessage}">
+            <i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- ── PUNCH CARD ─────────────────────────────────────────────── -->
+        <div class="att-punch-card">
+
+            <!-- TOP ROW: clock left, buttons right -->
+            <div class="att-punch-top">
+                <div class="att-clock-block">
+                    <div class="att-clock" id="liveClock">--:--:--</div>
+                    <div class="att-date" id="liveDate"></div>
+                </div>
+
+                <div class="att-punch-actions">
+                    <!-- PUNCH IN -->
+                    <form th:action="@{/employee/attendance/punch-in}" method="post">
+                        <button type="submit"
+                                class="att-punch-btn punch-in"
+                                th:disabled="${punchedIn}"
+                                th:classappend="${punchedIn} ? ' disabled' : ''">
+                            <i data-lucide="log-in"></i>
+                            <span th:text="${punchedIn} ? 'Punched In' : 'Punch In'">Punch In</span>
+                        </button>
+                    </form>
+
+                    <!-- PUNCH OUT -->
+                    <form th:action="@{/employee/attendance/punch-out}" method="post">
+                        <button type="submit"
+                                class="att-punch-btn punch-out"
+                                th:disabled="${!punchedIn or punchedOut}"
+                                th:classappend="${!punchedIn or punchedOut} ? ' disabled' : ''">
+                            <i data-lucide="log-out"></i>
+                            <span th:text="${punchedOut} ? 'Punched Out' : 'Punch Out'">Punch Out</span>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="progress-bar"><div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div></div>
-            <div class="checkin-info">Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong></div>
+
+            <!-- DIVIDER -->
+            <div class="att-card-divider"></div>
+
+            <!-- BOTTOM ROW: always-visible summary tiles -->
+            <div class="att-summary-row">
+                <div class="att-summary-tile">
+                    <div class="att-tile-icon" style="background:#dff5ea;color:#1b7a46;">
+                        <i data-lucide="log-in"></i>
+                    </div>
+                    <div class="att-tile-body">
+                        <span class="att-tile-label">Check In</span>
+                        <span class="att-tile-value"
+                              th:text="${todayRecord != null} ? ${todayRecord.checkInDisplay} : '—'">—</span>
+                    </div>
+                </div>
+
+                <div class="att-summary-tile">
+                    <div class="att-tile-icon" style="background:#fdecec;color:#d11a2a;">
+                        <i data-lucide="log-out"></i>
+                    </div>
+                    <div class="att-tile-body">
+                        <span class="att-tile-label">Check Out</span>
+                        <span class="att-tile-value"
+                              th:text="${todayRecord != null} ? ${todayRecord.checkOutDisplay} : '—'">—</span>
+                    </div>
+                </div>
+
+                <div class="att-summary-tile">
+                    <div class="att-tile-icon" style="background:#dcecf5;color:#17455e;">
+                        <i data-lucide="clock"></i>
+                    </div>
+                    <div class="att-tile-body">
+                        <span class="att-tile-label">Worked Hours</span>
+                        <span class="att-tile-value"
+                              th:text="${todayRecord != null} ? ${todayRecord.workedHours} : '—'">—</span>
+                    </div>
+                </div>
+
+                <div class="att-summary-tile">
+                    <div class="att-tile-icon" style="background:#e9e2ff;color:#5b21b6;">
+                        <i data-lucide="activity"></i>
+                    </div>
+                    <div class="att-tile-body">
+                        <span class="att-tile-label">Status</span>
+                        <span class="att-tile-value" th:if="${todayRecord == null}">—</span>
+                        <span class="status-badge active"   th:if="${todayRecord != null and todayRecord.status == 'present'}">Present</span>
+                        <span class="status-badge att-late" th:if="${todayRecord != null and todayRecord.status == 'late'}">Late</span>
+                        <span class="status-badge inactive" th:if="${todayRecord != null and todayRecord.status == 'absent'}">Absent</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-</div>
+
+        <!-- ── STATS ROW ──────────────────────────────────────────────── -->
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-top:22px;">
+            <div class="stat-card">
+                <div class="stat-icon green"><i data-lucide="calendar-check"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${presentCount} ?: '0'">0</h3>
+                    <p>Days Present</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i data-lucide="clock"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${lateCount} ?: '0'">0</h3>
+                    <p>Late Arrivals</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i data-lucide="calendar"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${totalRecords} ?: '0'">0</h3>
+                    <p>Total Records</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ATTENDANCE TABLE ───────────────────────────────────────── -->
+        <div class="card" style="margin-top:22px;">
+            <div class="card-header">
+                <div>
+                    <h2>My Attendance Log</h2>
+                    <p th:text="${totalRecords} + ' record(s) found'">0 record(s)</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="attTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Worked</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="rec, stat : ${attendanceRecords}">
+                            <td style="color:#6b7280;font-weight:600;" th:text="${stat.count}">1</td>
+                            <td style="font-weight:600;" th:text="${rec.date}">2026-01-01</td>
+                            <td>
+                                <span class="att-time-badge in" th:text="${rec.checkInDisplay}">—</span>
+                            </td>
+                            <td>
+                                <span class="att-time-badge out"
+                                      th:classappend="${rec.checkOut == null} ? ' pending' : ''"
+                                      th:text="${rec.checkOutDisplay}">—</span>
+                            </td>
+                            <td style="font-weight:600;color:#17455e;" th:text="${rec.workedHours}">—</td>
+                            <td>
+                                <span class="status-badge active"   th:if="${rec.status == 'present'}">Present</span>
+                                <span class="status-badge att-late" th:if="${rec.status == 'late'}">Late</span>
+                                <span class="status-badge inactive" th:if="${rec.status == 'absent'}">Absent</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${attendanceRecords == null or #lists.isEmpty(attendanceRecords)}">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i data-lucide="calendar" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Attendance Records</h3>
+                                    <p>Punch in to start tracking your attendance.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /page-content -->
+</div><!-- /main-wrapper -->
+
 <script>
-    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
+    // Sidebar
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow='hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click',   closeSidebar);
+
+    // Live clock
+    function updateClock() {
+        var now    = new Date();
+        var hh     = String(now.getHours()).padStart(2,'0');
+        var mm     = String(now.getMinutes()).padStart(2,'0');
+        var ss     = String(now.getSeconds()).padStart(2,'0');
+        var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
+        document.getElementById('liveDate').textContent  =
+            days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Table search
+    var attSearch = document.getElementById('attSearch');
+    if (attSearch) {
+        attSearch.addEventListener('input', function () {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#attTable tbody tr').forEach(function (row) {
+                row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+            });
+        });
+    }
+
+    // Toast auto-hide
+    document.querySelectorAll('.toast').forEach(function (t) {
+        setTimeout(function () { t.style.opacity = '0'; t.style.transition = 'opacity .5s'; }, 4000);
+    });
+
     lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
