@@ -43,6 +43,8 @@ public class SecurityConfig {
                 // Use AntPathRequestMatcher for wildcard extension matching.
                 .requestMatchers(
                     new AntPathRequestMatcher("/login"),
+                    new AntPathRequestMatcher("/forgot-password"),
+                    new AntPathRequestMatcher("/reset-password"),
                     new AntPathRequestMatcher("/api/auth/**"),
                     new AntPathRequestMatcher("/error"),
                     new AntPathRequestMatcher("/**/*.css"),
@@ -58,6 +60,7 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/manager/**")).hasRole("MANAGER")
                 .requestMatchers(new AntPathRequestMatcher("/hr/**")).hasRole("HR")
                 .requestMatchers(new AntPathRequestMatcher("/employee/**")).hasRole("EMPLOYEE")
+              
                 // Everything else requires authentication
                 .anyRequest().authenticated()
             )
