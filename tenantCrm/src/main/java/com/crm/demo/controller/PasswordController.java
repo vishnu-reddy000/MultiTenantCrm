@@ -65,7 +65,7 @@ public class PasswordController {
 
 		resetToken.setToken(token);
 		resetToken.setUser(user);
-		resetToken.setExpiryTime(LocalDateTime.now().plusMinutes(30));
+		resetToken.setExpiryTime(LocalDateTime.now().plusMinutes(10));
 
 		tokenRepository.save(resetToken);
 
@@ -80,7 +80,7 @@ public class PasswordController {
 		message.setSubject("Password Reset Request");
 
 		message.setText("Hello " + user.getUsername() + ",\n\n" + "Click the below link to reset your password:\n\n"
-				+ resetLink + "\n\nThis link will expire in 30 minutes.");
+				+ resetLink + "\n\nThis link will expire in 10 minutes.");
 
 		mailSender.send(message);
 
