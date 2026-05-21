@@ -4,12 +4,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-	<title>Sign In — CRM</title>
-	<!-- 
-      EXTERNAL STYLESHEET (connected via Thymeleaf)
-      All modern styling, variant color system, perfect alignment.
-      Original functionality remains untouched.
-    -->
+	<title>Login-CRM</title>
+
 	<link rel="stylesheet" th:href="@{/login.css}">
 	<!-- Preconnect for Google Fonts performance -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +22,7 @@
 		</div>
 
 		<h2>Welcome Back</h2>
-		<p class="subtitle">Sign in to your CRM account to continue</p>
+		<p class="subtitle">Login to your CRM account to continue</p>
 
 		<!-- Error shown by JS - refined alert style -->
 		<div class="error-msg" id="errorMsg" style="display:none;"></div>
@@ -61,7 +57,7 @@
 				</button>
 			</div>
 
-			<button type="submit" id="signInBtn">Sign In</button>
+			<button type="submit" id="signInBtn">Login</button>
 
 			<a href="/forgot-password" class="forgot-link">Forgot password?</a>
 
