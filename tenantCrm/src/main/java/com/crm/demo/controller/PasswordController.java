@@ -75,6 +75,7 @@ public class PasswordController {
 		// Send email
 		SimpleMailMessage message = new SimpleMailMessage();
 
+		message.setFrom("CRM ADMIN <vishnumatamala@gmail.com>");
 		message.setTo(user.getEmail());
 		message.setSubject("Password Reset Request");
 
