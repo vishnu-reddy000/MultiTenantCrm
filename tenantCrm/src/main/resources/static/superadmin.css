@@ -48,12 +48,12 @@
 }
 
 * {
-	scrollbar-width: none;
-	-ms-overflow-style: none;
+	scrollbar-width: 10px;
+	-ms-overflow-style:auto;
 }
 
 *::-webkit-scrollbar {
-	display: none;
+	display: flex;
 }
 
 html {
@@ -61,7 +61,7 @@ html {
 	zoom: 0.85;
 	width: 100%;
 	height: 100%;
-	overflow: hidden;
+	overflow: auto;
 }
 
 body {
@@ -70,7 +70,7 @@ body {
 	color: var(--text-dark);
 	width: 100%;
 	height: 100%;
-	overflow: hidden;
+	overflow: auto;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
