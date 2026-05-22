@@ -29,6 +29,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .requestCache(rc -> rc.disable())
             .authorizeHttpRequests(auth -> auth
+                .shouldFilterAllDispatcherTypes(false)
                 // ── Public assets & auth pages ──────────────────────────────
                 .requestMatchers(
                     new AntPathRequestMatcher("/login"),
@@ -36,6 +37,7 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/reset-password"),
                     new AntPathRequestMatcher("/api/auth/**"),
                     new AntPathRequestMatcher("/error"),
+                    new AntPathRequestMatcher("/error/**"),
                     new AntPathRequestMatcher("/**/*.css"),
                     new AntPathRequestMatcher("/**/*.js"),
                     new AntPathRequestMatcher("/**/*.png"),

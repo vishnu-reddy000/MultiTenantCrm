@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR — Teams</title>
+    <link rel="stylesheet" th:href="@{/hr.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+        .team-card { background:white; border-radius:20px; padding:22px; box-shadow:0 4px 16px rgba(0,0,0,0.07); border:1.5px solid #edf3f6; }
+        .team-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+        .team-name { font-size:17px; font-weight:700; color:#163647; }
+        .team-badge { background:#dcecf5; color:#17455e; border-radius:20px; padding:3px 12px; font-size:12px; font-weight:600; }
+        .team-manager-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #edf3f6; margin-bottom:12px; }
+        .mgr-avatar { width:34px; height:34px; border-radius:50%; background:#17455e; color:white; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+        .mgr-info .mgr-label { font-size:10px; color:#9ab3bd; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+        .mgr-info .mgr-name  { font-size:13px; font-weight:600; color:#163647; }
+        .members-list { display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; margin-bottom:14px; }
+        .member-row { display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:10px; background:#f7fbfd; }
+        .member-row .mem-avatar { width:28px; height:28px; border-radius:50%; background:#e9e2ff; color:#5b21b6; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+        .member-row .mem-name { font-size:13px; font-weight:600; color:#163647; flex:1; }
+        .member-row .mem-email { font-size:11px; color:#9ab3bd; }
+        .btn-remove { width:26px; height:26px; border-radius:8px; border:none; background:#fdecec; color:#d11a2a; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .btn-remove:hover { background:#fbd5d5; }
+        .empty-members { text-align:center; padding:16px 0; color:#9ab3bd; font-size:13px; }
+        .team-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .btn-sm { height:34px; border-radius:10px; border:none; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; padding:0 14px; display:flex; align-items:center; gap:6px; transition:background .2s; }
+        .btn-sm.primary { background:#17455e; color:white; }
+        .btn-sm.primary:hover { background:#1e5a7a; }
+        .btn-sm.danger  { background:#fdecec; color:#d11a2a; }
+        .btn-sm.danger:hover  { background:#fbd5d5; }
+        .btn-sm.secondary { background:#f0f7fb; color:#17455e; }
+        .btn-sm.secondary:hover { background:#dcecf5; }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+        .modal-overlay.open { display:flex; }
+        .modal { background:white; border-radius:22px; padding:28px; width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+        .modal h3 { font-size:17px; font-weight:700; color:#163647; margin-bottom:18px; }
+        .form-group { margin-bottom:14px; }
+        .form-group label { display:block; font-size:12px; font-weight:600; color:#6b7280; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+        .form-group input, .form-group select { width:100%; height:42px; border:1.5px solid #e5edf2; border-radius:12px; padding:0 14px; font-size:14px; font-family:inherit; color:#163647; background:white; outline:none; box-sizing:border-box; }
+        .form-group input:focus, .form-group select:focus { border-color:#17455e; }
+        .modal-actions { display:flex; gap:10px; margin-top:18px; }
+        .modal-actions button { flex:1; height:44px; border-radius:14px; border:none; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer; }
+        .btn-cancel { background:#f0f7fb; color:#17455e; }
+        .btn-confirm { background:#17455e; color:white; }
+        .btn-confirm:hover { background:#1e5a7a; }
+        #toast { position:fixed; bottom:28px; right:28px; background:#163647; color:white; padding:14px 22px; border-radius:14px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.18); z-index:9999; opacity:0; transform:translateY(12px); transition:opacity .3s,transform .3s; pointer-events:none; }
+        #toast.show { opacity:1; transform:translateY(0); }
+        #toast.success { background:#1b7a46; }
+        #toast.error   { background:#d11a2a; }
+    </style>
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR Dashboard</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+        <p th:text="${adminRole} ?: 'HR'">HR</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+        <li class="active"><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+        <li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div>
+            <h1>Teams</h1>
+            <p class="topbar-subtitle">Create teams, assign managers and add employees.</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-sm primary" onclick="openCreateModal()" style="height:40px;border-radius:12px;padding:0 18px;font-size:13px;">
+                <i data-lucide="plus" style="width:15px;height:15px;"></i> New Team
+            </button>
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- Flash messages -->
+        <div th:if="${successMessage}" style="background:#dff5ea;color:#1b7a46;border-radius:12px;padding:12px 18px;margin-bottom:16px;font-size:14px;font-weight:600;" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}"   style="background:#fdecec;color:#d11a2a;border-radius:12px;padding:12px 18px;margin-bottom:16px;font-size:14px;font-weight:600;" th:text="${errorMessage}"></div>
+
+        <!-- Stats -->
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="users-round"></i></div><div class="stat-info"><h3 th:text="${teamCount} ?: '0'">0</h3><p>Total Teams</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${#lists.size(managers)} ?: '0'">0</h3><p>Managers</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${#lists.size(employees)} ?: '0'">0</h3><p>Employees</p></div></div>
+        </div>
+
+        <!-- Team cards -->
+        <div th:if="${teams == null or #lists.isEmpty(teams)}" class="card" style="text-align:center;padding:48px;">
+            <i data-lucide="users-round" style="width:48px;height:48px;opacity:.25;margin-bottom:12px;"></i>
+            <h3 style="color:#6b7280;font-size:16px;">No teams yet</h3>
+            <p style="color:#9ab3bd;font-size:13px;margin-top:4px;">Click "New Team" to create your first team.</p>
+        </div>
+
+        <div class="team-grid" th:unless="${teams == null or #lists.isEmpty(teams)}">
+            <div class="team-card" th:each="team : ${teams}">
+                <div class="team-card-header">
+                    <span class="team-name" th:text="${team.name}">Team Name</span>
+                    <span class="team-badge" th:text="${#lists.size(team.members)} + ' member(s)'">0 member(s)</span>
+                </div>
+
+                <!-- Manager row -->
+                <div class="team-manager-row">
+                    <div class="mgr-avatar" th:text="${team.manager != null ? #strings.substring(team.manager.username,0,1).toUpperCase() : '?'}">?</div>
+                    <div class="mgr-info">
+                        <div class="mgr-label">Manager</div>
+                        <div class="mgr-name" th:text="${team.manager != null ? team.manager.username : 'Not assigned'}">—</div>
+                    </div>
+                    <button class="btn-sm secondary" style="margin-left:auto;"
+                            data-action="assign-manager"
+                            th:attr="data-team-id=${team.id}, data-team-name=${team.name}">
+                        <i data-lucide="user-cog" style="width:13px;height:13px;"></i>
+                        <span th:text="${team.manager != null ? 'Change' : 'Assign'}">Assign</span>
+                    </button>
+                </div>
+
+                <!-- Members list -->
+                <div class="members-list">
+                    <div th:if="${team.members == null or #lists.isEmpty(team.members)}" class="empty-members">
+                        No members yet
+                    </div>
+                    <div class="member-row" th:each="member : ${team.members}">
+                        <div class="mem-avatar" th:text="${#strings.substring(member.username ?: 'E', 0, 1).toUpperCase()}">E</div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="mem-name" th:text="${member.username}">Name</div>
+                            <div class="mem-email" th:text="${member.email}">email</div>
+                        </div>
+                        <form th:action="@{/hr/teams/{id}/remove-member(id=${team.id})}" method="post" style="margin:0;">
+                            <input type="hidden" name="employeeId" th:value="${member.id}">
+                            <button type="submit" class="btn-remove" title="Remove">
+                                <i data-lucide="x" style="width:12px;height:12px;"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="team-actions">
+                    <button class="btn-sm primary"
+                            data-action="add-member"
+                            th:attr="data-team-id=${team.id}, data-team-name=${team.name}">
+                        <i data-lucide="user-plus" style="width:13px;height:13px;"></i> Add Member
+                    </button>
+                    <form th:action="@{/hr/teams/{id}/delete(id=${team.id})}" method="post" style="margin:0;"
+                          onsubmit="return confirm('Delete this team?')">
+                        <button type="submit" class="btn-sm danger">
+                            <i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Create Team Modal ── -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal">
+        <h3><i data-lucide="users-round" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Create New Team</h3>
+        <form th:action="@{/hr/teams}" method="post">
+            <div class="form-group">
+                <label>Team Name</label>
+                <input type="text" name="name" placeholder="e.g. Frontend Team" required maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Assign Manager (optional)</label>
+                <select name="managerId">
+                    <option value="">— Select Manager —</option>
+                    <option th:each="mgr : ${managers}" th:value="${mgr.id}" th:text="${mgr.username}">Manager</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
+                <button type="submit" class="btn-confirm">Create Team</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Assign Manager Modal ── -->
+<div class="modal-overlay" id="assignManagerModal">
+    <div class="modal">
+        <h3><i data-lucide="user-cog" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Assign Manager</h3>
+        <p id="assignManagerTeamName" style="font-size:13px;color:#6b7280;margin-bottom:16px;"></p>
+        <form id="assignManagerForm" method="post">
+            <div class="form-group">
+                <label>Select Manager</label>
+                <select name="managerId" required>
+                    <option value="">— Select Manager —</option>
+                    <option th:each="mgr : ${managers}" th:value="${mgr.id}" th:text="${mgr.username}">Manager</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeAssignManagerModal()">Cancel</button>
+                <button type="submit" class="btn-confirm">Assign</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Add Member Modal ── -->
+<div class="modal-overlay" id="addMemberModal">
+    <div class="modal">
+        <h3><i data-lucide="user-plus" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Add Member</h3>
+        <p id="addMemberTeamName" style="font-size:13px;color:#6b7280;margin-bottom:16px;"></p>
+        <form id="addMemberForm" method="post">
+            <div class="form-group">
+                <label>Select Employee</label>
+                <select name="employeeId" required>
+                    <option value="">— Select Employee —</option>
+                    <option th:each="emp : ${employees}" th:value="${emp.id}" th:text="${emp.username} + ' (' + ${emp.email} + ')'">Employee</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeAddMemberModal()">Cancel</button>
+                <button type="submit" class="btn-confirm">Add to Team</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    // Sidebar toggle
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+
+    // Create modal
+    function openCreateModal(){ document.getElementById('createModal').classList.add('open'); }
+    function closeCreateModal(){ document.getElementById('createModal').classList.remove('open'); }
+
+    function closeAssignManagerModal(){ document.getElementById('assignManagerModal').classList.remove('open'); }
+    function closeAddMemberModal(){ document.getElementById('addMemberModal').classList.remove('open'); }
+
+    // Event delegation — handles data-action buttons rendered inside th:each loops
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action   = btn.getAttribute('data-action');
+        var teamId   = btn.getAttribute('data-team-id');
+        var teamName = btn.getAttribute('data-team-name');
+
+        if (action === 'assign-manager') {
+            document.getElementById('assignManagerTeamName').textContent = 'Team: ' + teamName;
+            document.getElementById('assignManagerForm').action = '/hr/teams/' + teamId + '/assign-manager';
+            document.getElementById('assignManagerModal').classList.add('open');
+        }
+        if (action === 'add-member') {
+            document.getElementById('addMemberTeamName').textContent = 'Team: ' + teamName;
+            document.getElementById('addMemberForm').action = '/hr/teams/' + teamId + '/add-member';
+            document.getElementById('addMemberModal').classList.add('open');
+        }
+    });
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(function(el){
+        el.addEventListener('click', function(e){ if(e.target === el) el.classList.remove('open'); });
+    });
+
+    // Toast for flash messages
+    function showToast(msg, type){
+        var t=document.getElementById('toast');
+        t.textContent=msg; t.className='show '+(type||'');
+        clearTimeout(t._timer);
+        t._timer=setTimeout(function(){t.className='';},3200);
+    }
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

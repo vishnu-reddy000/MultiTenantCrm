@@ -64,6 +64,52 @@
                     <div class="progress-bar"><div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div></div>
                     <div class="checkin-info">Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong></div>
                 </div>
+                <!-- My Team card -->
+                <div class="card">
+                    <div class="card-header"><div><h2>My Team</h2><p>Your assigned team</p></div></div>
+                    <div th:if="${myTeamName == null}" style="text-align:center;padding:20px;color:#9ab3bd;font-size:13px;">
+                        <i data-lucide="users" style="width:32px;height:32px;opacity:.3;display:block;margin:0 auto 8px;"></i>
+                        Not assigned to any team yet.
+                    </div>
+                    <div th:unless="${myTeamName == null}" style="padding:4px 0;">
+                        <!-- Team name row -->
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #edf3f6;">
+                            <div style="width:36px;height:36px;border-radius:12px;background:#dcecf5;color:#17455e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i data-lucide="users-round" style="width:18px;height:18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Team</div>
+                                <div style="font-size:14px;font-weight:700;color:#163647;" th:text="${myTeamName}">Team</div>
+                            </div>
+                            <div style="margin-left:auto;background:#dcecf5;color:#17455e;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;" th:text="${myTeamSize} + ' member(s)'">0</div>
+                        </div>
+                        <!-- Manager row -->
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #edf3f6;">
+                            <div style="width:36px;height:36px;border-radius:12px;background:#dff5ea;color:#1b7a46;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i data-lucide="user-check" style="width:18px;height:18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Manager</div>
+                                <div style="font-size:13px;font-weight:700;color:#163647;" th:text="${myTeamManager}">—</div>
+                            </div>
+                        </div>
+                        <!-- Team members list -->
+                        <div style="margin-top:10px;">
+                            <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Teammates</div>
+                            <div th:if="${myTeamMembers == null or #lists.isEmpty(myTeamMembers)}"
+                                 style="font-size:13px;color:#9ab3bd;text-align:center;padding:8px 0;">No teammates yet.</div>
+                            <div th:each="member : ${myTeamMembers}"
+                                 style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f7fa;">
+                                <div style="width:30px;height:30px;border-radius:50%;background:#e9e2ff;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;"
+                                     th:text="${#strings.substring(member.username ?: 'E', 0, 1).toUpperCase()}">E</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:13px;font-weight:600;color:#163647;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${member.username}">Name</div>
+                                    <div style="font-size:11px;color:#9ab3bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${member.email}">email</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header"><div><h2>Quick Actions</h2></div></div>
                     <div class="quick-actions">

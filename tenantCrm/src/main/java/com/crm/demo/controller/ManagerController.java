@@ -3,10 +3,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.crm.demo.model.Attendance;
 import com.crm.demo.model.Project;
 import com.crm.demo.model.Task;
+import com.crm.demo.model.Team;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.AttendanceRepository;
 import com.crm.demo.repository.ProjectRepository;
 import com.crm.demo.repository.TaskRepository;
+import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +46,9 @@ public class ManagerController {
 	private AttendanceRepository attendanceRepository;
 
 	@Autowired
+	private TeamRepository teamRepository;
+
+	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 
 	// =========================
@@ -58,13 +63,14 @@ public class ManagerController {
 
 		// Safety check
 		if (manager == null) {
-			// Set default values if manager not found
 			model.addAttribute("managerName", "Manager");
 			model.addAttribute("managerEmail", "");
 			model.addAttribute("teamMembers", Collections.emptyList());
 			model.addAttribute("teamCount", 0);
 			model.addAttribute("activeTeam", 0);
 			model.addAttribute("inactiveTeam", 0);
+			model.addAttribute("myTeam", null);
+			model.addAttribute("myTeamName", "—");
 			model.addAttribute("projects", Collections.emptyList());
 			model.addAttribute("totalProjects", 0);
 			model.addAttribute("activeProjects", 0);
@@ -84,65 +90,43 @@ public class ManagerController {
 		model.addAttribute("managerName", manager.getUsername());
 		model.addAttribute("managerEmail", manager.getEmail());
 
-		String email = manager.getEmail();
-		String tenantSegment = "";
+		// ── Load team assigned to this manager ────────────────────────────
+		Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
+		List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
 
-		// Extract company/tenant safely
-		try {
-			if (email != null && email.contains(".") && email.contains("@")) {
-				tenantSegment = email.split("\\.")[1].split("@")[0];
-			}
-		} catch (Exception e) {
-			tenantSegment = "";
-		}
+		long active   = teamMembers.stream().filter(User::isActive).count();
+		long inactive = teamMembers.size() - active;
 
-		// Fetch only same company employees
-		List<User> team = tenantSegment.isEmpty() ? 
-			userRepository.findAll().stream().filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole())).toList() :
-			userRepository.findEmployeesByTenant(tenantSegment);
+		model.addAttribute("myTeam",      myTeam);
+		model.addAttribute("myTeamName",  myTeam != null ? myTeam.getName() : "No Team Assigned");
+		model.addAttribute("teamMembers", teamMembers);
+		model.addAttribute("teamCount",   teamMembers.size());
+		model.addAttribute("activeTeam",  active);
+		model.addAttribute("inactiveTeam",inactive);
 
+		// ── Projects & Tasks ──────────────────────────────────────────────
 		List<Project> projects = projectRepository.findAll();
+		List<Task>    tasks    = taskRepository.findAll();
 
-		List<Task> tasks = taskRepository.findAll();
-
-		long active = team.stream().filter(User::isActive).count();
-
-		long inactive = team.size() - active;
-
-		long done = tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
-
+		long done    = tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
 		long pending = tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
-
 		long activeP = projects.stream().filter(p -> "active".equalsIgnoreCase(p.getStatus())).count();
-
 		long completedP = projects.stream().filter(p -> "completed".equalsIgnoreCase(p.getStatus())).count();
 
-		// =========================
-		// MODEL ATTRIBUTES
-		// =========================
-
-		model.addAttribute("teamMembers", team);
-		model.addAttribute("teamCount", team.size());
-		model.addAttribute("activeTeam", active);
-		model.addAttribute("inactiveTeam", inactive);
-
-		model.addAttribute("projects", projects);
-		model.addAttribute("totalProjects", projects.size());
-		model.addAttribute("activeProjects", activeP);
+		model.addAttribute("projects",          projects);
+		model.addAttribute("totalProjects",     projects.size());
+		model.addAttribute("activeProjects",    activeP);
 		model.addAttribute("completedProjects", completedP);
-		model.addAttribute("projectCount", projects.size());
+		model.addAttribute("projectCount",      projects.size());
 
-		model.addAttribute("tasks", tasks);
-		model.addAttribute("totalTasks", tasks.size());
-		model.addAttribute("doneTasks", done);
-		model.addAttribute("pendingTaskCount", pending);
-		model.addAttribute("taskCount", tasks.size());
-
-		model.addAttribute("overdueTasks", pending);
-
+		model.addAttribute("tasks",             tasks);
+		model.addAttribute("totalTasks",        tasks.size());
+		model.addAttribute("doneTasks",         done);
+		model.addAttribute("pendingTaskCount",  pending);
+		model.addAttribute("taskCount",         tasks.size());
+		model.addAttribute("overdueTasks",      pending);
 		model.addAttribute("notificationCount", 0);
-
-		model.addAttribute("pendingTaskList", Collections.emptyList());
+		model.addAttribute("pendingTaskList",   Collections.emptyList());
 	}
 
 	// =========================

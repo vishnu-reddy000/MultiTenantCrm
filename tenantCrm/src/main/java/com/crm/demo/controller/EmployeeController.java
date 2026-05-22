@@ -1,8 +1,10 @@
 package com.crm.demo.controller;
 
 import com.crm.demo.model.Attendance;
+import com.crm.demo.model.Team;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.AttendanceRepository;
+import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ public class EmployeeController {
 
     @Autowired private UserRepository        userRepository;
     @Autowired private AttendanceRepository  attendanceRepository;
+    @Autowired private TeamRepository        teamRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
 
     // ── helpers ───────────────────────────────────────────────────────────
@@ -72,6 +75,31 @@ public class EmployeeController {
     public String dashboard(Model model) {
         injectUser(model);
         injectStats(model);
+
+        // ── Team info ─────────────────────────────────────────────────────
+        User emp = getCurrentEmployee();
+        if (emp != null) {
+            String tenant = getTenantSegment(emp);
+            List<Team> myTeams = teamRepository.findByMemberAndTenant(emp, tenant);
+            if (!myTeams.isEmpty()) {
+                Team team = myTeams.get(0);
+                model.addAttribute("myTeamName",    team.getName());
+                model.addAttribute("myTeamManager", team.getManager() != null ? team.getManager().getUsername() : "—");
+                model.addAttribute("myTeamMembers", team.getMembers());
+                model.addAttribute("myTeamSize",    team.getMembers().size());
+            } else {
+                model.addAttribute("myTeamName",    null);
+                model.addAttribute("myTeamManager", "—");
+                model.addAttribute("myTeamMembers", Collections.emptyList());
+                model.addAttribute("myTeamSize",    0);
+            }
+        } else {
+            model.addAttribute("myTeamName",    null);
+            model.addAttribute("myTeamManager", "—");
+            model.addAttribute("myTeamMembers", Collections.emptyList());
+            model.addAttribute("myTeamSize",    0);
+        }
+
         return "employee-dashboard";
     }
 
