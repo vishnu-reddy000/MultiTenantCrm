@@ -1,16 +1,54 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin — Edit Admin</title>
     <link rel="stylesheet" th:href="@{/superadmin.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ── Page-specific responsive tweaks ── */
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr !important; }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .form-actions .btn,
+            .form-actions .btn-outline-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .toggle-field {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">SuperAdmin</span></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <span class="mobile-title">SuperAdmin</span>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="shield"></i></div><h2>SuperAdmin</h2></div>
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="shield"></i></div>
+        <h2>SuperAdmin</h2>
+    </div>
     <div class="profile-box">
         <div class="profile-avatar">S</div>
         <h3>Super Admin</h3>
@@ -22,10 +60,15 @@
         <li><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i data-lucide="user"></i></span> Profile</a></li>
     </ul>
     <div class="sidebar-divider"></div>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
 </div>
 
+<!-- MAIN WRAPPER -->
 <div class="main-wrapper">
+
+    <!-- TOPBAR -->
     <div class="topbar">
         <div>
             <h1>Edit Admin</h1>
@@ -39,74 +82,112 @@
             </div>
         </div>
         <div class="topbar-right">
-            <button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+            <button class="notif-btn" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
             <div class="user-badge">S</div>
         </div>
     </div>
 
+    <!-- PAGE CONTENT -->
     <div class="page-content">
-        <div class="toast success" th:if="${successMessage}"><i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span></div>
-        <div class="toast error"   th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span></div>
 
-        <div class="card" style="max-width:760px;">
-            <div class="card-header">
-                <div>
-                    <h2>Update Administrator</h2>
-                    <p>Modify the details for <strong th:text="${editAdmin.username}">Admin</strong></p>
+        <!-- Toast messages -->
+        <div class="toast success" th:if="${successMessage}">
+            <i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div class="toast error" th:if="${errorMessage}">
+            <i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="card edit-card">
+                <div class="card-header">
+                    <div>
+                        <h2>Update Administrator</h2>
+                        <p>Modify the details for <strong th:text="${editAdmin.username}">Admin</strong></p>
+                    </div>
+                    <a th:href="@{/superadmin/admins}" class="btn-icon-close" title="Cancel">
+                        <i data-lucide="x"></i>
+                    </a>
                 </div>
-                <a th:href="@{/superadmin/admins}" class="btn-icon-close" title="Cancel"><i data-lucide="x"></i></a>
-            </div>
-            <div class="card-body">
-                <form th:action="@{/superadmin/edit-admin/{id}(id=${editAdmin.id})}" method="post">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <div class="input-wrap"><input type="email" name="email" th:value="${editAdmin.email}" required></div>
-                        </div>
-                        <div class="form-group">
-                            <label>Username</label>
-                            <div class="input-wrap"><input type="text" name="username" th:value="${editAdmin.username}" required></div>
-                        </div>
-                        <div class="form-group" style="grid-column:1/-1;">
-                            <label>Status</label>
-                            <div class="toggle-field">
-                                <input type="hidden" name="status" id="editStatusHidden" th:value="${editAdmin.status}">
-                                <button type="button"
-                                    th:class="${editAdmin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
-                                    id="editStatusToggle" onclick="toggleEditStatus()">
-                                    <span class="toggle-knob"></span>
-                                </button>
-                                <span class="toggle-label" id="editStatusLabel"
-                                    th:text="${editAdmin.status == 'active'} ? 'Active' : 'Inactive'">Active</span>
+                <div class="card-body">
+                    <form th:action="@{/superadmin/edit-admin/{id}(id=${editAdmin.id})}" method="post">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <div class="input-wrap">
+                                    <input type="email" name="email" th:value="${editAdmin.email}" required autocomplete="email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                <div class="input-wrap">
+                                    <input type="text" name="username" th:value="${editAdmin.username}" required autocomplete="username">
+                                </div>
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Status</label>
+                                <div class="toggle-field">
+                                    <input type="hidden" name="status" id="editStatusHidden" th:value="${editAdmin.status}">
+                                    <button type="button"
+                                        th:class="${editAdmin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
+                                        id="editStatusToggle"
+                                        onclick="toggleEditStatus()"
+                                        aria-label="Toggle admin status">
+                                        <span class="toggle-knob"></span>
+                                    </button>
+                                    <span class="toggle-label" id="editStatusLabel"
+                                        th:text="${editAdmin.status == 'active'} ? 'Active' : 'Inactive'">Active</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-actions">
-                        <a th:href="@{/superadmin/admins}" class="btn btn-outline-cancel">Cancel</a>
-                        <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div class="form-actions">
+                            <a th:href="@{/superadmin/admins}" class="btn btn-outline-cancel">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="check"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+        </div><!-- end card -->
+
+    </div><!-- end page-content -->
+</div><!-- end main-wrapper -->
 
 <script>
-    const hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
 
-    function toggleEditStatus(){
-        var h=document.getElementById('editStatusHidden'),
-            b=document.getElementById('editStatusToggle'),
-            l=document.getElementById('editStatusLabel');
-        if(h.value==='active'){h.value='inactive';b.className='toggle-btn inactive';l.textContent='Inactive';}
-        else{h.value='active';b.className='toggle-btn active';l.textContent='Active';}
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click', closeSidebar);
+
+    // Close sidebar on nav link click (mobile)
+    sidebar && sidebar.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() { if (window.innerWidth < 900) closeSidebar(); });
+    });
+
+    // Status toggle
+    function toggleEditStatus() {
+        var hidden = document.getElementById('editStatusHidden');
+        var btn    = document.getElementById('editStatusToggle');
+        var label  = document.getElementById('editStatusLabel');
+        if (hidden.value === 'active') {
+            hidden.value   = 'inactive';
+            btn.className  = 'toggle-btn inactive';
+            label.textContent = 'Inactive';
+        } else {
+            hidden.value   = 'active';
+            btn.className  = 'toggle-btn active';
+            label.textContent = 'Active';
+        }
     }
 
-    document.querySelectorAll('.toast').forEach(t=>{setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .5s';},4000);});
+    // Auto-dismiss toasts
+    document.querySelectorAll('.toast').forEach(function(t) {
+        setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity .5s'; }, 4000);
+    });
+
     lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>

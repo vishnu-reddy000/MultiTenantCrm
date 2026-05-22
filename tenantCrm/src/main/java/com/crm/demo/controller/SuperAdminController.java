@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/superadmin")
@@ -41,6 +43,71 @@ public class SuperAdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         loadAdmins(model);
+
+        // ── Analytics data ────────────────────────────────────────────────────
+        List<User> allUsers = userRepository.findAll();
+        List<User> admins   = allUsers.stream()
+                .filter(u -> "ADMIN".equalsIgnoreCase(u.getRole()))
+                .collect(Collectors.toList());
+
+        long activeAdmins   = admins.stream().filter(User::isActive).count();
+        long inactiveAdmins = admins.size() - activeAdmins;
+
+        // Role distribution across ALL users
+        Map<String, Long> roleDistribution = allUsers.stream()
+                .collect(Collectors.groupingBy(
+                        u -> u.getRole() == null ? "UNKNOWN" : u.getRole().toUpperCase(),
+                        Collectors.counting()));
+
+        // Admin growth simulation: bucket admins into 6 groups by ID range
+        // (approximates "added over time" without a createdAt column)
+        int total = admins.size();
+        int[] growthData = new int[6];
+        if (total > 0) {
+            long minId = admins.stream().mapToLong(User::getId).min().orElse(1);
+            long maxId = admins.stream().mapToLong(User::getId).max().orElse(1);
+            long range = Math.max(maxId - minId, 1);
+            for (User a : admins) {
+                int bucket = (int) Math.min(5, (a.getId() - minId) * 6 / range);
+                growthData[bucket]++;
+            }
+        }
+
+        // Status breakdown per "simulated month" (last 6 months labels)
+        java.time.LocalDate now = java.time.LocalDate.now();
+        String[] monthLabels = new String[6];
+        for (int i = 5; i >= 0; i--) {
+            monthLabels[5 - i] = now.minusMonths(i)
+                    .getMonth().getDisplayName(java.time.format.TextStyle.SHORT,
+                            java.util.Locale.ENGLISH);
+        }
+
+        // Active vs Inactive per bucket (for stacked bar)
+        int[] activePerMonth   = new int[6];
+        int[] inactivePerMonth = new int[6];
+        if (total > 0) {
+            long minId = admins.stream().mapToLong(User::getId).min().orElse(1);
+            long maxId = admins.stream().mapToLong(User::getId).max().orElse(1);
+            long range = Math.max(maxId - minId, 1);
+            for (User a : admins) {
+                int bucket = (int) Math.min(5, (a.getId() - minId) * 6 / range);
+                if (a.isActive()) activePerMonth[bucket]++;
+                else              inactivePerMonth[bucket]++;
+            }
+        }
+
+        model.addAttribute("activeAdminsCount",   activeAdmins);
+        model.addAttribute("inactiveAdminsCount",  inactiveAdmins);
+        model.addAttribute("roleDistribution",     roleDistribution);
+        model.addAttribute("growthData",           growthData);
+        model.addAttribute("monthLabels",          monthLabels);
+        model.addAttribute("activePerMonth",       activePerMonth);
+        model.addAttribute("inactivePerMonth",     inactivePerMonth);
+        model.addAttribute("totalUsers",           allUsers.size());
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("superAdminUser", userRepository.findByUsername(currentUsername));
+
         return "superadmin-dashboard";
     }
 

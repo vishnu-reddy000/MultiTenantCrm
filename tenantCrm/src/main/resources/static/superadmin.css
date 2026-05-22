@@ -1569,6 +1569,20 @@ tbody tr:hover {
 	.search-box {
 		width: 180px;
 	}
+
+	.breadcrumb {
+		flex-wrap: wrap;
+	}
+
+	.topbar {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.topbar-right {
+		width: 100%;
+		justify-content: flex-end;
+	}
 }
 
 /* =========================
@@ -1609,6 +1623,13 @@ tbody tr:hover {
 
 	.form-actions {
 		justify-content: stretch;
+		flex-direction: column;
+	}
+
+	.form-actions .btn,
+	.form-actions .btn-outline-cancel {
+		width: 100%;
+		justify-content: center;
 	}
 
 	.btn {

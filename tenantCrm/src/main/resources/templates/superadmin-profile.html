@@ -5,6 +5,88 @@
     <title>Super Admin — Profile</title>
     <link rel="stylesheet" th:href="@{/superadmin.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ── Combined profile card ── */
+        .profile-combined-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .profile-identity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 36px 32px;
+            min-width: 220px;
+            flex-shrink: 0;
+        }
+
+        .profile-identity h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-top: 14px;
+            letter-spacing: -.01em;
+        }
+
+        .profile-identity > p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .profile-divider {
+            width: 1px;
+            align-self: stretch;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .profile-form-side {
+            flex: 1;
+            padding: 28px 28px 24px;
+            min-width: 0;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 860px) {
+            .profile-combined-card {
+                flex-direction: column;
+            }
+
+            .profile-identity {
+                width: 100%;
+                padding: 28px 24px 20px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .profile-divider { display: none; }
+
+            .profile-form-side {
+                padding: 22px 20px 20px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr !important; }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .form-actions .btn,
+            .form-actions .btn-clear {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">SuperAdmin</span></div>
@@ -27,7 +109,6 @@
     <div class="topbar">
         <div><h1>Profile</h1><p class="topbar-subtitle">Manage your account settings</p><div class="breadcrumb"><a th:href="@{/superadmin/dashboard}"><i data-lucide="home"></i> Home</a><span>&#8250;</span><span>Profile</span></div></div>
         <div class="topbar-right">
-            <div class="search-box"><span class="search-icon"><i data-lucide="search"></i></span><input type="text" placeholder="Search…"></div>
             <button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
             <div class="user-badge">S</div>
         </div>
@@ -35,34 +116,69 @@
     <div class="page-content">
         <div class="toast success" th:if="${successMessage}"><i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span></div>
         <div class="toast error"   th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span></div>
-        <div class="profile-page-grid">
-            <div class="card profile-info-card">
+
+        <div class="card profile-combined-card">
+            <!-- Left: avatar + identity -->
+            <div class="profile-identity">
                 <div class="profile-page-avatar">S</div>
                 <h2 th:text="${superAdminUser != null} ? ${superAdminUser.username} : 'Super Admin'">Super Admin</h2>
                 <p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com</p>
                 <span class="role-badge" style="margin-top:12px;">SUPER ADMIN</span>
-                <div style="margin-top:10px;"><span class="status-badge active" style="font-size:11px;">Online</span></div>
-                <div class="profile-stats">
-                    <div class="profile-stat"><h4 th:text="${totalAdmins}">0</h4><p>Admins Managed</p></div>
-                    <div class="profile-stat"><h4>120</h4><p>Total Views</p></div>
+                <div style="margin-top:10px;">
+                    <span class="status-badge active" style="font-size:11px;">
+                        <span class="online-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-right:4px;"></span>
+                        Online
+                    </span>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header"><div><h2>Edit Profile</h2><p>Update your account information</p></div></div>
-                <div class="card-body">
-                    <form th:action="@{/superadmin/update-profile}" method="post">
-                        <div class="form-grid">
-                            <div class="form-group"><label>Username</label><div class="input-wrap"><input type="text" name="username" th:value="${superAdminUser != null} ? ${superAdminUser.username} : ''" placeholder="Username" required></div></div>
-                            <div class="form-group"><label>Email Address</label><div class="input-wrap"><input type="email" name="email" th:value="${superAdminUser != null} ? ${superAdminUser.email} : ''" placeholder="Email" required></div></div>
-                            <div class="form-group"><label>New Password <span style="font-weight:400;color:var(--text-muted);">(leave blank to keep)</span></label><div class="input-wrap"><input type="password" name="password" placeholder="New password"></div></div>
-                            <div class="form-group"><label>Confirm Password</label><div class="input-wrap"><input type="password" name="confirmPassword" placeholder="Confirm new password"></div></div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="reset" class="btn btn-clear"><i data-lucide="refresh-cw"></i> Reset</button>
-                            <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save Changes</button>
-                        </div>
-                    </form>
+
+            <!-- Divider -->
+            <div class="profile-divider"></div>
+
+            <!-- Right: edit form -->
+            <div class="profile-form-side">
+                <div class="card-header" style="margin-bottom:18px;">
+                    <div>
+                        <h2>Edit Profile</h2>
+                        <p>Update your account information</p>
+                    </div>
                 </div>
+                <form th:action="@{/superadmin/update-profile}" method="post">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <div class="input-wrap">
+                                <input type="text" name="username"
+                                    th:value="${superAdminUser != null} ? ${superAdminUser.username} : ''"
+                                    placeholder="Username" required autocomplete="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="input-wrap">
+                                <input type="email" name="email"
+                                    th:value="${superAdminUser != null} ? ${superAdminUser.email} : ''"
+                                    placeholder="Email" required autocomplete="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password <span style="font-weight:400;color:var(--text-muted);">(leave blank to keep)</span></label>
+                            <div class="input-wrap">
+                                <input type="password" name="password" placeholder="New password" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <div class="input-wrap">
+                                <input type="password" name="confirmPassword" placeholder="Confirm new password" autocomplete="new-password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-clear"><i data-lucide="refresh-cw"></i> Reset</button>
+                        <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
