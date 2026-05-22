@@ -505,4 +505,18 @@ public class AdminController {
         ra.addFlashAttribute("successMessage", "Profile updated successfully.");
         return "redirect:/admin/settings";
     }
+    
+    //calender
+
+ @GetMapping("/calendar")
+ public String calendarPage(HttpServletRequest request, Model model) {
+
+     injectUser(request, model);
+
+     model.addAttribute("pageTitle", "CRM — Calendar");
+     model.addAttribute("pageHeading", "Calendar");
+     model.addAttribute("activePage", "calendar");
+
+     return "calendar";
+ }
 }

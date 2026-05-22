@@ -42,6 +42,9 @@
         <li th:classappend="${activePage == 'reports'} ? 'active'">
             <a th:href="@{/admin/reports}">&#128196; Reports</a>
         </li>
+         <li th:classappend="${activePage == 'calendar'} ? 'active'">
+            <a th:href="@{/admin/calendar}">&#9884; Calendar</a>
+        </li>
         <li th:classappend="${activePage == 'settings'} ? 'active'">
             <a th:href="@{/admin/settings}">&#9881; Settings</a>
         </li>

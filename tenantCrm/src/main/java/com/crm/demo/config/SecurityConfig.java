@@ -54,7 +54,14 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/**/*.ico"),
                     new AntPathRequestMatcher("/**/*.woff"),
                     new AntPathRequestMatcher("/**/*.woff2")
-                ).permitAll()
+                ).permitAll().requestMatchers(
+                        "/getHolidays",
+                        "/getHolidayByDate"
+                ).permitAll().requestMatchers(
+                        "/addHoliday",
+                        "/updateHoliday",
+                        "/deleteHoliday"
+                ).hasRole("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/superadmin/**")).hasRole("SUPER_ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/manager/**")).hasRole("MANAGER")
