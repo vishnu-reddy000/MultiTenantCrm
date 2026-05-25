@@ -84,7 +84,7 @@
     document.getElementById('closeProjForm').addEventListener('click',function(){card.classList.add('hidden');});
     document.getElementById('cancelProjForm').addEventListener('click',function(){card.classList.add('hidden');});
     var gs=document.getElementById('globalSearch');if(gs)gs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#projTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
-    document.querySelectorAll('.toast').forEach(t=>{setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .5s';},4000);});
+    document.querySelectorAll('.toast').forEach(function(t){requestAnimationFrame(function(){t.classList.add('toast-show');});setTimeout(function(){t.classList.remove('toast-show');t.classList.add('toast-hide');t.addEventListener('transitionend',function(){t.remove();},{once:true});},3500);});
     lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>

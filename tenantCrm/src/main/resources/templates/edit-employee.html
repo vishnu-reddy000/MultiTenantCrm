@@ -152,12 +152,14 @@
         l.addEventListener('click', function() { if (window.innerWidth < 900) closeSidebar(); });
     });
 
-    // Toast auto-hide
+    // Toast — animate in, then out, then remove from DOM
     document.querySelectorAll('.toast').forEach(function(t) {
+        requestAnimationFrame(function() { t.classList.add('toast-show'); });
         setTimeout(function() {
-            t.style.opacity = '0';
-            t.style.transition = 'opacity 0.5s';
-        }, 4000);
+            t.classList.remove('toast-show');
+            t.classList.add('toast-hide');
+            t.addEventListener('transitionend', function() { t.remove(); }, { once: true });
+        }, 3500);
     });
 
     lucide.createIcons();

@@ -101,9 +101,30 @@ tbody tr:hover { background:#f7fbfd; }
 .progress-bar { height:8px; background:#e5edf2; border-radius:30px; overflow:hidden; margin-top:10px; }
 .progress-fill { height:100%; background:#17455e; border-radius:30px; }
 
-.toast { padding:13px 16px; border-radius:12px; margin-bottom:16px; font-size:14px; font-weight:500; }
-.toast.success { background:#dff5ea; color:#1b7a46; }
-.toast.error { background:#fdecec; color:#d11a2a; }
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 260px;
+    max-width: 420px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+}
+.toast.toast-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.toast-hide { opacity: 0; transform: translateY(-16px); }
+.toast.success { background: #dff5ea; color: #1b7a46; border: 1.5px solid #6ee7b7; }
+.toast.error   { background: #fdecec; color: #be123c; border: 1.5px solid #fca5a5; }
 .empty-state { text-align:center; padding:40px 20px; color:#6b7280; }
 .empty-state h3 { margin-top:12px; font-size:17px; font-weight:600; }
 

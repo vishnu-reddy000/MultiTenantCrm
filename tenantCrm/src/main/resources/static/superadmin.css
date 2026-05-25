@@ -1010,37 +1010,38 @@ tbody tr:hover {
    TOAST
 ========================= */
 .toast {
-	padding: 13px 18px;
-	border-radius: 12px;
-	margin-bottom: 16px;
-	font-size: 13.5px;
-	font-weight: 500;
+	position: fixed;
+	top: 24px;
+	right: 24px;
+	z-index: 9999;
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	animation: toastIn .3s ease;
+	padding: 14px 20px;
+	border-radius: 14px;
+	font-size: 14px;
+	font-weight: 600;
+	min-width: 260px;
+	max-width: 420px;
+	box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+	opacity: 0;
+	transform: translateY(-16px);
+	transition: opacity .3s ease, transform .3s ease;
+	pointer-events: none;
 }
-
-@keyframes toastIn {
-	from {
-		opacity: 0;
-		transform: translateY(-8px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+.toast.toast-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.toast-hide { opacity: 0; transform: translateY(-16px); }
 
 .toast.success {
 	background: var(--green-bg);
 	color: var(--green-fg);
+	border: 1.5px solid #6ee7b7;
 }
 
 .toast.error {
 	background: var(--red-bg);
 	color: var(--red-fg);
+	border: 1.5px solid #fca5a5;
 }
 
 /* =========================

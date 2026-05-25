@@ -1,14 +1,15 @@
 package com.crm.demo.repository;
 
-import com.crm.demo.model.Attendance;
-import com.crm.demo.model.User;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import com.crm.demo.model.Attendance;
+import com.crm.demo.model.User;
 
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
@@ -20,6 +21,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     /** All records for a specific user */
     List<Attendance> findByUserOrderByDateDesc(User user);
+
+    /** All records for a specific user within a date range, newest first */
+    List<Attendance> findByUserAndDateBetweenOrderByDateDesc(User user, LocalDate from, LocalDate to);
 
     /** Count present days for a user */
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user = :user AND a.status = 'present'")
