@@ -1,5 +1,7 @@
 package com.crm.demo.controller;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import com.crm.demo.model.Attendance;
 import com.crm.demo.model.AttendanceDay;
 import com.crm.demo.model.Holiday;
@@ -155,10 +157,68 @@ public class ManagerController {
 	// =========================
 	@GetMapping("/team")
 	public String teamPage(Model model) {
-
 		injectStats(model);
-
 		return "manager-team";
+	}
+
+	/**
+	 * REST: GET /manager/api/member/{id}
+	 * Returns team member profile + last 30 days attendance as JSON for the modal.
+	 */
+	@GetMapping("/api/member/{id}")
+	@ResponseBody
+	public Map<String, Object> memberDetail(@PathVariable Long id) {
+		Map<String, Object> resp = new LinkedHashMap<>();
+
+		User manager = getCurrentManager();
+		if (manager == null) { resp.put("error", "Not authenticated."); return resp; }
+
+		// Verify the requested user is actually in this manager's team
+		Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
+		boolean inTeam = myTeam != null && myTeam.getMembers().stream().anyMatch(m -> m.getId().equals(id));
+		if (!inTeam) { resp.put("error", "Member not found in your team."); return resp; }
+
+		User user = userRepository.findById(id).orElse(null);
+		if (user == null) { resp.put("error", "User not found."); return resp; }
+
+		// Profile
+		resp.put("id",       user.getId());
+		resp.put("username", user.getUsername());
+		resp.put("email",    user.getEmail());
+		resp.put("role",     user.getRole());
+		resp.put("status",   user.getStatus());
+
+		// Last 30 days attendance
+		LocalDate today  = LocalDate.now();
+		LocalDate from   = today.minusDays(29);
+		String    tenant = getTenantSegment(manager);
+		Map<LocalDate, String> holidays = fetchHolidays(tenant, from, today);
+		List<Attendance> records = attendanceRepository.findByUserAndDateBetweenOrderByDateDesc(user, from, today);
+		List<AttendanceDay> days = buildDayList(records, from, today, holidays);
+
+		long present = days.stream().filter(d -> "present".equals(d.getStatus()) || "late".equals(d.getStatus())).count();
+		long absent  = days.stream().filter(d -> "absent".equals(d.getStatus())).count();
+		long halfDay = days.stream().filter(d -> "half-day".equals(d.getStatus())).count();
+		long holiday = days.stream().filter(d -> "holiday".equals(d.getStatus())).count();
+		resp.put("presentDays", present);
+		resp.put("absentDays",  absent);
+		resp.put("halfDays",    halfDay);
+		resp.put("holidays",    holiday);
+
+		List<Map<String, String>> rows = new ArrayList<>();
+		for (AttendanceDay d : days) {
+			Map<String, String> row = new LinkedHashMap<>();
+			row.put("date",      d.getDate().toString());
+			row.put("checkIn",   d.getCheckInDisplay());
+			row.put("checkOut",  d.getCheckOutDisplay());
+			row.put("worked",    d.getWorkedHours());
+			row.put("breakTime", d.getBreakDuration());
+			row.put("dayType",   d.isReal() && d.getRecord().getCheckOut() != null ? d.getRecord().getDayType() : "—");
+			row.put("status",    d.getStatus());
+			rows.add(row);
+		}
+		resp.put("attendance", rows);
+		return resp;
 	}
 
 	// =========================

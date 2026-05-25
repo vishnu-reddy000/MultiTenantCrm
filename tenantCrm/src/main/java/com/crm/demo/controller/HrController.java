@@ -109,12 +109,26 @@ public class HrController {
         return map;
     }
 
+    /** Returns true for roles that HR should manage (not ADMIN / SUPER_ADMIN). */
+    private boolean isNonAdminRole(String role) {
+        if (role == null) return false;
+        return !role.equalsIgnoreCase("ADMIN") && !role.equalsIgnoreCase("SUPER_ADMIN");
+    }
+
     private void injectStats(HttpServletRequest request, Model model) {
         String tenant = getTenantSegment(request);
+        String currentUsername = (String) request.getAttribute("loggedInUser");
+
+        // Include EMPLOYEE, MANAGER — exclude ADMIN, SUPER_ADMIN, and the logged-in HR themselves
         List<User> employees = tenant.isEmpty()
-                ? userRepository.findAll().stream().filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole())).toList()
+                ? userRepository.findAll().stream()
+                        .filter(u -> isNonAdminRole(u.getRole()))
+                        .filter(u -> !u.getUsername().equals(currentUsername))
+                        .toList()
                 : userRepository.findByTenantSegment(tenant).stream()
-                        .filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole())).toList();
+                        .filter(u -> isNonAdminRole(u.getRole()))
+                        .filter(u -> !u.getUsername().equals(currentUsername))
+                        .toList();
 
         long active   = employees.stream().filter(User::isActive).count();
         long inactive = employees.size() - active;
@@ -147,6 +161,69 @@ public class HrController {
         injectUser(request, model);
         injectStats(request, model);
         return "hr-employees";
+    }
+
+    /**
+     * REST: GET /hr/api/employee/{id}
+     * Returns employee profile + last 30 days attendance as JSON for the modal.
+     */
+    @GetMapping("/api/employee/{id}")
+    @ResponseBody
+    public Map<String, Object> employeeDetail(@PathVariable Long id, HttpServletRequest request) {
+        Map<String, Object> resp = new LinkedHashMap<>();
+        String tenant = getTenantSegment(request);
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null || !isNonAdminRole(user.getRole())) {
+            resp.put("error", "User not found.");
+            return resp;
+        }
+        // Prevent HR from viewing their own record via the modal
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (user.getUsername().equals(currentUsername)) {
+            resp.put("error", "User not found.");
+            return resp;
+        }
+
+        // Profile
+        resp.put("id",       user.getId());
+        resp.put("username", user.getUsername());
+        resp.put("email",    user.getEmail());
+        resp.put("role",     user.getRole());
+        resp.put("status",   user.getStatus());
+
+        // Last 30 days attendance
+        LocalDate today = LocalDate.now();
+        LocalDate from  = today.minusDays(29);
+        Map<LocalDate, String> holidays = fetchHolidays(tenant, from, today);
+        List<Attendance> records = attendanceRepository.findByUserAndDateBetweenOrderByDateDesc(user, from, today);
+        List<AttendanceDay> days = buildDayList(records, from, today, holidays);
+
+        // Stats
+        long present  = days.stream().filter(d -> "present".equals(d.getStatus()) || "late".equals(d.getStatus())).count();
+        long absent   = days.stream().filter(d -> "absent".equals(d.getStatus())).count();
+        long halfDay  = days.stream().filter(d -> "half-day".equals(d.getStatus())).count();
+        long holiday  = days.stream().filter(d -> "holiday".equals(d.getStatus())).count();
+        resp.put("presentDays", present);
+        resp.put("absentDays",  absent);
+        resp.put("halfDays",    halfDay);
+        resp.put("holidays",    holiday);
+
+        // Attendance rows (last 30 days, newest first)
+        List<Map<String, String>> rows = new ArrayList<>();
+        for (AttendanceDay d : days) {
+            Map<String, String> row = new LinkedHashMap<>();
+            row.put("date",      d.getDate().toString());
+            row.put("checkIn",   d.getCheckInDisplay());
+            row.put("checkOut",  d.getCheckOutDisplay());
+            row.put("worked",    d.getWorkedHours());
+            row.put("breakTime", d.getBreakDuration());
+            row.put("dayType",   d.isReal() && d.getRecord().getCheckOut() != null ? d.getRecord().getDayType() : "—");
+            row.put("status",    d.getStatus());
+            rows.add(row);
+        }
+        resp.put("attendance", rows);
+        return resp;
     }
 
     @GetMapping("/recruitment")

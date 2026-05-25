@@ -56,6 +56,22 @@ public class LoginController {
                         .body(Map.of("error", "Your account is inactive. Please contact your administrator."));
             }
 
+            // Block employees/managers/HR if their tenant's admin is inactive
+            String role = user.getRole();
+            if (role != null && !role.equalsIgnoreCase("SUPER_ADMIN") && !role.equalsIgnoreCase("ADMIN")) {
+                String tenantSegment = extractTenantSegment(user.getEmail());
+                if (tenantSegment != null && !tenantSegment.isBlank()) {
+                    boolean adminInactive = userRepository.findAll().stream()
+                            .filter(u -> "ADMIN".equalsIgnoreCase(u.getRole()))
+                            .filter(u -> tenantSegment.equals(extractTenantSegment(u.getEmail())))
+                            .anyMatch(u -> !u.isActive());
+                    if (adminInactive) {
+                        return ResponseEntity.status(403)
+                                .body(Map.of("error", "Access is currently disabled. Please contact your administrator."));
+                    }
+                }
+            }
+
             String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
             return ResponseEntity.ok(Map.of(
@@ -89,6 +105,14 @@ public class LoginController {
             case "EMPLOYEE"    -> "/employee/dashboard";
             default            -> "/login";
         };
+    }
+
+    /** Extract tenant segment from email: "emp.tcs@crm.com" → "tcs" */
+    private String extractTenantSegment(String email) {
+        if (email == null || !email.contains("@")) return null;
+        String local = email.substring(0, email.indexOf('@'));
+        int dot = local.lastIndexOf('.');
+        return dot >= 0 ? local.substring(dot + 1) : null;
     }
     
  
