@@ -1,197 +1,297 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin — Profile</title>
-    <link rel="stylesheet" th:href="@{/superadmin.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <style>
-        /* ── Combined profile card ── */
-        .profile-combined-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 0;
-            padding: 0;
-            overflow: hidden;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Super Admin — Profile</title>
+	<link rel="stylesheet" th:href="@{/superadmin.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		/* ── Combined profile card ── */
+		.profile-combined-card {
+			display: flex;
+			align-items: flex-start;
+			gap: 0;
+			padding: 0;
+			overflow: hidden;
+		}
 
-        .profile-identity {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 36px 32px;
-            min-width: 220px;
-            flex-shrink: 0;
-        }
+		.profile-identity {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+			padding: 36px 32px;
+			min-width: 220px;
+			flex-shrink: 0;
+		}
 
-        .profile-identity h2 {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-top: 14px;
-            letter-spacing: -.01em;
-        }
+		.profile-identity h2 {
+			font-size: 18px;
+			font-weight: 800;
+			color: var(--text-dark);
+			margin-top: 14px;
+			letter-spacing: -.01em;
+		}
 
-        .profile-identity > p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-            word-break: break-all;
-        }
+		.profile-identity>p {
+			font-size: 12px;
+			color: var(--text-muted);
+			margin-top: 4px;
+			word-break: break-all;
+		}
 
-        .profile-divider {
-            width: 1px;
-            align-self: stretch;
-            background: var(--border);
-            flex-shrink: 0;
-        }
+		.profile-divider {
+			width: 1px;
+			align-self: stretch;
+			background: var(--border);
+			flex-shrink: 0;
+		}
 
-        .profile-form-side {
-            flex: 1;
-            padding: 28px 28px 24px;
-            min-width: 0;
-        }
+		.profile-form-side {
+			flex: 1;
+			padding: 28px 28px 24px;
+			min-width: 0;
+		}
 
-        /* ── Responsive ── */
-        @media (max-width: 860px) {
-            .profile-combined-card {
-                flex-direction: column;
-            }
+		/* ── Responsive ── */
+		@media (max-width: 860px) {
+			.profile-combined-card {
+				flex-direction: column;
+			}
 
-            .profile-identity {
-                width: 100%;
-                padding: 28px 24px 20px;
-                border-bottom: 1px solid var(--border);
-            }
+			.profile-identity {
+				width: 100%;
+				padding: 28px 24px 20px;
+				border-bottom: 1px solid var(--border);
+			}
 
-            .profile-divider { display: none; }
+			.profile-divider {
+				display: none;
+			}
 
-            .profile-form-side {
-                padding: 22px 20px 20px;
-                width: 100%;
-            }
-        }
+			.profile-form-side {
+				padding: 22px 20px 20px;
+				width: 100%;
+			}
+		}
 
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr !important; }
+		@media (max-width: 600px) {
+			.form-grid {
+				grid-template-columns: 1fr !important;
+			}
 
-            .form-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .form-actions .btn,
-            .form-actions .btn-clear {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
+			.form-actions {
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.form-actions .btn,
+			.form-actions .btn-clear {
+				width: 100%;
+				justify-content: center;
+			}
+		}
+
+		/* ── Password toggle eye button ── */
+		.input-wrap {
+			position: relative;
+		}
+
+		.input-wrap .pwd-toggle {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #6b7280;
+			transition: color 0.2s;
+			line-height: 1;
+		}
+
+		.input-wrap .pwd-toggle:hover {
+			color: #1e3a5f;
+		}
+
+		.input-wrap .pwd-toggle svg {
+			width: 18px;
+			height: 18px;
+			pointer-events: none;
+		}
+
+		/* Prevent text from going under the eye icon */
+		.input-wrap input[type="password"],
+		.input-wrap input[type="text"] {
+			padding-right: 40px;
+		}
+	</style>
 </head>
+
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">SuperAdmin</span></div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="shield"></i></div><h2>SuperAdmin</h2></div>
-    <div class="profile-box">
-        <div class="profile-avatar">S</div><h3>Super Admin</h3>
-        <p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com</p>
-    </div>
-    <ul class="sidebar-menu">
-        <li><a th:href="@{/superadmin/dashboard}"><span class="menu-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a></li>
-        <li><a th:href="@{/superadmin/admins}"><span class="menu-icon"><i data-lucide="users"></i></span> Admins</a></li>
-        <li class="active"><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i data-lucide="user"></i></span> Profile</a></li>
-    </ul>
-    <div class="sidebar-divider"></div>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
-</div>
-<div class="main-wrapper">
-    <div class="topbar">
-        <div><h1>Profile</h1><p class="topbar-subtitle">Manage your account settings</p><div class="breadcrumb"><a th:href="@{/superadmin/dashboard}"><i data-lucide="home"></i> Home</a><span>&#8250;</span><span>Profile</span></div></div>
-        <div class="topbar-right">
-            <button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
-            <div class="user-badge">S</div>
-        </div>
-    </div>
-    <div class="page-content">
-        <div class="toast success" th:if="${successMessage}"><i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span></div>
-        <div class="toast error"   th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span></div>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span
+			class="mobile-title">SuperAdmin</span></div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="shield"></i></div>
+			<h2>SuperAdmin</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar">S</div>
+			<h3>Super Admin</h3>
+			<p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com
+			</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/superadmin/dashboard}"><span class="menu-icon"><i
+							data-lucide="layout-dashboard"></i></span> Dashboard</a></li>
+			<li><a th:href="@{/superadmin/admins}"><span class="menu-icon"><i data-lucide="users"></i></span> Admins</a>
+			</li>
+			<li class="active"><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i
+							data-lucide="user"></i></span> Profile</a></li>
+		</ul>
+		<div class="sidebar-divider"></div>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<div>
+				<h1>Profile</h1>
+				<p class="topbar-subtitle">Manage your account settings</p>
+				<div class="breadcrumb"><a th:href="@{/superadmin/dashboard}"><i data-lucide="home"></i>
+						Home</a><span>&#8250;</span><span>Profile</span></div>
+			</div>
+			<div class="topbar-right">
+				<button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+				<div class="user-badge">S</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="toast success" th:if="${successMessage}"><i data-lucide="check-circle"></i> <span
+					th:text="${successMessage}"></span></div>
+			<div class="toast error" th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span
+					th:text="${errorMessage}"></span></div>
 
-        <div class="card profile-combined-card">
-            <!-- Left: avatar + identity -->
-            <div class="profile-identity">
-                <div class="profile-page-avatar">S</div>
-                <h2 th:text="${superAdminUser != null} ? ${superAdminUser.username} : 'Super Admin'">Super Admin</h2>
-                <p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com</p>
-                <span class="role-badge" style="margin-top:12px;">SUPER ADMIN</span>
-                <div style="margin-top:10px;">
-                    <span class="status-badge active" style="font-size:11px;">
-                        <span class="online-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-right:4px;"></span>
-                        Online
-                    </span>
-                </div>
-            </div>
+			<div class="card profile-combined-card">
+				<!-- Left: avatar + identity -->
+				<div class="profile-identity">
+					<div class="profile-page-avatar">S</div>
+					<h2 th:text="${superAdminUser != null} ? ${superAdminUser.username} : 'Super Admin'">Super Admin
+					</h2>
+					<p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">
+						superadmin@crm.com</p>
+					<span class="role-badge" style="margin-top:12px;">SUPER ADMIN</span>
+					<div style="margin-top:10px;">
+						<span class="status-badge active" style="font-size:11px;">
+							<span class="online-dot"
+								style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-right:4px;"></span>
+							Online
+						</span>
+					</div>
+				</div>
 
-            <!-- Divider -->
-            <div class="profile-divider"></div>
+				<!-- Divider -->
+				<div class="profile-divider"></div>
 
-            <!-- Right: edit form -->
-            <div class="profile-form-side">
-                <div class="card-header" style="margin-bottom:18px;">
-                    <div>
-                        <h2>Edit Profile</h2>
-                        <p>Update your account information</p>
-                    </div>
-                </div>
-                <form th:action="@{/superadmin/update-profile}" method="post">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <div class="input-wrap">
-                                <input type="text" name="username"
-                                    th:value="${superAdminUser != null} ? ${superAdminUser.username} : ''"
-                                    placeholder="Username" required autocomplete="username">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <div class="input-wrap">
-                                <input type="email" name="email"
-                                    th:value="${superAdminUser != null} ? ${superAdminUser.email} : ''"
-                                    placeholder="Email" required autocomplete="email">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>New Password <span style="font-weight:400;color:var(--text-muted);">(leave blank to keep)</span></label>
-                            <div class="input-wrap">
-                                <input type="password" name="password" placeholder="New password" autocomplete="new-password">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Confirm Password</label>
-                            <div class="input-wrap">
-                                <input type="password" name="confirmPassword" placeholder="Confirm new password" autocomplete="new-password">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="reset" class="btn btn-clear"><i data-lucide="refresh-cw"></i> Reset</button>
-                        <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    const hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
-    document.querySelectorAll('.toast').forEach(function(t){requestAnimationFrame(function(){t.classList.add('toast-show');});setTimeout(function(){t.classList.remove('toast-show');t.classList.add('toast-hide');t.addEventListener('transitionend',function(){t.remove();},{once:true});},3500);});
-    lucide.createIcons();
-</script>
-<script th:src="@{/auth.js}"></script>
+				<!-- Right: edit form -->
+				<div class="profile-form-side">
+					<div class="card-header" style="margin-bottom:18px;">
+						<div>
+							<h2>Edit Profile</h2>
+							<p>Update your account information</p>
+						</div>
+					</div>
+					<form th:action="@{/superadmin/update-profile}" method="post">
+						<div class="form-grid">
+							<div class="form-group">
+								<label>Username</label>
+								<div class="input-wrap">
+									<input type="text" name="username"
+										th:value="${superAdminUser != null} ? ${superAdminUser.username} : ''"
+										placeholder="Username" required autocomplete="username">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Email Address</label>
+								<div class="input-wrap">
+									<input type="email" name="email"
+										th:value="${superAdminUser != null} ? ${superAdminUser.email} : ''"
+										placeholder="Email" required autocomplete="email">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>New Password <span style="font-weight:400;color:var(--text-muted);">(leave blank
+										to keep)</span></label>
+								<div class="input-wrap">
+									<input type="password" name="password" id="passwordField" placeholder="New password"
+										autocomplete="new-password">
+									<button type="button" class="pwd-toggle" id="togglePassword"
+										aria-label="Toggle password visibility">
+										<i data-lucide="eye" id="togglePasswordIcon"></i>
+									</button>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Confirm Password</label>
+								<div class="input-wrap">
+									<input type="password" name="confirmPassword" id="confirmPasswordField"
+										placeholder="Confirm new password" autocomplete="new-password">
+									<button type="button" class="pwd-toggle" id="toggleConfirmPassword"
+										aria-label="Toggle confirm password visibility">
+										<i data-lucide="eye" id="toggleConfirmPasswordIcon"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="form-actions">
+							<button type="reset" class="btn btn-clear"><i data-lucide="refresh-cw"></i> Reset</button>
+							<button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save
+								Changes</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		const hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		document.querySelectorAll('.toast').forEach(function (t) {requestAnimationFrame(function () {t.classList.add('toast-show');}); setTimeout(function () {t.classList.remove('toast-show'); t.classList.add('toast-hide'); t.addEventListener('transitionend', function () {t.remove();}, {once: true});}, 3500);});
+
+		lucide.createIcons();
+
+		// ── Password toggle logic ──
+		function setupPasswordToggle(inputId, toggleBtnId, iconId) {
+			const input = document.getElementById(inputId);
+			const btn = document.getElementById(toggleBtnId);
+			const iconEl = document.getElementById(iconId);
+
+			if (!input || !btn || !iconEl) return;
+
+			btn.addEventListener('click', function () {
+				const isHidden = input.type === 'password';
+				input.type = isHidden ? 'text' : 'password';
+				iconEl.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+				lucide.createIcons();
+			});
+		}
+
+		setupPasswordToggle('passwordField', 'togglePassword', 'togglePasswordIcon');
+		setupPasswordToggle('confirmPasswordField', 'toggleConfirmPassword', 'toggleConfirmPasswordIcon');
+	</script>
+	<script th:src="@{/auth.js}"></script>
 </body>
+
 </html>
