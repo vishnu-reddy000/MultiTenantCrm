@@ -133,86 +133,6 @@
 			<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
 			<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-			<!-- ADD EMPLOYEE FORM -->
-			<div class="card au-form-card" id="addUserCard"
-				th:class="${errorMessage != null} ? 'card au-form-card' : 'card au-form-card hidden'">
-				<div class="card-header">
-					<div>
-						<h2>Add New Employee</h2>
-						<p>Fill in the details below</p>
-					</div>
-
-				</div>
-				<form th:action="@{/admin/add-user}" method="post">
-					<div class="au-form-grid">
-
-						<!-- Email -->
-						<div class="form-group">
-							<label>Email Address</label>
-							<div class="input-wrap">
-								<input type="email" name="email" placeholder="user@example.com" required>
-							</div>
-						</div>
-
-						<!-- Username -->
-						<div class="form-group">
-							<label>Username</label>
-							<div class="input-wrap">
-								<input type="text" name="username" placeholder="Enter username" required>
-							</div>
-						</div>
-
-						<!-- Password -->
-						<div class="form-group">
-							<label>Password</label>
-							<div class="input-wrap">
-								<input type="password" name="password" id="passwordField" placeholder="Create password"
-									required>
-								<button type="button" class="eye-toggle"
-									onclick="togglePassword('passwordField', 'eyeIconPassword')" tabindex="-1">
-									<i data-lucide="eye" id="eyeIconPassword" style="width:18px;height:18px;"></i>
-								</button>
-							</div>
-						</div>
-
-						<!-- Confirm Password -->
-						<div class="form-group">
-							<label>Confirm Password</label>
-							<div class="input-wrap">
-								<input type="password" name="confirmPassword" id="confirmPasswordField"
-									placeholder="Confirm password" required>
-								<button type="button" class="eye-toggle"
-									onclick="togglePassword('confirmPasswordField', 'eyeIconConfirm')" tabindex="-1">
-									<i data-lucide="eye" id="eyeIconConfirm" style="width:18px;height:18px;"></i>
-								</button>
-							</div>
-						</div>
-
-						<!-- Role -->
-						<div class="form-group">
-							<label>Role</label>
-							<div class="input-wrap select-wrap">
-								<select name="role" class="select-input" required>
-									<option value="">Select Role</option>
-									<option value="HR">HR</option>
-									<option value="MANAGER">Manager</option>
-									<option value="EMPLOYEE">Employee</option>
-								</select>
-								<span class="select-arrow">
-									<i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
-								</span>
-							</div>
-						</div>
-
-					</div>
-					<div class="form-actions">
-						<button type="button" class="btn btn-clear" id="cancelAddForm">Cancel</button>
-						<button type="submit" class="btn btn-primary"><i data-lucide="user-plus"></i> Add
-							Employee</button>
-					</div>
-				</form>
-			</div>
-
 			<!-- EXISTING EMPLOYEES TABLE -->
 			<div class="card">
 				<div class="card-header">
@@ -227,10 +147,10 @@
 							<option value="active">Active</option>
 							<option value="inactive">Inactive</option>
 						</select>
-						<button type="button" class="btn btn-primary" id="openAddForm"
-							style="display:inline-flex;align-items:center;gap:6px;">
+						<a th:href="@{/admin/add-employee}" class="btn btn-primary"
+							style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;">
 							<i data-lucide="user-plus"></i> Add Employee
-						</button>
+						</a>
 					</div>
 				</div>
 				<div class="table-wrap">
@@ -330,42 +250,6 @@
 		sidebar.querySelectorAll('a').forEach(function (l) {
 			l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});
 		});
-
-		// Add User form toggle
-		var addCard = document.getElementById('addUserCard');
-		var openBtn = document.getElementById('openAddForm');
-		var closeBtn = document.getElementById('closeAddForm');
-		var cancelBtn = document.getElementById('cancelAddForm');
-
-		function showForm() {
-			addCard.classList.remove('hidden');
-			addCard.scrollIntoView({behavior: 'smooth', block: 'start'});
-		}
-		function hideForm() {
-			addCard.classList.add('hidden');
-		}
-
-		if (openBtn) openBtn.addEventListener('click', showForm);
-		if (closeBtn) closeBtn.addEventListener('click', hideForm);
-		if (cancelBtn) cancelBtn.addEventListener('click', hideForm);
-
-		if (addCard && addCard.getAttribute('data-open') === 'true') {
-			showForm();
-		}
-
-		// Password eye toggle
-		function togglePassword(fieldId, iconId) {
-			var field = document.getElementById(fieldId);
-			var icon = document.getElementById(iconId);
-			if (field.type === 'password') {
-				field.type = 'text';
-				icon.setAttribute('data-lucide', 'eye-off');
-			} else {
-				field.type = 'password';
-				icon.setAttribute('data-lucide', 'eye');
-			}
-			lucide.createIcons();
-		}
 
 		// Search + Status filter
 		function applyFilters() {

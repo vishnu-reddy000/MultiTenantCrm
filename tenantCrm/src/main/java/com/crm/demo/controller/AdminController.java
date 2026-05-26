@@ -422,6 +422,12 @@ public class AdminController {
         return "add-users";
     }
 
+    @GetMapping("/add-employee")
+    public String addEmployeePage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        return "admin-add-employee";
+    }
+
     @PostMapping("/add-user")
     public String addUser(@RequestParam String email,
                           @RequestParam String username,
@@ -432,7 +438,7 @@ public class AdminController {
                           RedirectAttributes ra) {
         if (!password.equals(confirmPassword)) {
             ra.addFlashAttribute("errorMessage", "Passwords do not match.");
-            return "redirect:/admin/add-user";
+            return "redirect:/admin/add-employee";
         }
 
         // Enforce tenant domain: new user's email must contain the admin's tenant segment
@@ -440,12 +446,12 @@ public class AdminController {
         if (segment != null && !email.contains("." + segment + "@")) {
             ra.addFlashAttribute("errorMessage",
                     "Email must belong to your tenant domain (e.g. user." + segment + "@crm.com).");
-            return "redirect:/admin/add-user";
+            return "redirect:/admin/add-employee";
         }
 
         if (userRepository.findByUsernameOrEmail(username, email) != null) {
             ra.addFlashAttribute("errorMessage", "Username or email already exists.");
-            return "redirect:/admin/add-user";
+            return "redirect:/admin/add-employee";
         }
         User user = new User();
         user.setUsername(username);

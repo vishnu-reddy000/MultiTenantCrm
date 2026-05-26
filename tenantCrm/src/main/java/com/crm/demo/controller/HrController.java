@@ -163,6 +163,142 @@ public class HrController {
         return "hr-employees";
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    //  ADD / TOGGLE / DELETE USERS (HR can manage employees & managers)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/add-user")
+    public String addUserPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        return "hr-add-user";
+    }
+
+    @PostMapping("/add-user")
+    public String addUser(@RequestParam String email,
+                          @RequestParam String username,
+                          @RequestParam String password,
+                          @RequestParam String confirmPassword,
+                          @RequestParam String role,
+                          HttpServletRequest request,
+                          RedirectAttributes ra) {
+        if (!password.equals(confirmPassword)) {
+            ra.addFlashAttribute("errorMessage", "Passwords do not match.");
+            return "redirect:/hr/add-user";
+        }
+
+        // Block creating ADMIN or SUPER_ADMIN accounts
+        if ("ADMIN".equalsIgnoreCase(role) || "SUPER_ADMIN".equalsIgnoreCase(role)) {
+            ra.addFlashAttribute("errorMessage", "You cannot create an account with that role.");
+            return "redirect:/hr/add-user";
+        }
+
+        // Enforce tenant domain: new user's email must contain the HR's tenant segment
+        String segment = getTenantSegment(request);
+        if (segment != null && !segment.isBlank() && !email.contains("." + segment + "@")) {
+            ra.addFlashAttribute("errorMessage",
+                    "Email must belong to your tenant domain (e.g. user." + segment + "@crm.com).");
+            return "redirect:/hr/add-user";
+        }
+
+        if (userRepository.findByUsernameOrEmail(username, email) != null) {
+            ra.addFlashAttribute("errorMessage", "Username or email already exists.");
+            return "redirect:/hr/add-user";
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRole(role);
+        user.setStatus("active");
+        userRepository.save(user);
+        ra.addFlashAttribute("successMessage", "User '" + username + "' added successfully.");
+        return "redirect:/hr/employees";
+    }
+
+    @PostMapping("/toggle-user/{id}")
+    public String toggleUser(@PathVariable Long id, RedirectAttributes ra) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null && isNonAdminRole(user.getRole())) {
+            String newStatus = "active".equalsIgnoreCase(user.getStatus()) ? "inactive" : "active";
+            user.setStatus(newStatus);
+            userRepository.save(user);
+            ra.addFlashAttribute("successMessage", user.getUsername() + " is now " + newStatus + ".");
+        }
+        return "redirect:/hr/employees";
+    }
+
+    @PostMapping("/delete-user/{id}")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes ra) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null && isNonAdminRole(user.getRole())) {
+            String name = user.getUsername();
+            userRepository.delete(user);
+            ra.addFlashAttribute("successMessage", "User '" + name + "' deleted.");
+        }
+        return "redirect:/hr/employees";
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  EDIT EMPLOYEE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @GetMapping("/edit-employee/{id}")
+    public String editEmployeePage(@PathVariable Long id, HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        User emp = userRepository.findById(id).orElse(null);
+        if (emp == null || !isNonAdminRole(emp.getRole())) {
+            return "redirect:/hr/employees";
+        }
+        model.addAttribute("employee", emp);
+        return "hr-edit-employee";
+    }
+
+    @PostMapping("/edit-employee/{id}")
+    public String updateEmployee(@PathVariable Long id,
+                                 @RequestParam String username,
+                                 @RequestParam String email,
+                                 @RequestParam String role,
+                                 @RequestParam(required = false) String password,
+                                 @RequestParam(required = false) String confirmPassword,
+                                 HttpServletRequest request,
+                                 RedirectAttributes ra) {
+        User emp = userRepository.findById(id).orElse(null);
+        if (emp == null || !isNonAdminRole(emp.getRole())) {
+            ra.addFlashAttribute("errorMessage", "User not found or cannot be edited.");
+            return "redirect:/hr/employees";
+        }
+
+        // Block promoting to ADMIN / SUPER_ADMIN
+        if ("ADMIN".equalsIgnoreCase(role) || "SUPER_ADMIN".equalsIgnoreCase(role)) {
+            ra.addFlashAttribute("errorMessage", "You cannot assign that role.");
+            return "redirect:/hr/edit-employee/" + id;
+        }
+
+        // Check duplicate (excluding self)
+        User existing = userRepository.findByUsernameOrEmail(username, email);
+        if (existing != null && !existing.getId().equals(emp.getId())) {
+            ra.addFlashAttribute("errorMessage", "Username or email already in use.");
+            return "redirect:/hr/edit-employee/" + id;
+        }
+
+        // Optional password change
+        if (password != null && !password.isBlank()) {
+            if (!password.equals(confirmPassword)) {
+                ra.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/hr/edit-employee/" + id;
+            }
+            emp.setPassword(passwordEncoder.encode(password));
+        }
+
+        emp.setUsername(username);
+        emp.setEmail(email);
+        emp.setRole(role);
+        userRepository.save(emp);
+        ra.addFlashAttribute("successMessage", "'" + username + "' updated successfully.");
+        return "redirect:/hr/employees";
+    }
+
     /**
      * REST: GET /hr/api/employee/{id}
      * Returns employee profile + last 30 days attendance as JSON for the modal.
