@@ -788,6 +788,7 @@
 
 			list.innerHTML = '';
 			holidays.forEach(function (h) {
+				var isPast = new Date(h.date + 'T00:00:00') < new Date(today.getFullYear(), today.getMonth(), today.getDate());
 				var item = document.createElement('div');
 				item.className = 'holiday-item';
 				item.innerHTML =
@@ -798,7 +799,7 @@
 					'</div>' +
 					'<div class="holiday-actions">' +
 					'<button class="icon-btn edit" title="Edit" data-id="' + h.id + '"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>' +
-					'<button class="icon-btn del"  title="Delete" data-id="' + h.id + '"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>' +
+					'<button class="icon-btn del" title="' + (isPast ? 'Cannot delete past holiday' : 'Delete') + '" data-id="' + h.id + '"' + (isPast ? ' style="opacity:0.4;cursor:not-allowed;"' : '') + '><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>' +
 					'</div>';
 				list.appendChild(item);
 			});
@@ -906,11 +907,12 @@
 				showToast('Cannot delete a past holiday.', 'error');
 				return;
 			}
-
 			pendingDeleteId = h.id;
 			document.getElementById('deleteHolidayName').textContent = h.name;
 			document.getElementById('deleteModal').classList.add('open');
-		} document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
+		}
+
+		document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
 			document.getElementById('deleteModal').classList.remove('open');
 			pendingDeleteId = null;
 		});
