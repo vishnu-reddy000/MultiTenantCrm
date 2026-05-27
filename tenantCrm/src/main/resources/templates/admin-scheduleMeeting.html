@@ -8,62 +8,131 @@
 	<link rel="stylesheet" th:href="@{/admin.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 	<style>
-		/* ── Side-by-side layout ── */
-		.meetings-layout {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 24px;
-			align-items: start;
+		/* ── Tab Toggle Buttons ── */
+		.meetings-tab-bar {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 24px;
+			background: white;
+			border-radius: 16px;
+			padding: 8px;
+			box-shadow: 0 2px 12px rgba(23, 69, 94, 0.08);
+			border: 1px solid #e8f2f8;
+			width: fit-content;
 		}
 
-		@media (max-width: 1200px) {
-			.meetings-layout {
-				grid-template-columns: 1fr 1.1fr;
+		.meetings-tab-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			height: 44px;
+			padding: 0 22px;
+			border-radius: 11px;
+			font-size: 13px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			border: none;
+			cursor: pointer;
+			transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+			background: transparent;
+			color: #6b7280;
+		}
+
+		.meetings-tab-btn i[data-lucide] {
+			width: 15px;
+			height: 15px;
+			flex-shrink: 0;
+		}
+
+		.meetings-tab-btn.active {
+			background: linear-gradient(135deg, #17455e 0%, #1e5a7a 100%);
+			color: white;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.28);
+		}
+
+		.meetings-tab-btn:not(.active):hover {
+			background: #f0f7fb;
+			color: #17455e;
+		}
+
+		.tab-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 5px;
+			border-radius: 20px;
+			font-size: 10px;
+			font-weight: 700;
+			background: rgba(255, 255, 255, 0.25);
+			color: white;
+			transition: all 0.22s;
+		}
+
+		.meetings-tab-btn:not(.active) .tab-badge {
+			background: #dcecf5;
+			color: #17455e;
+		}
+
+		/* ── Panel visibility ── */
+		.meetings-panel {
+			display: none;
+			animation: panelFadeIn 0.28s ease;
+		}
+
+		.meetings-panel.active {
+			display: block;
+		}
+
+		@keyframes panelFadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
 			}
 		}
 
-		@media (max-width: 1000px) {
-			.meetings-layout {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		/* ── Form card ── */
+		/* ── Form card — full width ── */
 		.form-card {
 			background: white;
 			border-radius: 18px;
 			box-shadow: 0 4px 20px rgba(23, 69, 94, 0.09);
 			overflow: hidden;
-			position: sticky;
-			top: 16px;
 			border: 1px solid #e8f2f8;
+			width: 100%;
 		}
 
 		.form-card-header {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 18px 20px 14px;
+			padding: 20px 28px 16px;
 			border-bottom: 1px solid #edf3f6;
 			background: linear-gradient(135deg, #f7fbfd 0%, #ffffff 100%);
 		}
 
 		.form-card-header h2 {
-			font-size: 16px;
+			font-size: 17px;
 			font-weight: 700;
 			color: #163647;
 		}
 
 		.form-card-header p {
-			font-size: 11px;
+			font-size: 12px;
 			color: #6b7280;
-			margin-top: 2px;
+			margin-top: 3px;
 		}
 
 		.form-card-icon {
-			width: 38px;
-			height: 38px;
-			border-radius: 11px;
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
 			background: #dcecf5;
 			color: #17455e;
 			display: flex;
@@ -73,21 +142,42 @@
 		}
 
 		.form-card-body {
-			padding: 16px 20px;
+			padding: 24px 28px;
+		}
+
+		/* Two-column form layout on wider screens */
+		.form-body-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0 32px;
+		}
+
+		.form-body-grid .fg-full {
+			grid-column: 1 / -1;
+		}
+
+		@media (max-width: 900px) {
+			.form-body-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.form-body-grid .fg-full {
+				grid-column: 1;
+			}
 		}
 
 		.form-card-footer {
 			display: flex;
 			justify-content: flex-end;
 			gap: 10px;
-			padding: 12px 20px 18px;
+			padding: 14px 28px 20px;
 			border-top: 1px solid #edf3f6;
 			background: #fafcfd;
 		}
 
 		/* ── Form fields ── */
 		.fg {
-			margin-bottom: 12px;
+			margin-bottom: 16px;
 		}
 
 		.fg:last-child {
@@ -99,7 +189,7 @@
 			font-size: 11px;
 			font-weight: 600;
 			color: #163647;
-			margin-bottom: 5px;
+			margin-bottom: 6px;
 			text-transform: uppercase;
 			letter-spacing: 0.4px;
 		}
@@ -112,10 +202,10 @@
 		.fg .iw select,
 		.fg .iw textarea {
 			width: 100%;
-			height: 40px;
+			height: 42px;
 			border: 1.5px solid #e5edf2;
 			border-radius: 10px;
-			padding: 0 13px;
+			padding: 0 14px;
 			font-size: 13px;
 			font-family: 'Poppins', sans-serif;
 			background: #f9fbfc;
@@ -127,7 +217,7 @@
 
 		.fg .iw textarea {
 			height: auto;
-			padding: 9px 13px;
+			padding: 10px 14px;
 			resize: vertical;
 		}
 
@@ -139,7 +229,6 @@
 			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.07);
 		}
 
-		/* Disabled / out-of-range date+time styling */
 		.fg .iw input:disabled {
 			background: #f0f4f7;
 			color: #9ca3af;
@@ -149,25 +238,31 @@
 		.fg-row {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			gap: 10px;
+			gap: 12px;
+		}
+
+		@media (max-width: 600px) {
+			.fg-row {
+				grid-template-columns: 1fr;
+			}
 		}
 
 		.field-err {
 			font-size: 11px;
 			color: #d11a2a;
-			margin-top: 3px;
+			margin-top: 4px;
 		}
 
-		/* ── Participant picker (compact) ── */
+		/* ── Participant picker ── */
 		.participant-grid {
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-			gap: 6px;
-			max-height: 160px;
+			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+			gap: 8px;
+			max-height: 220px;
 			overflow-y: auto;
 			border: 1.5px solid #e5edf2;
 			border-radius: 10px;
-			padding: 8px;
+			padding: 10px;
 			background: #f5f9fb;
 		}
 
@@ -175,7 +270,7 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			padding: 7px 10px;
+			padding: 8px 10px;
 			border-radius: 9px;
 			background: white;
 			border: 1.5px solid #e5edf2;
@@ -195,8 +290,8 @@
 		}
 
 		.p-avatar {
-			width: 26px;
-			height: 26px;
+			width: 28px;
+			height: 28px;
 			border-radius: 50%;
 			background: #17455e;
 			color: white;
@@ -228,9 +323,9 @@
 		}
 
 		.p-check {
-			width: 14px;
-			height: 14px;
-			border-radius: 3px;
+			width: 15px;
+			height: 15px;
+			border-radius: 4px;
 			border: 2px solid #d1dce3;
 			background: white;
 			flex-shrink: 0;
@@ -256,7 +351,7 @@
 			font-size: 11px;
 			color: #17455e;
 			font-weight: 600;
-			margin-top: 5px;
+			margin-top: 6px;
 		}
 
 		/* ── Checkbox row ── */
@@ -305,7 +400,7 @@
 			align-items: center;
 			gap: 7px;
 			height: 40px;
-			padding: 0 20px;
+			padding: 0 22px;
 			border-radius: 10px;
 			font-size: 12px;
 			font-weight: 600;
@@ -349,7 +444,7 @@
 			display: inline-flex;
 			align-items: center;
 			gap: 5px;
-			padding: 5px 12px;
+			padding: 5px 13px;
 			border-radius: 8px;
 			font-size: 11px;
 			font-weight: 600;
@@ -376,7 +471,7 @@
 			display: inline-flex;
 			align-items: center;
 			gap: 5px;
-			padding: 5px 12px;
+			padding: 5px 13px;
 			border-radius: 8px;
 			font-size: 11px;
 			font-weight: 600;
@@ -391,24 +486,70 @@
 			height: 12px;
 		}
 
-		/* ── Table tweaks for right panel ── */
+		/* ── Meetings Table Card ── */
+		.meetings-table-card {
+			background: white;
+			border-radius: 18px;
+			box-shadow: 0 4px 20px rgba(23, 69, 94, 0.09);
+			overflow: hidden;
+			border: 1px solid #e8f2f8;
+			width: 100%;
+		}
+
+		.meetings-table-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px 28px 16px;
+			border-bottom: 1px solid #edf3f6;
+			background: linear-gradient(135deg, #f7fbfd 0%, #ffffff 100%);
+		}
+
+		.meetings-table-header h2 {
+			font-size: 17px;
+			font-weight: 700;
+			color: #163647;
+		}
+
+		.meetings-table-header p {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 3px;
+		}
+
+		.meetings-table-icon {
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
+			background: #dff5ea;
+			color: #1b7a46;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		/* ── Table ── */
 		#meetingsTable {
 			width: 100%;
 			table-layout: auto;
+			border-collapse: collapse;
 		}
 
 		#meetingsTable thead th {
-			padding: 11px 10px;
+			padding: 12px 16px;
 			font-size: 10px;
 			letter-spacing: 0.5px;
 			text-transform: uppercase;
 			color: #7a94a0;
 			background: #f7fbfd;
 			white-space: nowrap;
+			text-align: left;
+			border-bottom: 1px solid #edf3f6;
 		}
 
 		#meetingsTable tbody td {
-			padding: 11px 10px;
+			padding: 13px 16px;
 			font-size: 12px;
 			vertical-align: middle;
 			border-bottom: 1px solid #f0f6fa;
@@ -423,7 +564,7 @@
 		}
 
 		.participants-cell {
-			max-width: 140px;
+			max-width: 260px;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
@@ -431,11 +572,11 @@
 			color: #6b7280;
 		}
 
-		/* ── Date/Time validation hint ── */
+		/* ── Date/Time hint ── */
 		.date-hint {
 			font-size: 11px;
 			color: #d11a2a;
-			margin-top: 3px;
+			margin-top: 4px;
 			display: none;
 		}
 
@@ -443,7 +584,7 @@
 			display: block;
 		}
 
-		/* ── Actions alignment ── */
+		/* ── Action buttons ── */
 		.action-btns {
 			display: flex;
 			align-items: center;
@@ -459,29 +600,18 @@
 			margin-bottom: 7px;
 		}
 
-		/* ── Participant search bar ── */
+		/* ── Participant search ── */
 		.participant-search-wrap {
 			position: relative;
-			margin-bottom: 7px;
-		}
-
-		.participant-search-wrap i[data-lucide] {
-			position: absolute;
-			left: 11px;
-			top: 50%;
-			transform: translateY(-50%);
-			width: 13px;
-			height: 13px;
-			color: #9ca3af;
-			pointer-events: none;
+			margin-bottom: 8px;
 		}
 
 		.participant-search-input {
 			width: 100%;
-			height: 34px;
+			height: 38px;
 			border: 1.5px solid #e5edf2;
 			border-radius: 9px;
-			padding: 0 12px 0 32px;
+			padding: 0 14px;
 			font-size: 12px;
 			font-family: 'Poppins', sans-serif;
 			background: #f9fbfc;
@@ -514,7 +644,7 @@
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
-			padding: 5px 12px;
+			padding: 6px 14px;
 			border-radius: 8px;
 			font-size: 11px;
 			font-weight: 600;
@@ -541,6 +671,25 @@
 		.select-all-btn i[data-lucide] {
 			width: 12px;
 			height: 12px;
+		}
+
+		/* ── Responsive tab bar ── */
+		@media (max-width: 600px) {
+			.meetings-tab-bar {
+				width: 100%;
+			}
+
+			.meetings-tab-btn {
+				flex: 1;
+				justify-content: center;
+				padding: 0 12px;
+			}
+		}
+
+		/* ── Divider between left/right form columns ── */
+		.form-col-divider {
+			border-left: 1px dashed #e5edf2;
+			margin: 0 4px;
 		}
 	</style>
 </head>
@@ -595,19 +744,32 @@
 			<div class="toast error" th:if="${errorMessage}"><i data-lucide="alert-triangle"></i> <span
 					th:text="${errorMessage}"></span></div>
 
-			<!-- ── SIDE-BY-SIDE LAYOUT ── -->
-			<div class="meetings-layout">
+			<!-- TAB TOGGLE BUTTONS -->
+			<div class="meetings-tab-bar">
+				<button class="meetings-tab-btn active" id="tabSchedule" onclick="switchTab('schedule')">
+					<i data-lucide="calendar-plus"></i>
+					<span th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New
+						Meeting</span>
+				</button>
+				<button class="meetings-tab-btn" id="tabList" onclick="switchTab('list')">
+					<i data-lucide="calendar-check"></i>
+					Scheduled Meetings
+					<span class="tab-badge" id="meetingCountBadge"
+						th:text="${upcomingMeetings != null} ? ${#lists.size(upcomingMeetings)} : '0'">0</span>
+				</button>
+			</div>
 
-				<!-- LEFT: Schedule / Edit Form -->
+			<!-- PANEL: Schedule / Edit Form — FULL WIDTH with 2-col layout -->
+			<div class="meetings-panel active" id="panelSchedule">
 				<div class="form-card">
 					<div class="form-card-header">
 						<div>
 							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule
 								New Meeting</h2>
-							<p>Fill in the details below</p>
+							<p>Fill in the details below to schedule a meeting</p>
 						</div>
-						<div class="form-card-icon"><i data-lucide="calendar-plus" style="width:18px;height:18px;"></i>
-						</div>
+<!--						<div class="form-card-icon"><i data-lucide="calendar-plus" style="width:19px;height:19px;"></i>-->
+<!--						</div>-->
 					</div>
 
 					<form th:action="${meetingForm.id != null}
@@ -615,131 +777,126 @@
                                   : @{/admin/schedule-meeting}" th:object="${meetingForm}" method="post"
 						id="meetingForm" onsubmit="return validateDateTimeOnSubmit()">
 						<div class="form-card-body">
+							<div class="form-body-grid">
 
-							<!-- Title -->
-							<div class="fg">
-								<label>Meeting Title <span>*</span></label>
-								<div class="iw"><input type="text" th:field="*{title}"
-										placeholder="e.g. Q2 Planning Session" required></div>
-								<span class="field-err" th:if="${#fields.hasErrors('title')}"
-									th:errors="*{title}"></span>
-							</div>
-
-							<!-- Date + Time -->
-							<div class="fg-row">
-								<div class="fg" style="margin-bottom:0;">
-									<label>Date <span>*</span></label>
-									<div class="iw">
-										<input type="date" th:field="*{meetingDate}" id="meetingDate" required
-											onchange="handleDateChange()">
+								<!-- LEFT COLUMN -->
+								<div>
+									<!-- Title -->
+									<div class="fg">
+										<label>Meeting Title <span>*</span></label>
+										<div class="iw"><input type="text" th:field="*{title}"
+												placeholder="e.g. Q2 Planning Session" required></div>
+										<span class="field-err" th:if="${#fields.hasErrors('title')}"
+											th:errors="*{title}"></span>
 									</div>
-									<span class="date-hint" id="dateHint">Please select today or a future date.</span>
-								</div>
-								<div class="fg" style="margin-bottom:0;">
-									<label>Time <span>*</span></label>
-									<div class="iw">
-										<input type="time" th:field="*{meetingTime}" id="meetingTime" required
-											onchange="handleTimeChange()">
-									</div>
-									<span class="date-hint" id="timeHint">Please select a future time.</span>
-								</div>
-							</div>
 
-							<!-- Duration + Type -->
-							<div class="fg-row" style="margin-top:14px;">
-								<div class="fg" style="margin-bottom:0;">
-									<label>Duration</label>
-									<div class="iw">
-										<select th:field="*{duration}">
-											<option value="15">15 min</option>
-											<option value="30">30 min</option>
-											<option value="45">45 min</option>
-											<option value="60">1 hour</option>
-											<option value="90">1.5 hours</option>
-											<option value="120">2 hours</option>
-										</select>
-									</div>
-								</div>
-<!--								<div class="fg" style="margin-bottom:0;">-->
-<!--									<label>Meeting Type</label>-->
-<!--									<div class="iw">-->
-<!--										<select th:field="*{meetingType}">-->
-<!--											<option value="ONLINE">Online</option>-->
-<!--											<option value="IN_PERSON">In Person</option>-->
-<!--											<option value="HYBRID">Hybrid</option>-->
-<!--										</select>-->
-<!--									</div>-->
-<!--								</div>-->
-							</div>
-
-							<!-- Location -->
-							<div class="fg" style="margin-top:14px;">
-								<label>Location / Meeting Link</label>
-								<div class="iw"><input type="text" th:field="*{location}"
-										placeholder="Room A or https://meet.google.com/…"></div>
-							</div>
-
-							<!-- Participants -->
-							<div class="fg">
-								<label>Participants <span>*</span></label>
-								<input type="hidden" th:field="*{participants}" id="participantsHidden">
-								<!-- Select All row -->
-								<div class="select-all-row">
-									<span style="font-size:11px;color:#6b7280;">Click to select individual
-										members</span>
-									<button type="button" class="select-all-btn" id="selectAllBtn"
-										onclick="toggleSelectAll()">
-										<i data-lucide="users"></i>
-										<span id="selectAllLabel">Select All</span>
-									</button>
-								</div>
-								<!-- Participant search -->
-								<div class="participant-search-wrap">
-<!--									<i data-lucide="search"></i>-->
-									<input type="text" class="participant-search-input" id="participantSearch"
-										placeholder="Search participants by name or role…"
-										oninput="filterParticipants(this.value)">
-								</div>
-								<div class="participant-grid" id="participantGrid">
-									<div th:each="u : ${tenantUsers}" class="participant-item"
-										th:data-username="${u.username}" th:data-role="${u.role}"
-										onclick="toggleParticipant(this)">
-										<div class="p-avatar"
-											th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U</div>
-										<div class="p-info">
-											<div class="p-name" th:text="${u.username}">User</div>
-											<div class="p-role" th:text="${u.role}">Role</div>
+									<!-- Date + Time -->
+									<div class="fg-row">
+										<div class="fg" style="margin-bottom:0;">
+											<label>Date <span>*</span></label>
+											<div class="iw">
+												<input type="date" th:field="*{meetingDate}" id="meetingDate" required
+													onchange="handleDateChange()">
+											</div>
+											<span class="date-hint" id="dateHint">Please select today or a future
+												date.</span>
 										</div>
-										<div class="p-check"></div>
+										<div class="fg" style="margin-bottom:0;">
+											<label>Time <span>*</span></label>
+											<div class="iw">
+												<input type="time" th:field="*{meetingTime}" id="meetingTime" required
+													onchange="handleTimeChange()">
+											</div>
+											<span class="date-hint" id="timeHint">Please select a future time.</span>
+										</div>
 									</div>
-									<div th:if="${tenantUsers == null or #lists.isEmpty(tenantUsers)}"
-										style="grid-column:1/-1;text-align:center;padding:16px;color:#6b7280;font-size:12px;">
-										No team members found.
+
+									<!-- Duration -->
+									<div class="fg" style="margin-top:16px;">
+										<label>Duration</label>
+										<div class="iw">
+											<select th:field="*{duration}">
+												<option value="15">15 min</option>
+												<option value="30">30 min</option>
+												<option value="45">45 min</option>
+												<option value="60">1 hour</option>
+												<option value="90">1.5 hours</option>
+												<option value="120">2 hours</option>
+											</select>
+										</div>
 									</div>
-									<div class="participant-no-results" id="participantNoResults">
-										No participants match your search.
+
+									<!-- Location -->
+									<div class="fg">
+										<label>Location / Meeting Link</label>
+										<div class="iw"><input type="text" th:field="*{location}"
+												placeholder="Room A or https://meet.google.com/..."></div>
+									</div>
+
+									<!-- Agenda -->
+									<div class="fg">
+										<label>Agenda</label>
+										<div class="iw"><textarea th:field="*{agenda}" rows="4"
+												placeholder="Topics to discuss..."></textarea></div>
+									</div>
+
+									<!-- Notification -->
+									<div class="fg" style="margin-bottom:0;">
+										<label class="checkbox-row">
+											<input type="checkbox" th:field="*{sendNotification}">
+											Send notification to participants
+										</label>
 									</div>
 								</div>
-								<div class="p-count" id="participantCount">0 participant(s) selected</div>
-								<span class="field-err" th:if="${#fields.hasErrors('participants')}"
-									th:errors="*{participants}"></span>
-							</div>
 
-							<!-- Agenda -->
-							<div class="fg">
-								<label>Agenda</label>
-								<div class="iw"><textarea th:field="*{agenda}" rows="3"
-										placeholder="Topics to discuss…"></textarea></div>
-							</div>
+								<!-- RIGHT COLUMN -->
+								<div>
+									<!-- Participants -->
+									<div class="fg" style="margin-bottom:0;">
+										<label>Participants <span>*</span></label>
+										<input type="hidden" th:field="*{participants}" id="participantsHidden">
+										<div class="select-all-row">
+											<span style="font-size:11px;color:#6b7280;">Click to select individual
+												members</span>
+											<button type="button" class="select-all-btn" id="selectAllBtn"
+												onclick="toggleSelectAll()">
+												<i data-lucide="users"></i>
+												<span id="selectAllLabel">Select All</span>
+											</button>
+										</div>
+										<div class="participant-search-wrap">
+											<input type="text" class="participant-search-input" id="participantSearch"
+												placeholder="Search participants by name or role..."
+												oninput="filterParticipants(this.value)">
+										</div>
+										<div class="participant-grid" id="participantGrid" style="max-height: 340px;">
+											<div th:each="u : ${tenantUsers}" class="participant-item"
+												th:data-username="${u.username}" th:data-role="${u.role}"
+												onclick="toggleParticipant(this)">
+												<div class="p-avatar"
+													th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U
+												</div>
+												<div class="p-info">
+													<div class="p-name" th:text="${u.username}">User</div>
+													<div class="p-role" th:text="${u.role}">Role</div>
+												</div>
+												<div class="p-check"></div>
+											</div>
+											<div th:if="${tenantUsers == null or #lists.isEmpty(tenantUsers)}"
+												style="grid-column:1/-1;text-align:center;padding:16px;color:#6b7280;font-size:12px;">
+												No team members found.
+											</div>
+											<div class="participant-no-results" id="participantNoResults">
+												No participants match your search.
+											</div>
+										</div>
+										<div class="p-count" id="participantCount">0 participant(s) selected</div>
+										<span class="field-err" th:if="${#fields.hasErrors('participants')}"
+											th:errors="*{participants}"></span>
+									</div>
+								</div>
 
-							<!-- Notification -->
-							<div class="fg" style="margin-bottom:0;">
-								<label class="checkbox-row">
-									<input type="checkbox" th:field="*{sendNotification}">
-									Send notification to participants
-								</label>
-							</div>
-
+							</div><!-- /form-body-grid -->
 						</div><!-- /form-card-body -->
 
 						<div class="form-card-footer">
@@ -752,23 +909,22 @@
 							</button>
 						</div>
 					</form>
-				</div><!-- /form-card -->
+				</div>
+			</div>
 
-				<!-- RIGHT: Scheduled Meetings -->
-				<div class="card"
-					style="padding:0;overflow:hidden;border-radius:18px;border:1px solid #e8f2f8;box-shadow:0 4px 20px rgba(23,69,94,0.09);">
-					<div class="card-header"
-						style="padding:18px 20px 14px;border-bottom:1px solid #edf3f6;margin-bottom:0;background:linear-gradient(135deg,#f7fbfd 0%,#ffffff 100%);">
+			<!-- PANEL: Scheduled Meetings Table — FULL WIDTH -->
+			<div class="meetings-panel" id="panelList">
+				<div class="meetings-table-card">
+					<div class="meetings-table-header">
 						<div>
-							<h2 style="font-size:16px;font-weight:700;color:#163647;">Scheduled Meetings</h2>
-							<p style="font-size:11px;color:#6b7280;margin-top:2px;"
+							<h2>Scheduled Meetings</h2>
+							<p
 								th:text="${upcomingMeetings != null} ? (${#lists.size(upcomingMeetings)} + ' meeting(s) scheduled') : '0 meeting(s) scheduled'">
 								0 meeting(s) scheduled</p>
 						</div>
-						<div
-							style="width:38px;height:38px;border-radius:11px;background:#dff5ea;color:#1b7a46;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-							<i data-lucide="calendar-check" style="width:17px;height:17px;"></i>
-						</div>
+<!--						<div class="meetings-table-icon">-->
+<!--							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>-->
+<!--						</div>-->
 					</div>
 					<div class="table-wrap">
 						<table id="meetingsTable">
@@ -777,7 +933,6 @@
 									<th>#</th>
 									<th>Title</th>
 									<th>Date &amp; Time</th>
-<!--									<th>Type</th>-->
 									<th>Participants</th>
 									<th>Join</th>
 									<th>Actions</th>
@@ -799,14 +954,6 @@
 											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">
 											Time</div>
 									</td>
-<!--									<td>-->
-<!--										<span class="status-badge badge-online"-->
-<!--											th:if="${m.meetingType == 'ONLINE'}">Online</span>-->
-<!--										<span class="status-badge badge-inperson"-->
-<!--											th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>-->
-<!--										<span class="status-badge badge-hybrid"-->
-<!--											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>-->
-<!--									</td>-->
 									<td>
 										<span class="participants-cell" th:text="${m.participants} ?: '—'"
 											th:title="${m.participants}">—</span>
@@ -840,25 +987,25 @@
 									</td>
 								</tr>
 								<tr th:if="${upcomingMeetings == null or #lists.isEmpty(upcomingMeetings)}">
-									<td colspan="7">
+									<td colspan="6">
 										<div class="empty-state">
 											<i data-lucide="calendar-clock"
 												style="width:48px;height:48px;opacity:.3;"></i>
 											<h3>No Meetings Scheduled</h3>
-											<p>Use the form on the left to schedule your first meeting.</p>
+											<p>Switch to "Schedule New Meeting" to create your first meeting.</p>
 										</div>
 									</td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-				</div><!-- /meetings table card -->
+				</div>
+			</div>
 
-			</div><!-- /meetings-layout -->
 		</div><!-- /page-content -->
 	</div><!-- /main-wrapper -->
 
-	<!-- ── Delete Confirmation Modal ── -->
+	<!-- Delete Confirmation Modal -->
 	<div class="modal-overlay hidden" id="deleteModalOverlay">
 		<div class="modal">
 			<div class="modal-icon"><i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i></div>
@@ -875,7 +1022,29 @@
 	</div>
 
 	<script>
-		// ── Sidebar ──
+		// Tab switching
+		function switchTab(tab) {
+			document.querySelectorAll('.meetings-panel').forEach(function (p) {p.classList.remove('active');});
+			document.getElementById('tabSchedule').classList.remove('active');
+			document.getElementById('tabList').classList.remove('active');
+			if (tab === 'schedule') {
+				document.getElementById('panelSchedule').classList.add('active');
+				document.getElementById('tabSchedule').classList.add('active');
+			} else {
+				document.getElementById('panelList').classList.add('active');
+				document.getElementById('tabList').classList.add('active');
+			}
+		}
+
+		// Auto-open schedule tab when editing
+		(function () {
+			var formHeader = document.querySelector('.form-card-header h2');
+			if (formHeader && formHeader.textContent.trim() === 'Edit Meeting') {
+				switchTab('schedule');
+			}
+		})();
+
+		// Sidebar
 		var hamburger = document.getElementById('hamburgerBtn');
 		var sidebar = document.getElementById('sidebar');
 		var overlay = document.getElementById('sidebarOverlay');
@@ -885,65 +1054,34 @@
 		if (overlay) overlay.addEventListener('click', closeSidebar);
 		if (sidebar) sidebar.querySelectorAll('a').forEach(function (l) {l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});});
 
-		// ── Past date/time prevention ──
+		// Date/time prevention
 		var dateInput = document.getElementById('meetingDate');
 		var timeInput = document.getElementById('meetingTime');
 		var dateHint = document.getElementById('dateHint');
 		var timeHint = document.getElementById('timeHint');
 
-		// Get today's date string in YYYY-MM-DD format
 		function getTodayStr() {
 			var now = new Date();
-			var y = now.getFullYear();
-			var m = String(now.getMonth() + 1).padStart(2, '0');
-			var d = String(now.getDate()).padStart(2, '0');
-			return y + '-' + m + '-' + d;
+			return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 		}
 
-		// Get current time string in HH:MM format
-		function getCurrentTimeStr() {
-			var now = new Date();
-			var h = String(now.getHours()).padStart(2, '0');
-			var mi = String(now.getMinutes()).padStart(2, '0');
-			return h + ':' + mi;
-		}
-
-		// Set the min attribute on date input to today
 		function initDateConstraints() {
 			if (!dateInput) return;
 			var todayStr = getTodayStr();
 			dateInput.setAttribute('min', todayStr);
-
-			// If current value is in the past, clear it
-			if (dateInput.value && dateInput.value < todayStr) {
-				dateInput.value = '';
-			}
-
-			// Apply time constraint based on current date value
+			if (dateInput.value && dateInput.value < todayStr) {dateInput.value = '';}
 			updateTimeConstraint();
 		}
 
-		// Update time min based on selected date
 		function updateTimeConstraint() {
 			if (!timeInput || !dateInput) return;
 			var todayStr = getTodayStr();
-			var selectedDate = dateInput.value;
-
-			if (selectedDate === todayStr) {
-				// Today selected: restrict time to current time + 1 min buffer
-				var now = new Date();
-				now.setMinutes(now.getMinutes() + 1);
-				var h = String(now.getHours()).padStart(2, '0');
-				var mi = String(now.getMinutes()).padStart(2, '0');
-				timeInput.setAttribute('min', h + ':' + mi);
-
-				// If existing time is now in the past, clear it
-				if (timeInput.value && timeInput.value < (h + ':' + mi)) {
-					timeInput.value = '';
-					timeHint.classList.add('visible');
-				}
+			if (dateInput.value === todayStr) {
+				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
+				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+				timeInput.setAttribute('min', minTime);
+				if (timeInput.value && timeInput.value < minTime) {timeInput.value = ''; timeHint.classList.add('visible');}
 			} else {
-				// Future date: remove time restriction
 				timeInput.removeAttribute('min');
 				timeHint.classList.remove('visible');
 			}
@@ -952,78 +1090,38 @@
 		function handleDateChange() {
 			if (!dateInput) return;
 			var todayStr = getTodayStr();
-			var selectedDate = dateInput.value;
-
-			if (selectedDate && selectedDate < todayStr) {
-				// Past date selected — clear and show hint
-				dateInput.value = '';
-				dateHint.classList.add('visible');
-			} else {
-				dateHint.classList.remove('visible');
-			}
+			if (dateInput.value && dateInput.value < todayStr) {dateInput.value = ''; dateHint.classList.add('visible');}
+			else {dateHint.classList.remove('visible');}
 			updateTimeConstraint();
 		}
 
 		function handleTimeChange() {
 			if (!timeInput || !dateInput) return;
-			var todayStr = getTodayStr();
-			var selectedDate = dateInput.value;
-			var selectedTime = timeInput.value;
-
-			if (selectedDate === todayStr || !selectedDate) {
-				var now = new Date();
-				now.setMinutes(now.getMinutes() + 1);
-				var h = String(now.getHours()).padStart(2, '0');
-				var mi = String(now.getMinutes()).padStart(2, '0');
-				var minTime = h + ':' + mi;
-
-				if (selectedTime && selectedTime < minTime) {
-					timeInput.value = '';
-					timeHint.classList.add('visible');
-					return;
-				}
+			if (dateInput.value === getTodayStr() || !dateInput.value) {
+				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
+				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+				if (timeInput.value && timeInput.value < minTime) {timeInput.value = ''; timeHint.classList.add('visible'); return;}
 			}
 			timeHint.classList.remove('visible');
 		}
 
-		// Validate before form submission
 		function validateDateTimeOnSubmit() {
 			var todayStr = getTodayStr();
 			var selectedDate = dateInput ? dateInput.value : '';
 			var selectedTime = timeInput ? timeInput.value : '';
-
-			if (!selectedDate) {
-				if (dateHint) dateHint.classList.add('visible');
-				if (dateInput) dateInput.focus();
-				return false;
-			}
-
-			if (selectedDate < todayStr) {
-				if (dateHint) dateHint.classList.add('visible');
-				if (dateInput) {dateInput.value = ''; dateInput.focus();}
-				return false;
-			}
-
+			if (!selectedDate) {if (dateHint) dateHint.classList.add('visible'); if (dateInput) dateInput.focus(); return false;}
+			if (selectedDate < todayStr) {if (dateHint) dateHint.classList.add('visible'); if (dateInput) {dateInput.value = ''; dateInput.focus();} return false;}
 			if (selectedDate === todayStr && selectedTime) {
-				var now = new Date();
-				now.setMinutes(now.getMinutes() + 1);
-				var h = String(now.getHours()).padStart(2, '0');
-				var mi = String(now.getMinutes()).padStart(2, '0');
-				var minTime = h + ':' + mi;
-				if (selectedTime < minTime) {
-					if (timeHint) timeHint.classList.add('visible');
-					if (timeInput) {timeInput.value = ''; timeInput.focus();}
-					return false;
-				}
+				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
+				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+				if (selectedTime < minTime) {if (timeHint) timeHint.classList.add('visible'); if (timeInput) {timeInput.value = ''; timeInput.focus();} return false;}
 			}
-
 			return true;
 		}
 
-		// Initialise on page load
 		initDateConstraints();
 
-		// ── Participant picker ──
+		// Participant picker
 		var hiddenInput = document.getElementById('participantsHidden');
 		var countLabel = document.getElementById('participantCount');
 
@@ -1041,17 +1139,10 @@
 		function toggleSelectAll() {
 			var allItems = document.querySelectorAll('.participant-item');
 			var allSelected = document.querySelectorAll('.participant-item.selected').length === allItems.length;
-			allItems.forEach(function (item) {
-				if (allSelected) {
-					item.classList.remove('selected');
-				} else {
-					item.classList.add('selected');
-				}
-			});
+			allItems.forEach(function (item) {allSelected ? item.classList.remove('selected') : item.classList.add('selected');});
 			updateCount();
 		}
 
-		// ── Participant search filter ──
 		function filterParticipants(query) {
 			var q = query.toLowerCase().trim();
 			var items = document.querySelectorAll('.participant-item');
@@ -1072,24 +1163,17 @@
 			document.querySelectorAll('.participant-item.selected').forEach(function (el) {names.push(el.getAttribute('data-username'));});
 			if (hiddenInput) hiddenInput.value = names.join(', ');
 			if (countLabel) countLabel.textContent = names.length + ' participant(s) selected';
-
-			// Sync Select All button state
 			var allItems = document.querySelectorAll('.participant-item');
 			var selectAllBtn = document.getElementById('selectAllBtn');
 			var selectAllLabel = document.getElementById('selectAllLabel');
 			if (selectAllBtn && selectAllLabel && allItems.length > 0) {
 				var allSelected = names.length === allItems.length;
-				if (allSelected) {
-					selectAllBtn.classList.add('all-selected');
-					selectAllLabel.textContent = 'Deselect All';
-				} else {
-					selectAllBtn.classList.remove('all-selected');
-					selectAllLabel.textContent = 'Select All';
-				}
+				if (allSelected) {selectAllBtn.classList.add('all-selected'); selectAllLabel.textContent = 'Deselect All';}
+				else {selectAllBtn.classList.remove('all-selected'); selectAllLabel.textContent = 'Select All';}
 			}
 		}
 
-		// ── Search ──
+		// Search
 		var ms = document.getElementById('meetingSearch');
 		if (ms) ms.addEventListener('input', function () {
 			var q = this.value.toLowerCase();
@@ -1098,7 +1182,7 @@
 			});
 		});
 
-		// ── Delete modal ──
+		// Delete modal
 		function openDeleteModal(btn) {
 			document.getElementById('deleteMeetingTitle').textContent = btn.getAttribute('data-title');
 			document.getElementById('deleteMeetingForm').action = '/admin/schedule-meeting/delete/' + btn.getAttribute('data-id');
@@ -1113,7 +1197,7 @@
 		if (delOverlay) delOverlay.addEventListener('click', function (e) {if (e.target === delOverlay) closeDeleteModal();});
 		document.addEventListener('keydown', function (e) {if (e.key === 'Escape') closeDeleteModal();});
 
-		// ── Toast auto-dismiss ──
+		// Toast auto-dismiss
 		document.querySelectorAll('.toast').forEach(function (t) {
 			requestAnimationFrame(function () {requestAnimationFrame(function () {t.classList.add('toast-show');});});
 			setTimeout(function () {
