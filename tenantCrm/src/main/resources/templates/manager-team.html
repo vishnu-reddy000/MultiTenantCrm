@@ -1,356 +1,637 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager — My Team</title>
-    <link rel="stylesheet" th:href="@{/manager.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <style>
-        .team-header-card { background:white; border-radius:20px; padding:22px 26px; box-shadow:0 4px 16px rgba(0,0,0,0.07); margin-bottom:20px; display:flex; align-items:center; gap:18px; }
-        .team-icon-box { width:52px; height:52px; border-radius:16px; background:#dcecf5; color:#17455e; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .team-header-info h2 { font-size:20px; font-weight:700; color:#163647; margin:0 0 4px; }
-        .team-header-info p  { font-size:13px; color:#6b7280; margin:0; }
-        .no-team-card { background:white; border-radius:20px; padding:48px; text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.07); }
-        .no-team-card i { opacity:.25; margin-bottom:12px; }
-        .no-team-card h3 { color:#6b7280; font-size:16px; margin:0 0 6px; }
-        .no-team-card p  { color:#9ab3bd; font-size:13px; margin:0; }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager — My Team</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		.team-header-card {
+			background: white;
+			border-radius: 20px;
+			padding: 22px 26px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 18px;
+		}
 
-        /* Clickable rows */
-        #teamTable tbody tr { cursor:pointer; transition:background .15s; }
-        #teamTable tbody tr:hover { background:#f0f7fb; }
+		.team-icon-box {
+			width: 52px;
+			height: 52px;
+			border-radius: 16px;
+			background: #dcecf5;
+			color: #17455e;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
 
-        /* ── Employee Detail Modal ── */
-        .emp-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(3px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .emp-modal-overlay.open { display: flex; }
-        .emp-modal {
-            background: white;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 860px;
-            max-height: 88vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            overflow: hidden;
-            animation: modalIn .25s ease;
-        }
-        @keyframes modalIn {
-            from { opacity:0; transform:translateY(20px) scale(.97); }
-            to   { opacity:1; transform:translateY(0)    scale(1);   }
-        }
-        .emp-modal-header {
-            display: flex; align-items: center; gap: 18px;
-            padding: 24px 28px 20px;
-            border-bottom: 1px solid #edf3f6;
-            flex-shrink: 0;
-        }
-        .emp-modal-avatar {
-            width:64px; height:64px; border-radius:50%;
-            background:#17455e; color:white;
-            font-size:26px; font-weight:700;
-            display:flex; align-items:center; justify-content:center;
-            flex-shrink:0;
-        }
-        .emp-modal-title { flex:1; }
-        .emp-modal-title h2 { font-size:20px; font-weight:700; color:#163647; margin:0 0 4px; }
-        .emp-modal-title p  { font-size:13px; color:#6b7280; margin:0; }
-        .emp-modal-close {
-            width:36px; height:36px; border-radius:50%;
-            border:none; background:#f3f8fb; color:#6b7280;
-            cursor:pointer; display:flex; align-items:center; justify-content:center;
-            transition:background .2s; flex-shrink:0;
-        }
-        .emp-modal-close:hover { background:#fdecec; color:#d11a2a; }
-        .emp-modal-body {
-            flex:1; overflow-y:auto; padding:24px 28px;
-            display:flex; flex-direction:column; gap:22px;
-        }
-        .emp-info-grid {
-            display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
-        }
-        .emp-info-tile { background:#f5f9fb; border-radius:14px; padding:14px 16px; }
-        .emp-info-tile .label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
-        .emp-info-tile .value { font-size:15px; font-weight:700; color:#163647; }
-        .emp-att-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-        .emp-att-stat { border-radius:14px; padding:14px 16px; text-align:center; }
-        .emp-att-stat .num { font-size:26px; font-weight:700; line-height:1; }
-        .emp-att-stat .lbl { font-size:11px; font-weight:600; margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
-        .emp-att-stat.green  { background:#dff5ea; color:#1b7a46; }
-        .emp-att-stat.red    { background:#fdecec; color:#d11a2a; }
-        .emp-att-stat.amber  { background:#fef3c7; color:#92400e; }
-        .emp-att-stat.purple { background:#fce7f3; color:#9d174d; }
-        .emp-att-table { width:100%; border-collapse:collapse; font-size:13px; }
-        .emp-att-table thead th { text-align:left; padding:10px 12px; font-size:11px; font-weight:600; color:#6b7280; border-bottom:1px solid #e5edf2; text-transform:uppercase; letter-spacing:.04em; }
-        .emp-att-table tbody td { padding:11px 12px; border-bottom:1px solid #edf3f6; }
-        .emp-att-table tbody tr:last-child td { border-bottom:none; }
-        .emp-att-table tbody tr:hover { background:#f7fbfd; }
-        .emp-att-table tbody tr.row-weekend { background:#f5f3ff; }
-        .emp-att-table tbody tr.row-absent  { background:#fff8f8; }
-        .emp-att-table tbody tr.row-holiday { background:#fdf2f8; }
-        .modal-loading { display:flex; align-items:center; justify-content:center; padding:48px; color:#6b7280; gap:12px; font-size:14px; }
-        .spinner { width:22px; height:22px; border:3px solid #e5edf2; border-top-color:#17455e; border-radius:50%; animation:spin .7s linear infinite; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        @media (max-width:600px) {
-            .emp-info-grid { grid-template-columns:1fr 1fr; }
-            .emp-att-stats { grid-template-columns:1fr 1fr; }
-            .emp-modal { border-radius:16px; }
-            .emp-modal-body { padding:16px; }
-        }
-    </style>
+		.team-header-info h2 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0 0 4px;
+		}
+
+		.team-header-info p {
+			font-size: 13px;
+			color: #6b7280;
+			margin: 0;
+		}
+
+		.no-team-card {
+			background: white;
+			border-radius: 20px;
+			padding: 48px;
+			text-align: center;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+		}
+
+		.no-team-card i {
+			opacity: .25;
+			margin-bottom: 12px;
+		}
+
+		.no-team-card h3 {
+			color: #6b7280;
+			font-size: 16px;
+			margin: 0 0 6px;
+		}
+
+		.no-team-card p {
+			color: #9ab3bd;
+			font-size: 13px;
+			margin: 0;
+		}
+
+		/* Clickable rows */
+		#teamTable tbody tr {
+			cursor: pointer;
+			transition: background .15s;
+		}
+
+		#teamTable tbody tr:hover {
+			background: #f0f7fb;
+		}
+
+		/* ── Employee Detail Modal ── */
+		.emp-modal-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.45);
+			backdrop-filter: blur(3px);
+			z-index: 2000;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.emp-modal-overlay.open {
+			display: flex;
+		}
+
+		.emp-modal {
+			background: white;
+			border-radius: 24px;
+			width: 90%;
+			max-width: 860px;
+			max-height: 88vh;
+			display: flex;
+			flex-direction: column;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+			overflow: hidden;
+			animation: modalIn .25s ease;
+		}
+
+		@keyframes modalIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px) scale(.97);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+			}
+		}
+
+		.emp-modal-header {
+			display: flex;
+			align-items: center;
+			gap: 18px;
+			padding: 24px 28px 20px;
+			border-bottom: 1px solid #edf3f6;
+			flex-shrink: 0;
+		}
+
+		.emp-modal-avatar {
+			width: 64px;
+			height: 64px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 26px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.emp-modal-title {
+			flex: 1;
+		}
+
+		.emp-modal-title h2 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0 0 4px;
+		}
+
+		.emp-modal-title p {
+			font-size: 13px;
+			color: #6b7280;
+			margin: 0;
+		}
+
+		.emp-modal-close {
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			border: none;
+			background: #f3f8fb;
+			color: #6b7280;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background .2s;
+			flex-shrink: 0;
+		}
+
+		.emp-modal-close:hover {
+			background: #fdecec;
+			color: #d11a2a;
+		}
+
+		.emp-modal-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 24px 28px;
+			display: flex;
+			flex-direction: column;
+			gap: 22px;
+		}
+
+		.emp-info-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 14px;
+		}
+
+		.emp-info-tile {
+			background: #f5f9fb;
+			border-radius: 14px;
+			padding: 14px 16px;
+		}
+
+		.emp-info-tile .label {
+			font-size: 11px;
+			color: #6b7280;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: .04em;
+			margin-bottom: 6px;
+		}
+
+		.emp-info-tile .value {
+			font-size: 15px;
+			font-weight: 700;
+			color: #163647;
+		}
+
+		.emp-att-stats {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 12px;
+		}
+
+		.emp-att-stat {
+			border-radius: 14px;
+			padding: 14px 16px;
+			text-align: center;
+		}
+
+		.emp-att-stat .num {
+			font-size: 26px;
+			font-weight: 700;
+			line-height: 1;
+		}
+
+		.emp-att-stat .lbl {
+			font-size: 11px;
+			font-weight: 600;
+			margin-top: 4px;
+			text-transform: uppercase;
+			letter-spacing: .04em;
+		}
+
+		.emp-att-stat.green {
+			background: #dff5ea;
+			color: #1b7a46;
+		}
+
+		.emp-att-stat.red {
+			background: #fdecec;
+			color: #d11a2a;
+		}
+
+		.emp-att-stat.amber {
+			background: #fef3c7;
+			color: #92400e;
+		}
+
+		.emp-att-stat.purple {
+			background: #fce7f3;
+			color: #9d174d;
+		}
+
+		.emp-att-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px;
+		}
+
+		.emp-att-table thead th {
+			text-align: left;
+			padding: 10px 12px;
+			font-size: 11px;
+			font-weight: 600;
+			color: #6b7280;
+			border-bottom: 1px solid #e5edf2;
+			text-transform: uppercase;
+			letter-spacing: .04em;
+		}
+
+		.emp-att-table tbody td {
+			padding: 11px 12px;
+			border-bottom: 1px solid #edf3f6;
+		}
+
+		.emp-att-table tbody tr:last-child td {
+			border-bottom: none;
+		}
+
+		.emp-att-table tbody tr:hover {
+			background: #f7fbfd;
+		}
+
+		.emp-att-table tbody tr.row-weekend {
+			background: #f5f3ff;
+		}
+
+		.emp-att-table tbody tr.row-absent {
+			background: #fff8f8;
+		}
+
+		.emp-att-table tbody tr.row-holiday {
+			background: #fdf2f8;
+		}
+
+		.modal-loading {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 48px;
+			color: #6b7280;
+			gap: 12px;
+			font-size: 14px;
+		}
+
+		.spinner {
+			width: 22px;
+			height: 22px;
+			border: 3px solid #e5edf2;
+			border-top-color: #17455e;
+			border-radius: 50%;
+			animation: spin .7s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		@media (max-width:600px) {
+			.emp-info-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.emp-att-stats {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.emp-modal {
+				border-radius: 16px;
+			}
+
+			.emp-modal-body {
+				padding: 16px;
+			}
+		}
+	</style>
 </head>
+
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span></div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="briefcase"></i></div><h2>Manager</h2></div>
-    <div class="profile-box">
-        <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
-        <h3 th:text="${managerName} ?: 'Manager'">Manager</h3><p>Manager</p>
-    </div>
-    <ul class="sidebar-menu">
-        <li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
-        <li class="active"><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
-        <li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
-        <li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
-        <li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
-        <li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
-        <li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
-        <li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
-        <li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
-    </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
-</div>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="briefcase"></i></div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li class="active"><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+			<li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
 
-<div class="main-wrapper">
-    <div class="topbar">
-        <div>
-            <h1>My Team</h1>
-            <p class="topbar-subtitle">Click any member to view details &amp; attendance</p>
-        </div>
-        <div class="topbar-right">
-            <div class="search-box"><input type="text" id="globalSearch" placeholder="Search team…"></div>
-            <div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
-        </div>
-    </div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<div>
+				<h1>My Team</h1>
+				<p class="topbar-subtitle">Click any member to view details &amp; attendance</p>
+			</div>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" id="globalSearch" placeholder="Search team…"></div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			</div>
+		</div>
 
-    <div class="page-content">
+		<div class="page-content">
 
-        <!-- No team assigned -->
-        <div th:if="${myTeam == null}" class="no-team-card">
-            <i data-lucide="users" style="width:52px;height:52px;display:block;margin:0 auto 12px;"></i>
-            <h3>No Team Assigned Yet</h3>
-            <p>Ask your HR to create a team and assign you as the manager.</p>
-        </div>
+			<!-- No team assigned -->
+			<div th:if="${myTeam == null}" class="no-team-card">
+				<i data-lucide="users" style="width:52px;height:52px;display:block;margin:0 auto 12px;"></i>
+				<h3>No Team Assigned Yet</h3>
+				<p>Ask your HR to create a team and assign you as the manager.</p>
+			</div>
 
-        <!-- Team assigned -->
-        <div th:unless="${myTeam == null}">
-            <!-- Team header -->
-            <div class="team-header-card">
-                <div class="team-icon-box"><i data-lucide="users-round" style="width:26px;height:26px;"></i></div>
-                <div class="team-header-info">
-                    <h2 th:text="${myTeamName}">Team Name</h2>
-                    <p th:text="${teamCount} + ' member(s) · You are the manager'">0 member(s)</p>
-                </div>
-            </div>
+			<!-- Team assigned -->
+			<div th:unless="${myTeam == null}">
+				<!-- Team header -->
+				<div class="team-header-card">
+					<div class="team-icon-box"><i data-lucide="users-round" style="width:26px;height:26px;"></i></div>
+					<div class="team-header-info">
+						<h2 th:text="${myTeamName}">Team Name</h2>
+						<p th:text="${teamCount} + ' member(s) · You are the manager'">0 member(s)</p>
+					</div>
+				</div>
 
-            <!-- Stats -->
-            <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
-                <div class="stat-card"><div class="stat-icon purple"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${teamCount} ?: '0'">0</h3><p>Total Members</p></div></div>
-                <div class="stat-card"><div class="stat-icon green"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${activeTeam} ?: '0'">0</h3><p>Active</p></div></div>
-                <div class="stat-card"><div class="stat-icon orange"><i data-lucide="user-x"></i></div><div class="stat-info"><h3 th:text="${inactiveTeam} ?: '0'">0</h3><p>Inactive</p></div></div>
-            </div>
+				<!-- Stats -->
+				<div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+					<div class="stat-card">
+						<div class="stat-icon purple"><i data-lucide="users"></i></div>
+						<div class="stat-info">
+							<h3 th:text="${teamCount} ?: '0'">0</h3>
+							<p>Total Members</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green"><i data-lucide="user-check"></i></div>
+						<div class="stat-info">
+							<h3 th:text="${activeTeam} ?: '0'">0</h3>
+							<p>Active</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange"><i data-lucide="user-x"></i></div>
+						<div class="stat-info">
+							<h3 th:text="${inactiveTeam} ?: '0'">0</h3>
+							<p>Inactive</p>
+						</div>
+					</div>
+				</div>
 
-            <!-- Members table -->
-            <div class="card">
-                <div class="card-header">
-                    <div><h2>Team Members</h2><p th:text="${teamCount} + ' member(s) in ' + ${myTeamName}">0 member(s)</p></div>
-                </div>
-                <div class="table-wrap">
-                    <table id="teamTable">
-                        <thead><tr><th>#</th><th>Member</th><th>Email</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr th:each="member, stat : ${teamMembers}"
-                                th:data-id="${member.id}"
-                                th:data-name="${member.username}"
-                                onclick="openMemberModal(this)">
-                                <td th:text="${stat.count}">1</td>
-                                <td>
-                                    <div class="member-cell">
-                                        <div class="member-avatar" th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">M</div>
-                                        <span style="font-weight:600;" th:text="${member.username}">Member</span>
-                                    </div>
-                                </td>
-                                <td style="color:#6b7280;font-size:13px;" th:text="${member.email}">email</td>
-                                <td>
-                                    <span class="status-badge active"   th:if="${member.status == 'active' or member.status == null}">Active</span>
-                                    <span class="status-badge inactive" th:unless="${member.status == 'active' or member.status == null}">Inactive</span>
-                                </td>
-                            </tr>
-                            <tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">
-                                <td colspan="4">
-                                    <div class="empty-state">
-                                        <i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
-                                        <h3>No Members Yet</h3>
-                                        <p>Ask HR to add employees to your team.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+				<!-- Members table -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>Team Members</h2>
+							<p th:text="${teamCount} + ' member(s) in ' + ${myTeamName}">0 member(s)</p>
+						</div>
+					</div>
+					<div class="table-wrap">
+						<table id="teamTable">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Member</th>
+									<th>Email</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="member, stat : ${teamMembers}" th:data-id="${member.id}"
+									th:data-name="${member.username}" onclick="openMemberModal(this)">
+									<td th:text="${stat.count}">1</td>
+									<td>
+										<div class="member-cell">
+											<div class="member-avatar"
+												th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">
+												M</div>
+											<span style="font-weight:600;" th:text="${member.username}">Member</span>
+										</div>
+									</td>
+									<td style="color:#6b7280;font-size:13px;" th:text="${member.email}">email</td>
+									<td>
+										<span class="status-badge active"
+											th:if="${member.status == 'active' or member.status == null}">Active</span>
+										<span class="status-badge inactive"
+											th:unless="${member.status == 'active' or member.status == null}">Inactive</span>
+									</td>
+								</tr>
+								<tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">
+									<td colspan="4">
+										<div class="empty-state">
+											<i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
+											<h3>No Members Yet</h3>
+											<p>Ask HR to add employees to your team.</p>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 
-    </div>
-</div>
+		</div>
+	</div>
 
-<!-- ── Member Detail Modal ── -->
-<div class="emp-modal-overlay" id="empModalOverlay" onclick="closeEmpModal(event)">
-    <div class="emp-modal" id="empModal">
-        <div class="emp-modal-header">
-            <div class="emp-modal-avatar" id="modalAvatar">?</div>
-            <div class="emp-modal-title">
-                <h2 id="modalName">Loading…</h2>
-                <p id="modalEmail"></p>
-            </div>
-            <button class="emp-modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
-        </div>
-        <div class="emp-modal-body" id="modalBody">
-            <div class="modal-loading"><div class="spinner"></div> Loading details…</div>
-        </div>
-    </div>
-</div>
+	<!-- ── Member Detail Modal ── -->
+	<div class="emp-modal-overlay" id="empModalOverlay" onclick="closeEmpModal(event)">
+		<div class="emp-modal" id="empModal">
+			<div class="emp-modal-header">
+				<div class="emp-modal-avatar" id="modalAvatar">?</div>
+				<div class="emp-modal-title">
+					<h2 id="modalName">Loading…</h2>
+					<p id="modalEmail"></p>
+				</div>
+				<button class="emp-modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+			</div>
+			<div class="emp-modal-body" id="modalBody">
+				<div class="modal-loading">
+					<div class="spinner"></div> Loading details…
+				</div>
+			</div>
+		</div>
+	</div>
 
-<script>
-    // ── Sidebar ──
-    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
+	<script>
+		// ── Sidebar ──
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
 
-    // ── Search ──
-    var gs=document.getElementById('globalSearch');
-    if(gs) gs.addEventListener('input',function(){
-        var q=this.value.toLowerCase();
-        document.querySelectorAll('#teamTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});
-    });
+		// ── Search ──
+		var gs = document.getElementById('globalSearch');
+		if (gs) gs.addEventListener('input', function () {
+			var q = this.value.toLowerCase();
+			document.querySelectorAll('#teamTable tbody tr').forEach(r => {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});
+		});
 
-    // ── Modal ──
-    var modalOverlay = document.getElementById('empModalOverlay');
+		// ── Modal ──
+		var modalOverlay = document.getElementById('empModalOverlay');
 
-    function openMemberModal(row) {
-        var id   = row.getAttribute('data-id');
-        var name = row.getAttribute('data-name');
-        document.getElementById('modalName').textContent   = name;
-        document.getElementById('modalEmail').textContent  = '';
-        document.getElementById('modalAvatar').textContent = name.charAt(0).toUpperCase();
-        document.getElementById('modalBody').innerHTML = '<div class="modal-loading"><div class="spinner"></div> Loading details…</div>';
-        modalOverlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
+		function openMemberModal(row) {
+			var id = row.getAttribute('data-id');
+			var name = row.getAttribute('data-name');
+			document.getElementById('modalName').textContent = name;
+			document.getElementById('modalEmail').textContent = '';
+			document.getElementById('modalAvatar').textContent = name.charAt(0).toUpperCase();
+			document.getElementById('modalBody').innerHTML = '<div class="modal-loading"><div class="spinner"></div> Loading details…</div>';
+			modalOverlay.classList.add('open');
+			document.body.style.overflow = 'hidden';
 
-        fetch('/manager/api/member/' + id)
-            .then(r => r.json())
-            .then(data => renderModal(data))
-            .catch(() => {
-                document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">Failed to load details.</p>';
-            });
-    }
+			fetch('/manager/api/member/' + id)
+				.then(r => r.json())
+				.then(data => renderModal(data))
+				.catch(() => {
+					document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">Failed to load details.</p>';
+				});
+		}
 
-    function closeModal() {
-        modalOverlay.classList.remove('open');
-        document.body.style.overflow = '';
-    }
+		function closeModal() {
+			modalOverlay.classList.remove('open');
+			document.body.style.overflow = '';
+		}
 
-    function closeEmpModal(e) {
-        if (e.target === modalOverlay) closeModal();
-    }
+		function closeEmpModal(e) {
+			if (e.target === modalOverlay) closeModal();
+		}
 
-    function statusBadge(s) {
-        var map = {
-            'present':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">Present</span>',
-            'late':     '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce9d8;color:#b45309;">Late</span>',
-            'absent':   '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fdecec;color:#d11a2a;">Absent</span>',
-            'half-day': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;">Half Day</span>',
-            'weekend':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e9e2ff;color:#6b46c1;">Weekend</span>',
-            'holiday':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce7f3;color:#9d174d;">Holiday</span>'
-        };
-        return map[s] || '<span style="color:#9ca3af;">—</span>';
-    }
+		function statusBadge(s) {
+			var map = {
+				'present': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">Present</span>',
+				'late': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce9d8;color:#b45309;">Late</span>',
+				'absent': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fdecec;color:#d11a2a;">Absent</span>',
+				'half-day': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;">Half Day</span>',
+				'weekend': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e9e2ff;color:#6b46c1;">Weekend</span>',
+				'holiday': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce7f3;color:#9d174d;">Holiday</span>'
+			};
+			return map[s] || '<span style="color:#9ca3af;">—</span>';
+		}
 
-    function renderModal(d) {
-        if (d.error) {
-            document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">' + d.error + '</p>';
-            return;
-        }
+		function renderModal(d) {
+			if (d.error) {
+				document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">' + d.error + '</p>';
+				return;
+			}
 
-        document.getElementById('modalName').textContent   = d.username;
-        document.getElementById('modalEmail').textContent  = d.email;
-        document.getElementById('modalAvatar').textContent = d.username.charAt(0).toUpperCase();
+			document.getElementById('modalName').textContent = d.username;
+			document.getElementById('modalEmail').textContent = d.email;
+			document.getElementById('modalAvatar').textContent = d.username.charAt(0).toUpperCase();
 
-        // Attendance rows
-        var rows = '';
-        (d.attendance || []).forEach(function(a) {
-            var rowClass = a.status === 'weekend' ? 'row-weekend' : (a.status === 'absent' ? 'row-absent' : (a.status === 'holiday' ? 'row-holiday' : ''));
-            var checkIn  = a.checkIn  !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">'  + a.checkIn  + '</span>' : '<span style="color:#9ca3af;">—</span>';
-            var checkOut = a.checkOut !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dcecf5;color:#17455e;">' + a.checkOut + '</span>' : '<span style="color:#9ca3af;">—</span>';
-            rows += '<tr class="' + rowClass + '">'
-                  + '<td style="font-weight:600;">' + a.date + '</td>'
-                  + '<td>' + checkIn + '</td>'
-                  + '<td>' + checkOut + '</td>'
-                  + '<td style="font-weight:600;color:#17455e;">' + a.worked + '</td>'
-                  + '<td style="color:#b45309;">' + a.breakTime + '</td>'
-                  + '<td>' + (a.dayType !== '—' ? '<span style="font-size:12px;font-weight:600;color:#17455e;">' + a.dayType + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>'
-                  + '<td>' + statusBadge(a.status) + '</td>'
-                  + '</tr>';
-        });
+			// Attendance rows
+			var rows = '';
+			(d.attendance || []).forEach(function (a) {
+				var rowClass = a.status === 'weekend' ? 'row-weekend' : (a.status === 'absent' ? 'row-absent' : (a.status === 'holiday' ? 'row-holiday' : ''));
+				var checkIn = a.checkIn !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">' + a.checkIn + '</span>' : '<span style="color:#9ca3af;">—</span>';
+				var checkOut = a.checkOut !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dcecf5;color:#17455e;">' + a.checkOut + '</span>' : '<span style="color:#9ca3af;">—</span>';
+				rows += '<tr class="' + rowClass + '">'
+					+ '<td style="font-weight:600;">' + a.date + '</td>'
+					+ '<td>' + checkIn + '</td>'
+					+ '<td>' + checkOut + '</td>'
+					+ '<td style="font-weight:600;color:#17455e;">' + a.worked + '</td>'
+					+ '<td style="color:#b45309;">' + a.breakTime + '</td>'
+					+ '<td>' + (a.dayType !== '—' ? '<span style="font-size:12px;font-weight:600;color:#17455e;">' + a.dayType + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>'
+					+ '<td>' + statusBadge(a.status) + '</td>'
+					+ '</tr>';
+			});
 
-        document.getElementById('modalBody').innerHTML =
-            // Profile tiles
-            '<div class="emp-info-grid">'
-          + '  <div class="emp-info-tile"><div class="label">Username</div><div class="value">' + d.username + '</div></div>'
-          + '  <div class="emp-info-tile"><div class="label">Email</div><div class="value" style="font-size:13px;word-break:break-all;">' + d.email + '</div></div>'
-          + '  <div class="emp-info-tile"><div class="label">Role</div><div class="value"><span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f3f8fb;color:#163647;">' + d.role + '</span></div></div>'
-          + '  <div class="emp-info-tile"><div class="label">Status</div><div class="value">'
-          + (d.status === 'active'
-              ? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
-              : '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fdecec;color:#d11a2a;">Inactive</span>')
-          + '  </div></div>'
-          + '</div>'
+			document.getElementById('modalBody').innerHTML =
+				// Profile tiles
+				'<div class="emp-info-grid">'
+				+ '  <div class="emp-info-tile"><div class="label">Username</div><div class="value">' + d.username + '</div></div>'
+				+ '  <div class="emp-info-tile"><div class="label">Email</div><div class="value" style="font-size:13px;word-break:break-all;">' + d.email + '</div></div>'
+				+ '  <div class="emp-info-tile"><div class="label">Role</div><div class="value"><span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f3f8fb;color:#163647;">' + d.role + '</span></div></div>'
+				+ '  <div class="emp-info-tile"><div class="label">Status</div><div class="value">'
+				+ (d.status === 'active'
+					? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
+					: '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fdecec;color:#d11a2a;">Inactive</span>')
+				+ '  </div></div>'
+				+ '</div>'
 
-            // Attendance stats
-          + '<div>'
-          + '  <h3 style="font-size:15px;font-weight:700;color:#163647;margin:0 0 12px;">Last 30 Days Attendance</h3>'
-          + '  <div class="emp-att-stats">'
-          + '    <div class="emp-att-stat green"><div class="num">'  + d.presentDays + '</div><div class="lbl">Present</div></div>'
-          + '    <div class="emp-att-stat red"><div class="num">'    + d.absentDays  + '</div><div class="lbl">Absent</div></div>'
-          + '    <div class="emp-att-stat amber"><div class="num">'  + d.halfDays    + '</div><div class="lbl">Half Days</div></div>'
-          + '    <div class="emp-att-stat purple"><div class="num">' + d.holidays    + '</div><div class="lbl">Holidays</div></div>'
-          + '  </div>'
-          + '</div>'
+				// Attendance stats
+				+ '<div>'
+				+ '  <h3 style="font-size:15px;font-weight:700;color:#163647;margin:0 0 12px;">Last 30 Days Attendance</h3>'
+				+ '  <div class="emp-att-stats">'
+				+ '    <div class="emp-att-stat green"><div class="num">' + d.presentDays + '</div><div class="lbl">Present</div></div>'
+				+ '    <div class="emp-att-stat red"><div class="num">' + d.absentDays + '</div><div class="lbl">Absent</div></div>'
+				+ '    <div class="emp-att-stat amber"><div class="num">' + d.halfDays + '</div><div class="lbl">Half Days</div></div>'
+				+ '    <div class="emp-att-stat purple"><div class="num">' + d.holidays + '</div><div class="lbl">Holidays</div></div>'
+				+ '  </div>'
+				+ '</div>'
 
-            // Attendance table
-          + '<div style="overflow-x:auto;">'
-          + '  <table class="emp-att-table">'
-          + '    <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Worked</th><th>Break</th><th>Day Type</th><th>Status</th></tr></thead>'
-          + '    <tbody>' + (rows || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No records found.</td></tr>') + '</tbody>'
-          + '  </table>'
-          + '</div>';
+				// Attendance table
+				+ '<div style="overflow-x:auto;">'
+				+ '  <table class="emp-att-table">'
+				+ '    <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Worked</th><th>Break</th><th>Day Type</th><th>Status</th></tr></thead>'
+				+ '    <tbody>' + (rows || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No records found.</td></tr>') + '</tbody>'
+				+ '  </table>'
+				+ '</div>';
 
-        lucide.createIcons();
-    }
+			lucide.createIcons();
+		}
 
-    lucide.createIcons();
-</script>
-<script th:src="@{/auth.js}"></script>
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
 </body>
+
 </html>

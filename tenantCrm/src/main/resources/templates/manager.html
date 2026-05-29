@@ -1,246 +1,252 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Dashboard — CRM</title>
-    <link rel="stylesheet" th:href="@{/manager.css}">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager Dashboard — CRM</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
 </head>
+
 <body>
 
-<!-- MOBILE TOPBAR -->
-<div class="mobile-topbar">
-    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-    <span class="mobile-title">&#128202; Manager</span>
-</div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<!-- MOBILE TOPBAR -->
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">&#128202; Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-        <div class="logo-icon">&#128202;</div>
-        <h2>Manager</h2>
-    </div>
-    <div class="profile-box">
-        <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M</div>
-        <h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
-        <p>Manager</p>
-    </div>
-    <ul class="sidebar-menu">
-        <li th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
-            <a th:href="@{/manager/dashboard}">&#128202; Dashboard</a>
-        </li>
-        <li th:classappend="${activePage == 'team'} ? 'active' : ''">
-            <a th:href="@{/manager/team}">&#128101; My Team</a>
-        </li>
-        <li th:classappend="${activePage == 'projects'} ? 'active' : ''">
-            <a th:href="@{/manager/projects}">&#128193; Projects</a>
-        </li>
-        <li th:classappend="${activePage == 'tasks'} ? 'active' : ''">
-            <a th:href="@{/manager/tasks}">&#9989; Tasks</a>
-        </li>
-        <li th:classappend="${activePage == 'reports'} ? 'active' : ''">
-            <a th:href="@{/manager/reports}">&#128196; Reports</a>
-        </li>
-        <li th:classappend="${activePage == 'attendance'} ? 'active' : ''">
-            <a th:href="@{/manager/attendance}">&#128197; Attendance</a>
-        </li>
-        <li th:classappend="${activePage == 'settings'} ? 'active' : ''">
-            <a th:href="@{/manager/settings}">&#9881; Settings</a>
-        </li>
-    </ul>
-    <a href="#" data-logout style="text-decoration:none;">
-        <button class="logout-btn">&#128682; Logout</button>
-    </a>
-</div>
+	<!-- SIDEBAR -->
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon">&#128202;</div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M
+			</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+				<a th:href="@{/manager/dashboard}">&#128202; Dashboard</a>
+			</li>
+			<li th:classappend="${activePage == 'team'} ? 'active' : ''">
+				<a th:href="@{/manager/team}">&#128101; My Team</a>
+			</li>
 
-<!-- MAIN WRAPPER -->
-<div class="main-wrapper">
-    <div class="topbar">
-        <h1 th:text="${pageHeading} ?: 'Dashboard'">Dashboard</h1>
-        <div class="topbar-right">
-            <div class="search-box">
-                <input type="text" placeholder="Search team, tasks…">
-            </div>
-            <div class="user-badge" th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M</div>
-        </div>
-    </div>
+			<li th:classappend="${activePage == 'tasks'} ? 'active' : ''">
+				<a th:href="@{/manager/tasks}">&#9989; Tasks</a>
+			</li>
+			<li th:classappend="${activePage == 'reports'} ? 'active' : ''">
+				<a th:href="@{/manager/reports}">&#128196; Reports</a>
+			</li>
+			<li th:classappend="${activePage == 'attendance'} ? 'active' : ''">
+				<a th:href="@{/manager/attendance}">&#128197; Attendance</a>
+			</li>
+			<li th:classappend="${activePage == 'settings'} ? 'active' : ''">
+				<a th:href="@{/manager/settings}">&#9881; Settings</a>
+			</li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn">&#128682; Logout</button>
+		</a>
+	</div>
 
-    <div class="page-content">
+	<!-- MAIN WRAPPER -->
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1 th:text="${pageHeading} ?: 'Dashboard'">Dashboard</h1>
+			<div class="topbar-right">
+				<div class="search-box">
+					<input type="text" placeholder="Search team, tasks…">
+				</div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M
+				</div>
+			</div>
+		</div>
 
-        <!-- STATS ROW -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon purple">&#128101;</div>
-                <div class="stat-info">
-                    <h3 th:text="${teamCount} ?: '0'">0</h3>
-                    <p>Team Members</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">&#128193;</div>
-                <div class="stat-info">
-                    <h3 th:text="${projectCount} ?: '0'">0</h3>
-                    <p>Active Projects</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon orange">&#9989;</div>
-                <div class="stat-info">
-                    <h3 th:text="${taskCount} ?: '0'">0</h3>
-                    <p>Tasks Assigned</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon blue">&#9203;</div>
-                <div class="stat-info">
-                    <h3 th:text="${overdueTasks} ?: '0'">0</h3>
-                    <p>Overdue Tasks</p>
-                </div>
-            </div>
-        </div>
+		<div class="page-content">
 
-        <!-- DASHBOARD GRID -->
-        <div class="dashboard-grid">
+			<!-- STATS ROW -->
+			<div class="stats-row">
+				<div class="stat-card">
+					<div class="stat-icon purple">&#128101;</div>
+					<div class="stat-info">
+						<h3 th:text="${teamCount} ?: '0'">0</h3>
+						<p>Team Members</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green">&#128193;</div>
+					<div class="stat-info">
+						<h3 th:text="${projectCount} ?: '0'">0</h3>
+						<p>Active Projects</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange">&#9989;</div>
+					<div class="stat-info">
+						<h3 th:text="${taskCount} ?: '0'">0</h3>
+						<p>Tasks Assigned</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue">&#9203;</div>
+					<div class="stat-info">
+						<h3 th:text="${overdueTasks} ?: '0'">0</h3>
+						<p>Overdue Tasks</p>
+					</div>
+				</div>
+			</div>
 
-            <!-- LEFT: Team Members Table -->
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <h2>Team Members</h2>
-                        <p>Your direct reports</p>
-                    </div>
-                    <a th:href="@{/manager/team}" class="btn-link">View All &#8594;</a>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Member</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Tasks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="member : ${teamMembers}">
-                                <td>
-                                    <div class="member-cell">
-                                        <div class="member-avatar"
-                                             th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">M</div>
-                                        <div>
-                                            <div style="font-weight:600;font-size:13.5px;" th:text="${member.username}">Member</div>
-                                            <div style="font-size:11px;color:#6b7280;" th:text="${member.email}">email</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="role-badge" th:text="${member.role}">Role</span></td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td style="font-weight:600;">—</td>
-                            </tr>
-                            <tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">
-                                <td colspan="4">
-                                    <div class="empty-state">
-                                        <div style="font-size:40px;">&#128101;</div>
-                                        <h3>No Team Members Yet</h3>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+			<!-- DASHBOARD GRID -->
+			<div class="dashboard-grid">
 
-            <!-- RIGHT COLUMN -->
-            <div class="right-col">
+				<!-- LEFT: Team Members Table -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>Team Members</h2>
+							<p>Your direct reports</p>
+						</div>
+						<a th:href="@{/manager/team}" class="btn-link">View All &#8594;</a>
+					</div>
+					<div class="table-wrap">
+						<table>
+							<thead>
+								<tr>
+									<th>Member</th>
+									<th>Role</th>
+									<th>Status</th>
+									<th>Tasks</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="member : ${teamMembers}">
+									<td>
+										<div class="member-cell">
+											<div class="member-avatar"
+												th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">
+												M</div>
+											<div>
+												<div style="font-weight:600;font-size:13.5px;"
+													th:text="${member.username}">Member</div>
+												<div style="font-size:11px;color:#6b7280;" th:text="${member.email}">
+													email</div>
+											</div>
+										</div>
+									</td>
+									<td><span class="role-badge" th:text="${member.role}">Role</span></td>
+									<td><span class="status-badge active">Active</span></td>
+									<td style="font-weight:600;">—</td>
+								</tr>
+								<tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">
+									<td colspan="4">
+										<div class="empty-state">
+											<div style="font-size:40px;">&#128101;</div>
+											<h3>No Team Members Yet</h3>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-                <!-- Manager Profile Card -->
-                <div class="card manager-profile-card">
-                    <div class="manager-avatar-lg"
-                         th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M</div>
-                    <div class="manager-name" th:text="${managerName} ?: 'Manager'">Manager</div>
-                    <div class="manager-role-label">Manager</div>
-                    <div class="manager-stats">
-                        <div class="mgr-stat">
-                            <h4 th:text="${teamCount} ?: '0'">0</h4>
-                            <p>Team</p>
-                        </div>
-                        <div class="mgr-stat">
-                            <h4 th:text="${projectCount} ?: '0'">0</h4>
-                            <p>Projects</p>
-                        </div>
-                        <div class="mgr-stat">
-                            <h4 th:text="${taskCount} ?: '0'">0</h4>
-                            <p>Tasks</p>
-                        </div>
-                    </div>
-                </div>
+				<!-- RIGHT COLUMN -->
+				<div class="right-col">
 
-                <!-- Pending Tasks -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h2>Pending Tasks</h2>
-                            <p>Tasks requiring attention</p>
-                        </div>
-                        <a th:href="@{/manager/tasks}" class="btn-link">View All &#8594;</a>
-                    </div>
-                    <div th:if="${pendingTaskList == null or #lists.isEmpty(pendingTaskList)}"
-                         style="text-align:center;color:#6b7280;padding:20px;font-size:13px;">
-                        No pending tasks. &#127881;
-                    </div>
-                    <div class="task-item" th:each="task : ${pendingTaskList}">
-                        <div class="task-check" th:classappend="${task.done} ? 'done' : ''"></div>
-                        <div style="flex:1;">
-                            <div class="task-name" th:classappend="${task.done} ? 'done' : ''"
-                                 th:text="${task.name}">Task</div>
-                        </div>
-                        <span class="task-priority" th:text="${task.priority}">Medium</span>
-                    </div>
-                </div>
+					<!-- Manager Profile Card -->
+					<div class="card manager-profile-card">
+						<div class="manager-avatar-lg"
+							th:text="${#strings.substring(managerName ?: 'Manager', 0, 1).toUpperCase()}">M</div>
+						<div class="manager-name" th:text="${managerName} ?: 'Manager'">Manager</div>
+						<div class="manager-role-label">Manager</div>
+						<div class="manager-stats">
+							<div class="mgr-stat">
+								<h4 th:text="${teamCount} ?: '0'">0</h4>
+								<p>Team</p>
+							</div>
+							<div class="mgr-stat">
+								<h4 th:text="${projectCount} ?: '0'">0</h4>
+								<p>Projects</p>
+							</div>
+							<div class="mgr-stat">
+								<h4 th:text="${taskCount} ?: '0'">0</h4>
+								<p>Tasks</p>
+							</div>
+						</div>
+					</div>
 
-                <!-- Quick Actions -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h2>Quick Actions</h2>
-                            <p>Common tasks</p>
-                        </div>
-                    </div>
-                    <div class="quick-actions">
-                        <a th:href="@{/manager/team}" class="quick-action-btn">
-                            <span class="qa-icon" style="background:#dff5ea;">&#128101;</span>
-                            <span>My Team</span>
-                        </a>
-                        <a th:href="@{/manager/projects}" class="quick-action-btn">
-                            <span class="qa-icon" style="background:#dcecf5;">&#128193;</span>
-                            <span>Projects</span>
-                        </a>
-                        <a th:href="@{/manager/tasks}" class="quick-action-btn">
-                            <span class="qa-icon" style="background:#fce9d8;">&#9989;</span>
-                            <span>Tasks</span>
-                        </a>
-                        <a th:href="@{/manager/reports}" class="quick-action-btn">
-                            <span class="qa-icon" style="background:#e9e2ff;">&#128196;</span>
-                            <span>Reports</span>
-                        </a>
-                    </div>
-                </div>
+					<!-- Pending Tasks -->
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Pending Tasks</h2>
+								<p>Tasks requiring attention</p>
+							</div>
+							<a th:href="@{/manager/tasks}" class="btn-link">View All &#8594;</a>
+						</div>
+						<div th:if="${pendingTaskList == null or #lists.isEmpty(pendingTaskList)}"
+							style="text-align:center;color:#6b7280;padding:20px;font-size:13px;">
+							No pending tasks. &#127881;
+						</div>
+						<div class="task-item" th:each="task : ${pendingTaskList}">
+							<div class="task-check" th:classappend="${task.done} ? 'done' : ''"></div>
+							<div style="flex:1;">
+								<div class="task-name" th:classappend="${task.done} ? 'done' : ''"
+									th:text="${task.name}">Task</div>
+							</div>
+							<span class="task-priority" th:text="${task.priority}">Medium</span>
+						</div>
+					</div>
 
-            </div>
-        </div>
-    </div>
-</div>
+					<!-- Quick Actions -->
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Quick Actions</h2>
+								<p>Common tasks</p>
+							</div>
+						</div>
+						<div class="quick-actions">
+							<a th:href="@{/manager/team}" class="quick-action-btn">
+								<span class="qa-icon" style="background:#dff5ea;">&#128101;</span>
+								<span>My Team</span>
+							</a>
+							<a th:href="@{/manager/projects}" class="quick-action-btn">
+								<span class="qa-icon" style="background:#dcecf5;">&#128193;</span>
+								<span>Projects</span>
+							</a>
+							<a th:href="@{/manager/tasks}" class="quick-action-btn">
+								<span class="qa-icon" style="background:#fce9d8;">&#9989;</span>
+								<span>Tasks</span>
+							</a>
+							<a th:href="@{/manager/reports}" class="quick-action-btn">
+								<span class="qa-icon" style="background:#e9e2ff;">&#128196;</span>
+								<span>Reports</span>
+							</a>
+						</div>
+					</div>
 
-<script>
-    var hamburger = document.getElementById('hamburgerBtn');
-    var sidebar = document.getElementById('sidebar');
-    var overlay = document.getElementById('sidebarOverlay');
-    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
-    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
-    hamburger.addEventListener('click', openSidebar);
-    overlay.addEventListener('click', closeSidebar);
-</script>
-<script th:src="@{/auth.js}"></script>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn');
+		var sidebar = document.getElementById('sidebar');
+		var overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		hamburger.addEventListener('click', openSidebar);
+		overlay.addEventListener('click', closeSidebar);
+	</script>
+	<script th:src="@{/auth.js}"></script>
 </body>
+
 </html>
