@@ -1,527 +1,1323 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager — Meetings</title>
-    <link rel="stylesheet" th:href="@{/manager.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <style>
-        /* ── Form grid ── */
-        .mtg-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            padding: 22px 24px 0;
-        }
-        .mtg-form-grid .full { grid-column: 1 / -1; }
-        .form-group label {
-            display: block; font-size: 13px; font-weight: 600;
-            color: #163647; margin-bottom: 7px;
-        }
-        .form-group label span { color: #d11a2a; }
-        .input-wrap input,
-        .input-wrap select,
-        .input-wrap textarea {
-            width: 100%; border: 1.5px solid #e5edf2; border-radius: 12px;
-            padding: 0 16px; height: 46px; font-size: 14px;
-            font-family: 'Poppins', sans-serif; outline: none;
-            background: #f9fbfc; color: #163647;
-            transition: border-color .2s, background .2s;
-        }
-        .input-wrap textarea { height: auto; padding: 12px 16px; resize: vertical; }
-        .input-wrap input:focus,
-        .input-wrap select:focus,
-        .input-wrap textarea:focus { border-color: #17455e; background: white; }
-        .field-error { font-size: 12px; color: #d11a2a; margin-top: 4px; }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager — Meetings</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		/* ── Tab Navigation ── */
+		.tab-nav {
+			display: flex;
+			gap: 0;
+			background: white;
+			border-radius: 18px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+			padding: 6px;
+			margin-bottom: 24px;
+			width: fit-content;
+		}
 
-        /* ── Participant picker ── */
-        .participant-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 8px; max-height: 220px; overflow-y: auto;
-            border: 1.5px solid #e5edf2; border-radius: 12px;
-            padding: 12px; background: #f5f9fb;
-        }
-        .participant-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 12px; border-radius: 10px;
-            background: white; border: 1.5px solid #e5edf2;
-            cursor: pointer; transition: border-color .18s, background .18s;
-            user-select: none;
-        }
-        .participant-item:hover  { border-color: #17455e; background: #f0f7fb; }
-        .participant-item.selected { border-color: #17455e; background: #dcecf5; }
-        .p-avatar {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: #17455e; color: white; font-size: 12px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .p-info { flex: 1; min-width: 0; }
-        .p-name  { font-size: 13px; font-weight: 600; color: #163647; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-role  { font-size: 11px; color: #6b7280; }
-        .p-check {
-            width: 16px; height: 16px; border-radius: 4px;
-            border: 2px solid #d1dce3; background: white; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; transition: all .18s;
-        }
-        .participant-item.selected .p-check { background: #17455e; border-color: #17455e; }
-        .participant-item.selected .p-check::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
-        .p-count { font-size: 12px; color: #17455e; font-weight: 600; margin-top: 6px; }
+		.tab-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 24px;
+			border-radius: 13px;
+			font-size: 13px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			border: none;
+			background: transparent;
+			color: #6b7280;
+			transition: all .22s cubic-bezier(.4, 0, .2, 1);
+			position: relative;
+			white-space: nowrap;
+		}
 
-        /* ── Checkbox row ── */
-        .checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #163647; font-weight: 500; }
-        .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #17455e; cursor: pointer; }
+		.tab-btn i[data-lucide] {
+			width: 15px;
+			height: 15px;
+		}
 
-        /* ── Form actions ── */
-        .mtg-form-actions {
-            display: flex; justify-content: flex-end; gap: 12px;
-            padding: 20px 24px 24px; border-top: 1px solid #edf3f6; margin-top: 20px;
-        }
-        .btn-cancel {
-            display: inline-flex; align-items: center; gap: 6px;
-            height: 46px; padding: 0 22px; border-radius: 12px;
-            font-size: 14px; font-weight: 600; font-family: 'Poppins', sans-serif;
-            background: #f3f8fb; color: #4b6a7a; border: 1.5px solid #e5edf2;
-            text-decoration: none; cursor: pointer; transition: background .2s;
-        }
-        .btn-cancel:hover { background: #e8f2f8; }
-        .btn-submit {
-            display: inline-flex; align-items: center; gap: 8px;
-            height: 46px; padding: 0 26px; border-radius: 12px;
-            font-size: 14px; font-weight: 600; font-family: 'Poppins', sans-serif;
-            background: #17455e; color: white; border: none; cursor: pointer;
-            box-shadow: 0 4px 14px rgba(23,69,94,0.22);
-            transition: background .2s, transform .15s;
-        }
-        .btn-submit:hover { background: #1e5a7a; transform: translateY(-1px); }
-        .btn-submit i[data-lucide] { width: 16px; height: 16px; }
+		.tab-btn.active {
+			background: #17455e;
+			color: white;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.25);
+		}
 
-        /* ── Meeting type badges ── */
-        .badge-online   { background: #dcecf5; color: #17455e; }
-        .badge-inperson { background: #dff5ea; color: #1b7a46; }
-        .badge-hybrid   { background: #e9e2ff; color: #5b21b6; }
+		.tab-btn:not(.active):hover {
+			background: #f0f7fb;
+			color: #17455e;
+		}
 
-        /* ── Table action buttons ── */
-        .action-btns { display: flex; align-items: center; gap: 8px; }
-        .btn-action {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            font-family: 'Poppins', sans-serif; cursor: pointer; border: none;
-            text-decoration: none; transition: background .18s, transform .15s;
-            white-space: nowrap;
-        }
-        .btn-action i[data-lucide] { width: 13px; height: 13px; }
-        .btn-action.edit   { background: #dcecf5; color: #17455e; }
-        .btn-action.edit:hover   { background: #c5dce8; transform: translateY(-1px); }
-        .btn-action.delete { background: #fdecec; color: #d11a2a; }
-        .btn-action.delete:hover { background: #fcd9d9; transform: translateY(-1px); }
+		.tab-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 10px;
+			font-size: 10px;
+			font-weight: 700;
+			background: rgba(255, 255, 255, 0.22);
+			color: white;
+			margin-left: 2px;
+		}
 
-        /* ── Join button ── */
-        .btn-join {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            background: #17455e; color: white; text-decoration: none;
-            border: none; cursor: pointer; transition: background .18s, transform .15s;
-            white-space: nowrap;
-        }
-        .btn-join:hover { background: #1e5a7a; transform: translateY(-1px); }
-        .btn-join i[data-lucide] { width: 13px; height: 13px; }
-        .btn-join-disabled {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            background: #f3f4f6; color: #9ca3af; cursor: not-allowed; white-space: nowrap;
-        }
-        .btn-join-disabled i[data-lucide] { width: 13px; height: 13px; }
+		.tab-btn:not(.active) .tab-badge {
+			background: #e5edf2;
+			color: #17455e;
+		}
 
-        /* ── Participants cell ── */
-        .participants-cell {
-            max-width: 180px; overflow: hidden; text-overflow: ellipsis;
-            white-space: nowrap; font-size: 12px; color: #6b7280;
-        }
+		/* ── Tab Panels ── */
+		.tab-panel {
+			display: none;
+		}
 
-        /* ── Modal ── */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-        .modal-overlay.hidden { display: none; }
-        .modal { background: white; border-radius: 22px; padding: 36px 32px 28px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.18); text-align: center; }
-        .modal-icon { margin-bottom: 14px; }
-        .modal-title { font-size: 19px; font-weight: 700; color: #163647; margin-bottom: 10px; }
-        .modal-msg { font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 24px; }
-        .modal-actions { display: flex; justify-content: center; gap: 12px; }
-        .btn-danger { background: #d11a2a; color: white; box-shadow: 0 4px 14px rgba(209,26,42,0.22); }
-        .btn-danger:hover { background: #b91c1c; transform: translateY(-1px); }
-        .btn-clear { background: #f3f8fb; color: #4b6a7a; border: 1.5px solid #e5edf2; }
-        .btn-clear:hover { background: #e8f2f8; }
-    </style>
+		.tab-panel.active {
+			display: block;
+		}
+
+		/* ══════════════════════════════════════
+           REDESIGNED SCHEDULE FORM CARD
+        ══════════════════════════════════════ */
+		.form-card {
+			background: white;
+			border-radius: 22px;
+			box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+			overflow: hidden;
+			width: 100%;
+		}
+
+		/* Header */
+		.form-card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 24px 32px 20px;
+			border-bottom: 1px solid #edf3f6;
+			background: linear-gradient(135deg, #f7fbfd 0%, #eef5fa 100%);
+		}
+
+		.form-card-header h2 {
+			font-size: 18px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.form-card-header p {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 4px;
+			margin-bottom: 0;
+		}
+
+		.form-card-icon {
+			width: 46px;
+			height: 46px;
+			border-radius: 14px;
+			background: #17455e;
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.28);
+		}
+
+		/* Two-column body: left = form fields, right = participants */
+		.form-body-split {
+			display: grid;
+			grid-template-columns: 1fr 380px;
+			gap: 0;
+			min-height: 0;
+		}
+
+		/* LEFT COLUMN */
+		.form-left {
+			padding: 28px 32px 28px;
+			border-right: 1px solid #edf3f6;
+		}
+
+		.form-fields-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px 22px;
+		}
+
+		.form-fields-grid .full {
+			grid-column: 1 / -1;
+		}
+
+		.form-group {
+			margin: 0;
+		}
+
+		.form-group label {
+			display: block;
+			font-size: 11px;
+			font-weight: 700;
+			color: #8a9fb0;
+			letter-spacing: 0.07em;
+			text-transform: uppercase;
+			margin-bottom: 7px;
+		}
+
+		.form-group label span {
+			color: #d11a2a;
+		}
+
+		.input-wrap input,
+		.input-wrap select,
+		.input-wrap textarea {
+			width: 100%;
+			border: 1.5px solid #e5edf2;
+			border-radius: 12px;
+			padding: 0 14px;
+			height: 44px;
+			font-size: 13.5px;
+			font-family: 'Poppins', sans-serif;
+			outline: none;
+			background: #f9fbfc;
+			color: #163647;
+			transition: border-color .2s, background .2s, box-shadow .2s;
+			box-sizing: border-box;
+		}
+
+		.input-wrap textarea {
+			height: auto;
+			padding: 12px 14px;
+			resize: vertical;
+		}
+
+		.input-wrap input:focus,
+		.input-wrap select:focus,
+		.input-wrap textarea:focus {
+			border-color: #17455e;
+			background: white;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
+		}
+
+		.field-error {
+			font-size: 12px;
+			color: #d11a2a;
+			margin-top: 4px;
+		}
+
+		/* Checkbox row */
+		.checkbox-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			font-size: 13.5px;
+			color: #163647;
+			font-weight: 500;
+			letter-spacing: 0;
+			text-transform: none;
+		}
+
+		.checkbox-row input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: #17455e;
+			cursor: pointer;
+		}
+
+		/* RIGHT COLUMN — Participants Panel */
+		.form-right {
+			padding: 28px 26px 28px;
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+			background: #f7fbfd;
+		}
+
+		.participants-panel-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.participants-panel-header h3 {
+			font-size: 13px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.participants-panel-header span {
+			font-size: 11px;
+			color: #6b7280;
+			margin-top: 2px;
+			display: block;
+		}
+
+		.btn-select-all {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 7px 14px;
+			border-radius: 9px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #17455e;
+			color: white;
+			border: none;
+			cursor: pointer;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+
+		.btn-select-all:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-select-all i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		/* Search */
+		.participant-search-wrap {
+			position: relative;
+		}
+
+		.participant-search-wrap i[data-lucide] {
+			position: absolute;
+			left: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 14px;
+			height: 14px;
+			color: #9ca3af;
+			pointer-events: none;
+		}
+
+		.participant-search-wrap input {
+			width: 100%;
+			border: 1.5px solid #e5edf2;
+			border-radius: 11px;
+			padding: 0 14px 0 36px;
+			height: 40px;
+			font-size: 13px;
+			font-family: 'Poppins', sans-serif;
+			outline: none;
+			background: white;
+			color: #163647;
+			transition: border-color .2s, box-shadow .2s;
+			box-sizing: border-box;
+		}
+
+		.participant-search-wrap input:focus {
+			border-color: #17455e;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
+		}
+
+		.participant-search-wrap input::placeholder {
+			color: #b0bec7;
+		}
+
+		/* Participant list */
+		.participant-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 260px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+
+		.participant-list::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.participant-list::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.participant-list::-webkit-scrollbar-thumb {
+			background: #d1dce3;
+			border-radius: 4px;
+		}
+
+		.participant-item {
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			padding: 10px 14px;
+			border-radius: 12px;
+			background: white;
+			border: 1.5px solid #e5edf2;
+			cursor: pointer;
+			transition: border-color .18s, background .18s, box-shadow .18s;
+			user-select: none;
+		}
+
+		.participant-item:hover {
+			border-color: #17455e;
+			background: #f0f7fb;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.08);
+		}
+
+		.participant-item.selected {
+			border-color: #17455e;
+			background: #dcecf5;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.12);
+		}
+
+		.p-avatar {
+			width: 34px;
+			height: 34px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 13px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.p-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.p-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.p-role {
+			font-size: 11px;
+			color: #6b7280;
+			text-transform: capitalize;
+		}
+
+		/* Custom checkbox */
+		.p-check {
+			width: 18px;
+			height: 18px;
+			border-radius: 5px;
+			border: 2px solid #d1dce3;
+			background: white;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all .18s;
+		}
+
+		.participant-item.selected .p-check {
+			background: #17455e;
+			border-color: #17455e;
+		}
+
+		.participant-item.selected .p-check::after {
+			content: '✓';
+			font-size: 11px;
+			color: white;
+			font-weight: 700;
+		}
+
+		/* Count */
+		.p-count {
+			font-size: 12px;
+			color: #17455e;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.p-count i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		/* ── Form actions ── */
+		.mtg-form-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			padding: 20px 32px 26px;
+			border-top: 1px solid #edf3f6;
+		}
+
+		.btn-cancel {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			height: 46px;
+			padding: 0 22px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #f3f8fb;
+			color: #4b6a7a;
+			border: 1.5px solid #e5edf2;
+			text-decoration: none;
+			cursor: pointer;
+			transition: background .2s;
+		}
+
+		.btn-cancel:hover {
+			background: #e8f2f8;
+		}
+
+		.btn-submit {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			height: 46px;
+			padding: 0 28px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #17455e;
+			color: white;
+			border: none;
+			cursor: pointer;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.22);
+			transition: background .2s, transform .15s;
+		}
+
+		.btn-submit:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-submit i[data-lucide] {
+			width: 16px;
+			height: 16px;
+		}
+
+		/* ── Meetings table card ── */
+		.meetings-table-card {
+			background: white;
+			border-radius: 22px;
+			box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+			overflow: hidden;
+			width: 100%;
+		}
+
+		.meetings-table-card .card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 22px 26px 18px;
+			border-bottom: 1px solid #edf3f6;
+		}
+
+		.meetings-table-card .card-header h2 {
+			font-size: 17px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.meetings-table-card .card-header p {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 3px;
+			margin-bottom: 0;
+		}
+
+		.card-header-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 13px;
+			background: #dff5ea;
+			color: #1b7a46;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		/* ── Meeting type badges ── */
+		.badge-online {
+			background: #dcecf5;
+			color: #17455e;
+		}
+
+		.badge-inperson {
+			background: #dff5ea;
+			color: #1b7a46;
+		}
+
+		.badge-hybrid {
+			background: #e9e2ff;
+			color: #5b21b6;
+		}
+
+		/* ── Table action buttons ── */
+		.action-btns {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.btn-action {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 6px 13px;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			border: none;
+			text-decoration: none;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+		}
+
+		.btn-action i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		.btn-action.edit {
+			background: #dcecf5;
+			color: #17455e;
+		}
+
+		.btn-action.edit:hover {
+			background: #c5dce8;
+			transform: translateY(-1px);
+		}
+
+		.btn-action.delete {
+			background: #fdecec;
+			color: #d11a2a;
+		}
+
+		.btn-action.delete:hover {
+			background: #fcd9d9;
+			transform: translateY(-1px);
+		}
+
+		/* ── Join button ── */
+		.btn-join {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 14px;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			background: #17455e;
+			color: white;
+			text-decoration: none;
+			border: none;
+			cursor: pointer;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+		}
+
+		.btn-join:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-join i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		.btn-join-disabled {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 14px;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			background: #f3f4f6;
+			color: #9ca3af;
+			cursor: not-allowed;
+			white-space: nowrap;
+		}
+
+		.btn-join-disabled i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		/* ── Participants cell ── */
+		.participants-cell {
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 12px;
+			color: #6b7280;
+		}
+
+		/* ── Modal ── */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.45);
+			z-index: 9000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			backdrop-filter: blur(3px);
+		}
+
+		.modal-overlay.hidden {
+			display: none;
+		}
+
+		.modal {
+			background: white;
+			border-radius: 22px;
+			padding: 36px 32px 28px;
+			max-width: 420px;
+			width: 90%;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+			text-align: center;
+		}
+
+		.modal-icon {
+			margin-bottom: 14px;
+		}
+
+		.modal-title {
+			font-size: 19px;
+			font-weight: 700;
+			color: #163647;
+			margin-bottom: 10px;
+		}
+
+		.modal-msg {
+			font-size: 14px;
+			color: #6b7280;
+			line-height: 1.6;
+			margin-bottom: 24px;
+		}
+
+		.modal-actions {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			border: none;
+			height: 46px;
+			padding: 0 22px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			transition: background .2s, transform .15s;
+			white-space: nowrap;
+			text-decoration: none;
+		}
+
+		.btn-danger {
+			background: #d11a2a;
+			color: white;
+			box-shadow: 0 4px 14px rgba(209, 26, 42, 0.22);
+		}
+
+		.btn-danger:hover {
+			background: #b91c1c;
+			transform: translateY(-1px);
+		}
+
+		.btn-clear {
+			background: #f3f8fb;
+			color: #4b6a7a;
+			border: 1.5px solid #e5edf2;
+		}
+
+		.btn-clear:hover {
+			background: #e8f2f8;
+		}
+
+		.btn i[data-lucide] {
+			width: 14px;
+			height: 14px;
+		}
+
+		/* ── Responsive ── */
+		@media (max-width: 900px) {
+			.form-body-split {
+				grid-template-columns: 1fr;
+			}
+
+			.form-right {
+				border-top: 1px solid #edf3f6;
+				border-right: none;
+			}
+
+			.form-left {
+				border-right: none;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.tab-nav {
+				width: 100%;
+			}
+
+			.tab-btn {
+				flex: 1;
+				justify-content: center;
+				padding: 10px 12px;
+				font-size: 12px;
+			}
+
+			.form-fields-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.form-fields-grid .full {
+				grid-column: 1 / -1;
+			}
+
+			.mtg-form-actions {
+				padding: 18px 20px 22px;
+			}
+
+			.form-card-header {
+				padding: 18px 20px 16px;
+			}
+
+			.form-left {
+				padding: 20px;
+			}
+
+			.form-right {
+				padding: 20px;
+			}
+		}
+	</style>
 </head>
+
 <body>
 
-<!-- MOBILE TOPBAR -->
-<div class="mobile-topbar">
-    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-    <span class="mobile-title">Manager</span>
-</div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<!-- MOBILE TOPBAR -->
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-        <div class="logo-icon"><i data-lucide="briefcase"></i></div>
-        <h2>Manager</h2>
-    </div>
-    <div class="profile-box">
-        <div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
-        <h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
-        <p>Manager</p>
-    </div>
-    <ul class="sidebar-menu">
-        <li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
-        <li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
-        <li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
-        <li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
-        <li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
-        <li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
-        <li class="active"><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
-        <li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
-        <li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
-    </ul>
-    <a href="#" data-logout style="text-decoration:none;">
-        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
-    </a>
-</div>
+	<!-- SIDEBAR -->
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="briefcase"></i></div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+			<li><a th:href="@{/manager/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
+			<li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li class="active"><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+		</a>
+	</div>
 
-<!-- MAIN WRAPPER -->
-<div class="main-wrapper">
+	<!-- MAIN WRAPPER -->
+	<div class="main-wrapper">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <div>
-            <h1>Meetings</h1>
-            <p class="topbar-subtitle">Schedule and manage meetings with your team</p>
-        </div>
-        <div class="topbar-right">
-            <div class="search-box">
-                <input type="text" id="meetingSearch" placeholder="Search meetings…">
-            </div>
-            <div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
-        </div>
-    </div>
+		<!-- TOPBAR -->
+		<div class="topbar">
+			<div>
+				<h1>Meetings</h1>
+				<p class="topbar-subtitle">Schedule and manage meetings with your team</p>
+			</div>
+			<div class="topbar-right">
+				<div class="search-box">
+					<input type="text" id="meetingSearch" placeholder="Search meetings…">
+				</div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			</div>
+		</div>
 
-    <!-- PAGE CONTENT -->
-    <div class="page-content">
+		<!-- PAGE CONTENT -->
+		<div class="page-content">
 
-        <!-- Toasts -->
-        <div class="toast success" th:if="${successMessage}">
-            <i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
-        </div>
-        <div class="toast error" th:if="${errorMessage}">
-            <i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
-        </div>
+			<!-- Toasts -->
+			<div class="toast success" th:if="${successMessage}">
+				<i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
+			</div>
+			<div class="toast error" th:if="${errorMessage}">
+				<i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+			</div>
 
-        <!-- ── SCHEDULE / EDIT FORM ── -->
-        <div class="card" style="margin-bottom:22px; padding:0; overflow:hidden;">
-            <div class="card-header" style="padding:22px 24px 18px; border-bottom:1px solid #edf3f6; margin-bottom:0;">
-                <div>
-                    <h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New Meeting</h2>
-                    <p>Fill in the details below to schedule a meeting for your team</p>
-                </div>
-                <div style="width:44px;height:44px;border-radius:12px;background:#dcecf5;display:flex;align-items:center;justify-content:center;color:#17455e;flex-shrink:0;">
-                    <i data-lucide="calendar-plus" style="width:20px;height:20px;"></i>
-                </div>
-            </div>
+			<!-- ── Tab Navigation ── -->
+			<div class="tab-nav">
+				<button class="tab-btn active" id="tabBtnSchedule" onclick="switchTab('schedule')">
+					<i data-lucide="calendar-plus"></i>
+					<span th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New
+						Meeting</span>
+				</button>
+				<button class="tab-btn" id="tabBtnList" onclick="switchTab('list')">
+					<i data-lucide="calendar-clock"></i>
+					Scheduled Meetings
+					<span class="tab-badge" id="meetingCountBadge"
+						th:text="${meetings != null} ? ${#lists.size(meetings)} : '0'">0</span>
+				</button>
+			</div>
 
-            <form th:action="${meetingForm.id != null}
-                              ? @{/manager/meetings/edit/{id}(id=${meetingForm.id})}
-                              : @{/manager/meetings}"
-                  th:object="${meetingForm}" method="post">
+			<!-- ── TAB PANEL: Schedule / Edit Form ── -->
+			<div class="tab-panel active" id="panelSchedule">
+				<div class="form-card">
 
-                <div class="mtg-form-grid">
+					<!-- Card Header -->
+					<div class="form-card-header">
+						<div>
+							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule
+								New Meeting</h2>
+							<p>Fill in the details below to schedule a meeting for your team</p>
+						</div>
+						<div class="form-card-icon">
+							<i data-lucide="calendar-plus" style="width:20px;height:20px;"></i>
+						</div>
+					</div>
 
-                    <!-- Title (full width) -->
-                    <div class="form-group full">
-                        <label>Meeting Title <span>*</span></label>
-                        <div class="input-wrap">
-                            <input type="text" th:field="*{title}" placeholder="e.g. Sprint Review" required>
-                        </div>
-                        <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
-                    </div>
+					<form th:action="${meetingForm.id != null}
+                                  ? @{/manager/meetings/edit/{id}(id=${meetingForm.id})}
+                                  : @{/manager/meetings}" th:object="${meetingForm}" method="post">
 
-                    <!-- Date -->
-                    <div class="form-group">
-                        <label>Date <span>*</span></label>
-                        <div class="input-wrap"><input type="date" th:field="*{meetingDate}" required></div>
-                    </div>
+						<!-- ── Two-column split ── -->
+						<div class="form-body-split">
 
-                    <!-- Time -->
-                    <div class="form-group">
-                        <label>Time <span>*</span></label>
-                        <div class="input-wrap"><input type="time" th:field="*{meetingTime}" required></div>
-                    </div>
+							<!-- LEFT: Form Fields -->
+							<div class="form-left">
+								<div class="form-fields-grid">
 
-                    <!-- Duration -->
-                    <div class="form-group">
-                        <label>Duration</label>
-                        <div class="input-wrap">
-                            <select th:field="*{duration}">
-                                <option value="15">15 minutes</option>
-                                <option value="30">30 minutes</option>
-                                <option value="45">45 minutes</option>
-                                <option value="60">1 hour</option>
-                                <option value="90">1.5 hours</option>
-                                <option value="120">2 hours</option>
-                            </select>
-                        </div>
-                    </div>
+									<!-- Meeting Title (full width) -->
+									<div class="form-group full">
+										<label>Meeting Title <span>*</span></label>
+										<div class="input-wrap">
+											<input type="text" th:field="*{title}" placeholder="e.g. Sprint Review"
+												required>
+										</div>
+										<span class="field-error" th:if="${#fields.hasErrors('title')}"
+											th:errors="*{title}"></span>
+									</div>
 
-                    <!-- Meeting Type -->
-                    <div class="form-group">
-                        <label>Meeting Type</label>
-                        <div class="input-wrap">
-                            <select th:field="*{meetingType}">
-                                <option value="ONLINE">Online</option>
-                                <option value="IN_PERSON">In Person</option>
-                                <option value="HYBRID">Hybrid</option>
-                            </select>
-                        </div>
-                    </div>
+									<!-- Date -->
+									<div class="form-group">
+										<label>Date <span>*</span></label>
+										<div class="input-wrap"><input type="date" th:field="*{meetingDate}" required>
+										</div>
+									</div>
 
-                    <!-- Location (full width) -->
-                    <div class="form-group full">
-                        <label>Location / Meeting Link</label>
-                        <div class="input-wrap">
-                            <input type="text" th:field="*{location}" placeholder="e.g. Conference Room B or https://meet.google.com/…">
-                        </div>
-                    </div>
+									<!-- Time -->
+									<div class="form-group">
+										<label>Time <span>*</span></label>
+										<div class="input-wrap"><input type="time" th:field="*{meetingTime}" required>
+										</div>
+									</div>
 
-                    <!-- Participants (full width) -->
-                    <div class="form-group full">
-                        <label>Participants <span>*</span></label>
-                        <input type="hidden" th:field="*{participants}" id="participantsHidden">
-                        <div class="participant-grid" id="participantGrid">
-                            <div th:each="u : ${teamMembers}"
-                                 class="participant-item"
-                                 th:data-username="${u.username}"
-                                 th:data-role="${u.role}"
-                                 onclick="toggleParticipant(this)">
-                                <div class="p-avatar" th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U</div>
-                                <div class="p-info">
-                                    <div class="p-name" th:text="${u.username}">User</div>
-                                    <div class="p-role" th:text="${u.role}">Role</div>
-                                </div>
-                                <div class="p-check"></div>
-                            </div>
-                            <div th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}"
-                                 style="grid-column:1/-1;text-align:center;padding:20px;color:#6b7280;font-size:13px;">
-                                No team members found. Assign members to your team first.
-                            </div>
-                        </div>
-                        <div class="p-count" id="participantCount">0 participant(s) selected</div>
-                        <span class="field-error" th:if="${#fields.hasErrors('participants')}" th:errors="*{participants}"></span>
-                    </div>
+									<!-- Duration -->
+									<div class="form-group">
+										<label>Duration</label>
+										<div class="input-wrap">
+											<select th:field="*{duration}">
+												<option value="15">15 minutes</option>
+												<option value="30">30 minutes</option>
+												<option value="45">45 minutes</option>
+												<option value="60">1 hour</option>
+												<option value="90">1.5 hours</option>
+												<option value="120">2 hours</option>
+											</select>
+										</div>
+									</div>
 
-                    <!-- Agenda (full width) -->
-                    <div class="form-group full">
-                        <label>Agenda</label>
-                        <div class="input-wrap">
-                            <textarea th:field="*{agenda}" rows="3" placeholder="Meeting agenda, topics to discuss…"></textarea>
-                        </div>
-                    </div>
+									<!-- Meeting Type -->
+									<div class="form-group">
+										<label>Meeting Type</label>
+										<div class="input-wrap">
+											<select th:field="*{meetingType}">
+												<option value="ONLINE">Online</option>
+												<option value="IN_PERSON">In Person</option>
+												<option value="HYBRID">Hybrid</option>
+											</select>
+										</div>
+									</div>
 
-                    <!-- Send Notification (full width) -->
-                    <div class="form-group full" style="margin-bottom:0;">
-                        <label class="checkbox-row">
-                            <input type="checkbox" th:field="*{sendNotification}">
-                            Send email notification to participants
-                        </label>
-                    </div>
+									<!-- Location (full width) -->
+									<div class="form-group full">
+										<label>Location / Meeting Link</label>
+										<div class="input-wrap">
+											<input type="text" th:field="*{location}"
+												placeholder="e.g. Conference Room B or https://meet.google.com/…">
+										</div>
+									</div>
 
-                </div><!-- /mtg-form-grid -->
+									<!-- Agenda (full width) -->
+									<div class="form-group full">
+										<label>Agenda</label>
+										<div class="input-wrap">
+											<textarea th:field="*{agenda}" rows="3"
+												placeholder="Topics to discuss…"></textarea>
+										</div>
+									</div>
 
-                <div class="mtg-form-actions">
-                    <a th:href="@{/manager/meetings}" class="btn-cancel">Cancel</a>
-                    <button type="submit" class="btn-submit">
-                        <i data-lucide="calendar-check"></i>
-                        <span th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule Meeting</span>
-                    </button>
-                </div>
-            </form>
-        </div><!-- /form card -->
+									<!-- Send Notification (full width) -->
+									<div class="form-group full" style="padding-bottom:0;">
+										<label class="checkbox-row">
+											<input type="checkbox" th:field="*{sendNotification}">
+											Send email notification to participants
+										</label>
+									</div>
 
-        <!-- ── MEETINGS TABLE ── -->
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <h2>Scheduled Meetings</h2>
-                    <p th:text="${meetings != null} ? (${#lists.size(meetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
-                </div>
-            </div>
-            <div class="table-wrap">
-                <table id="meetingsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Title</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Duration</th>
-                            <th>Type</th>
-                            <th>Participants</th>
-                            <th>Join</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="m, stat : ${meetings}">
-                            <td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1</td>
-                            <td>
-                                <span style="font-weight:600;font-size:14px;color:#163647;" th:text="${m.title}">Title</span>
-                            </td>
-                            <td>
-                                <span style="font-size:13px;color:#4b6a7a;font-weight:500;"
-                                      th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</span>
-                            </td>
-                            <td>
-                                <span style="font-size:13px;color:#4b6a7a;font-weight:500;"
-                                      th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</span>
-                            </td>
-                            <td>
-                                <span style="font-size:13px;color:#6b7280;"
-                                      th:text="${m.duration != null} ? (${m.duration} + ' min') : '—'">—</span>
-                            </td>
-                            <td>
-                                <span class="status-badge badge-online"   th:if="${m.meetingType == 'ONLINE'}">Online</span>
-                                <span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
-                                <span class="status-badge badge-hybrid"   th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
-                            </td>
-                            <td>
-                                <span class="participants-cell" th:text="${m.participants} ?: '—'"
-                                      th:title="${m.participants}">—</span>
-                            </td>
-                            <td>
-                                <a th:if="${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}"
-                                   th:href="${m.location}" target="_blank" rel="noopener noreferrer"
-                                   class="btn-join">
-                                    <i data-lucide="video"></i> Join
-                                </a>
-                                <span th:unless="${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}"
-                                      class="btn-join-disabled"
-                                      th:title="${m.location ?: 'No link provided'}">
-                                    <i data-lucide="map-pin"></i>
-                                    <span th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No Link</span>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-btns">
-                                    <a th:href="@{/manager/meetings/edit/{id}(id=${m.id})}" class="btn-action edit">
-                                        <i data-lucide="pencil"></i> Edit
-                                    </a>
-                                    <button type="button" class="btn-action delete"
-                                            th:data-id="${m.id}" th:data-title="${m.title}"
-                                            onclick="openDeleteModal(this)">
-                                        <i data-lucide="trash-2"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr th:if="${meetings == null or #lists.isEmpty(meetings)}">
-                            <td colspan="9">
-                                <div class="empty-state">
-                                    <i data-lucide="calendar-clock" style="width:48px;height:48px;opacity:.3;"></i>
-                                    <h3>No Meetings Scheduled</h3>
-                                    <p>Use the form above to schedule a meeting for your team.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div><!-- /meetings table card -->
+								</div>
+							</div><!-- /form-left -->
 
-    </div><!-- /page-content -->
-</div><!-- /main-wrapper -->
+							<!-- RIGHT: Participants Panel -->
+							<div class="form-right">
+								<input type="hidden" th:field="*{participants}" id="participantsHidden">
 
-<!-- ── Delete Confirmation Modal ── -->
-<div class="modal-overlay hidden" id="deleteModalOverlay">
-    <div class="modal">
-        <div class="modal-icon"><i data-lucide="trash-2" style="width:36px;height:36px;color:#d11a2a;"></i></div>
-        <h3 class="modal-title">Delete Meeting</h3>
-        <p class="modal-msg">Are you sure you want to delete <strong id="deleteMeetingTitle"></strong>?<br>This action cannot be undone.</p>
-        <div class="modal-actions">
-            <button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
-            <form id="deleteMeetingForm" method="post" style="display:contents;">
-                <button type="submit" class="btn btn-danger"><i data-lucide="trash-2"></i> Yes, Delete</button>
-            </form>
-        </div>
-    </div>
-</div>
+								<!-- Header row -->
+								<div class="participants-panel-header">
+									<div>
+										<h3>Participants <span style="color:#d11a2a;">*</span></h3>
+										<span>Click to select individual members</span>
+									</div>
+									<button type="button" class="btn-select-all" onclick="selectAllParticipants()">
+										<i data-lucide="users"></i> Select All
+									</button>
+								</div>
 
-<script>
-    // ── Sidebar ──
-    var hamburger = document.getElementById('hamburgerBtn');
-    var sidebar   = document.getElementById('sidebar');
-    var overlay   = document.getElementById('sidebarOverlay');
-    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow='hidden'; }
-    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
-    if (hamburger) hamburger.addEventListener('click', openSidebar);
-    if (overlay)   overlay.addEventListener('click', closeSidebar);
+								<!-- Search -->
+								<div class="participant-search-wrap">
+									<i data-lucide="search"></i>
+									<input type="text" id="participantSearchInput"
+										placeholder="Search participants by name or role…"
+										oninput="filterParticipants(this.value)">
+								</div>
 
-    // ── Participant picker ──
-    var hiddenInput = document.getElementById('participantsHidden');
-    var countLabel  = document.getElementById('participantCount');
+								<!-- Participant list -->
+								<div class="participant-list" id="participantGrid">
+									<div th:each="u : ${teamMembers}" class="participant-item"
+										th:data-username="${u.username}" th:data-role="${u.role}"
+										onclick="toggleParticipant(this)">
+										<div class="p-avatar"
+											th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U</div>
+										<div class="p-info">
+											<div class="p-name" th:text="${u.username}">User</div>
+											<div class="p-role" th:text="${u.role}">Role</div>
+										</div>
+										<div class="p-check"></div>
+									</div>
+									<div th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}"
+										style="text-align:center;padding:30px 20px;color:#6b7280;font-size:13px;">
+										No team members found. Assign members to your team first.
+									</div>
+								</div>
 
-    (function preSelect() {
-        var existing = (hiddenInput ? hiddenInput.value : '').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-        if (!existing.length) return;
-        document.querySelectorAll('.participant-item').forEach(function(item) {
-            if (existing.indexOf(item.getAttribute('data-username')) > -1) item.classList.add('selected');
-        });
-        updateCount();
-    })();
+								<!-- Count + error -->
+								<div class="p-count" id="participantCount">
+									<i data-lucide="user-check"></i>
+									<span>0 participant(s) selected</span>
+								</div>
+								<span class="field-error" th:if="${#fields.hasErrors('participants')}"
+									th:errors="*{participants}"></span>
 
-    function toggleParticipant(el) { el.classList.toggle('selected'); updateCount(); }
+							</div><!-- /form-right -->
+						</div><!-- /form-body-split -->
 
-    function updateCount() {
-        var names = [];
-        document.querySelectorAll('.participant-item.selected').forEach(function(el){ names.push(el.getAttribute('data-username')); });
-        if (hiddenInput) hiddenInput.value = names.join(', ');
-        if (countLabel)  countLabel.textContent = names.length + ' participant(s) selected';
-    }
+						<div class="mtg-form-actions">
+							<a th:href="@{/manager/meetings}" class="btn-cancel">Cancel</a>
+							<button type="submit" class="btn-submit">
+								<i data-lucide="calendar-check"></i>
+								<span
+									th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule
+									Meeting</span>
+							</button>
+						</div>
+					</form>
+				</div><!-- /form-card -->
+			</div><!-- /panelSchedule -->
 
-    // ── Table search ──
-    var ms = document.getElementById('meetingSearch');
-    if (ms) ms.addEventListener('input', function() {
-        var q = this.value.toLowerCase();
-        document.querySelectorAll('#meetingsTable tbody tr').forEach(function(r) {
-            r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
-        });
-    });
+			<!-- ── TAB PANEL: Scheduled Meetings ── -->
+			<div class="tab-panel" id="panelList">
+				<div class="meetings-table-card">
+					<div class="card-header">
+						<div>
+							<h2>Scheduled Meetings</h2>
+							<p
+								th:text="${meetings != null} ? (${#lists.size(meetings)} + ' meeting(s)') : '0 meeting(s)'">
+								0 meeting(s)</p>
+						</div>
+						<div class="card-header-icon">
+							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>
+						</div>
+					</div>
+					<div class="table-wrap">
+						<table id="meetingsTable">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Title</th>
+									<th>Date</th>
+									<th>Time</th>
+									<th>Duration</th>
+									<th>Type</th>
+									<th>Participants</th>
+									<th>Join</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="m, stat : ${meetings}">
+									<td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1
+									</td>
+									<td>
+										<span style="font-weight:600;font-size:14px;color:#163647;"
+											th:text="${m.title}">Title</span>
+									</td>
+									<td>
+										<span style="font-size:13px;color:#4b6a7a;font-weight:500;"
+											th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</span>
+									</td>
+									<td>
+										<span style="font-size:13px;color:#4b6a7a;font-weight:500;"
+											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</span>
+									</td>
+									<td>
+										<span style="font-size:13px;color:#6b7280;"
+											th:text="${m.duration != null} ? (${m.duration} + ' min') : '—'">—</span>
+									</td>
+									<td>
+										<span class="status-badge badge-online"
+											th:if="${m.meetingType == 'ONLINE'}">Online</span>
+										<span class="status-badge badge-inperson"
+											th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
+										<span class="status-badge badge-hybrid"
+											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
+									</td>
+									<td>
+										<span class="participants-cell" th:text="${m.participants} ?: '—'"
+											th:title="${m.participants}">—</span>
+									</td>
+									<td>
+										<a th:if="${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}"
+											th:href="${m.location}" target="_blank" rel="noopener noreferrer"
+											class="btn-join">
+											<i data-lucide="video"></i> Join
+										</a>
+										<span
+											th:unless="${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}"
+											class="btn-join-disabled" th:title="${m.location ?: 'No link provided'}">
+											<i data-lucide="map-pin"></i>
+											<span
+												th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No
+												Link</span>
+										</span>
+									</td>
+									<td>
+										<div class="action-btns">
+											<a th:href="@{/manager/meetings/edit/{id}(id=${m.id})}"
+												class="btn-action edit">
+												<i data-lucide="pencil"></i> Edit
+											</a>
+											<button type="button" class="btn-action delete" th:data-id="${m.id}"
+												th:data-title="${m.title}" onclick="openDeleteModal(this)">
+												<i data-lucide="trash-2"></i> Delete
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr th:if="${meetings == null or #lists.isEmpty(meetings)}">
+									<td colspan="9">
+										<div class="empty-state">
+											<i data-lucide="calendar-clock"
+												style="width:48px;height:48px;opacity:.3;"></i>
+											<h3>No Meetings Scheduled</h3>
+											<p>Switch to "Schedule New Meeting" to create your first meeting.</p>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div><!-- /panelList -->
 
-    // ── Delete modal ──
-    function openDeleteModal(btn) {
-        document.getElementById('deleteMeetingTitle').textContent = btn.getAttribute('data-title');
-        document.getElementById('deleteMeetingForm').action = '/manager/meetings/delete/' + btn.getAttribute('data-id');
-        document.getElementById('deleteModalOverlay').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeDeleteModal() {
-        document.getElementById('deleteModalOverlay').classList.add('hidden');
-        document.body.style.overflow = '';
-    }
-    var delOverlay = document.getElementById('deleteModalOverlay');
-    if (delOverlay) delOverlay.addEventListener('click', function(e){ if(e.target===delOverlay) closeDeleteModal(); });
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDeleteModal(); });
+		</div><!-- /page-content -->
+	</div><!-- /main-wrapper -->
 
-    // ── Toast auto-dismiss ──
-    document.querySelectorAll('.toast').forEach(function(t) {
-        requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.classList.add('toast-show'); }); });
-        setTimeout(function(){
-            t.classList.remove('toast-show'); t.classList.add('toast-hide');
-            t.addEventListener('transitionend', function(){ t.remove(); }, { once: true });
-        }, 3500);
-    });
+	<!-- ── Delete Confirmation Modal ── -->
+	<div class="modal-overlay hidden" id="deleteModalOverlay">
+		<div class="modal">
+			<div class="modal-icon"><i data-lucide="trash-2" style="width:36px;height:36px;color:#d11a2a;"></i></div>
+			<h3 class="modal-title">Delete Meeting</h3>
+			<p class="modal-msg">Are you sure you want to delete <strong id="deleteMeetingTitle"></strong>?<br>This
+				action cannot be undone.</p>
+			<div class="modal-actions">
+				<button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+				<form id="deleteMeetingForm" method="post" style="display:contents;">
+					<button type="submit" class="btn btn-danger"><i data-lucide="trash-2"></i> Yes, Delete</button>
+				</form>
+			</div>
+		</div>
+	</div>
 
-    lucide.createIcons();
-</script>
-<script th:src="@{/auth.js}"></script>
+	<script>
+		/* ── Sidebar ── */
+		var hamburger = document.getElementById('hamburgerBtn');
+		var sidebar = document.getElementById('sidebar');
+		var overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+
+		/* ── Tab Switching ── */
+		function switchTab(tab) {
+			document.querySelectorAll('.tab-panel').forEach(function (p) {p.classList.remove('active');});
+			document.querySelectorAll('.tab-btn').forEach(function (b) {b.classList.remove('active');});
+			if (tab === 'schedule') {
+				document.getElementById('panelSchedule').classList.add('active');
+				document.getElementById('tabBtnSchedule').classList.add('active');
+				sessionStorage.setItem('mgr_meetingsTab', 'schedule');
+			} else {
+				document.getElementById('panelList').classList.add('active');
+				document.getElementById('tabBtnList').classList.add('active');
+				sessionStorage.setItem('mgr_meetingsTab', 'list');
+			}
+		}
+
+		/* ── Restore last active tab ── */
+		(function restoreTab() {
+			var hasEditId = /*[[${meetingForm.id != null}]]*/ false;
+			var saved = sessionStorage.getItem('mgr_meetingsTab');
+			if (hasEditId) {
+				switchTab('schedule');
+			} else if (saved === 'list') {
+				switchTab('list');
+			}
+		})();
+
+		/* ── Participant picker ── */
+		var hiddenInput = document.getElementById('participantsHidden');
+		var countLabel = document.getElementById('participantCount');
+
+		(function preSelect() {
+			var existing = (hiddenInput ? hiddenInput.value : '').split(',').map(function (s) {return s.trim();}).filter(Boolean);
+			if (!existing.length) return;
+			document.querySelectorAll('.participant-item').forEach(function (item) {
+				if (existing.indexOf(item.getAttribute('data-username')) > -1) item.classList.add('selected');
+			});
+			updateCount();
+		})();
+
+		function toggleParticipant(el) {el.classList.toggle('selected'); updateCount();}
+
+		function selectAllParticipants() {
+			var items = document.querySelectorAll('.participant-item');
+			var allSelected = Array.from(items).every(function (i) {return i.classList.contains('selected');});
+			items.forEach(function (i) {allSelected ? i.classList.remove('selected') : i.classList.add('selected');});
+			updateCount();
+		}
+
+		function filterParticipants(query) {
+			var q = query.toLowerCase();
+			document.querySelectorAll('.participant-item').forEach(function (item) {
+				var name = (item.getAttribute('data-username') || '').toLowerCase();
+				var role = (item.getAttribute('data-role') || '').toLowerCase();
+				item.style.display = (name.indexOf(q) > -1 || role.indexOf(q) > -1) ? '' : 'none';
+			});
+		}
+
+		function updateCount() {
+			var names = [];
+			document.querySelectorAll('.participant-item.selected').forEach(function (el) {names.push(el.getAttribute('data-username'));});
+			if (hiddenInput) hiddenInput.value = names.join(', ');
+			var span = countLabel ? countLabel.querySelector('span') : null;
+			if (span) span.textContent = names.length + ' participant(s) selected';
+		}
+
+		/* ── Search — auto-switch to list tab ── */
+		var ms = document.getElementById('meetingSearch');
+		if (ms) ms.addEventListener('input', function () {
+			var q = this.value.toLowerCase();
+			if (q) switchTab('list');
+			document.querySelectorAll('#meetingsTable tbody tr').forEach(function (r) {
+				r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+			});
+		});
+
+		/* ── Edit button — switch to schedule tab ── */
+		document.querySelectorAll('.btn-action.edit').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				sessionStorage.setItem('mgr_meetingsTab', 'schedule');
+			});
+		});
+
+		/* ── Delete modal ── */
+		function openDeleteModal(btn) {
+			document.getElementById('deleteMeetingTitle').textContent = btn.getAttribute('data-title');
+			document.getElementById('deleteMeetingForm').action = '/manager/meetings/delete/' + btn.getAttribute('data-id');
+			document.getElementById('deleteModalOverlay').classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+		}
+		function closeDeleteModal() {
+			document.getElementById('deleteModalOverlay').classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+		var delOverlay = document.getElementById('deleteModalOverlay');
+		if (delOverlay) delOverlay.addEventListener('click', function (e) {if (e.target === delOverlay) closeDeleteModal();});
+		document.addEventListener('keydown', function (e) {if (e.key === 'Escape') closeDeleteModal();});
+
+		/* ── Toast auto-dismiss ── */
+		document.querySelectorAll('.toast').forEach(function (t) {
+			requestAnimationFrame(function () {requestAnimationFrame(function () {t.classList.add('toast-show');});});
+			setTimeout(function () {
+				t.classList.remove('toast-show'); t.classList.add('toast-hide');
+				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
+			}, 3500);
+		});
+
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
 </body>
+
 </html>
