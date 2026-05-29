@@ -713,7 +713,6 @@
 		<ul class="sidebar-menu">
 			<li><a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
 			<li><a th:href="@{/admin/employees}"><i data-lucide="users"></i> Employees</a></li>
-			<li><a th:href="@{/admin/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
 			<li><a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
 			<li><a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
 			<li class="active"><a th:href="@{/admin/schedule-meeting}"><i data-lucide="calendar-clock"></i> Meetings</a>
@@ -768,8 +767,8 @@
 								New Meeting</h2>
 							<p>Fill in the details below to schedule a meeting</p>
 						</div>
-<!--						<div class="form-card-icon"><i data-lucide="calendar-plus" style="width:19px;height:19px;"></i>-->
-<!--						</div>-->
+						<!--						<div class="form-card-icon"><i data-lucide="calendar-plus" style="width:19px;height:19px;"></i>-->
+						<!--						</div>-->
 					</div>
 
 					<form th:action="${meetingForm.id != null}
@@ -922,9 +921,9 @@
 								th:text="${upcomingMeetings != null} ? (${#lists.size(upcomingMeetings)} + ' meeting(s) scheduled') : '0 meeting(s) scheduled'">
 								0 meeting(s) scheduled</p>
 						</div>
-<!--						<div class="meetings-table-icon">-->
-<!--							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>-->
-<!--						</div>-->
+						<!--						<div class="meetings-table-icon">-->
+						<!--							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>-->
+						<!--						</div>-->
 					</div>
 					<div class="table-wrap">
 						<table id="meetingsTable">

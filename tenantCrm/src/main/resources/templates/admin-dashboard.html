@@ -1,84 +1,151 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — Dashboard</title>
-    <link rel="stylesheet" th:href="@{/admin.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin — Dashboard</title>
+	<link rel="stylesheet" th:href="@{/admin.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
+
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">CRM Admin</span></div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="layout-dashboard"></i></div><h2>Admin</h2></div>
-    <div class="profile-box">
-        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
-        <h3 th:text="${adminName} ?: 'Admin'">Admin</h3>
-        <p th:text="${adminRole} ?: 'ADMIN'">ADMIN</p>
-    </div>
-    <ul class="sidebar-menu">
-        <li class="active"><a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
-        <li><a th:href="@{/admin/employees}"><i data-lucide="users"></i> Employees</a></li>
-        <li><a th:href="@{/admin/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
-        <li><a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
-        <li><a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
-        <li><a th:href="@{/admin/schedule-meeting}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
-        <li><a th:href="@{/admin/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
-        <li><a th:href="@{/admin/settings}"><i data-lucide="settings"></i> Settings</a></li>
-    </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
-</div>
-<div class="main-wrapper">
-    <div class="topbar">
-        <h1>Dashboard</h1>
-        <div class="topbar-right">
-            <div class="search-box"><input type="text" id="globalSearch" placeholder="Search…"></div>
-            <div class="notif-btn"><i data-lucide="bell"></i></div>
-            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
-        </div>
-    </div>
-    <div class="page-content">
-        <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${totalEmployees} ?: '0'">0</h3><p>Total Employees</p><span class="stat-growth" th:text="${employeeGrowth} ?: '+0%'">+0%</span></div></div>
-            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="folder-open"></i></div><div class="stat-info"><h3 th:text="${activeProjects} ?: '0'">0</h3><p>Active Projects</p><span class="stat-growth" th:text="${projectGrowth} ?: '+0%'">+0%</span></div></div>
-            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="check-square"></i></div><div class="stat-info"><h3 th:text="${tasksDone} ?: '0'">0</h3><p>Tasks Done</p><span class="stat-growth" th:text="${taskGrowth} ?: '+0%'">+0%</span></div></div>
-            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="alert-triangle"></i></div><div class="stat-info"><h3 th:text="${overdueTasks} ?: '0'">0</h3><p>Overdue Tasks</p><span class="stat-growth warn" th:text="${overdueChange} ?: '0%'">0%</span></div></div>
-        </div>
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header"><div><h2>Recent Activity</h2><p>Latest actions across the system</p></div></div>
-                <div class="empty-state"><i data-lucide="clipboard" style="width:40px;height:40px;opacity:.3;"></i><h3>No recent activity</h3><p>Activity will appear here once users start working.</p></div>
-            </div>
-            <div class="right-col">
-                <div class="card">
-                    <div class="card-header"><div><h2>Quick Actions</h2></div></div>
-                    <div class="quick-actions">
-                        <a th:href="@{/admin/employees}" class="quick-action-btn"><div class="qa-icon" style="background:#dff5ea;color:#1b7a46;"><i data-lucide="users"></i></div> Employees</a>
-                        <a th:href="@{/admin/projects}" class="quick-action-btn"><div class="qa-icon" style="background:#dcecf5;color:#17455e;"><i data-lucide="folder-open"></i></div> New Project</a>
-                        <a th:href="@{/admin/tasks}" class="quick-action-btn"><div class="qa-icon" style="background:#fce9d8;color:#b45309;"><i data-lucide="check-square"></i></div> Create Task</a>
-                        <a th:href="@{/admin/reports}" class="quick-action-btn"><div class="qa-icon" style="background:#e9e2ff;color:#5b21b6;"><i data-lucide="file-bar-chart"></i></div> View Reports</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header"><div><h2>Summary</h2></div></div>
-                    <div class="summary-list">
-                        <div class="summary-row"><span class="summary-label">Total Employees</span><span class="summary-value" th:text="${employeeCount} ?: '0'">0</span></div>
-                        <div class="summary-row"><span class="summary-label">Active Projects</span><span class="summary-value" th:text="${projectCount} ?: '0'">0</span></div>
-                        <div class="summary-row"><span class="summary-label">Pending Tasks</span><span class="summary-value" th:text="${pendingTasks} ?: '0'">0</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
-    lucide.createIcons();
-</script>
-<script th:src="@{/auth.js}"></script>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">CRM
+			Admin</span></div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="layout-dashboard"></i></div>
+			<h2>Admin</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+			</div>
+			<h3 th:text="${adminName} ?: 'Admin'">Admin</h3>
+			<p th:text="${adminRole} ?: 'ADMIN'">ADMIN</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li class="active"><a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+			</li>
+			<li><a th:href="@{/admin/employees}"><i data-lucide="users"></i> Employees</a></li>
+			<li><a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/admin/schedule-meeting}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/admin/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/admin/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1>Dashboard</h1>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" id="globalSearch" placeholder="Search…"></div>
+				<div class="notif-btn"><i data-lucide="bell"></i></div>
+				<div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+				</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="stats-row">
+				<div class="stat-card">
+					<div class="stat-icon green"><i data-lucide="users"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${totalEmployees} ?: '0'">0</h3>
+						<p>Total Employees</p><span class="stat-growth" th:text="${employeeGrowth} ?: '+0%'">+0%</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i data-lucide="folder-open"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${activeProjects} ?: '0'">0</h3>
+						<p>Active Projects</p><span class="stat-growth" th:text="${projectGrowth} ?: '+0%'">+0%</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="check-square"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${tasksDone} ?: '0'">0</h3>
+						<p>Tasks Done</p><span class="stat-growth" th:text="${taskGrowth} ?: '+0%'">+0%</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon purple"><i data-lucide="alert-triangle"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${overdueTasks} ?: '0'">0</h3>
+						<p>Overdue Tasks</p><span class="stat-growth warn" th:text="${overdueChange} ?: '0%'">0%</span>
+					</div>
+				</div>
+			</div>
+			<div class="dashboard-grid">
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>Recent Activity</h2>
+							<p>Latest actions across the system</p>
+						</div>
+					</div>
+					<div class="empty-state"><i data-lucide="clipboard" style="width:40px;height:40px;opacity:.3;"></i>
+						<h3>No recent activity</h3>
+						<p>Activity will appear here once users start working.</p>
+					</div>
+				</div>
+				<div class="right-col">
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Quick Actions</h2>
+							</div>
+						</div>
+						<div class="quick-actions">
+							<a th:href="@{/admin/employees}" class="quick-action-btn">
+								<div class="qa-icon" style="background:#dff5ea;color:#1b7a46;"><i
+										data-lucide="users"></i></div> Employees
+							</a>
+							<a th:href="@{/admin/projects}" class="quick-action-btn">
+								<div class="qa-icon" style="background:#dcecf5;color:#17455e;"><i
+										data-lucide="folder-open"></i></div> New Project
+							</a>
+							<a th:href="@{/admin/tasks}" class="quick-action-btn">
+								<div class="qa-icon" style="background:#fce9d8;color:#b45309;"><i
+										data-lucide="check-square"></i></div> Create Task
+							</a>
+							<a th:href="@{/admin/reports}" class="quick-action-btn">
+								<div class="qa-icon" style="background:#e9e2ff;color:#5b21b6;"><i
+										data-lucide="file-bar-chart"></i></div> View Reports
+							</a>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Summary</h2>
+							</div>
+						</div>
+						<div class="summary-list">
+							<div class="summary-row"><span class="summary-label">Total Employees</span><span
+									class="summary-value" th:text="${employeeCount} ?: '0'">0</span></div>
+							<div class="summary-row"><span class="summary-label">Active Projects</span><span
+									class="summary-value" th:text="${projectCount} ?: '0'">0</span></div>
+							<div class="summary-row"><span class="summary-label">Pending Tasks</span><span
+									class="summary-value" th:text="${pendingTasks} ?: '0'">0</span></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
 </body>
+
 </html>

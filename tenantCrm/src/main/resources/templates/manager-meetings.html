@@ -204,6 +204,13 @@
 			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
 		}
 
+		/* Past-date / invalid highlight */
+		.input-wrap input.input-error {
+			border-color: #d11a2a !important;
+			background: #fff5f5 !important;
+			box-shadow: 0 0 0 3px rgba(209, 26, 42, 0.08) !important;
+		}
+
 		.field-error {
 			font-size: 12px;
 			color: #d11a2a;
@@ -767,6 +774,19 @@
 			height: 14px;
 		}
 
+		/* ── Past-date validation toast ── */
+		.datetime-error-msg {
+			display: none;
+			font-size: 12px;
+			color: #d11a2a;
+			margin-top: 4px;
+			font-weight: 500;
+		}
+
+		.datetime-error-msg.visible {
+			display: block;
+		}
+
 		/* ── Responsive ── */
 		@media (max-width: 900px) {
 			.form-body-split {
@@ -918,7 +938,8 @@
 
 					<form th:action="${meetingForm.id != null}
                                   ? @{/manager/meetings/edit/{id}(id=${meetingForm.id})}
-                                  : @{/manager/meetings}" th:object="${meetingForm}" method="post">
+                                  : @{/manager/meetings}" th:object="${meetingForm}" method="post"
+						id="meetingScheduleForm" onsubmit="return validateMeetingDateTime(event)">
 
 						<!-- ── Two-column split ── -->
 						<div class="form-body-split">
@@ -941,15 +962,31 @@
 									<!-- Date -->
 									<div class="form-group">
 										<label>Date <span>*</span></label>
-										<div class="input-wrap"><input type="date" th:field="*{meetingDate}" required>
+										<div class="input-wrap">
+											<input type="date" th:field="*{meetingDate}" id="meetingDateInput" required
+												onchange="onDateTimeChange()">
 										</div>
+										<span class="datetime-error-msg" id="dateErrorMsg">
+											<i data-lucide="alert-circle"
+												style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting date cannot be in the past.
+										</span>
+										<span class="field-error" th:if="${#fields.hasErrors('meetingDate')}"
+											th:errors="*{meetingDate}"></span>
 									</div>
 
 									<!-- Time -->
 									<div class="form-group">
 										<label>Time <span>*</span></label>
-										<div class="input-wrap"><input type="time" th:field="*{meetingTime}" required>
+										<div class="input-wrap">
+											<input type="time" th:field="*{meetingTime}" id="meetingTimeInput" required
+												onchange="onDateTimeChange()">
 										</div>
+										<span class="datetime-error-msg" id="timeErrorMsg">
+											<i data-lucide="alert-circle"
+												style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting time has already passed for today.
+										</span>
 									</div>
 
 									<!-- Duration -->
@@ -1233,6 +1270,107 @@
 				switchTab('list');
 			}
 		})();
+
+		/* ══════════════════════════════════════════════
+		   PAST DATE / TIME VALIDATION
+		   - Sets min="today" on the date input on load
+		   - On date change: if today selected, sets min time to now
+		   - On submit: blocks if date or datetime is in the past
+		══════════════════════════════════════════════ */
+		(function initDateConstraints() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			if (!dateInput) return;
+
+			/* Set today as the minimum selectable date */
+			var today = getTodayString();
+			dateInput.setAttribute('min', today);
+
+			/* If a date is already pre-filled (edit mode), re-apply time min */
+			if (dateInput.value) onDateTimeChange();
+		})();
+
+		/* Returns today's date as YYYY-MM-DD */
+		function getTodayString() {
+			var now = new Date();
+			var y = now.getFullYear();
+			var m = String(now.getMonth() + 1).padStart(2, '0');
+			var d = String(now.getDate()).padStart(2, '0');
+			return y + '-' + m + '-' + d;
+		}
+
+		/* Returns current time as HH:MM */
+		function getCurrentTimeString() {
+			var now = new Date();
+			return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+		}
+
+		/* Called whenever date or time changes — shows/hides inline error messages */
+		function onDateTimeChange() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			var dateErr = document.getElementById('dateErrorMsg');
+			var timeErr = document.getElementById('timeErrorMsg');
+			if (!dateInput) return;
+
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+
+			/* --- Date check --- */
+			var datePast = chosenDate && chosenDate < today;
+			dateInput.classList.toggle('input-error', datePast);
+			if (dateErr) dateErr.classList.toggle('visible', datePast);
+
+			/* --- Time check (only relevant when date == today) --- */
+			if (timeInput && timeErr) {
+				var isToday = chosenDate === today;
+				var timePast = isToday && timeInput.value && timeInput.value < getCurrentTimeString();
+				timeInput.classList.toggle('input-error', timePast);
+				timeErr.classList.toggle('visible', timePast);
+
+				/* When the selected date is today, restrict time picker to future times */
+				if (isToday) {
+					timeInput.setAttribute('min', getCurrentTimeString());
+				} else {
+					timeInput.removeAttribute('min');
+					timeInput.classList.remove('input-error');
+					timeErr.classList.remove('visible');
+				}
+			}
+		}
+
+		/* Called on form submit — final guard before the POST */
+		function validateMeetingDateTime(e) {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			if (!dateInput) return true;
+
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+			var chosenTime = timeInput ? timeInput.value : '';
+
+			/* Block past date */
+			if (chosenDate && chosenDate < today) {
+				dateInput.classList.add('input-error');
+				var dateErr = document.getElementById('dateErrorMsg');
+				if (dateErr) dateErr.classList.add('visible');
+				dateInput.focus();
+				e.preventDefault();
+				return false;
+			}
+
+			/* Block past time on today */
+			if (chosenDate === today && chosenTime && chosenTime < getCurrentTimeString()) {
+				if (timeInput) timeInput.classList.add('input-error');
+				var timeErr = document.getElementById('timeErrorMsg');
+				if (timeErr) timeErr.classList.add('visible');
+				if (timeInput) timeInput.focus();
+				e.preventDefault();
+				return false;
+			}
+
+			return true;
+		}
 
 		/* ── Participant picker ── */
 		var hiddenInput = document.getElementById('participantsHidden');

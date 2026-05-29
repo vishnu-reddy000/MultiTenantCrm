@@ -947,13 +947,15 @@
 									<!-- Date -->
 									<div class="fg">
 										<label>Date <span>*</span></label>
-										<div class="iw"><input type="date" th:field="*{meetingDate}" required></div>
+										<div class="iw"><input type="date" th:field="*{meetingDate}"
+												id="meetingDateInput" required></div>
 									</div>
 
 									<!-- Time -->
 									<div class="fg">
 										<label>Time <span>*</span></label>
-										<div class="iw"><input type="time" th:field="*{meetingTime}" required></div>
+										<div class="iw"><input type="time" th:field="*{meetingTime}"
+												id="meetingTimeInput" required></div>
 									</div>
 
 									<!-- Duration -->
@@ -1324,6 +1326,75 @@
 				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
 			}, 3500);
 		});
+
+		/* ════════════════════════════════════════════════════
+		   ── NO BACK DATE / NO BACK TIME RESTRICTION ──
+		   Only these lines are new — nothing else changed.
+		════════════════════════════════════════════════════ */
+		(function applyDateTimeRestriction() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+
+			if (!dateInput || !timeInput) return;
+
+			/* Helper: returns today as "YYYY-MM-DD" */
+			function todayStr() {
+				var d = new Date();
+				var mm = String(d.getMonth() + 1).padStart(2, '0');
+				var dd = String(d.getDate()).padStart(2, '0');
+				return d.getFullYear() + '-' + mm + '-' + dd;
+			}
+
+			/* Helper: returns current time as "HH:MM" */
+			function nowTimeStr() {
+				var d = new Date();
+				return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+			}
+
+			/* Helper: is the selected date today? */
+			function isToday() {
+				return dateInput.value === todayStr();
+			}
+
+			/* 1. Block past dates — set min to today */
+			dateInput.min = todayStr();
+
+			/* 2. If a past date was somehow already set, clear it */
+			if (dateInput.value && dateInput.value < todayStr()) {
+				dateInput.value = '';
+			}
+
+			/* 3. When date changes — update time min accordingly */
+			dateInput.addEventListener('change', function () {
+				if (isToday()) {
+					timeInput.min = nowTimeStr();
+					/* If the currently entered time is in the past on today, clear it */
+					if (timeInput.value && timeInput.value < nowTimeStr()) {
+						timeInput.value = '';
+					}
+				} else {
+					/* Future date — any time is allowed */
+					timeInput.min = '';
+				}
+			});
+
+			/* 4. On page load — if date is already today, restrict time too */
+			if (isToday()) {
+				timeInput.min = nowTimeStr();
+			}
+
+			/* 5. Re-check time minimum every minute so it stays current while the page is open */
+			setInterval(function () {
+				if (isToday()) {
+					timeInput.min = nowTimeStr();
+					/* Optionally clear an expired time if user hasn't submitted yet */
+					if (timeInput.value && timeInput.value < nowTimeStr()) {
+						timeInput.value = '';
+					}
+				}
+			}, 60000);
+		})();
+		/* ── END RESTRICTION ── */
 
 		lucide.createIcons();
 	</script>
