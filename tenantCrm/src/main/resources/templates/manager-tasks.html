@@ -516,7 +516,17 @@
 		</div>
 
 		<div class="page-content">
-			<!-- Stats Row (unchanged) -->
+			<!-- Flash messages -->
+			<div class="toast success show" th:if="${successMessage}"
+				style="position:relative;bottom:auto;right:auto;margin-bottom:16px;opacity:1;transform:none;pointer-events:auto;">
+				<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
+				<span th:text="${successMessage}"></span>
+			</div>
+			<div class="toast error show" th:if="${errorMessage}"
+				style="position:relative;bottom:auto;right:auto;margin-bottom:16px;opacity:1;transform:none;pointer-events:auto;">
+				<i data-lucide="alert-triangle" style="width:16px;height:16px;flex-shrink:0;"></i>
+				<span th:text="${errorMessage}"></span>
+			</div>
 			<div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
 				<div class="stat-card">
 					<div class="stat-icon orange"><i data-lucide="list-checks"></i></div>
@@ -563,6 +573,7 @@
 								<th>Status</th>
 								<th>Due Date</th>
 								<th>Attachments</th>
+								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -570,11 +581,11 @@
 								<td th:text="${stat.count}">1</td>
 								<td style="font-weight:600;" th:text="${task.title}">Task</td>
 								<td>
-									<span class="assignee-badge" th:if="${task.assignedTo != null}">
+									<span class="assignee-badge" th:if="${task.assignedTo != null and !#strings.isEmpty(task.assignedTo)}">
 										<i data-lucide="user" style="width:12px;height:12px;"></i>
 										<span th:text="${task.assignedTo}">Employee</span>
 									</span>
-									<span th:if="${task.assignedTo == null}"
+									<span th:if="${task.assignedTo == null or #strings.isEmpty(task.assignedTo)}"
 										style="color:#94a3b8;font-size:13px;">—</span>
 								</td>
 								<td>
@@ -591,20 +602,35 @@
 								</td>
 								<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
 								<td>
-									<span class="attach-icon"
-										th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}">
-										<i data-lucide="paperclip" style="width:13px;height:13px;"></i>
-										<span th:text="${#lists.size(task.attachments)}">0</span>
-									</span>
-									<span th:if="${task.attachments == null or #lists.isEmpty(task.attachments)}"
+									<th:block th:if="${!#lists.isEmpty(task.attachmentList)}">
+										<div th:each="att : ${task.attachmentList}" style="margin-bottom:3px;">
+											<a th:href="@{/manager/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
+											   style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+												<i data-lucide="paperclip" style="width:12px;height:12px;"></i>
+												<span th:text="${#strings.substringBefore(att,'::')}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
+											</a>
+										</div>
+									</th:block>
+									<span th:if="${#lists.isEmpty(task.attachmentList)}"
 										style="color:#cbd5e1;font-size:13px;">—</span>
+								</td>
+								<td>
+									<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post"
+										style="display:inline;"
+										onsubmit="return confirm('Delete this task?');">
+										<button type="submit"
+											style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;transition:background .18s;">
+											<i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
+										</button>
+									</form>
 								</td>
 							</tr>
 							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
-								<td colspan="7">
+								<td colspan="8">
 									<div class="empty-state">
 										<i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i>
 										<h3>No Tasks Yet</h3>
+										<p>Click "Assign Task" to create your first task.</p>
 									</div>
 								</td>
 							</tr>
@@ -635,11 +661,6 @@
 
 			<!-- Body -->
 			<div class="modal-body">
-				<!--
-					Backend: POST to /manager/tasks/assign
-					enctype="multipart/form-data" is required for file uploads.
-					Thymeleaf CSRF token is included automatically via th:action.
-				-->
 				<form id="assignTaskForm" th:action="@{/manager/tasks/assign}" method="POST"
 					enctype="multipart/form-data" novalidate>
 
@@ -657,14 +678,10 @@
 						<!-- Assign To Employee -->
 						<div class="form-group full">
 							<label for="assignTo">Assign To <span class="req">*</span></label>
-							<select id="assignTo" name="assignedTo">
+							<select id="assignTo" name="assignedToId">
 								<option value="">— Select Employee —</option>
-								<!--
-									Populate from backend: th:each="emp : ${employees}"
-									<option th:value="${emp.id}" th:text="${emp.name}">Employee</option>
-								-->
 								<th:block th:each="emp : ${employees}">
-									<option th:value="${emp.id}" th:text="${emp.name}">Employee</option>
+									<option th:value="${emp.id}" th:text="${emp.username}">Employee</option>
 								</th:block>
 							</select>
 							<span class="err-msg" id="errAssign">Please select an employee.</span>
@@ -734,7 +751,6 @@
 						<!-- Section: Attachments -->
 						<div class="section-divider">Attachments</div>
 
-						<!-- File Upload -->
 						<div class="form-group full">
 							<label>Attach Files
 								<span style="font-size:11px;color:#94a3b8;text-transform:none;letter-spacing:0;">
@@ -747,7 +763,7 @@
 								<div class="file-upload-icon">
 									<i data-lucide="upload-cloud" style="width:32px;height:32px;"></i>
 								</div>
-								<p><strong>Click to browse</strong> or drag & drop files here</p>
+								<p><strong>Click to browse</strong> or drag &amp; drop files here</p>
 								<p class="file-hint">PDF · DOCX · XLSX · PNG · JPG · ZIP · TXT</p>
 							</div>
 							<div class="file-list" id="fileList"></div>
@@ -772,7 +788,7 @@
 			<!-- Footer -->
 			<div class="modal-footer">
 				<button class="btn-cancel" id="cancelModalBtn" type="button">Cancel</button>
-				<button class="btn-assign" id="submitTaskBtn" type="button">
+				<button class="btn-assign" id="submitTaskBtn" type="submit" form="assignTaskForm">
 					<i data-lucide="send" style="width:15px;height:15px;"></i>
 					Assign Task
 				</button>
@@ -870,120 +886,10 @@
 				}
 			});
 
-			/* ── File upload handling ── */
-			var dropZone = document.getElementById('dropZone'),
-				fileInput = document.getElementById('taskFiles'),
-				fileList = document.getElementById('fileList'),
-				errFiles = document.getElementById('errFiles');
-
-			var selectedFiles = []; // our managed file array
-
-			var MAX_FILES = 5;
-			var MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-			var ALLOWED_EXTS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'png', 'jpg', 'jpeg', 'gif', 'zip', 'txt'];
-
-			function humanSize(bytes) {
-				if (bytes < 1024) return bytes + ' B';
-				if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-				return (bytes / 1048576).toFixed(1) + ' MB';
-			}
-
-			function getExt(name) {
-				return name.split('.').pop().toLowerCase();
-			}
-
-			function renderFileList() {
-				fileList.innerHTML = '';
-				selectedFiles.forEach(function (f, idx) {
-					var item = document.createElement('div');
-					item.className = 'file-item';
-					item.innerHTML =
-						'<i data-lucide="file-text" style="width:14px;height:14px;flex-shrink:0;"></i>' +
-						'<span title="' + f.name + '">' + f.name + ' <em style="color:#94a3b8;font-weight:400;">(' + humanSize(f.size) + ')</em></span>' +
-						'<button type="button" aria-label="Remove file" data-idx="' + idx + '">' +
-						'<i data-lucide="x-circle" style="width:15px;height:15px;"></i></button>';
-					fileList.appendChild(item);
-				});
-				lucide.createIcons();
-				// Attach remove handlers
-				fileList.querySelectorAll('button[data-idx]').forEach(function (btn) {
-					btn.addEventListener('click', function () {
-						selectedFiles.splice(parseInt(this.dataset.idx), 1);
-						renderFileList();
-						syncFileInput();
-					});
-				});
-			}
-
-			function syncFileInput() {
-				// Build a new DataTransfer to keep fileInput in sync (for native form submit)
-				try {
-					var dt = new DataTransfer();
-					selectedFiles.forEach(function (f) {dt.items.add(f);});
-					fileInput.files = dt.files;
-				} catch (e) { /* Safari fallback: files will be submitted via selectedFiles array */}
-			}
-
-			function addFiles(newFiles) {
-				var errMsgs = [];
-				Array.from(newFiles).forEach(function (f) {
-					if (selectedFiles.length >= MAX_FILES) {
-						errMsgs.push('Maximum ' + MAX_FILES + ' files allowed.');
-						return;
-					}
-					if (!ALLOWED_EXTS.includes(getExt(f.name))) {
-						errMsgs.push('"' + f.name + '" — unsupported file type.');
-						return;
-					}
-					if (f.size > MAX_SIZE_BYTES) {
-						errMsgs.push('"' + f.name + '" exceeds 10 MB limit.');
-						return;
-					}
-					// Check duplicate
-					var isDup = selectedFiles.some(function (sf) {
-						return sf.name === f.name && sf.size === f.size;
-					});
-					if (isDup) {
-						errMsgs.push('"' + f.name + '" is already added.');
-						return;
-					}
-					selectedFiles.push(f);
-				});
-				if (errMsgs.length) {
-					showFieldError(errFiles, errMsgs[0]);
-				} else {
-					clearFieldError(errFiles, null);
-				}
-				renderFileList();
-				syncFileInput();
-			}
-
-			if (fileInput) fileInput.addEventListener('change', function () {
-				addFiles(this.files);
-				this.value = ''; // reset so same file can be re-added after removal
-			});
-
-			// Drag & drop
-			if (dropZone) {
-				dropZone.addEventListener('dragover', function (e) {
-					e.preventDefault();
-					dropZone.classList.add('dragover');
-				});
-				dropZone.addEventListener('dragleave', function () {
-					dropZone.classList.remove('dragover');
-				});
-				dropZone.addEventListener('drop', function (e) {
-					e.preventDefault();
-					dropZone.classList.remove('dragover');
-					addFiles(e.dataTransfer.files);
-				});
-			}
-
 			/* ── Validation helpers ── */
 			function showFieldError(el, msg) {
 				el.textContent = msg;
 				el.classList.add('show');
-				// mark input red
 				var id = el.id.replace('err', '').replace(/^./, function (c) {return c.toLowerCase();});
 				var inp = document.getElementById(id) || document.getElementById('task' + id.charAt(0).toUpperCase() + id.slice(1));
 				if (inp) inp.classList.add('error');
@@ -1070,53 +976,83 @@
 				});
 			});
 
-			/* ── Submit ── */
+			/* ── File upload handling ── */
+			var dropZone = document.getElementById('dropZone'),
+				fileInput = document.getElementById('taskFiles'),
+				fileList  = document.getElementById('fileList'),
+				errFiles  = document.getElementById('errFiles');
+
+			var selectedFiles = [];
+			var MAX_FILES = 5;
+			var MAX_SIZE_BYTES = 10 * 1024 * 1024;
+			var ALLOWED_EXTS = ['pdf','doc','docx','xls','xlsx','ppt','pptx','png','jpg','jpeg','gif','zip','txt'];
+
+			function humanSize(bytes) {
+				if (bytes < 1024) return bytes + ' B';
+				if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+				return (bytes / 1048576).toFixed(1) + ' MB';
+			}
+
+			function getExt(name) { return name.split('.').pop().toLowerCase(); }
+
+			function renderFileList() {
+				fileList.innerHTML = '';
+				selectedFiles.forEach(function (f, idx) {
+					var item = document.createElement('div');
+					item.className = 'file-item';
+					item.innerHTML =
+						'<i data-lucide="file-text" style="width:14px;height:14px;flex-shrink:0;"></i>' +
+						'<span title="' + f.name + '">' + f.name + ' <em style="color:#94a3b8;font-weight:400;">(' + humanSize(f.size) + ')</em></span>' +
+						'<button type="button" aria-label="Remove" data-idx="' + idx + '">' +
+						'<i data-lucide="x-circle" style="width:15px;height:15px;"></i></button>';
+					fileList.appendChild(item);
+				});
+				lucide.createIcons();
+				fileList.querySelectorAll('button[data-idx]').forEach(function (btn) {
+					btn.addEventListener('click', function () {
+						selectedFiles.splice(parseInt(this.dataset.idx), 1);
+						renderFileList(); syncFileInput();
+					});
+				});
+			}
+
+			function syncFileInput() {
+				try {
+					var dt = new DataTransfer();
+					selectedFiles.forEach(function (f) { dt.items.add(f); });
+					fileInput.files = dt.files;
+				} catch (e) {}
+			}
+
+			function addFiles(newFiles) {
+				var errMsgs = [];
+				Array.from(newFiles).forEach(function (f) {
+					if (selectedFiles.length >= MAX_FILES) { errMsgs.push('Max ' + MAX_FILES + ' files allowed.'); return; }
+					if (!ALLOWED_EXTS.includes(getExt(f.name))) { errMsgs.push('"' + f.name + '" — unsupported type.'); return; }
+					if (f.size > MAX_SIZE_BYTES) { errMsgs.push('"' + f.name + '" exceeds 10 MB.'); return; }
+					if (selectedFiles.some(function (sf) { return sf.name === f.name && sf.size === f.size; })) {
+						errMsgs.push('"' + f.name + '" already added.'); return;
+					}
+					selectedFiles.push(f);
+				});
+				if (errMsgs.length) { showFieldError(errFiles, errMsgs[0]); }
+				else { clearFieldError(errFiles, null); }
+				renderFileList(); syncFileInput();
+			}
+
+			if (fileInput) fileInput.addEventListener('change', function () { addFiles(this.files); this.value = ''; });
+
+			if (dropZone) {
+				dropZone.addEventListener('dragover',  function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+				dropZone.addEventListener('dragleave', function ()  { dropZone.classList.remove('dragover'); });
+				dropZone.addEventListener('drop',      function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+			}
+
+			/* ── Submit — direct form POST ── */
 			if (submitBtn) submitBtn.addEventListener('click', function () {
 				if (!validateForm()) return;
-
-				var form = document.getElementById('assignTaskForm');
-
-				// If browser supports DataTransfer sync, just submit normally
-				// Otherwise, we build FormData manually with selectedFiles
-				var formData = new FormData(form);
-
-				// Remove auto-captured files and re-add from our managed array
-				formData.delete('attachments');
-				selectedFiles.forEach(function (f) {
-					formData.append('attachments', f, f.name);
-				});
-
-				// Disable button to prevent double submit
-				submitBtn.disabled = true;
-				submitBtn.innerHTML = '<i data-lucide="loader-2" style="width:15px;height:15px;animation:spin 1s linear infinite;"></i> Assigning…';
-				lucide.createIcons();
-
-				fetch(form.action, {
-					method: 'POST',
-					body: formData
-					// Do NOT set Content-Type header — browser sets multipart boundary automatically
-				})
-					.then(function (res) {
-						if (res.ok || res.redirected) {
-							showToast('Task assigned successfully!', 'success');
-							closeModal();
-							// Reload to reflect new task in table
-							setTimeout(function () {window.location.reload();}, 1200);
-						} else {
-							return res.text().then(function (text) {
-								throw new Error(text || 'Server error: ' + res.status);
-							});
-						}
-					})
-					.catch(function (err) {
-						showToast('Failed to assign task. Please try again.', 'error');
-						console.error(err);
-					})
-					.finally(function () {
-						submitBtn.disabled = false;
-						submitBtn.innerHTML = '<i data-lucide="send" style="width:15px;height:15px;"></i> Assign Task';
-						lucide.createIcons();
-					});
+				syncFileInput();
+				document.getElementById('assignTaskForm').submit();
 			});
 
 			/* ── Toast ── */
@@ -1140,15 +1076,10 @@
 				if (form) form.reset();
 				selectedFiles = [];
 				if (fileList) fileList.innerHTML = '';
-				// Clear all error states
-				document.querySelectorAll('.err-msg').forEach(function (e) {
-					e.classList.remove('show'); e.textContent = '';
-				});
-				document.querySelectorAll('.error').forEach(function (e) {
-					e.classList.remove('error');
-				});
+				document.querySelectorAll('.err-msg').forEach(function (e) { e.classList.remove('show'); e.textContent = ''; });
+				document.querySelectorAll('.error').forEach(function (e) { e.classList.remove('error'); });
 				if (titleCount) titleCount.textContent = '0';
-				if (descCount) descCount.textContent = '0';
+				if (descCount)  descCount.textContent  = '0';
 			}
 
 			/* ── Show success toast from server redirect (Thymeleaf flash attribute) ── */

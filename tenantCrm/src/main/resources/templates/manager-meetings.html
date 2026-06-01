@@ -680,6 +680,73 @@
 			color: #6b7280;
 		}
 
+		/* ── View Participants button ── */
+		.btn-participants {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 5px 11px;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #e9f0f5;
+			color: #17455e;
+			border: 1.5px solid #c8dfe9;
+			cursor: pointer;
+			transition: background .18s, border-color .18s, transform .15s;
+			white-space: nowrap;
+		}
+		.btn-participants:hover {
+			background: #dcecf5;
+			border-color: #17455e;
+			transform: translateY(-1px);
+		}
+		.btn-participants i[data-lucide] {
+			width: 12px;
+			height: 12px;
+		}
+
+		/* ── Participants modal list ── */
+		.participants-modal-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 320px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+		.participants-modal-list::-webkit-scrollbar { width: 4px; }
+		.participants-modal-list::-webkit-scrollbar-track { background: transparent; }
+		.participants-modal-list::-webkit-scrollbar-thumb { background: #d1dce3; border-radius: 4px; }
+		.pm-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 12px;
+			border-radius: 10px;
+			background: #f7fbfd;
+			border: 1.5px solid #e5edf2;
+		}
+		.pm-avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 12px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+		.pm-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+		}
+
 		/* ── Modal ── */
 		.modal-overlay {
 			position: fixed;
@@ -1169,8 +1236,16 @@
 											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
 									</td>
 									<td>
-										<span class="participants-cell" th:text="${m.participants} ?: '—'"
-											th:title="${m.participants}">—</span>
+										<div class="participants-cell">
+											<button type="button" class="btn-participants"
+												th:if="${m.participants != null and !#strings.isEmpty(m.participants)}"
+												th:attr="data-participants=${m.participants}"
+												onclick="openParticipantsModal(this)">
+												<i data-lucide="users"></i>
+												View Participants
+											</button>
+											<span th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
+										</div>
 									</td>
 									<td>
 										<th:block th:with="
@@ -1245,13 +1320,16 @@
 
 	<!-- Participants Modal -->
 	<div class="modal-overlay hidden" id="participantsModalOverlay">
-		<div class="modal" style="max-width:520px;">
+		<div class="modal" style="max-width:460px;text-align:left;">
 			<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;">
-				<h3 class="modal-title" style="margin:0;">Participants</h3>
-				<button type="button" style="border:none;background:transparent;color:#6b7280;font-size:22px;cursor:pointer;" onclick="closeParticipantsModal()">&times;</button>
+				<div>
+					<h3 class="modal-title" style="margin:0;text-align:left;">Meeting Participants</h3>
+					<p style="font-size:12px;color:#6b7280;margin:4px 0 0;" id="participantsModalCount"></p>
+				</div>
+				<button type="button" style="border:none;background:#f3f8fb;color:#6b7280;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="closeParticipantsModal()">&times;</button>
 			</div>
-			<pre id="participantsModalText" style="white-space:pre-wrap;word-wrap:break-word;font-size:13px;color:#334155;margin:0;">No participants</pre>
-			<div class="modal-actions" style="margin-top:24px;justify-content:flex-end;">
+			<div class="participants-modal-list" id="participantsModalList">No participants</div>
+			<div class="modal-actions" style="margin-top:20px;justify-content:flex-end;">
 				<button type="button" class="btn btn-clear" onclick="closeParticipantsModal()">Close</button>
 			</div>
 		</div>
@@ -1462,9 +1540,25 @@
 			document.body.style.overflow = '';
 		}
 
-		function openParticipantsModal(btn) {
-			var participants = btn.getAttribute('data-participants') || 'No participants';
-			document.getElementById('participantsModalText').textContent = participants;
+function escapeHtml(text) {
+				return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			}
+
+			function openParticipantsModal(btn) {
+				var raw = btn.getAttribute('data-participants') || '';
+				var list = document.getElementById('participantsModalList');
+				var countEl = document.getElementById('participantsModalCount');
+				var items = raw.split(',').map(function(item) { return item.trim(); }).filter(function(item) { return item.length > 0; });
+				if (items.length === 0) {
+					list.innerHTML = '<div style="color:#64748b;text-align:center;padding:16px;">No participants</div>';
+					if (countEl) countEl.textContent = '';
+				} else {
+					if (countEl) countEl.textContent = items.length + ' participant' + (items.length !== 1 ? 's' : '');
+					list.innerHTML = items.map(function(item) {
+						var initial = item.charAt(0).toUpperCase();
+						return '<div class="pm-item"><div class="pm-avatar">' + escapeHtml(initial) + '</div><div class="pm-name">' + escapeHtml(item) + '</div></div>';
+					}).join('');
+				}
 			document.getElementById('participantsModalOverlay').classList.remove('hidden');
 			document.body.style.overflow = 'hidden';
 		}

@@ -25,23 +25,40 @@ import com.crm.demo.model.Attendance;
 import com.crm.demo.model.AttendanceDay;
 import com.crm.demo.model.Holiday;
 import com.crm.demo.model.Meeting;
+import com.crm.demo.model.Task;
 import com.crm.demo.model.Team;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.AttendanceRepository;
 import com.crm.demo.repository.HolidayRepository;
 import com.crm.demo.repository.MeetingRepository;
+import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @RequestMapping("/employee")
 public class EmployeeController {
+
+    @Value("${app.upload.dir:uploads/tasks}")
+    private String uploadDir;
 
     @Autowired private UserRepository        userRepository;
     @Autowired private AttendanceRepository  attendanceRepository;
     @Autowired private HolidayRepository     holidayRepository;
     @Autowired private TeamRepository        teamRepository;
     @Autowired private MeetingRepository     meetingRepository;
+    @Autowired private TaskRepository        taskRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
 
     // ── helpers ───────────────────────────────────────────────────────────
@@ -170,6 +187,32 @@ public class EmployeeController {
     public String tasksPage(Model model) {
         injectUser(model);
         injectStats(model);
+
+        User emp = getCurrentEmployee();
+        if (emp != null) {
+            String tenant = getTenantSegment(emp);
+            String username = emp.getUsername();
+
+            // Load only tasks assigned to this employee in their tenant
+            List<Task> myTasks = taskRepository.findByAssignedToAndTenantSegment(username, tenant);
+
+            long completed  = myTasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+            long inProgress = myTasks.stream().filter(t -> "in-progress".equalsIgnoreCase(t.getStatus())).count();
+            long pending    = myTasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+
+            model.addAttribute("myTasks",       myTasks);
+            model.addAttribute("completedTasks", completed);
+            model.addAttribute("inProgressTasks", inProgress);
+            model.addAttribute("pendingTasks",   pending);
+            model.addAttribute("totalTasks",     myTasks.size());
+        } else {
+            model.addAttribute("myTasks",        java.util.Collections.emptyList());
+            model.addAttribute("completedTasks", 0);
+            model.addAttribute("inProgressTasks", 0);
+            model.addAttribute("pendingTasks",   0);
+            model.addAttribute("totalTasks",     0);
+        }
+
         return "employee-tasks";
     }
 
@@ -484,5 +527,23 @@ public class EmployeeController {
         userRepository.save(emp);
         ra.addFlashAttribute("successMessage", "Profile updated successfully.");
         return "redirect:/employee/settings";
+    }
+
+    // ── DOWNLOAD TASK ATTACHMENT ──────────────────────────────────────────
+    @GetMapping("/tasks/download/{storedName}")
+    public ResponseEntity<Resource> downloadAttachment(@PathVariable String storedName) {
+        try {
+            Path filePath = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(storedName);
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists()) return ResponseEntity.notFound().build();
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) contentType = "application/octet-stream";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + storedName + "\"")
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

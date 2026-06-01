@@ -1,4 +1,9 @@
 package com.crm.demo.controller;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,8 +13,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import org.springframework.validation.BindingResult;
@@ -47,6 +59,8 @@ import jakarta.validation.Valid;
 @RequestMapping("/manager")
 public class ManagerController {
 
+	@Value("${app.upload.dir:uploads/tasks}")
+	private String uploadDir;
 	@Autowired
 	private UserRepository userRepository;
 
@@ -110,15 +124,15 @@ public class ManagerController {
 		model.addAttribute("managerName", manager.getUsername());
 		model.addAttribute("managerEmail", manager.getEmail());
 
-		// ── Load team assigned to this manager ────────────────────────────
-        Team myTeam = getManagerTeamWithMembers(manager);
-        List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
+		// ── Load team(s) assigned to this manager ────────────────────────────
+		Team myTeam = getPrimaryTeam(manager);
+		List<User> teamMembers = getManagedTeamMembers(manager);
 
 		long active   = teamMembers.stream().filter(User::isActive).count();
 		long inactive = teamMembers.size() - active;
 
 		model.addAttribute("myTeam",      myTeam);
-		model.addAttribute("myTeamName",  myTeam != null ? myTeam.getName() : "No Team Assigned");
+		model.addAttribute("myTeamName",  getManagedTeamName(manager));
 		model.addAttribute("teamMembers", teamMembers);
 		model.addAttribute("teamCount",   teamMembers.size());
 		model.addAttribute("activeTeam",  active);
@@ -126,6 +140,7 @@ public class ManagerController {
 
 		// ── Projects & Tasks ──────────────────────────────────────────────
 		List<Project> projects = projectRepository.findAll();
+		// For stats only — scoped tasks loaded per-page where needed
 		List<Task>    tasks    = taskRepository.findAll();
 
 		long done    = tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
@@ -149,9 +164,39 @@ public class ManagerController {
 		model.addAttribute("pendingTaskList",   Collections.emptyList());
 	}
 
-	private Team getManagerTeamWithMembers(User manager) {
-		List<Team> teams = teamRepository.findByManagerWithMembers(manager);
+	private List<Team> getManagedTeams(User manager) {
+		if (manager == null) {
+			return Collections.emptyList();
+		}
+		return teamRepository.findByManagerWithMembers(manager);
+	}
+
+	private Team getPrimaryTeam(User manager) {
+		List<Team> teams = getManagedTeams(manager);
 		return teams.isEmpty() ? null : teams.get(0);
+	}
+
+	private List<User> getManagedTeamMembers(User manager) {
+		Map<Long, User> uniqueMembers = new LinkedHashMap<>();
+		for (Team team : getManagedTeams(manager)) {
+			for (User member : team.getMembers()) {
+				if (member != null && member.getId() != null) {
+					uniqueMembers.putIfAbsent(member.getId(), member);
+				}
+			}
+		}
+		return new ArrayList<>(uniqueMembers.values());
+	}
+
+	private String getManagedTeamName(User manager) {
+		List<Team> teams = getManagedTeams(manager);
+		if (teams.isEmpty()) {
+			return "No Team Assigned";
+		}
+		if (teams.size() == 1) {
+			return teams.get(0).getName();
+		}
+		return String.join(", ", teams.stream().map(Team::getName).toList());
 	}
 
 	// =========================
@@ -186,9 +231,9 @@ public class ManagerController {
 		User manager = getCurrentManager();
 		if (manager == null) { resp.put("error", "Not authenticated."); return resp; }
 
-		// Verify the requested user is actually in this manager's team
-		Team myTeam = getManagerTeamWithMembers(manager);
-		boolean inTeam = myTeam != null && myTeam.getMembers().stream().anyMatch(m -> m.getId().equals(id));
+		// Verify the requested user is actually in this manager's team(s)
+		List<Team> myTeams = getManagedTeams(manager);
+		boolean inTeam = myTeams.stream().flatMap(t -> t.getMembers().stream()).anyMatch(m -> m.getId().equals(id));
 		if (!inTeam) { resp.put("error", "Member not found in your team."); return resp; }
 
 		User user = userRepository.findById(id).orElse(null);
@@ -253,7 +298,145 @@ public class ManagerController {
 
 		injectStats(model);
 
+		User manager = getCurrentManager();
+		if (manager != null) {
+			String tenant = getTenantSegment(manager);
+			// Only show tasks belonging to this manager's tenant
+			List<Task> tasks = taskRepository.findByTenantSegment(tenant);
+			long done    = tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+			long pending = tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+			model.addAttribute("tasks",            tasks);
+			model.addAttribute("totalTasks",       tasks.size());
+			model.addAttribute("doneTasks",        done);
+			model.addAttribute("pendingTaskCount", pending);
+
+			// Pass team members as "employees" for the assign dropdown
+			List<User> teamMembers = getManagedTeamMembers(manager);
+			model.addAttribute("employees", teamMembers);
+		}
+
 		return "manager-tasks";
+	}
+
+	// =========================
+	// ASSIGN TASK (POST)
+	// =========================
+	@PostMapping("/tasks/assign")
+	public String assignTask(
+			@RequestParam String title,
+			@RequestParam(required = false) String description,
+			@RequestParam String priority,
+			@RequestParam String status,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String dueDate,
+			@RequestParam Long assignedToId,
+			@RequestParam(value = "attachments", required = false) MultipartFile[] attachments,
+			RedirectAttributes ra) {
+
+		User manager = getCurrentManager();
+		if (manager == null) {
+			ra.addFlashAttribute("errorMessage", "Session expired. Please log in again.");
+			return "redirect:/manager/tasks";
+		}
+
+		String tenant = getTenantSegment(manager);
+
+		// Verify the assigned employee is actually in this manager's team
+		List<User> teamMembers = getManagedTeamMembers(manager);
+		User assignedUser = teamMembers.stream()
+				.filter(u -> u.getId().equals(assignedToId))
+				.findFirst()
+				.orElse(null);
+
+		if (assignedUser == null) {
+			ra.addFlashAttribute("errorMessage", "Selected employee is not in your team.");
+			return "redirect:/manager/tasks";
+		}
+
+		// Save uploaded files
+		List<String> savedPaths = new ArrayList<>();
+		if (attachments != null) {
+			for (MultipartFile file : attachments) {
+				if (file == null || file.isEmpty()) continue;
+				try {
+					Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+					Files.createDirectories(uploadPath);
+					String ext = "";
+					String original = file.getOriginalFilename();
+					if (original != null && original.contains(".")) {
+						ext = original.substring(original.lastIndexOf('.'));
+					}
+					String storedName = UUID.randomUUID().toString() + ext;
+					Path target = uploadPath.resolve(storedName);
+					Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+					// Store as "originalName::storedName" so we can show the original name
+					savedPaths.add(original + "::" + storedName);
+				} catch (IOException e) {
+					ra.addFlashAttribute("errorMessage", "File upload failed: " + e.getMessage());
+					return "redirect:/manager/tasks";
+				}
+			}
+		}
+
+		Task task = new Task();
+		task.setTitle(title.trim());
+		task.setDescription(description);
+		task.setPriority(priority);
+		task.setStatus(status);
+		task.setStartDate(startDate);
+		task.setDueDate(dueDate);
+		task.setAssignedTo(assignedUser.getUsername());
+		task.setAssignedToId(assignedUser.getId());
+		task.setTenantSegment(tenant);
+		task.setCreatedBy(manager.getUsername());
+		if (!savedPaths.isEmpty()) {
+			task.setAttachmentPaths(String.join(",", savedPaths));
+		}
+
+		taskRepository.save(task);
+
+		ra.addFlashAttribute("successMessage", "Task assigned to " + assignedUser.getUsername() + " successfully.");
+		return "redirect:/manager/tasks";
+	}
+
+	// =========================
+	// DOWNLOAD TASK ATTACHMENT
+	// =========================
+	@GetMapping("/tasks/download/{storedName}")
+	public ResponseEntity<Resource> downloadAttachment(@PathVariable String storedName) {
+		try {
+			Path filePath = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(storedName);
+			Resource resource = new UrlResource(filePath.toUri());
+			if (!resource.exists()) {
+				return ResponseEntity.notFound().build();
+			}
+			String contentType = Files.probeContentType(filePath);
+			if (contentType == null) contentType = "application/octet-stream";
+			return ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + storedName + "\"")
+					.header(HttpHeaders.CONTENT_TYPE, contentType)
+					.body(resource);
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().build();
+		}
+	}
+
+	// =========================
+	// DELETE TASK (POST)
+	// =========================
+	@PostMapping("/tasks/delete/{id}")
+	public String deleteTask(@PathVariable Long id, RedirectAttributes ra) {
+		User manager = getCurrentManager();
+		String tenant = manager != null ? getTenantSegment(manager) : "";
+
+		Task task = taskRepository.findById(id).orElse(null);
+		if (task == null || !tenant.equals(task.getTenantSegment())) {
+			ra.addFlashAttribute("errorMessage", "Task not found.");
+		} else {
+			taskRepository.deleteById(id);
+			ra.addFlashAttribute("successMessage", "Task deleted successfully.");
+		}
+		return "redirect:/manager/tasks";
 	}
 
 	// =========================
@@ -319,9 +502,7 @@ public class ManagerController {
 			String username = manager.getUsername();
 			model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
 			// Team members available as participants
-			Team myTeam = getManagerTeamWithMembers(manager);
-			List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
-			model.addAttribute("teamMembers", teamMembers);
+			model.addAttribute("teamMembers", getManagedTeamMembers(manager));
 		} else {
 			model.addAttribute("meetings", Collections.emptyList());
 			model.addAttribute("teamMembers", Collections.emptyList());
@@ -346,9 +527,7 @@ public class ManagerController {
 			injectStats(model);
 			if (manager != null) {
 				model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-				Team myTeam = getManagerTeamWithMembers(manager);
-				model.addAttribute("teamMembers",
-						myTeam != null ? myTeam.getMembers() : Collections.emptyList());
+				model.addAttribute("teamMembers", getManagedTeamMembers(manager));
 			} else {
 				model.addAttribute("meetings", Collections.emptyList());
 				model.addAttribute("teamMembers", Collections.emptyList());
@@ -380,8 +559,7 @@ public class ManagerController {
 		injectStats(model);
 		model.addAttribute("meetingForm", meeting);
 		model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-		Team myTeam = manager != null ? getManagerTeamWithMembers(manager) : null;
-		model.addAttribute("teamMembers", myTeam != null ? myTeam.getMembers() : Collections.emptyList());
+		model.addAttribute("teamMembers", getManagedTeamMembers(manager));
 		return "manager-meetings";
 	}
 
@@ -399,8 +577,7 @@ public class ManagerController {
 		if (result.hasErrors()) {
 			injectStats(model);
 			model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-			Team myTeam = manager != null ? getManagerTeamWithMembers(manager) : null;
-			model.addAttribute("teamMembers", myTeam != null ? myTeam.getMembers() : Collections.emptyList());
+			model.addAttribute("teamMembers", getManagedTeamMembers(manager));
 			model.addAttribute("errorMessage", "Please fix the errors below.");
 			return "manager-meetings";
 		}

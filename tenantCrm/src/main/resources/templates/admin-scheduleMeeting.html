@@ -98,13 +98,12 @@
 			}
 		}
 
-		/* ── Form card — full width ── */
+		/* ── Form card ── */
 		.form-card {
 			background: white;
-			border-radius: 18px;
-			box-shadow: 0 4px 20px rgba(23, 69, 94, 0.09);
+			border-radius: 22px;
+			box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 			overflow: hidden;
-			border: 1px solid #e8f2f8;
 			width: 100%;
 		}
 
@@ -112,190 +111,279 @@
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 20px 28px 16px;
+			padding: 24px 32px 20px;
 			border-bottom: 1px solid #edf3f6;
-			background: linear-gradient(135deg, #f7fbfd 0%, #ffffff 100%);
+			background: linear-gradient(135deg, #f7fbfd 0%, #eef5fa 100%);
 		}
 
 		.form-card-header h2 {
-			font-size: 17px;
+			font-size: 18px;
 			font-weight: 700;
 			color: #163647;
+			margin: 0;
 		}
 
 		.form-card-header p {
 			font-size: 12px;
 			color: #6b7280;
-			margin-top: 3px;
+			margin-top: 4px;
+			margin-bottom: 0;
 		}
 
 		.form-card-icon {
-			width: 42px;
-			height: 42px;
-			border-radius: 12px;
-			background: #dcecf5;
-			color: #17455e;
+			width: 46px;
+			height: 46px;
+			border-radius: 14px;
+			background: #17455e;
+			color: white;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			flex-shrink: 0;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.28);
 		}
 
-		.form-card-body {
-			padding: 24px 28px;
+		/* Two-column split: left = fields, right = participants */
+		.form-body-split {
+			display: grid;
+			grid-template-columns: 1fr 380px;
+			gap: 0;
+			min-height: 0;
 		}
 
-		/* Two-column form layout on wider screens */
-		.form-body-grid {
+		.form-left {
+			padding: 28px 32px;
+			border-right: 1px solid #edf3f6;
+		}
+
+		.form-fields-grid {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			gap: 0 32px;
+			gap: 16px 22px;
 		}
 
-		.form-body-grid .fg-full {
+		.form-fields-grid .full {
 			grid-column: 1 / -1;
 		}
 
-		@media (max-width: 900px) {
-			.form-body-grid {
-				grid-template-columns: 1fr;
-			}
-
-			.form-body-grid .fg-full {
-				grid-column: 1;
-			}
+		.form-group {
+			margin: 0;
 		}
 
-		.form-card-footer {
-			display: flex;
-			justify-content: flex-end;
-			gap: 10px;
-			padding: 14px 28px 20px;
-			border-top: 1px solid #edf3f6;
-			background: #fafcfd;
-		}
-
-		/* ── Form fields ── */
-		.fg {
-			margin-bottom: 16px;
-		}
-
-		.fg:last-child {
-			margin-bottom: 0;
-		}
-
-		.fg label {
+		.form-group label {
 			display: block;
 			font-size: 11px;
-			font-weight: 600;
-			color: #163647;
-			margin-bottom: 6px;
+			font-weight: 700;
+			color: #8a9fb0;
+			letter-spacing: 0.07em;
 			text-transform: uppercase;
-			letter-spacing: 0.4px;
+			margin-bottom: 7px;
 		}
 
-		.fg label span {
-			color: #d11a2a;
-		}
+		.form-group label span { color: #d11a2a; }
 
-		.fg .iw input,
-		.fg .iw select,
-		.fg .iw textarea {
+		.input-wrap input,
+		.input-wrap select,
+		.input-wrap textarea {
 			width: 100%;
-			height: 42px;
 			border: 1.5px solid #e5edf2;
-			border-radius: 10px;
+			border-radius: 12px;
 			padding: 0 14px;
-			font-size: 13px;
+			height: 44px;
+			font-size: 13.5px;
 			font-family: 'Poppins', sans-serif;
+			outline: none;
 			background: #f9fbfc;
 			color: #163647;
-			outline: none;
 			transition: border-color .2s, background .2s, box-shadow .2s;
 			box-sizing: border-box;
 		}
 
-		.fg .iw textarea {
+		.input-wrap textarea {
 			height: auto;
-			padding: 10px 14px;
+			padding: 12px 14px;
 			resize: vertical;
 		}
 
-		.fg .iw input:focus,
-		.fg .iw select:focus,
-		.fg .iw textarea:focus {
+		.input-wrap input:focus,
+		.input-wrap select:focus,
+		.input-wrap textarea:focus {
 			border-color: #17455e;
 			background: white;
-			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.07);
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
 		}
 
-		.fg .iw input:disabled {
-			background: #f0f4f7;
-			color: #9ca3af;
-			cursor: not-allowed;
-		}
-
-		.fg-row {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 12px;
-		}
-
-		@media (max-width: 600px) {
-			.fg-row {
-				grid-template-columns: 1fr;
-			}
+		.input-wrap input.input-error {
+			border-color: #d11a2a !important;
+			background: #fff5f5 !important;
+			box-shadow: 0 0 0 3px rgba(209, 26, 42, 0.08) !important;
 		}
 
 		.field-err {
-			font-size: 11px;
+			font-size: 12px;
 			color: #d11a2a;
 			margin-top: 4px;
 		}
 
-		/* ── Participant picker ── */
-		.participant-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-			gap: 8px;
-			max-height: 220px;
-			overflow-y: auto;
-			border: 1.5px solid #e5edf2;
-			border-radius: 10px;
-			padding: 10px;
-			background: #f5f9fb;
+		.datetime-error-msg {
+			display: none;
+			font-size: 12px;
+			color: #d11a2a;
+			margin-top: 4px;
+			font-weight: 500;
 		}
+
+		.datetime-error-msg.visible { display: block; }
+
+		.checkbox-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			font-size: 13.5px;
+			color: #163647;
+			font-weight: 500;
+			letter-spacing: 0;
+			text-transform: none;
+		}
+
+		.checkbox-row input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: #17455e;
+			cursor: pointer;
+		}
+
+		/* RIGHT COLUMN — Participants Panel */
+		.form-right {
+			padding: 28px 26px;
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+			background: #f7fbfd;
+		}
+
+		.participants-panel-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.participants-panel-header h3 {
+			font-size: 13px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.participants-panel-header span {
+			font-size: 11px;
+			color: #6b7280;
+			margin-top: 2px;
+			display: block;
+		}
+
+		.btn-select-all {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 7px 14px;
+			border-radius: 9px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #17455e;
+			color: white;
+			border: none;
+			cursor: pointer;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+
+		.btn-select-all:hover { background: #1e5a7a; transform: translateY(-1px); }
+		.btn-select-all i[data-lucide] { width: 13px; height: 13px; }
+
+		.participant-search-wrap { position: relative; }
+
+		.participant-search-wrap i[data-lucide] {
+			position: absolute;
+			left: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 14px;
+			height: 14px;
+			color: #9ca3af;
+			pointer-events: none;
+		}
+
+		.participant-search-wrap input {
+			width: 100%;
+			border: 1.5px solid #e5edf2;
+			border-radius: 11px;
+			padding: 0 14px 0 36px;
+			height: 40px;
+			font-size: 13px;
+			font-family: 'Poppins', sans-serif;
+			outline: none;
+			background: white;
+			color: #163647;
+			transition: border-color .2s, box-shadow .2s;
+			box-sizing: border-box;
+		}
+
+		.participant-search-wrap input:focus {
+			border-color: #17455e;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
+		}
+
+		.participant-search-wrap input::placeholder { color: #b0bec7; }
+
+		.participant-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 300px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+
+		.participant-list::-webkit-scrollbar { width: 4px; }
+		.participant-list::-webkit-scrollbar-track { background: transparent; }
+		.participant-list::-webkit-scrollbar-thumb { background: #d1dce3; border-radius: 4px; }
 
 		.participant-item {
 			display: flex;
 			align-items: center;
-			gap: 8px;
-			padding: 8px 10px;
-			border-radius: 9px;
+			gap: 11px;
+			padding: 10px 14px;
+			border-radius: 12px;
 			background: white;
 			border: 1.5px solid #e5edf2;
 			cursor: pointer;
-			transition: border-color .18s, background .18s;
+			transition: border-color .18s, background .18s, box-shadow .18s;
 			user-select: none;
 		}
 
 		.participant-item:hover {
 			border-color: #17455e;
 			background: #f0f7fb;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.08);
 		}
 
 		.participant-item.selected {
 			border-color: #17455e;
 			background: #dcecf5;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.12);
 		}
 
 		.p-avatar {
-			width: 28px;
-			height: 28px;
+			width: 34px;
+			height: 34px;
 			border-radius: 50%;
 			background: #17455e;
 			color: white;
-			font-size: 11px;
+			font-size: 13px;
 			font-weight: 700;
 			display: flex;
 			align-items: center;
@@ -303,13 +391,10 @@
 			flex-shrink: 0;
 		}
 
-		.p-info {
-			flex: 1;
-			min-width: 0;
-		}
+		.p-info { flex: 1; min-width: 0; }
 
 		.p-name {
-			font-size: 12px;
+			font-size: 13px;
 			font-weight: 600;
 			color: #163647;
 			white-space: nowrap;
@@ -317,15 +402,12 @@
 			text-overflow: ellipsis;
 		}
 
-		.p-role {
-			font-size: 10px;
-			color: #6b7280;
-		}
+		.p-role { font-size: 11px; color: #6b7280; text-transform: capitalize; }
 
 		.p-check {
-			width: 15px;
-			height: 15px;
-			border-radius: 4px;
+			width: 18px;
+			height: 18px;
+			border-radius: 5px;
 			border: 2px solid #d1dce3;
 			background: white;
 			flex-shrink: 0;
@@ -335,52 +417,43 @@
 			transition: all .18s;
 		}
 
-		.participant-item.selected .p-check {
-			background: #17455e;
-			border-color: #17455e;
-		}
+		.participant-item.selected .p-check { background: #17455e; border-color: #17455e; }
 
 		.participant-item.selected .p-check::after {
 			content: '✓';
-			font-size: 9px;
+			font-size: 11px;
 			color: white;
 			font-weight: 700;
 		}
 
 		.p-count {
-			font-size: 11px;
+			font-size: 12px;
 			color: #17455e;
 			font-weight: 600;
-			margin-top: 6px;
-		}
-
-		/* ── Checkbox row ── */
-		.checkbox-row {
 			display: flex;
 			align-items: center;
-			gap: 8px;
-			cursor: pointer;
-			font-size: 13px;
-			color: #163647;
-			font-weight: 500;
+			gap: 5px;
 		}
 
-		.checkbox-row input[type="checkbox"] {
-			width: 15px;
-			height: 15px;
-			accent-color: #17455e;
-			cursor: pointer;
+		.p-count i[data-lucide] { width: 13px; height: 13px; }
+
+		/* Form footer */
+		.form-card-footer {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			padding: 20px 32px 26px;
+			border-top: 1px solid #edf3f6;
 		}
 
-		/* ── Buttons ── */
 		.btn-cancel {
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
-			height: 40px;
-			padding: 0 18px;
-			border-radius: 10px;
-			font-size: 12px;
+			height: 46px;
+			padding: 0 22px;
+			border-radius: 12px;
+			font-size: 14px;
 			font-weight: 600;
 			font-family: 'Poppins', sans-serif;
 			background: #f3f8fb;
@@ -391,36 +464,41 @@
 			transition: background .2s;
 		}
 
-		.btn-cancel:hover {
-			background: #e8f2f8;
-		}
+		.btn-cancel:hover { background: #e8f2f8; }
 
 		.btn-save {
 			display: inline-flex;
 			align-items: center;
-			gap: 7px;
-			height: 40px;
-			padding: 0 22px;
-			border-radius: 10px;
-			font-size: 12px;
+			gap: 8px;
+			height: 46px;
+			padding: 0 28px;
+			border-radius: 12px;
+			font-size: 14px;
 			font-weight: 600;
 			font-family: 'Poppins', sans-serif;
-			background: linear-gradient(135deg, #17455e 0%, #1e5a7a 100%);
+			background: #17455e;
 			color: white;
 			border: none;
 			cursor: pointer;
-			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.28);
-			transition: opacity .2s, transform .15s;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.22);
+			transition: background .2s, transform .15s;
 		}
 
-		.btn-save:hover {
-			opacity: 0.92;
-			transform: translateY(-1px);
+		.btn-save:hover { background: #1e5a7a; transform: translateY(-1px); }
+		.btn-save i[data-lucide] { width: 16px; height: 16px; }
+
+		@media (max-width: 900px) {
+			.form-body-split { grid-template-columns: 1fr; }
+			.form-right { border-top: 1px solid #edf3f6; }
+			.form-left { border-right: none; }
 		}
 
-		.btn-save i[data-lucide] {
-			width: 14px;
-			height: 14px;
+		@media (max-width: 768px) {
+			.form-fields-grid { grid-template-columns: 1fr; }
+			.form-card-header { padding: 18px 20px 16px; }
+			.form-left { padding: 20px; }
+			.form-right { padding: 20px; }
+			.form-card-footer { padding: 18px 20px 22px; }
 		}
 
 		/* ── Meeting type badges ── */
@@ -572,105 +650,71 @@
 			color: #6b7280;
 		}
 
-		/* ── Date/Time hint ── */
-		.date-hint {
-			font-size: 11px;
-			color: #d11a2a;
-			margin-top: 4px;
-			display: none;
-		}
-
-		.date-hint.visible {
-			display: block;
-		}
-
-		/* ── Action buttons ── */
-		.action-btns {
-			display: flex;
-			align-items: center;
-			gap: 6px;
-			flex-wrap: nowrap;
-		}
-
-		/* ── Select All row ── */
-		.select-all-row {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-bottom: 7px;
-		}
-
-		/* ── Participant search ── */
-		.participant-search-wrap {
-			position: relative;
-			margin-bottom: 8px;
-		}
-
-		.participant-search-input {
-			width: 100%;
-			height: 38px;
-			border: 1.5px solid #e5edf2;
-			border-radius: 9px;
-			padding: 0 14px;
-			font-size: 12px;
-			font-family: 'Poppins', sans-serif;
-			background: #f9fbfc;
-			color: #163647;
-			outline: none;
-			box-sizing: border-box;
-			transition: border-color .2s, background .2s, box-shadow .2s;
-		}
-
-		.participant-search-input:focus {
-			border-color: #17455e;
-			background: white;
-			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.07);
-		}
-
-		.participant-search-input::placeholder {
-			color: #b0bec7;
-		}
-
-		.participant-no-results {
-			grid-column: 1 / -1;
-			text-align: center;
-			padding: 14px;
-			color: #9ca3af;
-			font-size: 12px;
-			display: none;
-		}
-
-		.select-all-btn {
+		/* ── View Participants button ── */
+		.btn-participants {
 			display: inline-flex;
 			align-items: center;
-			gap: 6px;
-			padding: 6px 14px;
+			gap: 5px;
+			padding: 5px 11px;
 			border-radius: 8px;
-			font-size: 11px;
+			font-size: 12px;
 			font-weight: 600;
 			font-family: 'Poppins', sans-serif;
-			background: #f0f7fb;
+			background: #e9f0f5;
 			color: #17455e;
 			border: 1.5px solid #c8dfe9;
 			cursor: pointer;
-			transition: background .18s, border-color .18s;
-			user-select: none;
+			transition: background .18s, border-color .18s, transform .15s;
+			white-space: nowrap;
 		}
-
-		.select-all-btn:hover {
+		.btn-participants:hover {
 			background: #dcecf5;
 			border-color: #17455e;
+			transform: translateY(-1px);
 		}
-
-		.select-all-btn.all-selected {
-			background: #dcecf5;
-			border-color: #17455e;
-			color: #17455e;
-		}
-
-		.select-all-btn i[data-lucide] {
+		.btn-participants i[data-lucide] {
 			width: 12px;
 			height: 12px;
+		}
+
+		/* ── Participants modal list ── */
+		.participants-modal-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 320px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+		.participants-modal-list::-webkit-scrollbar { width: 4px; }
+		.participants-modal-list::-webkit-scrollbar-track { background: transparent; }
+		.participants-modal-list::-webkit-scrollbar-thumb { background: #d1dce3; border-radius: 4px; }
+		.pm-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 12px;
+			border-radius: 10px;
+			background: #f7fbfd;
+			border: 1.5px solid #e5edf2;
+		}
+		.pm-avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 12px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+		.pm-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
 		}
 
 		/* ── Responsive tab bar ── */
@@ -684,12 +728,6 @@
 				justify-content: center;
 				padding: 0 12px;
 			}
-		}
-
-		/* ── Divider between left/right form columns ── */
-		.form-col-divider {
-			border-left: 1px dashed #e5edf2;
-			margin: 0 4px;
 		}
 	</style>
 </head>
@@ -758,66 +796,67 @@
 				</button>
 			</div>
 
-			<!-- PANEL: Schedule / Edit Form — FULL WIDTH with 2-col layout -->
+			<!-- PANEL: Schedule / Edit Form -->
 			<div class="meetings-panel active" id="panelSchedule">
 				<div class="form-card">
 					<div class="form-card-header">
 						<div>
-							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule
-								New Meeting</h2>
-							<p>Fill in the details below to schedule a meeting</p>
+							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New Meeting</h2>
+							<p>Fill in the details below to schedule a meeting for your employees</p>
 						</div>
-						<!--						<div class="form-card-icon"><i data-lucide="calendar-plus" style="width:19px;height:19px;"></i>-->
-						<!--						</div>-->
+						<div class="form-card-icon">
+							<i data-lucide="calendar-plus" style="width:20px;height:20px;"></i>
+						</div>
 					</div>
 
 					<form th:action="${meetingForm.id != null}
                                   ? @{/admin/schedule-meeting/edit/{id}(id=${meetingForm.id})}
                                   : @{/admin/schedule-meeting}" th:object="${meetingForm}" method="post"
-						id="meetingForm" onsubmit="return validateDateTimeOnSubmit()">
-						<div class="form-card-body">
-							<div class="form-body-grid">
+						id="meetingForm" onsubmit="return validateMeetingDateTime(event)">
 
-								<!-- LEFT COLUMN -->
-								<div>
-									<!-- Title -->
-									<div class="fg">
+						<div class="form-body-split">
+
+							<!-- LEFT: Form Fields -->
+							<div class="form-left">
+								<div class="form-fields-grid">
+
+									<div class="form-group full">
 										<label>Meeting Title <span>*</span></label>
-										<div class="iw"><input type="text" th:field="*{title}"
-												placeholder="e.g. Q2 Planning Session" required></div>
-										<span class="field-err" th:if="${#fields.hasErrors('title')}"
-											th:errors="*{title}"></span>
+										<div class="input-wrap">
+											<input type="text" th:field="*{title}" placeholder="e.g. Q2 Planning Session" required>
+										</div>
+										<span class="field-err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
 									</div>
 
-									<!-- Date + Time -->
-									<div class="fg-row">
-										<div class="fg" style="margin-bottom:0;">
-											<label>Date <span>*</span></label>
-											<div class="iw">
-												<input type="date" th:field="*{meetingDate}" id="meetingDate" required
-													onchange="handleDateChange()">
-											</div>
-											<span class="date-hint" id="dateHint">Please select today or a future
-												date.</span>
+									<div class="form-group">
+										<label>Date <span>*</span></label>
+										<div class="input-wrap">
+											<input type="date" th:field="*{meetingDate}" id="meetingDateInput" required onchange="onDateTimeChange()">
 										</div>
-										<div class="fg" style="margin-bottom:0;">
-											<label>Time <span>*</span></label>
-											<div class="iw">
-												<input type="time" th:field="*{meetingTime}" id="meetingTime" required
-													onchange="handleTimeChange()">
-											</div>
-											<span class="date-hint" id="timeHint">Please select a future time.</span>
-										</div>
+										<span class="datetime-error-msg" id="dateErrorMsg">
+											<i data-lucide="alert-circle" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting date cannot be in the past.
+										</span>
 									</div>
 
-									<!-- Duration -->
-									<div class="fg" style="margin-top:16px;">
+									<div class="form-group">
+										<label>Time <span>*</span></label>
+										<div class="input-wrap">
+											<input type="time" th:field="*{meetingTime}" id="meetingTimeInput" required onchange="onDateTimeChange()">
+										</div>
+										<span class="datetime-error-msg" id="timeErrorMsg">
+											<i data-lucide="alert-circle" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting time has already passed for today.
+										</span>
+									</div>
+
+									<div class="form-group">
 										<label>Duration</label>
-										<div class="iw">
+										<div class="input-wrap">
 											<select th:field="*{duration}">
-												<option value="15">15 min</option>
-												<option value="30">30 min</option>
-												<option value="45">45 min</option>
+												<option value="15">15 minutes</option>
+												<option value="30">30 minutes</option>
+												<option value="45">45 minutes</option>
 												<option value="60">1 hour</option>
 												<option value="90">1.5 hours</option>
 												<option value="120">2 hours</option>
@@ -825,86 +864,93 @@
 										</div>
 									</div>
 
-									<!-- Location -->
-									<div class="fg">
+									<div class="form-group">
+										<label>Meeting Type</label>
+										<div class="input-wrap">
+											<select th:field="*{meetingType}">
+												<option value="ONLINE">Online</option>
+												<option value="IN_PERSON">In Person</option>
+												<option value="HYBRID">Hybrid</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="form-group full">
 										<label>Location / Meeting Link</label>
-										<div class="iw"><input type="text" th:field="*{location}"
-												placeholder="Room A or https://meet.google.com/..."></div>
+										<div class="input-wrap">
+											<input type="text" th:field="*{location}" placeholder="e.g. Conference Room A or https://meet.google.com/…">
+										</div>
 									</div>
 
-									<!-- Agenda -->
-									<div class="fg">
+									<div class="form-group full">
 										<label>Agenda</label>
-										<div class="iw"><textarea th:field="*{agenda}" rows="4"
-												placeholder="Topics to discuss..."></textarea></div>
+										<div class="input-wrap">
+											<textarea th:field="*{agenda}" rows="3" placeholder="Topics to discuss…"></textarea>
+										</div>
 									</div>
 
-									<!-- Notification -->
-									<div class="fg" style="margin-bottom:0;">
+									<div class="form-group full" style="padding-bottom:0;">
 										<label class="checkbox-row">
 											<input type="checkbox" th:field="*{sendNotification}">
-											Send notification to participants
+											Send email notification to participants
 										</label>
 									</div>
+
+								</div>
+							</div><!-- /form-left -->
+
+							<!-- RIGHT: Participants Panel -->
+							<div class="form-right">
+								<input type="hidden" th:field="*{participants}" id="participantsHidden">
+
+								<div class="participants-panel-header">
+									<div>
+										<h3>Participants <span style="color:#d11a2a;">*</span></h3>
+										<span>Click to select individual members</span>
+									</div>
+									<button type="button" class="btn-select-all" onclick="selectAllParticipants()">
+										<i data-lucide="users"></i> Select All
+									</button>
 								</div>
 
-								<!-- RIGHT COLUMN -->
-								<div>
-									<!-- Participants -->
-									<div class="fg" style="margin-bottom:0;">
-										<label>Participants <span>*</span></label>
-										<input type="hidden" th:field="*{participants}" id="participantsHidden">
-										<div class="select-all-row">
-											<span style="font-size:11px;color:#6b7280;">Click to select individual
-												members</span>
-											<button type="button" class="select-all-btn" id="selectAllBtn"
-												onclick="toggleSelectAll()">
-												<i data-lucide="users"></i>
-												<span id="selectAllLabel">Select All</span>
-											</button>
+								<div class="participant-search-wrap">
+									<i data-lucide="search"></i>
+									<input type="text" id="participantSearchInput"
+										placeholder="Search participants by name or role…"
+										oninput="filterParticipants(this.value)">
+								</div>
+
+								<div class="participant-list" id="participantGrid">
+									<div th:each="u : ${tenantUsers}" class="participant-item"
+										th:data-username="${u.username}" th:data-role="${u.role}"
+										onclick="toggleParticipant(this)">
+										<div class="p-avatar" th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U</div>
+										<div class="p-info">
+											<div class="p-name" th:text="${u.username}">User</div>
+											<div class="p-role" th:text="${u.role}">Role</div>
 										</div>
-										<div class="participant-search-wrap">
-											<input type="text" class="participant-search-input" id="participantSearch"
-												placeholder="Search participants by name or role..."
-												oninput="filterParticipants(this.value)">
-										</div>
-										<div class="participant-grid" id="participantGrid" style="max-height: 340px;">
-											<div th:each="u : ${tenantUsers}" class="participant-item"
-												th:data-username="${u.username}" th:data-role="${u.role}"
-												onclick="toggleParticipant(this)">
-												<div class="p-avatar"
-													th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U
-												</div>
-												<div class="p-info">
-													<div class="p-name" th:text="${u.username}">User</div>
-													<div class="p-role" th:text="${u.role}">Role</div>
-												</div>
-												<div class="p-check"></div>
-											</div>
-											<div th:if="${tenantUsers == null or #lists.isEmpty(tenantUsers)}"
-												style="grid-column:1/-1;text-align:center;padding:16px;color:#6b7280;font-size:12px;">
-												No team members found.
-											</div>
-											<div class="participant-no-results" id="participantNoResults">
-												No participants match your search.
-											</div>
-										</div>
-										<div class="p-count" id="participantCount">0 participant(s) selected</div>
-										<span class="field-err" th:if="${#fields.hasErrors('participants')}"
-											th:errors="*{participants}"></span>
+										<div class="p-check"></div>
+									</div>
+									<div th:if="${tenantUsers == null or #lists.isEmpty(tenantUsers)}"
+										style="text-align:center;padding:30px 20px;color:#6b7280;font-size:13px;">
+										No employees found in this tenant.
 									</div>
 								</div>
 
-							</div><!-- /form-body-grid -->
-						</div><!-- /form-card-body -->
+								<div class="p-count" id="participantCount">
+									<i data-lucide="user-check"></i>
+									<span>0 participant(s) selected</span>
+								</div>
+								<span class="field-err" th:if="${#fields.hasErrors('participants')}" th:errors="*{participants}"></span>
+
+							</div><!-- /form-right -->
+						</div><!-- /form-body-split -->
 
 						<div class="form-card-footer">
 							<a th:href="@{/admin/schedule-meeting}" class="btn-cancel">Cancel</a>
 							<button type="submit" class="btn-save">
 								<i data-lucide="calendar-check"></i>
-								<span
-									th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule
-									Meeting</span>
+								<span th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule Meeting</span>
 							</button>
 						</div>
 					</form>
@@ -954,9 +1000,17 @@
 											Time</div>
 									</td>
 									<td>
-										<span class="participants-cell" th:text="${m.participants} ?: '—'"
-											th:title="${m.participants}">—</span>
-									</td>
+										<div class="participants-cell">
+							<button type="button" class="btn-participants"
+								th:if="${m.participants != null and !#strings.isEmpty(m.participants)}"
+								th:attr="data-participants=${m.participants}"
+								onclick="openParticipantsModal(this)">
+								<i data-lucide="users"></i>
+								View Participants
+							</button>
+							<span th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
+						</div>
+													</td>
 									<td>
 										<th:block th:with="
 											isToday=${m.meetingDate != null and m.meetingDate.equals(T(java.time.LocalDate).now())},
@@ -1030,13 +1084,16 @@
 
 	<!-- Participants Modal -->
 	<div class="modal-overlay hidden" id="participantsModalOverlay">
-		<div class="modal" style="max-width:520px;">
+		<div class="modal" style="max-width:460px;text-align:left;">
 			<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;">
-				<h3 class="modal-title" style="margin:0;">Participants</h3>
-				<button type="button" style="border:none;background:transparent;color:#6b7280;font-size:22px;cursor:pointer;" onclick="closeParticipantsModal()">&times;</button>
+				<div>
+					<h3 class="modal-title" style="margin:0;text-align:left;">Meeting Participants</h3>
+					<p style="font-size:12px;color:#6b7280;margin:4px 0 0;" id="participantsModalCount"></p>
+				</div>
+				<button type="button" style="border:none;background:#f3f8fb;color:#6b7280;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="closeParticipantsModal()">&times;</button>
 			</div>
-			<pre id="participantsModalText" style="white-space:pre-wrap;word-wrap:break-word;font-size:13px;color:#334155;margin:0;">No participants</pre>
-			<div class="modal-actions" style="margin-top:24px;justify-content:flex-end;">
+			<div class="participants-modal-list" id="participantsModalList">No participants</div>
+			<div class="modal-actions" style="margin-top:20px;justify-content:flex-end;">
 				<button type="button" class="btn btn-clear" onclick="closeParticipantsModal()">Close</button>
 			</div>
 		</div>
@@ -1057,14 +1114,6 @@
 			}
 		}
 
-		// Auto-open schedule tab when editing
-		(function () {
-			var formHeader = document.querySelector('.form-card-header h2');
-			if (formHeader && formHeader.textContent.trim() === 'Edit Meeting') {
-				switchTab('schedule');
-			}
-		})();
-
 		// Sidebar
 		var hamburger = document.getElementById('hamburgerBtn');
 		var sidebar = document.getElementById('sidebar');
@@ -1073,74 +1122,60 @@
 		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
 		if (hamburger) hamburger.addEventListener('click', openSidebar);
 		if (overlay) overlay.addEventListener('click', closeSidebar);
-		if (sidebar) sidebar.querySelectorAll('a').forEach(function (l) {l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});});
 
-		// Date/time prevention
-		var dateInput = document.getElementById('meetingDate');
-		var timeInput = document.getElementById('meetingTime');
-		var dateHint = document.getElementById('dateHint');
-		var timeHint = document.getElementById('timeHint');
-
-		function getTodayStr() {
+		// Date/time validation
+		function getTodayString() {
 			var now = new Date();
 			return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 		}
 
-		function initDateConstraints() {
-			if (!dateInput) return;
-			var todayStr = getTodayStr();
-			dateInput.setAttribute('min', todayStr);
-			if (dateInput.value && dateInput.value < todayStr) {dateInput.value = '';}
-			updateTimeConstraint();
+		function getCurrentTimeString() {
+			var now = new Date();
+			return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 		}
 
-		function updateTimeConstraint() {
-			if (!timeInput || !dateInput) return;
-			var todayStr = getTodayStr();
-			if (dateInput.value === todayStr) {
-				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
-				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-				timeInput.setAttribute('min', minTime);
-				if (timeInput.value && timeInput.value < minTime) {timeInput.value = ''; timeHint.classList.add('visible');}
-			} else {
-				timeInput.removeAttribute('min');
-				timeHint.classList.remove('visible');
+		function onDateTimeChange() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			var dateErr = document.getElementById('dateErrorMsg');
+			var timeErr = document.getElementById('timeErrorMsg');
+			if (!dateInput) return;
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+			var datePast = chosenDate && chosenDate < today;
+			dateInput.classList.toggle('input-error', datePast);
+			if (dateErr) dateErr.classList.toggle('visible', datePast);
+			if (timeInput && timeErr) {
+				var isToday = chosenDate === today;
+				var timePast = isToday && timeInput.value && timeInput.value < getCurrentTimeString();
+				timeInput.classList.toggle('input-error', timePast);
+				timeErr.classList.toggle('visible', timePast);
+				if (isToday) { timeInput.setAttribute('min', getCurrentTimeString()); }
+				else { timeInput.removeAttribute('min'); timeInput.classList.remove('input-error'); timeErr.classList.remove('visible'); }
 			}
 		}
 
-		function handleDateChange() {
-			if (!dateInput) return;
-			var todayStr = getTodayStr();
-			if (dateInput.value && dateInput.value < todayStr) {dateInput.value = ''; dateHint.classList.add('visible');}
-			else {dateHint.classList.remove('visible');}
-			updateTimeConstraint();
-		}
-
-		function handleTimeChange() {
-			if (!timeInput || !dateInput) return;
-			if (dateInput.value === getTodayStr() || !dateInput.value) {
-				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
-				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-				if (timeInput.value && timeInput.value < minTime) {timeInput.value = ''; timeHint.classList.add('visible'); return;}
+		function validateMeetingDateTime(e) {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			if (!dateInput) return true;
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+			var chosenTime = timeInput ? timeInput.value : '';
+			if (chosenDate && chosenDate < today) {
+				dateInput.classList.add('input-error');
+				var dateErr = document.getElementById('dateErrorMsg');
+				if (dateErr) dateErr.classList.add('visible');
+				dateInput.focus(); e.preventDefault(); return false;
 			}
-			timeHint.classList.remove('visible');
-		}
-
-		function validateDateTimeOnSubmit() {
-			var todayStr = getTodayStr();
-			var selectedDate = dateInput ? dateInput.value : '';
-			var selectedTime = timeInput ? timeInput.value : '';
-			if (!selectedDate) {if (dateHint) dateHint.classList.add('visible'); if (dateInput) dateInput.focus(); return false;}
-			if (selectedDate < todayStr) {if (dateHint) dateHint.classList.add('visible'); if (dateInput) {dateInput.value = ''; dateInput.focus();} return false;}
-			if (selectedDate === todayStr && selectedTime) {
-				var now = new Date(); now.setMinutes(now.getMinutes() + 1);
-				var minTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-				if (selectedTime < minTime) {if (timeHint) timeHint.classList.add('visible'); if (timeInput) {timeInput.value = ''; timeInput.focus();} return false;}
+			if (chosenDate === today && chosenTime && chosenTime < getCurrentTimeString()) {
+				if (timeInput) timeInput.classList.add('input-error');
+				var timeErr = document.getElementById('timeErrorMsg');
+				if (timeErr) timeErr.classList.add('visible');
+				if (timeInput) timeInput.focus(); e.preventDefault(); return false;
 			}
 			return true;
 		}
-
-		initDateConstraints();
 
 		// Participant picker
 		var hiddenInput = document.getElementById('participantsHidden');
@@ -1157,41 +1192,28 @@
 
 		function toggleParticipant(el) {el.classList.toggle('selected'); updateCount();}
 
-		function toggleSelectAll() {
-			var allItems = document.querySelectorAll('.participant-item');
-			var allSelected = document.querySelectorAll('.participant-item.selected').length === allItems.length;
-			allItems.forEach(function (item) {allSelected ? item.classList.remove('selected') : item.classList.add('selected');});
+		function selectAllParticipants() {
+			var items = document.querySelectorAll('.participant-item');
+			var allSelected = Array.from(items).every(function (i) {return i.classList.contains('selected');});
+			items.forEach(function (i) {allSelected ? i.classList.remove('selected') : i.classList.add('selected');});
 			updateCount();
 		}
 
 		function filterParticipants(query) {
-			var q = query.toLowerCase().trim();
-			var items = document.querySelectorAll('.participant-item');
-			var visibleCount = 0;
-			items.forEach(function (item) {
+			var q = query.toLowerCase();
+			document.querySelectorAll('.participant-item').forEach(function (item) {
 				var name = (item.getAttribute('data-username') || '').toLowerCase();
 				var role = (item.getAttribute('data-role') || '').toLowerCase();
-				var matches = !q || name.indexOf(q) > -1 || role.indexOf(q) > -1;
-				item.style.display = matches ? '' : 'none';
-				if (matches) visibleCount++;
+				item.style.display = (name.indexOf(q) > -1 || role.indexOf(q) > -1) ? '' : 'none';
 			});
-			var noResults = document.getElementById('participantNoResults');
-			if (noResults) noResults.style.display = (visibleCount === 0 && items.length > 0) ? 'block' : 'none';
 		}
 
 		function updateCount() {
 			var names = [];
 			document.querySelectorAll('.participant-item.selected').forEach(function (el) {names.push(el.getAttribute('data-username'));});
 			if (hiddenInput) hiddenInput.value = names.join(', ');
-			if (countLabel) countLabel.textContent = names.length + ' participant(s) selected';
-			var allItems = document.querySelectorAll('.participant-item');
-			var selectAllBtn = document.getElementById('selectAllBtn');
-			var selectAllLabel = document.getElementById('selectAllLabel');
-			if (selectAllBtn && selectAllLabel && allItems.length > 0) {
-				var allSelected = names.length === allItems.length;
-				if (allSelected) {selectAllBtn.classList.add('all-selected'); selectAllLabel.textContent = 'Deselect All';}
-				else {selectAllBtn.classList.remove('all-selected'); selectAllLabel.textContent = 'Select All';}
-			}
+			var span = countLabel ? countLabel.querySelector('span') : null;
+			if (span) span.textContent = names.length + ' participant(s) selected';
 		}
 
 		// Search
@@ -1215,9 +1237,25 @@
 			document.body.style.overflow = '';
 		}
 
+		function escapeHtml(text) {
+			return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+		}
+
 		function openParticipantsModal(btn) {
-			var participants = btn.getAttribute('data-participants') || 'No participants';
-			document.getElementById('participantsModalText').textContent = participants;
+			var raw = btn.getAttribute('data-participants') || '';
+			var list = document.getElementById('participantsModalList');
+			var countEl = document.getElementById('participantsModalCount');
+			var items = raw.split(',').map(function(item) { return item.trim(); }).filter(function(item) { return item.length > 0; });
+			if (items.length === 0) {
+				list.innerHTML = '<div style="color:#64748b;text-align:center;padding:16px;">No participants</div>';
+				if (countEl) countEl.textContent = '';
+			} else {
+				if (countEl) countEl.textContent = items.length + ' participant' + (items.length !== 1 ? 's' : '');
+				list.innerHTML = items.map(function(item) {
+					var initial = item.charAt(0).toUpperCase();
+					return '<div class="pm-item"><div class="pm-avatar">' + escapeHtml(initial) + '</div><div class="pm-name">' + escapeHtml(item) + '</div></div>';
+				}).join('');
+			}
 			document.getElementById('participantsModalOverlay').classList.remove('hidden');
 			document.body.style.overflow = 'hidden';
 		}

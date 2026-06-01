@@ -1,16 +1,50 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee — My Tasks</title>
     <link rel="stylesheet" th:href="@{/employee.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        .task-priority {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .task-priority.high   { background: #fee2e2; color: #b91c1c; }
+        .task-priority.medium { background: #fef3c7; color: #b45309; }
+        .task-priority.low    { background: #dcfce7; color: #15803d; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-done       { background: #dcfce7; color: #15803d; }
+        .badge-inprogress { background: #fce9d8; color: #b45309; }
+        .badge-pending    { background: #f1f5f9; color: #64748b; }
+    </style>
 </head>
 <body>
-<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
+
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">Employee</span>
+</div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="user"></i></div>
+        <h2>Employee</h2>
+    </div>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
@@ -26,50 +60,165 @@
         <li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
         <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
     </ul>
-    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
 </div>
+
 <div class="main-wrapper">
     <div class="topbar">
-        <h1>My Tasks</h1>
+        <div>
+            <h1>My Tasks</h1>
+            <p class="topbar-subtitle">Tasks assigned to you</p>
+        </div>
         <div class="topbar-right">
-            <div class="search-box"><input type="text" id="globalSearch" placeholder="Search tasks…"></div>
+            <div class="search-box">
+                <input type="text" id="globalSearch" placeholder="Search tasks…">
+            </div>
             <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         </div>
     </div>
+
     <div class="page-content">
-        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
-            <div class="stat-card"><div class="stat-icon green"><i data-lucide="check-circle-2"></i></div><div class="stat-info"><h3 th:text="${completedTasks} ?: '0'">0</h3><p>Completed</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="clock"></i></div><div class="stat-info"><h3>0</h3><p>In Progress</p></div></div>
-            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="list-checks"></i></div><div class="stat-info"><h3>0</h3><p>Pending</p></div></div>
+
+        <!-- Flash messages -->
+        <div class="toast success" th:if="${successMessage}"
+            style="position:relative;bottom:auto;right:auto;margin-bottom:16px;opacity:1;transform:none;pointer-events:auto;display:flex;">
+            <i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
+            <span th:text="${successMessage}"></span>
         </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px;">
+            <div class="stat-card">
+                <div class="stat-icon green"><i data-lucide="check-circle-2"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${completedTasks} ?: '0'">0</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i data-lucide="clock"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${inProgressTasks} ?: '0'">0</h3>
+                    <p>In Progress</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i data-lucide="list-checks"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${pendingTasks} ?: '0'">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Table -->
         <div class="card">
-            <div class="card-header"><div><h2>My Tasks</h2><p>All assigned tasks</p></div></div>
+            <div class="card-header">
+                <div>
+                    <h2>My Tasks</h2>
+                    <p th:text="${totalTasks} + ' task(s) assigned to you'">0 task(s)</p>
+                </div>
+            </div>
             <div class="table-wrap">
                 <table id="taskTable">
-                    <thead><tr><th>Task</th><th>Project</th><th>Due Date</th><th>Priority</th></tr></thead>
-                    <tbody>
-                        <tr th:each="task : ${pendingTasks}">
-                            <td th:text="${task.title}">Task title</td>
-                            <td th:text="${task.projectName}">Project</td>
-                            <td th:text="${task.dueDate}">Date</td>
-                            <td><span class="priority-badge" th:text="${task.priority}">High</span></td>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Due Date</th>
+                            <th>Attachments</th>
+                            <th>Assigned By</th>
                         </tr>
-                        <tr th:if="${pendingTasks == null or #lists.isEmpty(pendingTasks)}">
-                            <td colspan="4"><div class="empty-state" style="padding:40px;"><i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i><h3>No Tasks Assigned</h3><p>Tasks assigned to you will appear here.</p></div></td>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task, stat : ${myTasks}">
+                            <td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1</td>
+                            <td>
+                                <div style="font-weight:600;font-size:14px;color:#163647;" th:text="${task.title}">Task</div>
+                                <div th:if="${task.description != null and !#strings.isEmpty(task.description)}"
+                                     style="font-size:12px;color:#6b7280;margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                                     th:text="${task.description}"></div>
+                            </td>
+                            <td>
+                                <span class="task-priority"
+                                    th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')"
+                                    th:text="${task.priority}">Medium</span>
+                            </td>
+                            <td>
+                                <span class="status-badge badge-done"       th:if="${task.status == 'done'}">
+                                    <i data-lucide="check-circle" style="width:12px;height:12px;"></i> Done
+                                </span>
+                                <span class="status-badge badge-inprogress" th:if="${task.status == 'in-progress'}">
+                                    <i data-lucide="clock" style="width:12px;height:12px;"></i> In Progress
+                                </span>
+                                <span class="status-badge badge-pending"    th:if="${task.status == 'pending'}">
+                                    <i data-lucide="circle" style="width:12px;height:12px;"></i> Pending
+                                </span>
+                            </td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${task.startDate} ?: '—'">—</td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
+                            <td>
+                                <th:block th:if="${!#lists.isEmpty(task.attachmentList)}">
+                                    <div th:each="att : ${task.attachmentList}" style="margin-bottom:3px;">
+                                        <a th:href="@{/employee/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
+                                           style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+                                            <i data-lucide="paperclip" style="width:12px;height:12px;"></i>
+                                            <span th:text="${#strings.substringBefore(att,'::')}"
+                                                  style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
+                                        </a>
+                                    </div>
+                                </th:block>
+                                <span th:if="${#lists.isEmpty(task.attachmentList)}"
+                                      style="color:#cbd5e1;font-size:13px;">—</span>
+                            </td>
+                            <td>
+                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b6a7a;font-weight:500;"
+                                      th:if="${task.createdBy != null}">
+                                    <i data-lucide="user" style="width:12px;height:12px;"></i>
+                                    <span th:text="${task.createdBy}">Manager</span>
+                                </span>
+                                <span th:if="${task.createdBy == null}" style="color:#9ca3af;font-size:13px;">—</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${myTasks == null or #lists.isEmpty(myTasks)}">
+                            <td colspan="8">
+                                <div class="empty-state" style="padding:40px 20px;">
+                                    <i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Tasks Assigned</h3>
+                                    <p>Tasks assigned to you will appear here.</p>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-</div>
+
+    </div><!-- /page-content -->
+</div><!-- /main-wrapper -->
+
 <script>
-    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
-    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
-    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
-    if(hamburger)hamburger.addEventListener('click',openSidebar);
-    if(overlay)overlay.addEventListener('click',closeSidebar);
-    var gs=document.getElementById('globalSearch');if(gs)gs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#taskTable tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});});
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click',   closeSidebar);
+
+    var gs = document.getElementById('globalSearch');
+    if (gs) gs.addEventListener('input', function () {
+        var q = this.value.toLowerCase();
+        document.querySelectorAll('#taskTable tbody tr').forEach(function (r) {
+            r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+        });
+    });
+
     lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
