@@ -111,8 +111,8 @@ public class ManagerController {
 		model.addAttribute("managerEmail", manager.getEmail());
 
 		// ── Load team assigned to this manager ────────────────────────────
-		Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
-		List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
+        Team myTeam = getManagerTeamWithMembers(manager);
+        List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
 
 		long active   = teamMembers.stream().filter(User::isActive).count();
 		long inactive = teamMembers.size() - active;
@@ -149,6 +149,11 @@ public class ManagerController {
 		model.addAttribute("pendingTaskList",   Collections.emptyList());
 	}
 
+	private Team getManagerTeamWithMembers(User manager) {
+		List<Team> teams = teamRepository.findByManagerWithMembers(manager);
+		return teams.isEmpty() ? null : teams.get(0);
+	}
+
 	// =========================
 	// DASHBOARD PAGE
 	// =========================
@@ -182,7 +187,7 @@ public class ManagerController {
 		if (manager == null) { resp.put("error", "Not authenticated."); return resp; }
 
 		// Verify the requested user is actually in this manager's team
-		Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
+		Team myTeam = getManagerTeamWithMembers(manager);
 		boolean inTeam = myTeam != null && myTeam.getMembers().stream().anyMatch(m -> m.getId().equals(id));
 		if (!inTeam) { resp.put("error", "Member not found in your team."); return resp; }
 
@@ -314,7 +319,7 @@ public class ManagerController {
 			String username = manager.getUsername();
 			model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
 			// Team members available as participants
-			Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
+			Team myTeam = getManagerTeamWithMembers(manager);
 			List<User> teamMembers = myTeam != null ? myTeam.getMembers() : Collections.emptyList();
 			model.addAttribute("teamMembers", teamMembers);
 		} else {
@@ -341,7 +346,7 @@ public class ManagerController {
 			injectStats(model);
 			if (manager != null) {
 				model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-				Team myTeam = teamRepository.findByManagerWithMembers(manager).orElse(null);
+				Team myTeam = getManagerTeamWithMembers(manager);
 				model.addAttribute("teamMembers",
 						myTeam != null ? myTeam.getMembers() : Collections.emptyList());
 			} else {
@@ -375,7 +380,7 @@ public class ManagerController {
 		injectStats(model);
 		model.addAttribute("meetingForm", meeting);
 		model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-		Team myTeam = manager != null ? teamRepository.findByManagerWithMembers(manager).orElse(null) : null;
+		Team myTeam = manager != null ? getManagerTeamWithMembers(manager) : null;
 		model.addAttribute("teamMembers", myTeam != null ? myTeam.getMembers() : Collections.emptyList());
 		return "manager-meetings";
 	}
@@ -394,7 +399,7 @@ public class ManagerController {
 		if (result.hasErrors()) {
 			injectStats(model);
 			model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-			Team myTeam = manager != null ? teamRepository.findByManagerWithMembers(manager).orElse(null) : null;
+			Team myTeam = manager != null ? getManagerTeamWithMembers(manager) : null;
 			model.addAttribute("teamMembers", myTeam != null ? myTeam.getMembers() : Collections.emptyList());
 			model.addAttribute("errorMessage", "Please fix the errors below.");
 			return "manager-meetings";
