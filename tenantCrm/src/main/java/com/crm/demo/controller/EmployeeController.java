@@ -1,5 +1,7 @@
 package com.crm.demo.controller;
 
+import java.io.IOException;
+import java.nio.file.StandardCopyOption;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -45,6 +47,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/employee")
@@ -149,8 +153,14 @@ public class EmployeeController {
         injectUser(model);
         injectStats(model);
 
-        // ── Team info ─────────────────────────────────────────────────────
         User emp = getCurrentEmployee();
+        if (emp != null) {
+            model.addAttribute("employeeStatus", emp.getStatus());
+        } else {
+            model.addAttribute("employeeStatus", "active");
+        }
+
+        // ── Team info ─────────────────────────────────────────────────────
         if (emp != null) {
             String tenant = getTenantSegment(emp);
             List<Team> myTeams = teamRepository.findByMemberAndTenant(emp, tenant);
@@ -214,6 +224,67 @@ public class EmployeeController {
         }
 
         return "employee-tasks";
+    }
+
+    @PostMapping("/tasks/update-status/{id}")
+    public String updateTaskStatus(@PathVariable Long id,
+                                   @RequestParam String status,
+                                   @RequestParam(value = "attachment", required = false) MultipartFile attachment,
+                                   RedirectAttributes ra) {
+        User emp = getCurrentEmployee();
+        if (emp == null) {
+            ra.addFlashAttribute("errorMessage", "You need to sign in to update a task status.");
+            return "redirect:/employee/tasks";
+        }
+
+        Task task = taskRepository.findById(id).orElse(null);
+        if (task == null) {
+            ra.addFlashAttribute("errorMessage", "Task not found.");
+            return "redirect:/employee/tasks";
+        }
+
+        String tenant = getTenantSegment(emp);
+        if (!emp.getUsername().equals(task.getAssignedTo()) || !tenant.equals(task.getTenantSegment())) {
+            ra.addFlashAttribute("errorMessage", "You can only update your own assigned tasks.");
+            return "redirect:/employee/tasks";
+        }
+
+        if ("waiting-for-approval".equalsIgnoreCase(status)) {
+            if (attachment == null || attachment.isEmpty()) {
+                ra.addFlashAttribute("errorMessage", "Please upload a file before submitting the task for approval.");
+                return "redirect:/employee/tasks";
+            }
+            try {
+                Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+                Files.createDirectories(uploadPath);
+                String original = attachment.getOriginalFilename();
+                String ext = original != null && original.contains(".") ? original.substring(original.lastIndexOf('.')) : "";
+                String storedName = UUID.randomUUID() + ext;
+                Files.copy(attachment.getInputStream(), uploadPath.resolve(storedName), StandardCopyOption.REPLACE_EXISTING);
+                String newPath = (original != null ? original : "file") + "::" + storedName;
+                String existing = task.getAttachmentPaths();
+                task.setAttachmentPaths(existing == null || existing.isBlank() ? newPath : existing + "," + newPath);
+            } catch (IOException e) {
+                ra.addFlashAttribute("errorMessage", "File upload failed: " + e.getMessage());
+                return "redirect:/employee/tasks";
+            }
+            task.setStatus("waiting-for-approval");
+            taskRepository.save(task);
+            ra.addFlashAttribute("successMessage", "Task submitted for manager approval.");
+            return "redirect:/employee/tasks";
+        }
+
+        if ("waiting-for-approval".equalsIgnoreCase(task.getStatus())) {
+            ra.addFlashAttribute("errorMessage", "This task is already waiting for approval. Manager approval is required.");
+            return "redirect:/employee/tasks";
+        }
+
+        String normalized = "in-progress".equalsIgnoreCase(status) ? "in-progress" : "pending";
+        task.setStatus(normalized);
+        taskRepository.save(task);
+
+        ra.addFlashAttribute("successMessage", "Task status updated to " + normalized + ".");
+        return "redirect:/employee/tasks";
     }
 
     // ── ATTENDANCE ────────────────────────────────────────────────────────

@@ -605,6 +605,15 @@
 					? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
 					: '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fdecec;color:#d11a2a;">Inactive</span>')
 				+ '  </div></div>'
+				+ '  <div class="emp-info-tile"><div class="label">Update Status</div><div class="value">'
+				+ '    <form action="/manager/update-member-status/' + d.id + '" method="post" style="display:grid;gap:8px;">'
+				+ '      <select name="status" style="padding:8px 10px;border:1px solid #dbe7ee;border-radius:10px;font-size:13px;">'
+				+ '        <option value="active" ' + (d.status === 'active' ? 'selected' : '') + '>Active</option>'
+				+ '        <option value="inactive" ' + (d.status === 'inactive' ? 'selected' : '') + '>Inactive</option>'
+				+ '      </select>'
+				+ '      <button type="submit" style="border:none;border-radius:10px;background:#17455e;color:#fff;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;">Save Status</button>'
+				+ '    </form>'
+				+ '  </div></div>'
 				+ '</div>'
 
 				// Attendance stats

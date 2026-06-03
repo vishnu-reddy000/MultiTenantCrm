@@ -599,6 +599,8 @@
 										th:if="${task.status == 'in-progress'}">In Progress</span>
 									<span class="status-badge inactive"
 										th:if="${task.status == 'pending'}">Pending</span>
+											<span class="status-badge" style="background:#fef3c7;color:#b45309;"
+												th:if="${task.status == 'waiting-for-approval'}">Waiting for Approval</span>
 								</td>
 								<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
 								<td>
@@ -615,14 +617,19 @@
 										style="color:#cbd5e1;font-size:13px;">—</span>
 								</td>
 								<td>
-									<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post"
-										style="display:inline;"
-										onsubmit="return confirm('Delete this task?');">
-										<button type="submit"
-											style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;transition:background .18s;">
-											<i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
-										</button>
-									</form>
+									<div style="display:flex;gap:8px;flex-wrap:wrap;">
+										<form th:if="${task.status == 'waiting-for-approval'}" th:action="@{/manager/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline;">
+											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;background:#dff5ea;color:#1b7a46;border:none;cursor:pointer;">Approve</button>
+										</form>
+										<form th:if="${task.status == 'waiting-for-approval'}" th:action="@{/manager/tasks/reject/{id}(id=${task.id})}" method="post" style="display:inline;">
+											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;">Reject</button>
+										</form>
+										<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post" style="display:inline;" onsubmit="return confirm('Delete this task?');">
+											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;transition:background .18s;">
+												<i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
+											</button>
+										</form>
+									</div>
 								</td>
 							</tr>
 							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">

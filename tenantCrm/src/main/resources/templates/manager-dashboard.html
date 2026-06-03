@@ -111,7 +111,10 @@
 										</div>
 									</td>
 									<td><span class="role-badge" th:text="${member.role}">Role</span></td>
-									<td><span class="status-badge active">Active</span></td>
+									<td>
+										<span class="status-badge active" th:if="${member.status == 'active' or member.status == null}">Active</span>
+										<span class="status-badge inactive" th:unless="${member.status == 'active' or member.status == null}">Inactive</span>
+									</td>
 									<td style="font-weight:600;">—</td>
 								</tr>
 								<tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">

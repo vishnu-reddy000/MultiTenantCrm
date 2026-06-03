@@ -30,6 +30,7 @@
         .badge-done       { background: #dcfce7; color: #15803d; }
         .badge-inprogress { background: #fce9d8; color: #b45309; }
         .badge-pending    { background: #f1f5f9; color: #64748b; }
+        .badge-waiting    { background: #fef3c7; color: #b45309; }
     </style>
 </head>
 <body>
@@ -159,6 +160,9 @@
                                 <span class="status-badge badge-pending"    th:if="${task.status == 'pending'}">
                                     <i data-lucide="circle" style="width:12px;height:12px;"></i> Pending
                                 </span>
+                                <span class="status-badge badge-waiting"    th:if="${task.status == 'waiting-for-approval'}">
+                                    <i data-lucide="clock-3" style="width:12px;height:12px;"></i> Waiting for Approval
+                                </span>
                             </td>
                             <td style="color:#6b7280;font-size:13px;" th:text="${task.startDate} ?: '—'">—</td>
                             <td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
@@ -177,12 +181,30 @@
                                       style="color:#cbd5e1;font-size:13px;">—</span>
                             </td>
                             <td>
-                                <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b6a7a;font-weight:500;"
-                                      th:if="${task.createdBy != null}">
-                                    <i data-lucide="user" style="width:12px;height:12px;"></i>
-                                    <span th:text="${task.createdBy}">Manager</span>
-                                </span>
-                                <span th:if="${task.createdBy == null}" style="color:#9ca3af;font-size:13px;">—</span>
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                    <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b6a7a;font-weight:500;"
+                                          th:if="${task.createdBy != null}">
+                                        <i data-lucide="user" style="width:12px;height:12px;"></i>
+                                        <span th:text="${task.createdBy}">Manager</span>
+                                    </span>
+                                    <span th:if="${task.createdBy == null}" style="color:#9ca3af;font-size:13px;">—</span>
+                                    <form th:action="@{/employee/tasks/update-status/{id}(id=${task.id})}" method="post" enctype="multipart/form-data"
+                                          style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"
+                                          th:if="${task.status != 'waiting-for-approval'}">
+                                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b6a7a;font-weight:500;">
+                                            <i data-lucide="activity" style="width:12px;height:12px;"></i>
+                                            Status
+                                        </span>
+                                        <select name="status" style="padding:6px 8px;border:1px solid #dbe7ee;border-radius:8px;font-size:12px;background:#fff;min-width:110px;">
+                                            <option value="pending" th:selected="${task.status == 'pending'}">Pending</option>
+                                            <option value="in-progress" th:selected="${task.status == 'in-progress'}">In Progress</option>
+                                            <option value="waiting-for-approval">Waiting for Approval</option>
+                                        </select>
+                                        <input type="file" name="attachment" required style="font-size:12px;max-width:180px;" />
+                                        <button type="submit" style="border:none;border-radius:8px;background:#17455e;color:#fff;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;">Update</button>
+                                    </form>
+                                    <span th:if="${task.status == 'waiting-for-approval'}" style="font-size:12px;color:#b45309;font-weight:600;">Awaiting manager approval</span>
+                                </div>
                             </td>
                         </tr>
                         <tr th:if="${myTasks == null or #lists.isEmpty(myTasks)}">
