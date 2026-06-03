@@ -594,45 +594,92 @@
 										th:text="${task.priority}">Medium</span>
 								</td>
 								<td>
-									<span class="status-badge active" th:if="${task.status == 'done'}">Done</span>
+									<!-- Done + Approved -->
+									<span class="status-badge active"
+										th:if="${task.status == 'done' and task.verificationStatus == 'approved'}">
+										<i data-lucide="check-circle" style="width:12px;height:12px;"></i> Done
+									</span>
+									<!-- Submitted by employee, awaiting manager review -->
+									<span class="status-badge" style="background:#fef3c7;color:#b45309;"
+										th:if="${task.verificationStatus == 'waiting-for-review'}">
+										<i data-lucide="clock" style="width:12px;height:12px;"></i> Awaiting Review
+									</span>
+									<!-- Returned to employee -->
+									<span class="status-badge" style="background:#fee2e2;color:#991b1b;"
+										th:if="${task.verificationStatus == 'rejected'}">
+										<i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Returned
+									</span>
+									<!-- In Progress -->
 									<span class="status-badge" style="background:#fce9d8;color:#b45309;"
-										th:if="${task.status == 'in-progress'}">In Progress</span>
+										th:if="${task.status == 'in-progress' and task.verificationStatus != 'rejected'}">In Progress</span>
+									<!-- Pending -->
 									<span class="status-badge inactive"
-										th:if="${task.status == 'pending'}">Pending</span>
-											<span class="status-badge" style="background:#fef3c7;color:#b45309;"
-												th:if="${task.status == 'waiting-for-approval'}">Waiting for Approval</span>
+										th:if="${task.status == 'pending' and task.verificationStatus == 'pending'}">Pending</span>
 								</td>
 								<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
 								<td>
 									<th:block th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}">
 										<div th:each="att : ${task.attachments}" style="margin-bottom:3px;">
-											<a th:href="@{/manager/tasks/download/{id}(id=${att.id})}"
-											   style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+											<button type="button"
+											        th:data-view-url="@{/manager/tasks/view/{id}(id=${att.id})}"
+											        th:data-download-url="@{/manager/tasks/download/{id}(id=${att.id})}"
+											        th:data-filename="${att.originalFilename}"
+											        th:data-content-type="${att.contentType}"
+											        onclick="openPreviewModal(this)"
+											        style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;background:none;border:none;cursor:pointer;font-weight:500;padding:0;text-decoration:underline;text-underline-offset:2px;">
 												<i data-lucide="paperclip" style="width:12px;height:12px;"></i>
 												<span th:text="${att.originalFilename}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
-											</a>
+											</button>
 										</div>
 									</th:block>
 									<th:block th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and !#lists.isEmpty(task.attachmentList)}">
 										<div th:each="att : ${task.attachmentList}" style="margin-bottom:3px;">
-											<a th:href="@{/manager/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
-											   style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+											<button type="button"
+											        th:data-view-url="@{/manager/tasks/view/{s}(s=${#strings.substringAfter(att,'::')})}"
+											        th:data-download-url="@{/manager/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
+											        th:data-filename="${#strings.substringBefore(att,'::')}"
+											        th:data-content-type="'application/octet-stream'"
+											        onclick="openPreviewModal(this)"
+											        style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;background:none;border:none;cursor:pointer;font-weight:500;padding:0;text-decoration:underline;text-underline-offset:2px;">
 												<i data-lucide="paperclip" style="width:12px;height:12px;"></i>
 												<span th:text="${#strings.substringBefore(att,'::')}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
-											</a>
+											</button>
 										</div>
 									</th:block>
 									<span th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and #lists.isEmpty(task.attachmentList)}"
 										style="color:#cbd5e1;font-size:13px;">—</span>
 								</td>
 								<td>
-									<div style="display:flex;gap:8px;flex-wrap:wrap;">
-										<form th:if="${task.status == 'waiting-for-approval'}" th:action="@{/manager/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline;">
-											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;background:#dff5ea;color:#1b7a46;border:none;cursor:pointer;">Approve</button>
+									<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+
+										<!-- VERIFY DONE: shown when employee submitted for review -->
+										<form th:if="${task.verificationStatus == 'waiting-for-review'}"
+										      th:action="@{/manager/tasks/verify/{id}(id=${task.id})}" method="post" style="display:inline;">
+											<input type="hidden" name="action" value="approve">
+											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#dff5ea;color:#1b7a46;border:none;cursor:pointer;transition:background .18s;">
+												<i data-lucide="check-circle" style="width:13px;height:13px;"></i> Verify Done
+											</button>
 										</form>
-										<form th:if="${task.status == 'waiting-for-approval'}" th:action="@{/manager/tasks/reject/{id}(id=${task.id})}" method="post" style="display:inline;">
-											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;">Reject</button>
+
+										<!-- RETURN TO EMPLOYEE: opens rejection modal -->
+										<button type="button"
+										        th:if="${task.verificationStatus == 'waiting-for-review'}"
+										        th:data-id="${task.id}"
+										        onclick="openRejectModal(this)"
+										        style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#fff4e6;color:#b45309;border:1px solid #fcd7aa;cursor:pointer;transition:background .18s;">
+											<i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i> Return
+										</button>
+
+										<!-- MARK INCOMPLETE: re-open a verified-done task -->
+										<form th:if="${task.status == 'done' and task.verificationStatus == 'approved'}"
+										      th:action="@{/manager/tasks/verify/{id}(id=${task.id})}" method="post" style="display:inline;">
+											<input type="hidden" name="action" value="reopen">
+											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;cursor:pointer;transition:background .18s;">
+												<i data-lucide="undo-2" style="width:13px;height:13px;"></i> Mark Incomplete
+											</button>
 										</form>
+
+										<!-- DELETE -->
 										<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post" style="display:inline;" onsubmit="return confirm('Delete this task?');">
 											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;transition:background .18s;">
 												<i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
@@ -656,6 +703,76 @@
 			</div>
 		</div><!-- /page-content -->
 	</div><!-- /main-wrapper -->
+
+	<!-- ════════════════════════════════════════════
+	     ATTACHMENT PREVIEW MODAL
+	════════════════════════════════════════════ -->
+	<div class="modal-overlay" id="previewModal" role="dialog" aria-modal="true" aria-label="File Preview" style="z-index:10000;">
+		<div class="modal-box" style="max-width:860px;width:95%;max-height:92vh;display:flex;flex-direction:column;">
+			<!-- Header -->
+			<div class="modal-header" style="flex-shrink:0;">
+				<h2 style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 120px);">
+					<i data-lucide="file" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;color:#1a6b8a;"></i>
+					<span id="previewFilename">File Preview</span>
+				</h2>
+				<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+					<a id="previewDownloadBtn" href="#" download
+					   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#1a6b8a;color:#fff;font-size:12px;font-weight:600;text-decoration:none;transition:background .18s;">
+						<i data-lucide="download" style="width:13px;height:13px;"></i> Download
+					</a>
+					<button class="modal-close" onclick="closePreviewModal()" aria-label="Close preview">
+						<i data-lucide="x" style="width:16px;height:16px;"></i>
+					</button>
+				</div>
+			</div>
+			<!-- Preview area -->
+			<div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;">
+				<!-- content injected by JS -->
+			</div>
+		</div>
+	</div>
+
+	<!-- ════════════════════════════════════════════
+	     RETURN-TO-EMPLOYEE (REJECT) MODAL
+	════════════════════════════════════════════ -->
+	<div class="modal-overlay" id="rejectModal" role="dialog" aria-modal="true">
+		<div class="modal-box" style="max-width:480px;">
+			<div class="modal-header">
+				<h2 style="color:#b45309;">
+					<i data-lucide="rotate-ccw" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:#b45309;"></i>
+					Return Task to Employee
+				</h2>
+				<button class="modal-close" onclick="closeRejectModal()" aria-label="Close">
+					<i data-lucide="x" style="width:16px;height:16px;"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="rejectForm" method="post">
+					<input type="hidden" name="action" value="reject">
+					<div class="form-group full" style="margin-bottom:0;">
+						<label for="rejectReason" style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;display:block;">
+							Reason / Feedback for Employee <span class="req">*</span>
+						</label>
+						<textarea id="rejectReason" name="reason" rows="4"
+							placeholder="Describe what needs to be fixed or improved…"
+							style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"
+							required></textarea>
+						<span id="rejectReasonErr" style="display:none;font-size:12px;color:#d11a2a;margin-top:4px;">Please enter a reason before returning the task.</span>
+					</div>
+					<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+						<button type="button" onclick="closeRejectModal()"
+							style="border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;color:#475569;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">
+							Cancel
+						</button>
+						<button type="button" onclick="submitReject()"
+							style="border:none;border-radius:10px;background:#b45309;color:#fff;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+							<i data-lucide="send" style="width:14px;height:14px;"></i> Return to Employee
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
 	<!-- ════════════════════════════════════════════
 	     ASSIGN TASK MODAL
@@ -1109,6 +1226,118 @@
 
 			lucide.createIcons();
 		})();
+	</script>
+
+	<!-- ── Reject / Return Modal JS ── -->
+	<script>
+		/* ══════════════════════════════════════════
+		   ATTACHMENT PREVIEW MODAL
+		   ══════════════════════════════════════════ */
+		function openPreviewModal(btn) {
+			var viewUrl      = btn.getAttribute('data-view-url');
+			var downloadUrl  = btn.getAttribute('data-download-url');
+			var filename     = btn.getAttribute('data-filename') || 'file';
+			var contentType  = (btn.getAttribute('data-content-type') || '').toLowerCase();
+
+			document.getElementById('previewFilename').textContent = filename;
+			document.getElementById('previewDownloadBtn').href = downloadUrl;
+			document.getElementById('previewDownloadBtn').setAttribute('download', filename);
+
+			var body = document.getElementById('previewBody');
+			body.innerHTML = '';  // clear previous
+
+			if (contentType.startsWith('image/')) {
+				var img = document.createElement('img');
+				img.src = viewUrl;
+				img.alt = filename;
+				img.style.cssText = 'max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';
+				body.appendChild(img);
+
+			} else if (contentType === 'application/pdf') {
+				var iframe = document.createElement('iframe');
+				iframe.src = viewUrl;
+				iframe.style.cssText = 'width:100%;height:75vh;border:none;';
+				iframe.title = filename;
+				body.appendChild(iframe);
+
+			} else if (contentType.startsWith('text/') || contentType === 'application/json') {
+				var iframe = document.createElement('iframe');
+				iframe.src = viewUrl;
+				iframe.style.cssText = 'width:100%;height:75vh;border:none;background:#fff;';
+				iframe.title = filename;
+				body.appendChild(iframe);
+
+			} else {
+				// Unsupported for inline preview — show download prompt
+				body.innerHTML =
+					'<div style="text-align:center;padding:48px 24px;">' +
+					  '<i data-lucide="file" style="width:56px;height:56px;color:#94a3b8;margin-bottom:16px;"></i>' +
+					  '<p style="font-size:14px;font-weight:600;color:#374151;margin:0 0 8px;">' + escapeHtml(filename) + '</p>' +
+					  '<p style="font-size:13px;color:#6b7280;margin:0 0 20px;">This file type cannot be previewed in the browser.</p>' +
+					  '<a href="' + escapeHtml(downloadUrl) + '" download="' + escapeHtml(filename) + '" ' +
+					     'style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#1a6b8a;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">' +
+					     '<i data-lucide="download" style="width:14px;height:14px;"></i> Download File</a>' +
+					'</div>';
+			}
+
+			document.getElementById('previewModal').classList.add('active');
+			document.body.style.overflow = 'hidden';
+			lucide.createIcons();
+		}
+
+		function closePreviewModal() {
+			document.getElementById('previewModal').classList.remove('active');
+			document.body.style.overflow = '';
+			// Clear iframe/img src so the request is cancelled
+			document.getElementById('previewBody').innerHTML = '';
+		}
+
+		document.getElementById('previewModal').addEventListener('click', function(e) {
+			if (e.target === this) closePreviewModal();
+		});
+
+		function escapeHtml(str) {
+			return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+		}
+
+		/* ══════════════════════════════════════════
+		   REJECT / RETURN MODAL
+		   ══════════════════════════════════════════ */
+		function openRejectModal(btn) {
+			var taskId = btn.getAttribute('data-id');
+			var form   = document.getElementById('rejectForm');
+			form.action = '/manager/tasks/verify/' + taskId;
+			document.getElementById('rejectReason').value = '';
+			document.getElementById('rejectReasonErr').style.display = 'none';
+			document.getElementById('rejectModal').classList.add('active');
+			document.body.style.overflow = 'hidden';
+			lucide.createIcons();
+		}
+
+		function closeRejectModal() {
+			document.getElementById('rejectModal').classList.remove('active');
+			document.body.style.overflow = '';
+		}
+
+		function submitReject() {
+			var reason = document.getElementById('rejectReason').value.trim();
+			var errEl  = document.getElementById('rejectReasonErr');
+			if (!reason) {
+				errEl.style.display = 'block';
+				document.getElementById('rejectReason').focus();
+				return;
+			}
+			errEl.style.display = 'none';
+			document.getElementById('rejectForm').submit();
+		}
+
+		// Close on overlay click or Escape
+		document.getElementById('rejectModal').addEventListener('click', function(e) {
+			if (e.target === this) closeRejectModal();
+		});
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') { closePreviewModal(); closeRejectModal(); }
+		});
 	</script>
 
 	<script th:src="@{/auth.js}"></script>

@@ -31,6 +31,11 @@
         .badge-inprogress { background: #fce9d8; color: #b45309; }
         .badge-pending    { background: #f1f5f9; color: #64748b; }
         .badge-waiting    { background: #fef3c7; color: #b45309; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        }
     </style>
 </head>
 <body>
@@ -155,22 +160,32 @@
                             <td>
                                 <th:block th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}">
                                     <div th:each="att : ${task.attachments}" style="margin-bottom:3px;">
-                                        <a th:href="@{/employee/tasks/download/{id}(id=${att.id})}"
-                                           style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+                                        <button type="button"
+                                                th:data-view-url="@{/employee/tasks/view/{id}(id=${att.id})}"
+                                                th:data-download-url="@{/employee/tasks/download/{id}(id=${att.id})}"
+                                                th:data-filename="${att.originalFilename}"
+                                                th:data-content-type="${att.contentType}"
+                                                onclick="openPreviewModal(this)"
+                                                style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;background:none;border:none;cursor:pointer;font-weight:500;padding:0;text-decoration:underline;text-underline-offset:2px;">
                                             <i data-lucide="paperclip" style="width:12px;height:12px;"></i>
                                             <span th:text="${att.originalFilename}"
                                                   style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
-                                        </a>
+                                        </button>
                                     </div>
                                 </th:block>
                                 <th:block th:if="${!#lists.isEmpty(task.attachmentList) and (task.attachments == null or #lists.isEmpty(task.attachments))}">
                                     <div th:each="att : ${task.attachmentList}" style="margin-bottom:3px;">
-                                        <a th:href="@{/employee/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
-                                           style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;text-decoration:none;font-weight:500;">
+                                        <button type="button"
+                                                th:data-view-url="@{/employee/tasks/view/{s}(s=${#strings.substringAfter(att,'::')})}"
+                                                th:data-download-url="@{/employee/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
+                                                th:data-filename="${#strings.substringBefore(att,'::')}"
+                                                th:data-content-type="'application/octet-stream'"
+                                                onclick="openPreviewModal(this)"
+                                                style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1a6b8a;background:none;border:none;cursor:pointer;font-weight:500;padding:0;text-decoration:underline;text-underline-offset:2px;">
                                             <i data-lucide="paperclip" style="width:12px;height:12px;"></i>
                                             <span th:text="${#strings.substringBefore(att,'::')}"
                                                   style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;"></span>
-                                        </a>
+                                        </button>
                                     </div>
                                 </th:block>
                                 <span th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and #lists.isEmpty(task.attachmentList)}"
@@ -241,6 +256,35 @@
 </div><!-- /main-wrapper -->
 
 <!-- ══════════════════════════════════════════
+     ATTACHMENT PREVIEW MODAL
+     ══════════════════════════════════════════ -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(10,30,50,0.6);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:18px;width:95%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.22);animation:fadeUp .22s ease;">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;border-bottom:1px solid #f0f4f8;flex-shrink:0;">
+            <h3 style="margin:0;font-size:15px;font-weight:700;color:#0f2d4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 130px);display:flex;align-items:center;gap:8px;">
+                <i data-lucide="file" style="width:16px;height:16px;color:#1a6b8a;flex-shrink:0;"></i>
+                <span id="previewFilename">File Preview</span>
+            </h3>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <a id="previewDownloadBtn" href="#" download
+                   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;transition:background .18s;">
+                    <i data-lucide="download" style="width:13px;height:13px;"></i> Download
+                </a>
+                <button type="button" onclick="closePreviewModal()"
+                        style="background:#f4f7fa;border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;font-size:18px;">
+                    &times;
+                </button>
+            </div>
+        </div>
+        <!-- Preview body -->
+        <div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:380px;display:flex;align-items:center;justify-content:center;border-radius:0 0 18px 18px;">
+            <!-- content injected by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      REJECTION FEEDBACK MODAL
      ══════════════════════════════════════════ -->
 <div id="feedbackModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
@@ -284,6 +328,75 @@
     });
 
     /* ══════════════════════════════════════════
+       ATTACHMENT PREVIEW MODAL
+       ══════════════════════════════════════════ */
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function openPreviewModal(btn) {
+        var viewUrl     = btn.getAttribute('data-view-url');
+        var downloadUrl = btn.getAttribute('data-download-url');
+        var filename    = btn.getAttribute('data-filename') || 'file';
+        var contentType = (btn.getAttribute('data-content-type') || '').toLowerCase();
+
+        document.getElementById('previewFilename').textContent = filename;
+        document.getElementById('previewDownloadBtn').href = downloadUrl;
+        document.getElementById('previewDownloadBtn').setAttribute('download', filename);
+
+        var body = document.getElementById('previewBody');
+        body.innerHTML = '';
+
+        if (contentType.startsWith('image/')) {
+            var img = document.createElement('img');
+            img.src = viewUrl;
+            img.alt = filename;
+            img.style.cssText = 'max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';
+            body.appendChild(img);
+
+        } else if (contentType === 'application/pdf') {
+            var iframe = document.createElement('iframe');
+            iframe.src = viewUrl;
+            iframe.style.cssText = 'width:100%;height:75vh;border:none;';
+            iframe.title = filename;
+            body.appendChild(iframe);
+
+        } else if (contentType.startsWith('text/') || contentType === 'application/json') {
+            var iframe = document.createElement('iframe');
+            iframe.src = viewUrl;
+            iframe.style.cssText = 'width:100%;height:75vh;border:none;background:#fff;';
+            iframe.title = filename;
+            body.appendChild(iframe);
+
+        } else {
+            body.innerHTML =
+                '<div style="text-align:center;padding:48px 24px;">' +
+                  '<p style="font-size:14px;font-weight:600;color:#374151;margin:0 0 8px;">' + escapeHtml(filename) + '</p>' +
+                  '<p style="font-size:13px;color:#6b7280;margin:0 0 20px;">This file type cannot be previewed in the browser.</p>' +
+                  '<a href="' + escapeHtml(downloadUrl) + '" download="' + escapeHtml(filename) + '" ' +
+                     'style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#17455e;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">' +
+                     'Download File</a>' +
+                '</div>';
+        }
+
+        var modal = document.getElementById('previewModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        lucide.createIcons();
+    }
+
+    function closePreviewModal() {
+        var modal = document.getElementById('previewModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.getElementById('previewBody').innerHTML = '';
+    }
+
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+        if (e.target === this) closePreviewModal();
+    });
+
+    /* ══════════════════════════════════════════
        FEEDBACK MODAL FUNCTIONS
        ══════════════════════════════════════════ */
     function openFeedbackModal(btn) {
@@ -309,6 +422,7 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeFeedbackModal();
+            closePreviewModal();
         }
     });
 

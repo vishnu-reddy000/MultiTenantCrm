@@ -627,4 +627,19 @@ public class EmployeeController {
                 .header(HttpHeaders.CONTENT_TYPE, attachment.getContentType() != null ? attachment.getContentType() : "application/octet-stream")
                 .body(attachment.getFileData());
     }
+
+    // ── VIEW TASK ATTACHMENT INLINE ───────────────────────────────────────
+    @GetMapping("/tasks/view/{attachmentId}")
+    public ResponseEntity<?> viewAttachment(@PathVariable Long attachmentId) {
+        TaskAttachment attachment = taskAttachmentRepository.findById(attachmentId).orElse(null);
+        if (attachment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String contentType = attachment.getContentType() != null ? attachment.getContentType() : "application/octet-stream";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + attachment.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(attachment.getFileData());
+    }
 }

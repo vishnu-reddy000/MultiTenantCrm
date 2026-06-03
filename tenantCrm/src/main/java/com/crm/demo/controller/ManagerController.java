@@ -428,7 +428,27 @@ public class ManagerController {
 	}
 
 	// =========================
-	// VERIFY TASK - APPROVE/REJECT (POST)
+	// VIEW TASK ATTACHMENT INLINE
+	// =========================
+	@GetMapping("/tasks/view/{attachmentId}")
+	public ResponseEntity<?> viewAttachment(@PathVariable Long attachmentId) {
+		TaskAttachment attachment = taskAttachmentRepository.findById(attachmentId).orElse(null);
+		if (attachment == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		String contentType = attachment.getContentType() != null ? attachment.getContentType() : "application/octet-stream";
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + attachment.getOriginalFilename() + "\"")
+				.header(HttpHeaders.CONTENT_TYPE, contentType)
+				.body(attachment.getFileData());
+	}
+
+	// =========================
+	// VERIFY TASK (POST)
+	// action=approve  → manager verifies task as done
+	// action=reject   → manager returns task to employee with feedback
+	// action=reopen   → manager marks a verified task as incomplete again
 	// =========================
 	@PostMapping("/tasks/verify/{id}")
 	public String verifyTask(@PathVariable Long id,
@@ -448,25 +468,35 @@ public class ManagerController {
 			return "redirect:/manager/tasks";
 		}
 
-		// Get current timestamp
 		java.time.LocalDateTime now = java.time.LocalDateTime.now();
-		java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		String timestamp = now.format(formatter);
+		String timestamp = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 		if ("approve".equalsIgnoreCase(action)) {
+			// Manager confirms the work is complete
 			task.setStatus("done");
 			task.setVerificationStatus("approved");
 			task.setLastVerifiedBy(manager.getUsername());
 			task.setLastVerifiedAt(timestamp);
-			task.setVerificationReason(null); // Clear any previous rejection reason
-			ra.addFlashAttribute("successMessage", "Task approved and marked as completed.");
+			task.setVerificationReason(null);
+			ra.addFlashAttribute("successMessage", "Task verified and marked as done.");
+
 		} else if ("reject".equalsIgnoreCase(action)) {
+			// Manager returns the task — employee must redo and resubmit
 			task.setStatus("in-progress");
 			task.setVerificationStatus("rejected");
 			task.setLastVerifiedBy(manager.getUsername());
 			task.setLastVerifiedAt(timestamp);
-			task.setVerificationReason(reason); // Store rejection reason
-			ra.addFlashAttribute("successMessage", "Task rejected and returned to employee for rework.");
+			task.setVerificationReason(reason != null ? reason.trim() : null);
+			ra.addFlashAttribute("successMessage", "Task returned to employee for rework.");
+
+		} else if ("reopen".equalsIgnoreCase(action)) {
+			// Manager re-opens a previously verified task
+			task.setStatus("in-progress");
+			task.setVerificationStatus("pending");
+			task.setLastVerifiedBy(manager.getUsername());
+			task.setLastVerifiedAt(timestamp);
+			task.setVerificationReason(null);
+			ra.addFlashAttribute("successMessage", "Task marked as incomplete and returned to employee.");
 		}
 
 		taskRepository.save(task);
