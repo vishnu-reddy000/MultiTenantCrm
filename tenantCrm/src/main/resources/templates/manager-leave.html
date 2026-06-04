@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager — Apply Leave</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		/* ── Leave Form Fields ── */
+		.lf-group {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			margin-bottom: 16px;
+		}
+
+		.lf-group:last-child {
+			margin-bottom: 0;
+		}
+
+		.lf-group label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #4b6a7a;
+			text-transform: uppercase;
+			letter-spacing: .4px;
+		}
+
+		.lf-group select,
+		.lf-group input[type=date],
+		.lf-group textarea {
+			height: 38px;
+			border: 1.5px solid #e5edf2;
+			border-radius: 10px;
+			padding: 0 12px;
+			font-size: 13px;
+			font-family: inherit;
+			background: #f3f8fb;
+			color: #163647;
+			outline: none;
+			width: 100%;
+			transition: border-color .15s, box-shadow .15s;
+		}
+
+		.lf-group textarea {
+			height: auto;
+			min-height: 90px;
+			padding: 10px 12px;
+			resize: vertical;
+			line-height: 1.6;
+		}
+
+		.lf-group select:focus,
+		.lf-group input[type=date]:focus,
+		.lf-group textarea:focus {
+			border-color: #17455e;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, .08);
+		}
+
+		.lf-date-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 16px;
+		}
+
+		.lf-date-row .lf-group {
+			margin-bottom: 0;
+		}
+
+		/* Duration info strip */
+		.lf-days-info {
+			display: none;
+			margin-top: -8px;
+			margin-bottom: 16px;
+			padding: 8px 13px;
+			background: #dcecf5;
+			border-left: 3px solid #17455e;
+			border-radius: 0 8px 8px 0;
+			font-size: 12px;
+			color: #17455e;
+			font-weight: 600;
+		}
+
+		/* Upload zone */
+		.lf-upload-zone {
+			border: 1.5px dashed #c3d8e4;
+			border-radius: 10px;
+			padding: 22px 16px;
+			text-align: center;
+			cursor: pointer;
+			transition: border-color .15s, background .15s;
+			background: #f3f8fb;
+			display: block;
+		}
+
+		.lf-upload-zone:hover {
+			border-color: #17455e;
+			background: #eaf3f9;
+		}
+
+		.lf-upload-zone input[type=file] {
+			display: none;
+		}
+
+		.lf-upload-icon {
+			width: 28px;
+			height: 28px;
+			color: #9ca3af;
+			margin: 0 auto 8px;
+			display: block;
+		}
+
+		.lf-upload-zone p {
+			font-size: 13px;
+			color: #4b6a7a;
+		}
+
+		.lf-upload-zone span {
+			font-size: 11px;
+			color: #9ca3af;
+			margin-top: 3px;
+			display: block;
+		}
+
+		/* File preview */
+		.lf-file-preview {
+			display: none;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 13px;
+			background: #f3f8fb;
+			border-radius: 8px;
+			border: 1.5px solid #e5edf2;
+			margin-top: 8px;
+		}
+
+		.lf-file-preview svg {
+			width: 16px;
+			height: 16px;
+			color: #4b6a7a;
+			flex-shrink: 0;
+		}
+
+		.lf-file-preview span {
+			font-size: 12px;
+			color: #163647;
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.lf-file-preview button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 2px;
+			color: #9ca3af;
+			display: flex;
+		}
+
+		.lf-file-preview button:hover {
+			color: #d11a2a;
+		}
+
+		.lf-optional {
+			font-size: 10px;
+			color: #9ca3af;
+			background: #eaf3f9;
+			padding: 2px 7px;
+			border-radius: 4px;
+			margin-left: 6px;
+			font-weight: 400;
+			letter-spacing: .2px;
+			text-transform: none;
+			vertical-align: middle;
+		}
+
+		/* Submit button — matches manager.css style */
+		.lf-submit-btn {
+			width: 100%;
+			padding: 11px;
+			background: #17455e;
+			color: #fff;
+			border: none;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			margin-top: 20px;
+			font-family: inherit;
+			transition: opacity .15s;
+			letter-spacing: .3px;
+		}
+
+		.lf-submit-btn:hover {
+			opacity: .88;
+		}
+
+		/* Validation error */
+		.lf-error {
+			border-color: #d11a2a !important;
+		}
+
+		/* ── Content grid ── */
+		.leave-content-grid {
+			display: grid;
+			grid-template-columns: 1fr 360px;
+			gap: 20px;
+			align-items: start;
+			margin-top: 22px;
+		}
+
+		/* ── History list ── */
+		.lh-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 13px 20px;
+			border-bottom: 1px solid #f3f8fb;
+			gap: 10px;
+		}
+
+		.lh-item:last-child {
+			border-bottom: none;
+		}
+
+		.lh-type {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+		}
+
+		.lh-date {
+			font-size: 11px;
+			color: #4b6a7a;
+			margin-top: 2px;
+		}
+
+		/* Status badges — reuse manager.css naming but add leave-specific ones */
+		.lh-badge {
+			font-size: 11px;
+			font-weight: 600;
+			padding: 3px 10px;
+			border-radius: 20px;
+		}
+
+		.lh-pending {
+			background: #fef3c7;
+			color: #92400e;
+		}
+
+		.lh-approved {
+			background: #dff5ea;
+			color: #1b7a46;
+		}
+
+		.lh-rejected {
+			background: #fdecec;
+			color: #d11a2a;
+		}
+
+		/* Leave balance tiles */
+		.lf-balance-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 12px;
+			margin-bottom: 22px;
+		}
+
+		.lf-balance-tile {
+			background: #fff;
+			border: 1.5px solid #e5edf2;
+			border-radius: 12px;
+			padding: 14px 16px;
+			text-align: center;
+		}
+
+		.lf-balance-tile .lf-bal-count {
+			font-size: 26px;
+			font-weight: 700;
+			color: #17455e;
+		}
+
+		.lf-balance-tile .lf-bal-label {
+			font-size: 11px;
+			color: #4b6a7a;
+			margin-top: 4px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: .4px;
+		}
+
+		.lf-balance-tile .lf-bal-sub {
+			font-size: 11px;
+			color: #9ca3af;
+			margin-top: 2px;
+		}
+
+		.card-form-body {
+			padding: 20px;
+		}
+
+		@media (max-width: 900px) {
+			.leave-content-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.lf-balance-row {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 540px) {
+			.lf-date-row {
+				grid-template-columns: 1fr;
+			}
+
+			.lf-balance-row {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- MOBILE TOPBAR -->
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+	<!-- SIDEBAR -->
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="briefcase"></i></div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+			<li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li class="active"><a th:href="@{/manager/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+		</a>
+	</div>
+
+	<!-- MAIN WRAPPER -->
+	<div class="main-wrapper">
+
+		<!-- TOPBAR -->
+		<div class="topbar">
+			<div>
+				<h1>Apply Leave</h1>
+				<p class="topbar-subtitle">Submit and track your leave requests</p>
+			</div>
+			<div class="topbar-right">
+				<div class="search-box">
+					<input type="text" id="lhSearch" placeholder="Search requests…">
+				</div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			</div>
+		</div>
+
+		<!-- PAGE CONTENT -->
+		<div class="page-content">
+
+			<!-- ── LEAVE BALANCE TILES ──────────────────────────────────────── -->
+			<div class="lf-balance-row">
+				<div class="lf-balance-tile">
+					<div class="lf-bal-count" th:text="${casualBalance} ?: '12'">12</div>
+					<div class="lf-bal-label">Casual</div>
+					<div class="lf-bal-sub">days remaining</div>
+				</div>
+				<div class="lf-balance-tile">
+					<div class="lf-bal-count" th:text="${sickBalance} ?: '6'">6</div>
+					<div class="lf-bal-label">Sick</div>
+					<div class="lf-bal-sub">days remaining</div>
+				</div>
+				<div class="lf-balance-tile">
+					<div class="lf-bal-count" th:text="${annualBalance} ?: '18'">18</div>
+					<div class="lf-bal-label">Annual</div>
+					<div class="lf-bal-sub">days remaining</div>
+				</div>
+				<div class="lf-balance-tile">
+					<div class="lf-bal-count" th:text="${compBalance} ?: '3'">3</div>
+					<div class="lf-bal-label">Comp-off</div>
+					<div class="lf-bal-sub">days remaining</div>
+				</div>
+			</div>
+
+			<!-- ── STATS ROW ───────────────────────────────────────────────── -->
+			<div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i data-lucide="file-text"></i></div>
+					<div class="stat-info">
+						<h3 id="statPending" th:text="${pendingLeaves} ?: '0'">0</h3>
+						<p>Pending</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+					<div class="stat-info">
+						<h3 id="statApproved" th:text="${approvedLeaves} ?: '0'">0</h3>
+						<p>Approved</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="x-circle"></i></div>
+					<div class="stat-info">
+						<h3 id="statRejected" th:text="${rejectedLeaves} ?: '0'">0</h3>
+						<p>Rejected</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- ── TWO-COLUMN: FORM + HISTORY ─────────────────────────────── -->
+			<div class="leave-content-grid">
+
+				<!-- LEFT: New Leave Request Form -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>New Leave Request</h2>
+							<p>Fill in the details below to submit your leave</p>
+						</div>
+					</div>
+					<form class="card-form-body" id="leaveForm" th:action="@{/manager/leaves}" method="post"
+						enctype="multipart/form-data">
+
+						<!-- Leave Type -->
+						<div class="lf-group">
+							<label>Leave Type</label>
+							<select id="lfType" name="type" required>
+								<option value="" disabled selected>Select leave type…</option>
+								<option value="Sick Leave">Sick Leave</option>
+								<option value="Casual Leave">Casual Leave</option>
+								<option value="Annual Leave">Annual Leave</option>
+								<option value="Maternity Leave">Maternity Leave</option>
+								<option value="Paternity Leave">Paternity Leave</option>
+								<option value="Emergency Leave">Emergency Leave</option>
+								<option value="Work From Home">Work From Home</option>
+								<option value="Compensatory Leave">Compensatory Leave</option>
+							</select>
+						</div>
+
+						<!-- From / To Date -->
+						<div class="lf-date-row">
+							<div class="lf-group">
+								<label>From Date</label>
+								<input type="date" id="lfFrom" name="fromDate" required>
+							</div>
+							<div class="lf-group">
+								<label>To Date</label>
+								<input type="date" id="lfTo" name="toDate" required>
+							</div>
+						</div>
+
+						<!-- Duration badge -->
+						<div class="lf-days-info" id="lfDaysInfo"></div>
+
+						<!-- Reason -->
+						<div class="lf-group">
+							<label>Reason</label>
+							<textarea id="lfReason" name="reason" required
+								placeholder="Briefly describe the reason for your leave…"></textarea>
+						</div>
+
+						<!-- Attachment -->
+						<div class="lf-group">
+							<label>Attachment <span class="lf-optional">Optional</span></label>
+							<label class="lf-upload-zone" id="lfUploadZone" for="lfFile">
+								<svg class="lf-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.5">
+									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+									<polyline points="17 8 12 3 7 8" />
+									<line x1="12" y1="3" x2="12" y2="15" />
+								</svg>
+								<p>Click or drag file to upload</p>
+								<span>PDF, JPG, PNG — max 5MB</span>
+								<input type="file" id="lfFile" name="attachment" accept=".pdf,.jpg,.jpeg,.png">
+							</label>
+							<div class="lf-file-preview" id="lfPreview">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+									<polyline points="14 2 14 8 20 8" />
+								</svg>
+								<span id="lfFileName"></span>
+								<button id="lfClearFile" type="button" title="Remove file">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										width="14" height="14">
+										<line x1="18" y1="6" x2="6" y2="18" />
+										<line x1="6" y1="6" x2="18" y2="18" />
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<button class="lf-submit-btn" id="lfSubmit" type="submit">
+							<i data-lucide="send"
+								style="width:15px;height:15px;vertical-align:-2px;margin-right:6px;"></i>
+							Submit Leave Request
+						</button>
+					</form>
+				</div>
+
+				<!-- RIGHT: Leave History -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>My Leave Requests</h2>
+							<p>Recent submissions</p>
+						</div>
+					</div>
+					<div id="lfHistory">
+						<!-- Server-rendered existing requests -->
+						<div th:each="req : ${leaveRequests}" class="lh-item">
+							<div>
+								<div class="lh-type" th:text="${req.type}">Sick Leave</div>
+								<div class="lh-date" th:text="${req.dateRange}">Apr 10–12</div>
+							</div>
+								<span class="lh-badge"
+									th:classappend="${req.status == 'Approved'} ? 'lh-approved' : (${req.status == 'Rejected'} ? 'lh-rejected' : 'lh-pending')"
+									th:text="${req.status}">Pending</span>
+						</div>
+						<div th:if="${leaveRequests == null or #lists.isEmpty(leaveRequests)}" class="empty-state"
+							id="lfEmptyState" style="padding:40px;">
+							<i data-lucide="file-text" style="width:48px;height:48px;opacity:.3;"></i>
+							<h3>No Leave Requests</h3>
+							<p>Your requests will appear here.</p>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!-- /page-content -->
+	</div><!-- /main-wrapper -->
+
+	<!-- Toasts -->
+	<div class="toast success" th:if="${successMessage}">
+		<i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
+	</div>
+	<div class="toast error" th:if="${errorMessage}">
+		<i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+	</div>
+
+	<script>
+		/* ── Sidebar ── */
+		var hamburger = document.getElementById('hamburgerBtn'),
+			sidebar = document.getElementById('sidebar'),
+			overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+
+		/* ── File upload ── */
+		document.getElementById('lfFile').addEventListener('change', function () {
+			if (!this.files.length) return;
+			document.getElementById('lfFileName').textContent = this.files[0].name;
+			document.getElementById('lfPreview').style.display = 'flex';
+		});
+		document.getElementById('lfClearFile').addEventListener('click', function (e) {
+			e.preventDefault(); e.stopPropagation();
+			document.getElementById('lfFile').value = '';
+			document.getElementById('lfPreview').style.display = 'none';
+		});
+
+		/* ── Duration calculator ── */
+		function calcDays() {
+			var f = document.getElementById('lfFrom').value,
+				t = document.getElementById('lfTo').value,
+				el = document.getElementById('lfDaysInfo');
+			if (!f || !t) {el.style.display = 'none'; return;}
+			var days = Math.round((new Date(t) - new Date(f)) / 864e5) + 1;
+			if (days < 1) {el.style.display = 'none'; return;}
+			el.textContent = 'Duration: ' + days + ' day' + (days > 1 ? 's' : '');
+			el.style.display = 'block';
+		}
+		document.getElementById('lfFrom').addEventListener('change', calcDays);
+		document.getElementById('lfTo').addEventListener('change', calcDays);
+
+		/* ── Validation ── */
+		function markError(id, hasErr) {
+			document.getElementById(id).classList[hasErr ? 'add' : 'remove']('lf-error');
+		}
+
+		/* ── Format date ── */
+		function fmtDate(str) {
+			return new Date(str).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+		}
+
+		/* ── Submit validation ── */
+		document.getElementById('leaveForm').addEventListener('submit', function (e) {
+			var type = document.getElementById('lfType').value;
+			var from = document.getElementById('lfFrom').value;
+			var to = document.getElementById('lfTo').value;
+			var reason = document.getElementById('lfReason').value.trim();
+			var valid = true;
+
+			markError('lfType', !type); if (!type) valid = false;
+			markError('lfFrom', !from); if (!from) valid = false;
+			markError('lfTo', !to); if (!to) valid = false;
+			markError('lfReason', !reason); if (!reason) valid = false;
+			if (!valid) e.preventDefault();
+		});
+
+		/* ── History search ── */
+		document.getElementById('lhSearch').addEventListener('input', function () {
+			var q = this.value.toLowerCase();
+			document.querySelectorAll('#lfHistory .lh-item').forEach(function (row) {
+				row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+			});
+		});
+
+		/* ── Lucide ── */
+		lucide.createIcons();
+
+		/* ── Toasts ── */
+		document.querySelectorAll('.toast').forEach(function (t) {
+			requestAnimationFrame(function () {
+				requestAnimationFrame(function () {t.classList.add('toast-show');});
+			});
+			setTimeout(function () {
+				t.classList.remove('toast-show');
+				t.classList.add('toast-hide');
+				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
+			}, 3500);
+		});
+	</script>
+
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

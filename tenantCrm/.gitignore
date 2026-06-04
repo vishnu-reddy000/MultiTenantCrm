@@ -1,0 +1,88 @@
+# =========================
+# Build folders
+# =========================
+target/
+build/
+out/
+bin/
+
+# =========================
+# Java compiled files
+# =========================
+*.class
+*.jar
+*.war
+*.ear
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE - IntelliJ
+# =========================
+.idea/
+*.iml
+
+# =========================
+# IDE - Eclipse / STS
+# =========================
+.classpath
+.project
+.settings/
+.factorypath
+
+# =========================
+# IDE - VS Code
+# =========================
+.vscode/
+
+# =========================
+# Spring Boot / Application Config
+# =========================
+src/main/resources/application.properties
+
+# Optional:
+# Uncomment if you want to ignore all properties files
+# *.properties
+
+# =========================
+# Node (if frontend exists)
+# =========================
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.swp
+*.bak
+
+# =========================
+# Database files
+# =========================
+*.db
+*.sqlite
+
+# Optional:
+# Uncomment if you DON'T want SQL files in Git
+# *.sql

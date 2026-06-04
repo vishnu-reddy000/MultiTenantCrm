@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HR — Meetings</title>
+	<link rel="stylesheet" th:href="@{/hr.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		/* ── Tab Navigation ── */
+		.tab-nav {
+			display: flex;
+			gap: 0;
+			background: white;
+			border-radius: 18px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+			padding: 6px;
+			margin-bottom: 24px;
+			width: fit-content;
+		}
+
+		.tab-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 24px;
+			border-radius: 13px;
+			font-size: 13px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			border: none;
+			background: transparent;
+			color: #6b7280;
+			transition: all .22s cubic-bezier(.4, 0, .2, 1);
+			position: relative;
+			white-space: nowrap;
+		}
+
+		.tab-btn i[data-lucide] {
+			width: 15px;
+			height: 15px;
+		}
+
+		.tab-btn.active {
+			background: #17455e;
+			color: white;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.25);
+		}
+
+		.tab-btn:not(.active):hover {
+			background: #f0f7fb;
+			color: #17455e;
+		}
+
+		.tab-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 10px;
+			font-size: 10px;
+			font-weight: 700;
+			background: rgba(255, 255, 255, 0.22);
+			color: white;
+			margin-left: 2px;
+		}
+
+		.tab-btn:not(.active) .tab-badge {
+			background: #e5edf2;
+			color: #17455e;
+		}
+
+		/* ── Tab Panels ── */
+		.tab-panel {
+			display: none;
+		}
+
+		.tab-panel.active {
+			display: block;
+		}
+
+		/* ══════════════════════════════════════
+		   REDESIGNED SCHEDULE FORM CARD
+		══════════════════════════════════════ */
+		.form-card {
+			background: white;
+			border-radius: 22px;
+			box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+			overflow: hidden;
+			width: 100%;
+		}
+
+		/* Header */
+		.form-card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 24px 32px 20px;
+			border-bottom: 1px solid #edf3f6;
+			background: linear-gradient(135deg, #f7fbfd 0%, #eef5fa 100%);
+		}
+
+		.form-card-header h2 {
+			font-size: 18px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.form-card-header p {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 4px;
+			margin-bottom: 0;
+		}
+
+		.form-card-icon {
+			width: 46px;
+			height: 46px;
+			border-radius: 14px;
+			background: #17455e;
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.28);
+		}
+
+		/* Two-column body: left = form fields, right = participants */
+		.form-body-split {
+			display: grid;
+			grid-template-columns: 1fr 380px;
+			gap: 0;
+			min-height: 0;
+		}
+
+		/* LEFT COLUMN */
+		.form-left {
+			padding: 28px 32px 28px;
+			border-right: 1px solid #edf3f6;
+		}
+
+		.form-fields-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px 22px;
+		}
+
+		.form-fields-grid .full {
+			grid-column: 1 / -1;
+		}
+
+		/* Form groups */
+		.form-group {
+			margin: 0;
+		}
+
+		.form-group label {
+			display: block;
+			font-size: 11px;
+			font-weight: 700;
+			color: #8a9fb0;
+			letter-spacing: 0.07em;
+			text-transform: uppercase;
+			margin-bottom: 7px;
+		}
+
+		.form-group label span {
+			color: #d11a2a;
+		}
+
+		.form-group .input-wrap input,
+		.form-group .input-wrap select,
+		.form-group .input-wrap textarea,
+		.input-wrap input,
+		.input-wrap select,
+		.input-wrap textarea {
+			width: 100%;
+			border: 1.5px solid #e5edf2;
+			border-radius: 12px;
+			padding: 0 14px;
+			height: 44px;
+			font-size: 13.5px;
+			font-family: 'Poppins', sans-serif;
+			outline: none;
+			background: #f9fbfc;
+			color: #163647;
+			transition: border-color .2s, background .2s, box-shadow .2s;
+			box-sizing: border-box;
+		}
+
+		.input-wrap textarea {
+			height: auto;
+			padding: 12px 14px;
+			resize: vertical;
+		}
+
+		.input-wrap input:focus,
+		.input-wrap select:focus,
+		.input-wrap textarea:focus {
+			border-color: #17455e;
+			background: white;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
+		}
+
+		.input-wrap input.input-error {
+			border-color: #d11a2a !important;
+			background: #fff5f5 !important;
+			box-shadow: 0 0 0 3px rgba(209, 26, 42, 0.08) !important;
+		}
+
+		.field-error {
+			font-size: 12px;
+			color: #d11a2a;
+			margin-top: 4px;
+		}
+
+		.datetime-error-msg {
+			display: none;
+			font-size: 12px;
+			color: #d11a2a;
+			margin-top: 4px;
+			font-weight: 500;
+		}
+
+		.datetime-error-msg.visible { display: block; }
+
+		/* Checkbox row */
+		.checkbox-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			font-size: 13.5px;
+			color: #163647;
+			font-weight: 500;
+			letter-spacing: 0;
+			text-transform: none;
+		}
+
+		.checkbox-row input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: #17455e;
+			cursor: pointer;
+		}
+
+		/* RIGHT COLUMN — Participants Panel */
+		.form-right {
+			padding: 28px 26px 28px;
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+			background: #f7fbfd;
+		}
+
+		.participants-panel-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.participants-panel-header h3 {
+			font-size: 13px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.participants-panel-header span {
+			font-size: 11px;
+			color: #6b7280;
+			margin-top: 2px;
+			display: block;
+		}
+
+		.btn-select-all {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 7px 14px;
+			border-radius: 9px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #17455e;
+			color: white;
+			border: none;
+			cursor: pointer;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+
+		.btn-select-all:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-select-all i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		/* Search */
+		.participant-search-wrap {
+			position: relative;
+		}
+
+		.participant-search-wrap i[data-lucide] {
+			position: absolute;
+			left: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 14px;
+			height: 14px;
+			color: #9ca3af;
+			pointer-events: none;
+		}
+
+		.participant-search-wrap input {
+			width: 100%;
+			border: 1.5px solid #e5edf2;
+			border-radius: 11px;
+			padding: 0 14px 0 36px;
+			height: 40px;
+			font-size: 13px;
+			font-family: 'Poppins', sans-serif;
+			outline: none;
+			background: white;
+			color: #163647;
+			transition: border-color .2s, box-shadow .2s;
+			box-sizing: border-box;
+		}
+
+		.participant-search-wrap input:focus {
+			border-color: #17455e;
+			box-shadow: 0 0 0 3px rgba(23, 69, 94, 0.08);
+		}
+
+		.participant-search-wrap input::placeholder {
+			color: #b0bec7;
+		}
+
+		/* Participant list */
+		.participant-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 260px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+
+		.participant-list::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.participant-list::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.participant-list::-webkit-scrollbar-thumb {
+			background: #d1dce3;
+			border-radius: 4px;
+		}
+
+		.participant-item {
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			padding: 10px 14px;
+			border-radius: 12px;
+			background: white;
+			border: 1.5px solid #e5edf2;
+			cursor: pointer;
+			transition: border-color .18s, background .18s, box-shadow .18s;
+			user-select: none;
+		}
+
+		.participant-item:hover {
+			border-color: #17455e;
+			background: #f0f7fb;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.08);
+		}
+
+		.participant-item.selected {
+			border-color: #17455e;
+			background: #dcecf5;
+			box-shadow: 0 2px 8px rgba(23, 69, 94, 0.12);
+		}
+
+		.p-avatar {
+			width: 34px;
+			height: 34px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 13px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.p-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.p-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.p-role {
+			font-size: 11px;
+			color: #6b7280;
+			text-transform: capitalize;
+		}
+
+		.p-check {
+			width: 18px;
+			height: 18px;
+			border-radius: 5px;
+			border: 2px solid #d1dce3;
+			background: white;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all .18s;
+		}
+
+		.participant-item.selected .p-check {
+			background: #17455e;
+			border-color: #17455e;
+		}
+
+		.participant-item.selected .p-check::after {
+			content: '✓';
+			font-size: 11px;
+			color: white;
+			font-weight: 700;
+		}
+
+		.p-count {
+			font-size: 12px;
+			color: #17455e;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.p-count i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		/* ── Form actions ── */
+		.form-card-footer {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			padding: 20px 32px 26px;
+			border-top: 1px solid #edf3f6;
+		}
+
+		.btn-cancel {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			height: 46px;
+			padding: 0 22px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #f3f8fb;
+			color: #4b6a7a;
+			border: 1.5px solid #e5edf2;
+			text-decoration: none;
+			cursor: pointer;
+			transition: background .2s;
+		}
+
+		.btn-cancel:hover {
+			background: #e8f2f8;
+		}
+
+		.btn-save {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			height: 46px;
+			padding: 0 28px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #17455e;
+			color: white;
+			border: none;
+			cursor: pointer;
+			box-shadow: 0 4px 14px rgba(23, 69, 94, 0.22);
+			transition: background .2s, transform .15s;
+		}
+
+		.btn-save:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-save i[data-lucide] {
+			width: 15px;
+			height: 15px;
+		}
+
+		/* ── Meeting type badges ── */
+		.badge-online {
+			background: #dcecf5;
+			color: #17455e;
+		}
+
+		.badge-inperson {
+			background: #dff5ea;
+			color: #1b7a46;
+		}
+
+		.badge-hybrid {
+			background: #e9e2ff;
+			color: #5b21b6;
+		}
+
+		/* ── Join button ── */
+		.btn-join {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 5px 12px;
+			border-radius: 8px;
+			font-size: 11px;
+			font-weight: 600;
+			background: #17455e;
+			color: white;
+			text-decoration: none;
+			border: none;
+			cursor: pointer;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+		}
+
+		.btn-join:hover {
+			background: #1e5a7a;
+			transform: translateY(-1px);
+		}
+
+		.btn-join i[data-lucide] {
+			width: 12px;
+			height: 12px;
+		}
+
+		.btn-join-disabled {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 5px 12px;
+			border-radius: 8px;
+			font-size: 11px;
+			font-weight: 600;
+			background: #f3f4f6;
+			color: #9ca3af;
+			cursor: not-allowed;
+			white-space: nowrap;
+		}
+
+		.btn-join-disabled i[data-lucide] {
+			width: 12px;
+			height: 12px;
+		}
+
+		/* ── Table action buttons ── */
+		.action-btns {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.btn-action {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 5px 12px;
+			border-radius: 9px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			border: none;
+			text-decoration: none;
+			transition: background .18s, transform .15s;
+			white-space: nowrap;
+		}
+
+		.btn-action i[data-lucide] {
+			width: 13px;
+			height: 13px;
+		}
+
+		.btn-action.edit {
+			background: #dcecf5;
+			color: #17455e;
+		}
+
+		.btn-action.edit:hover {
+			background: #c5dce8;
+			transform: translateY(-1px);
+		}
+
+		.btn-action.delete {
+			background: #fdecec;
+			color: #d11a2a;
+		}
+
+		.btn-action.delete:hover {
+			background: #fcd9d9;
+			transform: translateY(-1px);
+		}
+
+		/* ── Participants cell ── */
+		.participants-cell {
+			max-width: 160px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 12px;
+			color: #6b7280;
+		}
+
+		/* ── View Participants button ── */
+		.btn-participants {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 5px 11px;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			background: #e9f0f5;
+			color: #17455e;
+			border: 1.5px solid #c8dfe9;
+			cursor: pointer;
+			transition: background .18s, border-color .18s, transform .15s;
+			white-space: nowrap;
+		}
+		.btn-participants:hover {
+			background: #dcecf5;
+			border-color: #17455e;
+			transform: translateY(-1px);
+		}
+		.btn-participants i[data-lucide] {
+			width: 12px;
+			height: 12px;
+		}
+
+		/* ── Participants modal list ── */
+		.participants-modal-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 320px;
+			overflow-y: auto;
+			padding-right: 2px;
+		}
+		.participants-modal-list::-webkit-scrollbar { width: 4px; }
+		.participants-modal-list::-webkit-scrollbar-track { background: transparent; }
+		.participants-modal-list::-webkit-scrollbar-thumb { background: #d1dce3; border-radius: 4px; }
+		.pm-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 12px;
+			border-radius: 10px;
+			background: #f7fbfd;
+			border: 1.5px solid #e5edf2;
+		}
+		.pm-avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: #17455e;
+			color: white;
+			font-size: 12px;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+		.pm-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+		}
+
+		/* ── Meetings table card ── */
+		.meetings-table-card {
+			background: white;
+			border-radius: 22px;
+			box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+			overflow: hidden;
+		}
+
+		.meetings-table-card .card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 22px 26px 18px;
+			border-bottom: 1px solid #edf3f6;
+		}
+
+		.meetings-table-card .card-header h2 {
+			font-size: 17px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0;
+		}
+
+		.meetings-table-card .card-header p {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 2px;
+			margin-bottom: 0;
+		}
+
+		.card-header-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 13px;
+			background: #dff5ea;
+			color: #1b7a46;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		/* ── Table tweaks ── */
+		#meetingsTable {
+			width: 100%;
+		}
+
+		#meetingsTable thead th {
+			padding: 11px 14px;
+			font-size: 11px;
+		}
+
+		#meetingsTable tbody td {
+			padding: 13px 14px;
+			font-size: 13px;
+		}
+
+		/* ── Modal ── */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.45);
+			z-index: 9000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			backdrop-filter: blur(3px);
+		}
+
+		.modal-overlay.hidden {
+			display: none;
+		}
+
+		.modal {
+			background: white;
+			border-radius: 22px;
+			padding: 36px 32px 28px;
+			max-width: 420px;
+			width: 90%;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+			text-align: center;
+		}
+
+		.modal-icon {
+			margin-bottom: 14px;
+		}
+
+		.modal-title {
+			font-size: 19px;
+			font-weight: 700;
+			color: #163647;
+			margin-bottom: 10px;
+		}
+
+		.modal-msg {
+			font-size: 14px;
+			color: #6b7280;
+			line-height: 1.6;
+			margin-bottom: 24px;
+		}
+
+		.modal-actions {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			border: none;
+			height: 46px;
+			padding: 0 22px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			font-family: 'Poppins', sans-serif;
+			cursor: pointer;
+			transition: background .2s, transform .15s;
+			white-space: nowrap;
+			text-decoration: none;
+		}
+
+		.btn-clear {
+			background: #f3f8fb;
+			color: #4b6a7a;
+			border: 1.5px solid #e5edf2;
+		}
+
+		.btn-clear:hover {
+			background: #e8f2f8;
+		}
+
+		.btn-danger {
+			background: #d11a2a;
+			color: white;
+			box-shadow: 0 4px 14px rgba(209, 26, 42, 0.22);
+		}
+
+		.btn-danger:hover {
+			background: #b91c1c;
+			transform: translateY(-1px);
+		}
+
+		.btn i[data-lucide] {
+			width: 14px;
+			height: 14px;
+		}
+
+		/* ── Responsive ── */
+		@media (max-width: 900px) {
+			.form-body-split {
+				grid-template-columns: 1fr;
+			}
+
+			.form-right {
+				border-top: 1px solid #edf3f6;
+			}
+
+			.form-left {
+				border-right: none;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.tab-nav {
+				width: 100%;
+			}
+
+			.tab-btn {
+				flex: 1;
+				justify-content: center;
+				padding: 10px 14px;
+				font-size: 12px;
+			}
+
+			.form-fields-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.form-fields-grid .full {
+				grid-column: 1 / -1;
+			}
+
+			.form-card-footer {
+				padding: 18px 20px 22px;
+			}
+
+			.form-card-header {
+				padding: 18px 20px 16px;
+			}
+
+			.form-left {
+				padding: 20px;
+			}
+
+			.form-right {
+				padding: 20px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">HR</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="users"></i></div>
+			<h2>HR</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+			<h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+			<p th:text="${adminRole} ?: 'HR'">HR</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+			<li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+			<li><a th:href="@{/hr/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+			<li><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+			<li class="active"><a th:href="@{/hr/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+		</a>
+	</div>
+
+	<div class="main-wrapper">
+		<div class="topbar">
+			<div>
+				<h1>Meetings</h1>
+				<p class="topbar-subtitle">Schedule and manage meetings across your organisation</p>
+			</div>
+			<div class="topbar-right">
+				<div class="search-box">
+					<input type="text" id="meetingSearch" placeholder="Search meetings…">
+				</div>
+				<div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<!-- Toasts -->
+			<div class="toast success" th:if="${successMessage}">
+				<i data-lucide="check-circle"></i>
+				<span th:text="${successMessage}"></span>
+			</div>
+			<div class="toast error" th:if="${errorMessage}">
+				<i data-lucide="alert-triangle"></i>
+				<span th:text="${errorMessage}"></span>
+			</div>
+
+			<!-- ── Tab Navigation ── -->
+			<div class="tab-nav">
+				<button class="tab-btn active" id="tabBtnSchedule" onclick="switchTab('schedule')">
+					<i data-lucide="calendar-plus"></i>
+					<span th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New
+						Meeting</span>
+				</button>
+				<button class="tab-btn" id="tabBtnList" onclick="switchTab('list')">
+					<i data-lucide="calendar-clock"></i>
+					Scheduled Meetings
+					<span class="tab-badge" id="meetingCountBadge"
+						th:text="${upcomingMeetings != null} ? ${#lists.size(upcomingMeetings)} : '0'">0</span>
+				</button>
+				<button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">
+					<i data-lucide="history"></i>
+					Past Meetings
+					<span class="tab-badge" id="historyCountBadge"
+						th:text="${pastMeetings != null} ? ${#lists.size(pastMeetings)} : '0'">0</span>
+				</button>
+			</div>
+
+			<!-- ── TAB PANEL: Schedule / Edit Form ── -->
+			<div class="tab-panel active" id="panelSchedule">
+				<div class="form-card">
+
+					<!-- Card Header -->
+					<div class="form-card-header">
+						<div>
+							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule
+								New Meeting</h2>
+							<p>Fill in the details below to schedule a meeting for your organisation</p>
+						</div>
+						<div class="form-card-icon">
+							<i data-lucide="calendar-plus" style="width:20px;height:20px;"></i>
+						</div>
+					</div>
+
+					<form th:action="${meetingForm.id != null}
+                                  ? @{/hr/meetings/edit/{id}(id=${meetingForm.id})}
+                                  : @{/hr/meetings}" th:object="${meetingForm}" method="post"
+						id="hrMeetingForm" onsubmit="return validateMeetingDateTime(event)">
+
+						<!-- ── Two-column split ── -->
+						<div class="form-body-split">
+
+							<!-- LEFT: Form Fields -->
+							<div class="form-left">
+								<div class="form-fields-grid">
+
+									<!-- Title (full width) -->
+									<div class="form-group full">
+										<label>Meeting Title <span>*</span></label>
+										<div class="input-wrap">
+											<input type="text" th:field="*{title}"
+												placeholder="e.g. Q2 Planning Session" required>
+										</div>
+										<span class="field-error" th:if="${#fields.hasErrors('title')}"
+											th:errors="*{title}"></span>
+									</div>
+
+									<!-- Date -->
+									<div class="form-group">
+										<label>Date <span>*</span></label>
+										<div class="input-wrap">
+											<input type="date" th:field="*{meetingDate}"
+												id="meetingDateInput" required onchange="onDateTimeChange()">
+										</div>
+										<span class="datetime-error-msg" id="dateErrorMsg">
+											<i data-lucide="alert-circle" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting date cannot be in the past.
+										</span>
+									</div>
+
+									<!-- Time -->
+									<div class="form-group">
+										<label>Time <span>*</span></label>
+										<div class="input-wrap">
+											<input type="time" th:field="*{meetingTime}"
+												id="meetingTimeInput" required onchange="onDateTimeChange()">
+										</div>
+										<span class="datetime-error-msg" id="timeErrorMsg">
+											<i data-lucide="alert-circle" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+											Meeting time has already passed for today.
+										</span>
+									</div>
+
+									<!-- Duration -->
+									<div class="form-group">
+										<label>Duration</label>
+										<div class="input-wrap">
+											<select th:field="*{duration}">
+												<option value="15">15 minutes</option>
+												<option value="30">30 minutes</option>
+												<option value="45">45 minutes</option>
+												<option value="60">1 hour</option>
+												<option value="90">1.5 hours</option>
+												<option value="120">2 hours</option>
+											</select>
+										</div>
+									</div>
+
+									<!-- Meeting Type -->
+									<div class="form-group">
+										<label>Meeting Type</label>
+										<div class="input-wrap">
+											<select th:field="*{meetingType}">
+												<option value="ONLINE">Online</option>
+												<option value="IN_PERSON">In Person</option>
+												<option value="HYBRID">Hybrid</option>
+											</select>
+										</div>
+									</div>
+
+									<!-- Location (full width) -->
+									<div class="form-group full">
+										<label>Location / Meeting Link</label>
+										<div class="input-wrap">
+											<input type="text" th:field="*{location}"
+												placeholder="Room A or https://meet.google.com/…">
+										</div>
+									</div>
+
+									<!-- Agenda (full width) -->
+									<div class="form-group full">
+										<label>Agenda</label>
+										<div class="input-wrap">
+											<textarea th:field="*{agenda}" rows="3"
+												placeholder="Topics to discuss…"></textarea>
+										</div>
+									</div>
+
+									<!-- Notification (full width) -->
+									<div class="form-group full" style="padding-bottom:0;">
+										<label class="checkbox-row">
+											<input type="checkbox" th:field="*{sendNotification}">
+											Send email notification to participants
+										</label>
+									</div>
+
+								</div>
+							</div><!-- /form-left -->
+
+							<!-- RIGHT: Participants Panel -->
+							<div class="form-right">
+								<input type="hidden" th:field="*{participants}" id="participantsHidden">
+
+								<!-- Header row -->
+								<div class="participants-panel-header">
+									<div>
+										<h3>Participants <span style="color:#d11a2a;">*</span></h3>
+										<span>Click to select individual members</span>
+									</div>
+									<button type="button" class="btn-select-all" onclick="selectAllParticipants()">
+										<i data-lucide="users"></i> Select All
+									</button>
+								</div>
+
+								<!-- Search -->
+								<div class="participant-search-wrap">
+									<i data-lucide="search"></i>
+									<input type="text" id="participantSearchInput"
+										placeholder="Search participants by name or role…"
+										oninput="filterParticipants(this.value)">
+								</div>
+
+								<!-- Participant list -->
+								<div class="participant-list" id="participantGrid">
+									<div th:each="u : ${tenantUsers}" class="participant-item"
+										th:data-username="${u.username}" th:data-role="${u.role}"
+										onclick="toggleParticipant(this)">
+										<div class="p-avatar"
+											th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U</div>
+										<div class="p-info">
+											<div class="p-name" th:text="${u.username}">User</div>
+											<div class="p-role" th:text="${u.role}">Role</div>
+										</div>
+										<div class="p-check"></div>
+									</div>
+									<div th:if="${tenantUsers == null or #lists.isEmpty(tenantUsers)}"
+										style="text-align:center;padding:30px 20px;color:#6b7280;font-size:13px;">
+										No users found in this tenant.
+									</div>
+								</div>
+
+								<!-- Count + error -->
+								<div class="p-count" id="participantCount">
+									<i data-lucide="user-check"></i>
+									<span>0 participant(s) selected</span>
+								</div>
+								<span class="field-err" th:if="${#fields.hasErrors('participants')}"
+									th:errors="*{participants}"></span>
+
+							</div><!-- /form-right -->
+						</div><!-- /form-body-split -->
+
+						<div class="form-card-footer">
+							<a th:href="@{/hr/meetings}" class="btn-cancel">Cancel</a>
+							<button type="submit" class="btn-save">
+								<i data-lucide="calendar-check"></i>
+								<span
+									th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule
+									Meeting</span>
+							</button>
+						</div>
+					</form>
+				</div><!-- /form-card -->
+			</div><!-- /panelSchedule -->
+
+			<!-- ── TAB PANEL: Scheduled Meetings ── -->
+			<div class="tab-panel" id="panelList">
+				<div class="meetings-table-card">
+					<div class="card-header">
+						<div>
+							<h2>Scheduled Meetings</h2>
+							<p
+								th:text="${upcomingMeetings != null} ? (${#lists.size(upcomingMeetings)} + ' meeting(s)') : '0 meeting(s)'">
+								0 meeting(s)</p>
+						</div>
+						<div class="card-header-icon">
+							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>
+						</div>
+					</div>
+					<div class="table-wrap">
+						<table id="meetingsTable">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Title</th>
+									<th>Date &amp; Time</th>
+									<th>Type</th>
+									<th>Participants</th>
+									<th>Join</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="m, stat : ${upcomingMeetings}">
+									<td style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
+									<td>
+										<div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">
+											Title</div>
+										<div style="font-size:11px;color:#9ca3af;margin-top:2px;"
+											th:text="${m.duration != null} ? (${m.duration} + ' min') : ''"></div>
+									</td>
+									<td>
+										<div style="font-size:12px;font-weight:600;color:#4b6a7a;"
+											th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</div>
+										<div style="font-size:11px;color:#9ca3af;margin-top:2px;"
+											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">
+											Time</div>
+									</td>
+									<td>
+										<span class="status-badge badge-online"
+											th:if="${m.meetingType == 'ONLINE'}">Online</span>
+										<span class="status-badge badge-inperson"
+											th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
+										<span class="status-badge badge-hybrid"
+											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
+									</td>
+								<td>
+									<div class="participants-cell">
+										<button type="button" class="btn-participants"
+											th:if="${m.participants != null and !#strings.isEmpty(m.participants)}"
+											th:attr="data-participants=${m.participants}"
+											onclick="openParticipantsModal(this)">
+											<i data-lucide="users"></i>
+											View Participants
+										</button>
+										<span th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
+									</div>
+								</td>
+								<td>
+									<th:block th:with="
+										isToday=${m.meetingDate != null and m.meetingDate.equals(T(java.time.LocalDate).now())},
+										hasStarted=${m.meetingTime != null and !m.meetingTime.isAfter(T(java.time.LocalTime).now())},
+										hasUrl=${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}">
+										<a th:if="${isToday and hasStarted and hasUrl}"
+										   th:href="${m.location}" target="_blank" rel="noopener noreferrer"
+										   class="btn-join">
+											<i data-lucide="video"></i> Join
+										</a>
+										<span th:if="${isToday and hasStarted and !hasUrl}"
+										      class="btn-join-disabled"
+										      th:title="${m.location ?: 'No link provided'}">
+											<i data-lucide="map-pin"></i>
+											<span th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No Link</span>
+										</span>
+										<span th:if="${!isToday or !hasStarted}"
+										      style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;white-space:nowrap;">
+											<i data-lucide="clock" style="width:12px;height:12px;"></i>
+											<span th:text="${isToday} ? 'Starting Soon' : 'Scheduled'">Scheduled</span>
+										</span>
+									</th:block>
+								</td>
+								<td>
+									<div class="action-btns">
+										<a th:href="@{/hr/meetings/edit/{id}(id=${m.id})}" class="btn-action edit">
+											<i data-lucide="pencil"></i> Edit
+										</a>
+										<button type="button" class="btn-action delete" th:data-id="${m.id}"
+											th:data-title="${m.title}" onclick="openDeleteModal(this)">
+											<i data-lucide="trash-2"></i> Delete
+										</button>
+									</div>
+								</td>
+								</tr>
+								<tr th:if="${upcomingMeetings == null or #lists.isEmpty(upcomingMeetings)}">
+									<td colspan="7">
+										<div class="empty-state">
+											<i data-lucide="calendar-clock"
+												style="width:48px;height:48px;opacity:.3;"></i>
+											<h3>No Meetings Scheduled</h3>
+											<p>Switch to "Schedule New Meeting" to create your first meeting.</p>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div><!-- /panelList -->
+
+			<div class="tab-panel" id="panelHistory">
+				<div class="meetings-table-card">
+					<div class="card-header">
+						<div>
+							<h2>Past Meetings / History</h2>
+							<p th:text="${pastMeetings != null} ? (${#lists.size(pastMeetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
+						</div>
+						<div class="card-header-icon"><i data-lucide="history" style="width:18px;height:18px;"></i></div>
+					</div>
+					<div class="table-wrap">
+						<table id="historyTable">
+							<thead><tr><th>#</th><th>Title</th><th>Date</th><th>Time</th><th>Type</th><th>Participants</th></tr></thead>
+							<tbody>
+								<tr th:each="m, stat : ${pastMeetings}">
+									<td style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
+									<td><div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">Title</div></td>
+									<td><div style="font-size:12px;font-weight:600;color:#4b6a7a;" th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</div></td>
+									<td><div style="font-size:11px;color:#9ca3af;margin-top:2px;" th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</div></td>
+									<td><span class="status-badge badge-online" th:if="${m.meetingType == 'ONLINE'}">Online</span><span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span><span class="status-badge badge-hybrid" th:if="${m.meetingType == 'HYBRID'}">Hybrid</span></td>
+									<td>
+										<th:block th:if="${m.participants != null and !#strings.isEmpty(m.participants)}">
+											<th:block th:with="parts=${#strings.arraySplit(m.participants, ',')}">
+												<div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
+													<span th:each="p, iter : ${parts}" th:if="${iter.index < 2}" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#1d4ed8; font-size:12px; font-weight:600;">[[${p.trim()}]]</span>
+													<button th:if="${#arrays.length(parts) > 2}" type="button" style="border:none; background:none; color:#2563eb; font-size:12px; font-weight:600; cursor:pointer; padding:0;" th:attr="data-participants=${m.participants}" onclick="openParticipantsModal(this)">View all</button>
+												</div>
+											</th:block>
+										</th:block>
+										<span th:unless="${m.participants != null and !#strings.isEmpty(m.participants)}" style="font-size:12px;color:#6b7280;">—</span>
+									</td>
+								</tr>
+								<tr th:if="${pastMeetings == null or #lists.isEmpty(pastMeetings)}"><td colspan="6"><div class="empty-state"><i data-lucide="history" style="width:48px;height:48px;opacity:.3;"></i><h3>No Past Meetings</h3><p>Completed meetings will appear here.</p></div></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div><!-- /panelHistory -->
+
+		</div><!-- /page-content -->
+	</div><!-- /main-wrapper -->
+
+	<!-- ── Delete Confirmation Modal ── -->
+	<div class="modal-overlay hidden" id="deleteModalOverlay">
+		<div class="modal">
+			<div class="modal-icon">
+				<i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i>
+			</div>
+			<h3 class="modal-title">Delete Meeting</h3>
+			<p class="modal-msg">Are you sure you want to delete <strong id="deleteMeetingTitle"></strong>?<br>This
+				action cannot be undone.</p>
+			<div class="modal-actions">
+				<button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+				<form id="deleteMeetingForm" method="post" style="display:contents;">
+					<button type="submit" class="btn btn-danger">
+						<i data-lucide="trash-2"></i> Yes, Delete
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Participants Modal -->
+	<div class="modal-overlay hidden" id="participantsModalOverlay">
+		<div class="modal" style="max-width:460px;text-align:left;">
+			<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;">
+				<div>
+					<h3 class="modal-title" style="margin:0;text-align:left;">Meeting Participants</h3>
+					<p style="font-size:12px;color:#6b7280;margin:4px 0 0;" id="participantsModalCount"></p>
+				</div>
+				<button type="button" style="border:none;background:#f3f8fb;color:#6b7280;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="closeParticipantsModal()">&times;</button>
+			</div>
+			<div class="participants-modal-list" id="participantsModalList">No participants</div>
+			<div class="modal-actions" style="margin-top:20px;justify-content:flex-end;">
+				<button type="button" class="btn btn-clear" onclick="closeParticipantsModal()">Close</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		/* ── Sidebar ── */
+		var hamburger = document.getElementById('hamburgerBtn');
+		var sidebar = document.getElementById('sidebar');
+		var overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		if (sidebar) sidebar.querySelectorAll('a').forEach(function (l) {
+			l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});
+		});
+
+		/* ── Tab Switching ── */
+		function switchTab(tab) {
+			var panels = document.querySelectorAll('.tab-panel');
+			var btns = document.querySelectorAll('.tab-btn');
+			panels.forEach(function (p) {p.classList.remove('active');});
+			btns.forEach(function (b) {b.classList.remove('active');});
+			if (tab === 'schedule') {
+				document.getElementById('panelSchedule').classList.add('active');
+				document.getElementById('tabBtnSchedule').classList.add('active');
+				sessionStorage.setItem('hr_meetingsTab', 'schedule');
+			} else if (tab === 'history') {
+				document.getElementById('panelHistory').classList.add('active');
+				document.getElementById('tabBtnHistory').classList.add('active');
+				sessionStorage.setItem('hr_meetingsTab', 'history');
+			} else {
+				document.getElementById('panelList').classList.add('active');
+				document.getElementById('tabBtnList').classList.add('active');
+				sessionStorage.setItem('hr_meetingsTab', 'list');
+			}
+		}
+
+		/* ── Restore last active tab ── */
+		(function restoreTab() {
+			var saved = sessionStorage.getItem('hr_meetingsTab');
+			var hasEditId = /*[[${meetingForm.id != null}]]*/ false;
+			if (hasEditId) {
+				switchTab('schedule');
+			} else if (saved === 'history') {
+				switchTab('history');
+			} else if (saved === 'list') {
+				switchTab('list');
+			}
+		})();
+
+		/* ── Date/time validation ── */
+		function getTodayString() {
+			var now = new Date();
+			return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+		}
+
+		function getCurrentTimeString() {
+			var now = new Date();
+			return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+		}
+
+		function onDateTimeChange() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			var dateErr = document.getElementById('dateErrorMsg');
+			var timeErr = document.getElementById('timeErrorMsg');
+			if (!dateInput) return;
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+			var datePast = chosenDate && chosenDate < today;
+			dateInput.classList.toggle('input-error', datePast);
+			if (dateErr) dateErr.classList.toggle('visible', datePast);
+			if (timeInput && timeErr) {
+				var isToday = chosenDate === today;
+				var timePast = isToday && timeInput.value && timeInput.value < getCurrentTimeString();
+				timeInput.classList.toggle('input-error', timePast);
+				timeErr.classList.toggle('visible', timePast);
+				if (isToday) { timeInput.setAttribute('min', getCurrentTimeString()); }
+				else { timeInput.removeAttribute('min'); timeInput.classList.remove('input-error'); timeErr.classList.remove('visible'); }
+			}
+		}
+
+		function validateMeetingDateTime(e) {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+			if (!dateInput) return true;
+			var today = getTodayString();
+			var chosenDate = dateInput.value;
+			var chosenTime = timeInput ? timeInput.value : '';
+			if (chosenDate && chosenDate < today) {
+				dateInput.classList.add('input-error');
+				var dateErr = document.getElementById('dateErrorMsg');
+				if (dateErr) dateErr.classList.add('visible');
+				dateInput.focus(); e.preventDefault(); return false;
+			}
+			if (chosenDate === today && chosenTime && chosenTime < getCurrentTimeString()) {
+				if (timeInput) timeInput.classList.add('input-error');
+				var timeErr = document.getElementById('timeErrorMsg');
+				if (timeErr) timeErr.classList.add('visible');
+				if (timeInput) timeInput.focus(); e.preventDefault(); return false;
+			}
+			return true;
+		}
+
+		/* ── Participant picker ── */
+		var hiddenInput = document.getElementById('participantsHidden');
+		var countLabel = document.getElementById('participantCount');
+
+		(function preSelect() {
+			var existing = (hiddenInput ? hiddenInput.value : '').split(',').map(function (s) {return s.trim();}).filter(Boolean);
+			if (!existing.length) return;
+			document.querySelectorAll('.participant-item').forEach(function (item) {
+				if (existing.indexOf(item.getAttribute('data-username')) > -1) item.classList.add('selected');
+			});
+			updateCount();
+		})();
+
+		function toggleParticipant(el) {el.classList.toggle('selected'); updateCount();}
+
+		function selectAllParticipants() {
+			var items = document.querySelectorAll('.participant-item');
+			var allSelected = Array.from(items).every(function (i) {return i.classList.contains('selected');});
+			items.forEach(function (i) {allSelected ? i.classList.remove('selected') : i.classList.add('selected');});
+			updateCount();
+		}
+
+		function filterParticipants(query) {
+			var q = query.toLowerCase();
+			document.querySelectorAll('.participant-item').forEach(function (item) {
+				var name = (item.getAttribute('data-username') || '').toLowerCase();
+				var role = (item.getAttribute('data-role') || '').toLowerCase();
+				item.style.display = (name.indexOf(q) > -1 || role.indexOf(q) > -1) ? '' : 'none';
+			});
+		}
+
+		function updateCount() {
+			var names = [];
+			document.querySelectorAll('.participant-item.selected').forEach(function (el) {
+				names.push(el.getAttribute('data-username'));
+			});
+			if (hiddenInput) hiddenInput.value = names.join(', ');
+			var span = countLabel ? countLabel.querySelector('span') : null;
+			if (span) span.textContent = names.length + ' participant(s) selected';
+		}
+
+		/* ── Search (works across both tabs; show list tab when searching) ── */
+		var ms = document.getElementById('meetingSearch');
+		if (ms) ms.addEventListener('input', function () {
+			var q = this.value.toLowerCase();
+			if (q) switchTab('list');
+			document.querySelectorAll('#meetingsTable tbody tr, #historyTable tbody tr').forEach(function (r) {
+				r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+			});
+		});
+
+		/* ── Edit button — switch to schedule tab ── */
+		document.querySelectorAll('.btn-action.edit').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				sessionStorage.setItem('hr_meetingsTab', 'schedule');
+			});
+		});
+
+		/* ── Delete modal ── */
+		function openDeleteModal(btn) {
+			document.getElementById('deleteMeetingTitle').textContent = btn.getAttribute('data-title');
+			document.getElementById('deleteMeetingForm').action = '/hr/meetings/delete/' + btn.getAttribute('data-id');
+			document.getElementById('deleteModalOverlay').classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+		}
+		function closeDeleteModal() {
+			document.getElementById('deleteModalOverlay').classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+
+function escapeHtml(text) {
+				return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			}
+
+			function openParticipantsModal(btn) {
+				var raw = btn.getAttribute('data-participants') || '';
+				var list = document.getElementById('participantsModalList');
+				var countEl = document.getElementById('participantsModalCount');
+				var items = raw.split(',').map(function(item) { return item.trim(); }).filter(function(item) { return item.length > 0; });
+				if (items.length === 0) {
+					list.innerHTML = '<div style="color:#64748b;text-align:center;padding:16px;">No participants</div>';
+					if (countEl) countEl.textContent = '';
+				} else {
+					if (countEl) countEl.textContent = items.length + ' participant' + (items.length !== 1 ? 's' : '');
+					list.innerHTML = items.map(function(item) {
+						var initial = item.charAt(0).toUpperCase();
+						return '<div class="pm-item"><div class="pm-avatar">' + escapeHtml(initial) + '</div><div class="pm-name">' + escapeHtml(item) + '</div></div>';
+					}).join('');
+				}
+			document.getElementById('participantsModalOverlay').classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+		}
+
+		function closeParticipantsModal() {
+			document.getElementById('participantsModalOverlay').classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+		var delOverlay = document.getElementById('deleteModalOverlay');
+		if (delOverlay) delOverlay.addEventListener('click', function (e) {if (e.target === delOverlay) closeDeleteModal();});
+		var participantsOverlay = document.getElementById('participantsModalOverlay');
+		if (participantsOverlay) participantsOverlay.addEventListener('click', function (e) {if (e.target === participantsOverlay) closeParticipantsModal();});
+		document.addEventListener('keydown', function (e) {if (e.key === 'Escape') {closeDeleteModal(); closeParticipantsModal();}});
+
+		/* ── Toast auto-dismiss ── */
+		document.querySelectorAll('.toast').forEach(function (t) {
+			requestAnimationFrame(function () {
+				requestAnimationFrame(function () {t.classList.add('toast-show');});
+			});
+			setTimeout(function () {
+				t.classList.remove('toast-show');
+				t.classList.add('toast-hide');
+				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
+			}, 3500);
+		});
+
+		/* ════════════════════════════════════════════════════
+		   ── NO BACK DATE / NO BACK TIME RESTRICTION ──
+		   Only these lines are new — nothing else changed.
+		════════════════════════════════════════════════════ */
+		(function applyDateTimeRestriction() {
+			var dateInput = document.getElementById('meetingDateInput');
+			var timeInput = document.getElementById('meetingTimeInput');
+
+			if (!dateInput || !timeInput) return;
+
+			/* Helper: returns today as "YYYY-MM-DD" */
+			function todayStr() {
+				var d = new Date();
+				var mm = String(d.getMonth() + 1).padStart(2, '0');
+				var dd = String(d.getDate()).padStart(2, '0');
+				return d.getFullYear() + '-' + mm + '-' + dd;
+			}
+
+			/* Helper: returns current time as "HH:MM" */
+			function nowTimeStr() {
+				var d = new Date();
+				return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+			}
+
+			/* Helper: is the selected date today? */
+			function isToday() {
+				return dateInput.value === todayStr();
+			}
+
+			/* 1. Block past dates — set min to today */
+			dateInput.min = todayStr();
+
+			/* 2. If a past date was somehow already set, clear it */
+			if (dateInput.value && dateInput.value < todayStr()) {
+				dateInput.value = '';
+			}
+
+			/* 3. When date changes — update time min accordingly */
+			dateInput.addEventListener('change', function () {
+				if (isToday()) {
+					timeInput.min = nowTimeStr();
+					/* If the currently entered time is in the past on today, clear it */
+					if (timeInput.value && timeInput.value < nowTimeStr()) {
+						timeInput.value = '';
+					}
+				} else {
+					/* Future date — any time is allowed */
+					timeInput.min = '';
+				}
+			});
+
+			/* 4. On page load — if date is already today, restrict time too */
+			if (isToday()) {
+				timeInput.min = nowTimeStr();
+			}
+
+			/* 5. Re-check time minimum every minute so it stays current while the page is open */
+			setInterval(function () {
+				if (isToday()) {
+					timeInput.min = nowTimeStr();
+					/* Optionally clear an expired time if user hasn't submitted yet */
+					if (timeInput.value && timeInput.value < nowTimeStr()) {
+						timeInput.value = '';
+					}
+				}
+			}, 60000);
+		})();
+		/* ── END RESTRICTION ── */
+
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

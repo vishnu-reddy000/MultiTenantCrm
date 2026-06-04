@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="active"><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+        <li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+        <li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+        <li><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+        <li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>My Dashboard</h1>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" placeholder="Search projects, tasks…"></div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="folder-open"></i></div><div class="stat-info"><h3 th:text="${activeProjectsCount} ?: '0'">0</h3><p>Active Projects</p></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="check-circle-2"></i></div><div class="stat-info"><h3 th:text="${completedTasks} ?: '0'">0</h3><p>Tasks Completed</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="calendar"></i></div><div class="stat-info"><h3 th:text="${attendanceRate} ?: '0%'">0%</h3><p>Attendance</p></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i data-lucide="clock"></i></div><div class="stat-info"><h3 th:text="${pendingLeaves} ?: '0'">0</h3><p>Pending Leaves</p></div></div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="left-col">
+                <div class="card">
+                    <div class="card-header"><div><h2>My Projects</h2><p>Active project assignments</p></div><a th:href="@{/employee/projects}" class="btn-link">View All &rarr;</a></div>
+                    <div th:if="${myProjects == null or #lists.isEmpty(myProjects)}" class="empty-state" style="padding:20px;"><i data-lucide="folder-open" style="width:32px;height:32px;opacity:.3;"></i><h3>No Projects Assigned</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div><h2>My Tasks</h2><p>Pending tasks</p></div><a th:href="@{/employee/tasks}" class="btn-link">All Tasks &rarr;</a></div>
+                    <div th:if="${pendingTasks == null or #lists.isEmpty(pendingTasks)}" class="empty-state" style="padding:20px;"><i data-lucide="check-square" style="width:32px;height:32px;opacity:.3;"></i><h3>No Pending Tasks</h3></div>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="card">
+                    <div class="card-header"><div><h2>Attendance</h2><p th:text="${attendanceMonth} ?: 'This Month'">This Month</p></div></div>
+                    <div class="attendance-row">
+                        <div class="att-item"><strong th:text="${presentDays} ?: '0'">0</strong><span>Present</span></div>
+                        <div class="att-item"><strong th:text="${absentDays} ?: '0'">0</strong><span>Absent</span></div>
+                        <div class="att-item"><strong th:text="${leaveDays} ?: '0'">0</strong><span>Leave</span></div>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div></div>
+                    <div class="checkin-info">Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong></div>
+                </div>
+                <!-- My Team card -->
+                <div class="card">
+                    <div class="card-header"><div><h2>My Team</h2><p>Your assigned team</p></div></div>
+                    <div th:if="${myTeamName == null}" style="text-align:center;padding:20px;color:#9ab3bd;font-size:13px;">
+                        <i data-lucide="users" style="width:32px;height:32px;opacity:.3;display:block;margin:0 auto 8px;"></i>
+                        Not assigned to any team yet.
+                    </div>
+                    <div th:unless="${myTeamName == null}" style="padding:4px 0;">
+                        <!-- Team name row -->
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #edf3f6;">
+                            <div style="width:36px;height:36px;border-radius:12px;background:#dcecf5;color:#17455e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i data-lucide="users-round" style="width:18px;height:18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Team</div>
+                                <div style="font-size:14px;font-weight:700;color:#163647;" th:text="${myTeamName}">Team</div>
+                            </div>
+                            <div style="margin-left:auto;background:#dcecf5;color:#17455e;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;" th:text="${myTeamSize} + ' member(s)'">0</div>
+                        </div>
+                        <!-- Manager row -->
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #edf3f6;">
+                            <div style="width:36px;height:36px;border-radius:12px;background:#dff5ea;color:#1b7a46;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i data-lucide="user-check" style="width:18px;height:18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Manager</div>
+                                <div style="font-size:13px;font-weight:700;color:#163647;" th:text="${myTeamManager}">—</div>
+                            </div>
+                        </div>
+                        <!-- Team members list -->
+                        <div style="margin-top:10px;">
+                            <div style="font-size:11px;color:#9ab3bd;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Teammates</div>
+                            <div th:if="${myTeamMembers == null or #lists.isEmpty(myTeamMembers)}"
+                                 style="font-size:13px;color:#9ab3bd;text-align:center;padding:8px 0;">No teammates yet.</div>
+                            <div th:each="member : ${myTeamMembers}"
+                                 style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f7fa;">
+                                <div style="width:30px;height:30px;border-radius:50%;background:#e9e2ff;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;"
+                                     th:text="${#strings.substring(member.username ?: 'E', 0, 1).toUpperCase()}">E</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:13px;font-weight:600;color:#163647;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${member.username}">Name</div>
+                                    <div style="font-size:11px;color:#9ab3bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${member.email}">email</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div><h2>Quick Actions</h2></div></div>
+                    <div class="quick-actions">
+                        <a th:href="@{/employee/projects}" class="quick-action-btn"><span class="qa-icon" style="background:#dcecf5;color:#17455e;"><i data-lucide="folder-open"></i></span><span>My Projects</span></a>
+                        <a th:href="@{/employee/tasks}" class="quick-action-btn"><span class="qa-icon" style="background:#dff5ea;color:#1b7a46;"><i data-lucide="check-square"></i></span><span>My Tasks</span></a>
+                        <a th:href="@{/employee/attendance}" class="quick-action-btn"><span class="qa-icon" style="background:#fce9d8;color:#b45309;"><i data-lucide="calendar"></i></span><span>Attendance</span></a>
+                        <a th:href="@{/employee/leaves}" class="quick-action-btn"><span class="qa-icon" style="background:#e9e2ff;color:#5b21b6;"><i data-lucide="file-text"></i></span><span>Leave</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

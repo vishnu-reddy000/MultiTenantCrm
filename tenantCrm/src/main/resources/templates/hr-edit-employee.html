@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR — Edit Member</title>
+    <link rel="stylesheet" th:href="@{/hr.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        .au-form-card { border: 2px solid rgba(23,69,94,0.12); max-width: 760px; }
+        .au-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 700px) { .au-form-grid { grid-template-columns: 1fr; } }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 4px; }
+        .form-group label { margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #163647; }
+        .input-wrap { position: relative; display: flex; align-items: center; }
+        .input-wrap input, .input-wrap select {
+            width: 100%; height: 50px; border: none; border-radius: 14px;
+            background: #f5f9fb; padding: 0 16px; font-size: 14px;
+            font-family: 'Poppins', sans-serif; color: #163647;
+            transition: background .25s, box-shadow .25s;
+        }
+        .input-wrap input:focus, .input-wrap select:focus {
+            outline: none; background: white; box-shadow: 0 0 0 3px rgba(23,69,94,.14);
+        }
+        .input-wrap input::placeholder { color: #8aa7b6; }
+        .select-wrap { position: relative; }
+        .select-wrap .select-input { appearance: none; -webkit-appearance: none; padding-right: 40px; cursor: pointer; }
+        .select-wrap .select-arrow {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            pointer-events: none; color: #9ca3af; display: flex; align-items: center;
+        }
+        .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            border: none; height: 50px; padding: 0 26px; border-radius: 14px; font-size: 14px;
+            font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
+            transition: background .25s, transform .25s, box-shadow .25s; white-space: nowrap; text-decoration: none;
+        }
+        .btn-clear { background: #edf3f6; color: #163647; }
+        .btn-clear:hover { background: #dfeaf0; }
+        .btn-primary { background: #17455e; color: white; box-shadow: 0 6px 16px rgba(23,69,94,.22); }
+        .btn-primary:hover { background: #21556f; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(23,69,94,.28); }
+        .btn-icon-close {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px; border-radius: 50%; background: #f5f9fb;
+            border: none; color: #163647; cursor: pointer; flex-shrink: 0;
+            transition: background .2s; text-decoration: none;
+        }
+        .btn-icon-close:hover { background: #fdecec; color: #d11a2a; }
+        .toast {
+            position: fixed; top: 24px; right: 24px; z-index: 9999;
+            display: flex; align-items: center; gap: 10px; padding: 14px 20px;
+            border-radius: 14px; font-size: 14px; font-weight: 600;
+            min-width: 260px; max-width: 420px; box-shadow: 0 8px 28px rgba(0,0,0,.12);
+            pointer-events: none;
+        }
+        .toast.success { background: #dff5ea; color: #1b7a46; border: 1.5px solid #6ee7b7; }
+        .toast.error   { background: #fdecec; color: #be123c; border: 1.5px solid #fca5a5; }
+    </style>
+</head>
+<body>
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">HR</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+        <p th:text="${adminRole} ?: 'HR'">HR</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="active"><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+        <li><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+        <li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
+</div>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div>
+            <h1>Edit Member</h1>
+            <p class="topbar-subtitle" th:text="'Editing: ' + ${employee.username}">Editing member</p>
+            <div class="breadcrumb" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;">
+                <a th:href="@{/hr/employees}" style="color:#17455e;text-decoration:none;display:flex;align-items:center;gap:4px;">
+                    <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back to Employees
+                </a>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+        <div class="toast error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+
+        <div class="card au-form-card">
+            <div class="card-header">
+                <div>
+                    <h2>Update Member</h2>
+                    <p th:text="'Modify the details for ' + ${employee.username}">Modify member details</p>
+                </div>
+                <a th:href="@{/hr/employees}" class="btn-icon-close" title="Cancel">
+                    <i data-lucide="x"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/hr/edit-employee/{id}(id=${employee.id})}" method="post">
+                    <div class="au-form-grid">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="input-wrap">
+                                <input type="email" name="email" th:value="${employee.email}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <div class="input-wrap">
+                                <input type="text" name="username" th:value="${employee.username}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <div class="input-wrap select-wrap">
+                                <select name="role" class="select-input" required>
+                                    <option value="">Select Role</option>
+                                    <option value="HR"       th:selected="${employee.role == 'HR'}">HR</option>
+                                    <option value="MANAGER"  th:selected="${employee.role == 'MANAGER'}">Manager</option>
+                                    <option value="EMPLOYEE" th:selected="${employee.role == 'EMPLOYEE'}">Employee</option>
+                                </select>
+                                <span class="select-arrow">
+                                    <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password <span style="color:#6b7280;font-weight:400;">(leave blank to keep current)</span></label>
+                            <div class="input-wrap">
+                                <input type="password" name="password" placeholder="Leave blank to keep current">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <div class="input-wrap">
+                                <input type="password" name="confirmPassword" placeholder="Confirm new password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a th:href="@{/hr/employees}" class="btn btn-clear">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="check"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click', closeSidebar);
+    if (sidebar)   sidebar.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', function(){ if(window.innerWidth<900) closeSidebar(); }); });
+
+    document.querySelectorAll('.toast').forEach(function(t) {
+        setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .5s'; setTimeout(function(){ t.remove(); }, 500); }, 4000);
+    });
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

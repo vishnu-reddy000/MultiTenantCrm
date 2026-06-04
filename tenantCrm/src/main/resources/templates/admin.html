@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title th:text="${pageTitle} ?: 'CRM — Admin'">CRM — Admin</title>
+	<link rel="stylesheet" th:href="@{/admin.css}">
+	<style>
+		/* Ensure sidebar scrolls so all nav items are visible */
+		.sidebar {
+			overflow-y: auto;
+		}
+
+		.sidebar-menu {
+			overflow: visible;
+		}
+
+		/* Schedule Meeting extras */
+		.meeting-field-hint {
+			font-size: 12px;
+			color: #6b7280;
+			margin-top: 4px;
+			display: block;
+		}
+
+		.field-error {
+			font-size: 12px;
+			color: #dc2626;
+			margin-top: 4px;
+			display: block;
+		}
+
+		.required {
+			color: #dc2626;
+		}
+
+		.checkbox-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			font-size: 14px;
+			color: #374151;
+		}
+
+		.checkbox-row input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: #2563eb;
+			cursor: pointer;
+		}
+
+		.badge-online {
+			background: #dff5ea !important;
+			color: #15803d !important;
+		}
+
+		.badge-inperson {
+			background: #fce9d8 !important;
+			color: #b45309 !important;
+		}
+
+		.badge-hybrid {
+			background: #e9e2ff !important;
+			color: #5b21b6 !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- MOBILE TOPBAR -->
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">&#128737; CRM Admin</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+	<!-- SIDEBAR -->
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon">&#128737;</div>
+			<h2>Admin</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+			</div>
+			<h3 th:text="${adminName} ?: 'Admin'">Admin</h3>
+		</div>
+		<ul class="sidebar-menu">
+			<li th:classappend="${activePage == 'dashboard'} ? 'active'">
+				<a th:href="@{/admin/dashboard}">&#128202; Dashboard</a>
+			</li>
+			<li th:classappend="${activePage == 'add-users'} ? 'active'">
+				<a th:href="@{/admin/add-user}">&#128101; Employees</a>
+			</li>
+			<li th:classappend="${activePage == 'schedule-meeting'} ? 'active'">
+				<a th:href="@{/admin/schedule-meeting}">&#128197; Schedule Meeting</a>
+			</li>
+
+			<li th:classappend="${activePage == 'tasks'} ? 'active'">
+				<a th:href="@{/admin/tasks}">&#9989; Tasks</a>
+			</li>
+			<li th:classappend="${activePage == 'reports'} ? 'active'">
+				<a th:href="@{/admin/reports}">&#128196; Reports</a>
+			</li>
+			<li th:classappend="${activePage == 'calendar'} ? 'active'">
+				<a th:href="@{/admin/calendar}">&#9884; Calendar</a>
+			</li>
+			<li th:classappend="${activePage == 'settings'} ? 'active'">
+				<a th:href="@{/admin/settings}">&#9881; Settings</a>
+			</li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn">&#128682; Logout</button>
+		</a>
+	</div>
+
+	<!-- MAIN WRAPPER -->
+	<div class="main-wrapper">
+		<!-- TOPBAR -->
+		<div class="topbar">
+			<h1 th:text="${pageHeading} ?: 'Dashboard'">Dashboard</h1>
+			<div class="topbar-right">
+				<div class="search-box">
+					<input type="text" id="globalSearch" placeholder="Search…">
+				</div>
+				<div class="notif-btn" title="Notifications">
+					&#128276;
+					<span class="notif-badge" th:text="${notificationCount} ?: '0'"
+						th:if="${notificationCount != null and notificationCount > 0}">0</span>
+				</div>
+				<div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+				</div>
+			</div>
+		</div>
+
+		<!-- PAGE CONTENT -->
+		<div class="page-content">
+
+			<!-- ===================== DASHBOARD PAGE ===================== -->
+			<div th:if="${activePage == 'dashboard'}">
+				<div class="stats-row">
+					<div class="stat-card">
+						<div class="stat-icon green">&#128101;</div>
+						<div class="stat-info">
+							<h3 th:text="${totalEmployees} ?: '0'">0</h3>
+							<p>Total Employees</p>
+							<span class="stat-growth" th:text="${employeeGrowth} ?: '+0%'">+0%</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon blue">&#128193;</div>
+						<div class="stat-info">
+							<h3 th:text="${activeProjects} ?: '0'">0</h3>
+							<p>Active Projects</p>
+							<span class="stat-growth" th:text="${projectGrowth} ?: '+0%'">+0%</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${tasksDone} ?: '0'">0</h3>
+							<p>Tasks Done</p>
+							<span class="stat-growth" th:text="${taskGrowth} ?: '+0%'">+0%</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple">&#9888;</div>
+						<div class="stat-info">
+							<h3 th:text="${overdueTasks} ?: '0'">0</h3>
+							<p>Overdue Tasks</p>
+							<span class="stat-growth warn" th:text="${overdueChange} ?: '0%'">0%</span>
+						</div>
+					</div>
+				</div>
+				<div class="dashboard-grid">
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Recent Activity</h2>
+								<p>Latest actions across the system</p>
+							</div>
+						</div>
+						<div class="empty-state"
+							th:if="${recentActivities == null or #lists.isEmpty(recentActivities)}">
+							<div style="font-size:40px;">&#128203;</div>
+							<h3>No recent activity</h3>
+							<p>Activity will appear here once users start working.</p>
+						</div>
+					</div>
+					<div class="right-col">
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>Quick Actions</h2>
+								</div>
+							</div>
+							<div class="quick-actions">
+								<a th:href="@{/admin/add-user}" class="quick-action-btn">
+									<div class="qa-icon" style="background:#dff5ea;">&#128100;</div> Employees
+								</a>
+								<a th:href="@{/admin/projects}" class="quick-action-btn">
+									<div class="qa-icon" style="background:#dcecf5;">&#128193;</div> New Project
+								</a>
+								<a th:href="@{/admin/tasks}" class="quick-action-btn">
+									<div class="qa-icon" style="background:#fce9d8;">&#9989;</div> Create Task
+								</a>
+								<a th:href="@{/admin/reports}" class="quick-action-btn">
+									<div class="qa-icon" style="background:#e9e2ff;">&#128196;</div> View Reports
+								</a>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>Summary</h2>
+								</div>
+							</div>
+							<div class="summary-list">
+								<div class="summary-row">
+									<span class="summary-label">Total Employees</span>
+									<span class="summary-value" th:text="${employeeCount} ?: '0'">0</span>
+								</div>
+								<div class="summary-row">
+									<span class="summary-label">Active Projects</span>
+									<span class="summary-value" th:text="${projectCount} ?: '0'">0</span>
+								</div>
+								<div class="summary-row">
+									<span class="summary-label">Pending Tasks</span>
+									<span class="summary-value" th:text="${pendingTasks} ?: '0'">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END DASHBOARD ===================== -->
+
+			<!-- ===================== SCHEDULE MEETING PAGE ===================== -->
+			<div th:if="${activePage == 'schedule-meeting'}">
+				<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+				<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+				<!-- Form Card -->
+				<div class="card au-form-card">
+					<div class="card-header">
+						<div>
+							<h2>&#128197; New Meeting Details</h2>
+							<p>Fill in the details below to schedule a meeting</p>
+						</div>
+					</div>
+					<form th:action="@{/admin/schedule-meeting}" th:object="${meetingForm}" method="post">
+						<div class="au-form-grid">
+
+							<!-- Title -->
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Meeting Title <span class="required">*</span></label>
+								<div class="input-wrap">
+									<input type="text" th:field="*{title}" placeholder="e.g. Q2 Planning Session"
+										required />
+								</div>
+								<span th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+									class="field-error"></span>
+							</div>
+
+							<!-- Date -->
+							<div class="form-group">
+								<label>Date <span class="required">*</span></label>
+								<div class="input-wrap">
+									<input type="date" th:field="*{meetingDate}" required />
+								</div>
+								<span th:if="${#fields.hasErrors('meetingDate')}" th:errors="*{meetingDate}"
+									class="field-error"></span>
+							</div>
+
+							<!-- Time -->
+							<div class="form-group">
+								<label>Time <span class="required">*</span></label>
+								<div class="input-wrap">
+									<input type="time" th:field="*{meetingTime}" required />
+								</div>
+								<span th:if="${#fields.hasErrors('meetingTime')}" th:errors="*{meetingTime}"
+									class="field-error"></span>
+							</div>
+
+							<!-- Duration -->
+							<div class="form-group">
+								<label>Duration</label>
+								<div class="input-wrap">
+									<select th:field="*{duration}" class="select-input">
+										<option value="15">15 minutes</option>
+										<option value="30">30 minutes</option>
+										<option value="45">45 minutes</option>
+										<option value="60">1 hour</option>
+										<option value="90">1.5 hours</option>
+										<option value="120">2 hours</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- Meeting Type -->
+							<div class="form-group">
+								<label>Meeting Type</label>
+								<div class="input-wrap">
+									<select th:field="*{meetingType}" class="select-input">
+										<option value="ONLINE">&#127760; Online</option>
+										<option value="IN_PERSON">&#127968; In Person</option>
+										<option value="HYBRID">&#128257; Hybrid</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- Location -->
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Location / Meeting Link</label>
+								<div class="input-wrap">
+									<input type="text" th:field="*{location}"
+										placeholder="e.g. Conference Room A or https://meet.google.com/..." />
+								</div>
+							</div>
+
+							<!-- Participants -->
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Participants <span class="required">*</span></label>
+								<div class="input-wrap">
+									<input type="text" th:field="*{participants}"
+										placeholder="Enter email addresses separated by commas" required />
+								</div>
+								<span class="meeting-field-hint">e.g. john@example.com, jane@example.com</span>
+								<span th:if="${#fields.hasErrors('participants')}" th:errors="*{participants}"
+									class="field-error"></span>
+							</div>
+
+							<!-- Agenda -->
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Agenda / Notes</label>
+								<div class="input-wrap">
+									<textarea th:field="*{agenda}"
+										placeholder="Add meeting agenda, objectives, or any notes…" rows="4"
+										style="height:auto;padding:12px 16px;resize:vertical;"></textarea>
+								</div>
+							</div>
+
+							<!-- Notify -->
+							<div class="form-group" style="grid-column:1/-1;">
+								<label class="checkbox-row">
+									<input type="checkbox" th:field="*{sendNotification}" />
+									Send email notifications to participants
+								</label>
+							</div>
+
+						</div><!-- /au-form-grid -->
+						<div class="form-actions">
+							<a th:href="@{/admin/dashboard}" class="btn btn-clear">Cancel</a>
+							<button type="reset" class="btn btn-clear">&#8635; Reset</button>
+							<button type="submit" class="btn btn-primary">&#128197; Schedule Meeting</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Upcoming Meetings Table -->
+				<div class="card" style="margin-top:24px;"
+					th:if="${upcomingMeetings != null and !upcomingMeetings.isEmpty()}">
+					<div class="card-header">
+						<div>
+							<h2>Upcoming Meetings</h2>
+							<p>Your next scheduled sessions</p>
+						</div>
+					</div>
+					<div class="table-wrap">
+						<table>
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Title</th>
+									<th>Date</th>
+									<th>Time</th>
+									<th>Duration</th>
+									<th>Type</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="meeting, stat : ${upcomingMeetings}">
+									<td th:text="${stat.index + 1}">1</td>
+									<td style="font-weight:600;" th:text="${meeting.title}">Title</td>
+									<td th:text="${#temporals.format(meeting.meetingDate, 'dd MMM yyyy')}">Date</td>
+									<td th:text="${meeting.meetingTime}">Time</td>
+									<td th:text="${meeting.duration} + ' min'">60 min</td>
+									<td>
+										<span class="status-badge badge-online"
+											th:if="${meeting.meetingType == 'ONLINE'}">Online</span>
+										<span class="status-badge badge-inperson"
+											th:if="${meeting.meetingType == 'IN_PERSON'}">In Person</span>
+										<span class="status-badge badge-hybrid"
+											th:if="${meeting.meetingType == 'HYBRID'}">Hybrid</span>
+									</td>
+									<td>
+										<div class="action-btns">
+											<a th:href="@{/admin/schedule-meeting/edit/{id}(id=${meeting.id})}"
+												class="action-btn">Edit</a>
+											<a th:href="@{/admin/schedule-meeting/delete/{id}(id=${meeting.id})}"
+												onclick="return confirm('Delete this meeting?')"
+												class="action-btn delete-btn">Delete</a>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END SCHEDULE MEETING ===================== -->
+
+			<!-- ===================== PROJECTS PAGE ===================== -->
+			<div th:if="${activePage == 'projects'}">
+				<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+				<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+				<div class="stats-row au-stats">
+					<div class="stat-card">
+						<div class="stat-icon blue">&#128193;</div>
+						<div class="stat-info">
+							<h3 th:text="${totalProjects} ?: '0'">0</h3>
+							<p>Total Projects</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${activeProjects} ?: '0'">0</h3>
+							<p>Active</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange">&#128203;</div>
+						<div class="stat-info">
+							<h3 th:text="${completedProjects} ?: '0'">0</h3>
+							<p>Completed</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card au-form-card" id="addProjCard" th:classappend="${showAddForm} ? '' : ' hidden'">
+					<div class="card-header">
+						<div>
+							<h2>Create New Project</h2>
+							<p>Fill in the project details</p>
+						</div>
+						<button type="button" class="au-close-btn" id="closeProjForm">&#10005;</button>
+					</div>
+					<form th:action="@{/admin/projects}" method="post">
+						<div class="au-form-grid">
+							<div class="form-group">
+								<label>Project Name</label>
+								<div class="input-wrap"><input type="text" name="name" placeholder="Enter project name"
+										required></div>
+							</div>
+							<div class="form-group">
+								<label>Status</label>
+								<div class="input-wrap">
+									<select name="status" class="select-input" required>
+										<option value="active">Active</option>
+										<option value="on-hold">On Hold</option>
+										<option value="completed">Completed</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Description</label>
+								<div class="input-wrap"><textarea name="description" placeholder="Project description…"
+										rows="3" style="height:auto;padding:12px 16px;resize:vertical;"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="form-actions">
+							<button type="button" class="btn btn-clear" id="cancelProjForm">Cancel</button>
+							<button type="submit" class="btn btn-primary">&#10133; Create Project</button>
+						</div>
+					</form>
+				</div>
+
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>All Projects</h2>
+							<p th:text="${totalProjects} + ' project(s)'">0 project(s)</p>
+						</div>
+						<button type="button" class="btn btn-primary" id="openProjForm">&#10133; New Project</button>
+					</div>
+					<div class="table-wrap">
+						<table id="projTable">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Project Name</th>
+									<th>Description</th>
+									<th>Status</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="proj, stat : ${projects}">
+									<td th:text="${stat.count}">1</td>
+									<td style="font-weight:600;" th:text="${proj.name}">Project</td>
+									<td style="color:#6b7280;font-size:13px;" th:text="${proj.description} ?: '—'">—
+									</td>
+									<td>
+										<span class="status-badge active"
+											th:if="${proj.status == 'active'}">Active</span>
+										<span class="status-badge" style="background:#fce9d8;color:#b45309;"
+											th:if="${proj.status == 'on-hold'}">On Hold</span>
+										<span class="status-badge" style="background:#e9e2ff;color:#5b21b6;"
+											th:if="${proj.status == 'completed'}">Completed</span>
+									</td>
+									<td>
+										<div class="action-btns">
+											<form th:action="@{/admin/projects/delete/{id}(id=${proj.id})}"
+												method="post" style="display:inline;"
+												onsubmit="return confirm('Delete this project?')">
+												<button type="submit" class="action-btn delete-btn">Delete</button>
+											</form>
+										</div>
+									</td>
+								</tr>
+								<tr th:if="${projects == null or #lists.isEmpty(projects)}">
+									<td colspan="5">
+										<div class="empty-state">
+											<div style="font-size:48px;">&#128193;</div>
+											<h3>No Projects Yet</h3>
+											<p>Click "New Project" to create one.</p>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END PROJECTS ===================== -->
+
+			<!-- ===================== TASKS PAGE ===================== -->
+			<div th:if="${activePage == 'tasks'}">
+				<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+				<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+				<div class="stats-row au-stats">
+					<div class="stat-card">
+						<div class="stat-icon orange">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${totalTasks} ?: '0'">0</h3>
+							<p>Total Tasks</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green">&#128203;</div>
+						<div class="stat-info">
+							<h3 th:text="${doneTasks} ?: '0'">0</h3>
+							<p>Completed</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple">&#9203;</div>
+						<div class="stat-info">
+							<h3 th:text="${pendingTaskCount} ?: '0'">0</h3>
+							<p>Pending</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card au-form-card" id="addTaskCard" th:classappend="${showAddForm} ? '' : ' hidden'">
+					<div class="card-header">
+						<div>
+							<h2>Create New Task</h2>
+							<p>Fill in the task details</p>
+						</div>
+						<button type="button" class="au-close-btn" id="closeTaskForm">&#10005;</button>
+					</div>
+					<form th:action="@{/admin/tasks}" method="post">
+						<div class="au-form-grid">
+							<div class="form-group">
+								<label>Task Title</label>
+								<div class="input-wrap"><input type="text" name="title" placeholder="Enter task title"
+										required></div>
+							</div>
+							<div class="form-group">
+								<label>Priority</label>
+								<div class="input-wrap">
+									<select name="priority" class="select-input" required>
+										<option value="low">Low</option>
+										<option value="medium">Medium</option>
+										<option value="high">High</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Status</label>
+								<div class="input-wrap">
+									<select name="status" class="select-input" required>
+										<option value="pending">Pending</option>
+										<option value="in-progress">In Progress</option>
+										<option value="done">Done</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Due Date</label>
+								<div class="input-wrap"><input type="date" name="dueDate"></div>
+							</div>
+							<div class="form-group" style="grid-column:1/-1;">
+								<label>Description</label>
+								<div class="input-wrap"><textarea name="description" placeholder="Task description…"
+										rows="2" style="height:auto;padding:12px 16px;resize:vertical;"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="form-actions">
+							<button type="button" class="btn btn-clear" id="cancelTaskForm">Cancel</button>
+							<button type="submit" class="btn btn-primary">&#10133; Create Task</button>
+						</div>
+					</form>
+				</div>
+
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>All Tasks</h2>
+							<p th:text="${totalTasks} + ' task(s)'">0 task(s)</p>
+						</div>
+						<button type="button" class="btn btn-primary" id="openTaskForm">&#10133; New Task</button>
+					</div>
+					<div class="table-wrap">
+						<table id="taskTable">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Title</th>
+									<th>Priority</th>
+									<th>Status</th>
+									<th>Due Date</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="task, stat : ${tasks}">
+									<td th:text="${stat.count}">1</td>
+									<td style="font-weight:600;" th:text="${task.title}">Task</td>
+									<td>
+										<span class="priority-badge high" th:if="${task.priority == 'high'}">High</span>
+										<span class="priority-badge medium"
+											th:if="${task.priority == 'medium'}">Medium</span>
+										<span class="priority-badge low" th:if="${task.priority == 'low'}">Low</span>
+									</td>
+									<td>
+										<span class="status-badge active" th:if="${task.status == 'done'}">Done</span>
+										<span class="status-badge" style="background:#fce9d8;color:#b45309;"
+											th:if="${task.status == 'in-progress'}">In Progress</span>
+										<span class="status-badge inactive"
+											th:if="${task.status == 'pending'}">Pending</span>
+									</td>
+									<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
+									<td>
+										<div class="action-btns">
+											<form th:action="@{/admin/tasks/delete/{id}(id=${task.id})}" method="post"
+												style="display:inline;" onsubmit="return confirm('Delete this task?')">
+												<button type="submit" class="action-btn delete-btn">Delete</button>
+											</form>
+										</div>
+									</td>
+								</tr>
+								<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
+									<td colspan="6">
+										<div class="empty-state">
+											<div style="font-size:48px;">&#9989;</div>
+											<h3>No Tasks Yet</h3>
+											<p>Click "New Task" to create one.</p>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END TASKS ===================== -->
+
+			<!-- ===================== REPORTS PAGE ===================== -->
+			<div th:if="${activePage == 'reports'}">
+				<div class="stats-row au-stats">
+					<div class="stat-card">
+						<div class="stat-icon green">&#128101;</div>
+						<div class="stat-info">
+							<h3 th:text="${reportEmployees} ?: '0'">0</h3>
+							<p>Employees</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon blue">&#128193;</div>
+						<div class="stat-info">
+							<h3 th:text="${reportProjects} ?: '0'">0</h3>
+							<p>Projects</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${reportTasks} ?: '0'">0</h3>
+							<p>Tasks</p>
+						</div>
+					</div>
+				</div>
+				<div class="dashboard-grid">
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>User Report</h2>
+								<p>All registered users by role</p>
+							</div>
+						</div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Username</th>
+										<th>Email</th>
+										<th>Role</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="u, stat : ${reportUsers}">
+										<td th:text="${stat.count}">1</td>
+										<td>
+											<div class="member-cell">
+												<div class="member-avatar"
+													th:text="${#strings.substring(u.username,0,1).toUpperCase()}">U
+												</div>
+												<span style="font-weight:600;" th:text="${u.username}">User</span>
+											</div>
+										</td>
+										<td style="color:#6b7280;font-size:13px;" th:text="${u.email}">email</td>
+										<td><span class="role-badge" th:text="${u.role} ?: '—'">Role</span></td>
+										<td>
+											<span class="status-badge active"
+												th:if="${u.status == 'active' or u.status == null}">Active</span>
+											<span class="status-badge inactive"
+												th:unless="${u.status == 'active' or u.status == null}">Inactive</span>
+										</td>
+									</tr>
+									<tr th:if="${reportUsers == null or #lists.isEmpty(reportUsers)}">
+										<td colspan="5">
+											<div class="empty-state">
+												<div style="font-size:40px;">&#128196;</div>
+												<h3>No data</h3>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="right-col">
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>Role Breakdown</h2>
+								</div>
+							</div>
+							<div class="summary-list">
+								<div class="summary-row"><span class="summary-label">&#128737; Admins</span> <span
+										class="summary-value" th:text="${roleAdmin}    ?: '0'">0</span></div>
+								<div class="summary-row"><span class="summary-label">&#128101; Employees</span><span
+										class="summary-value" th:text="${roleEmployee} ?: '0'">0</span></div>
+								<div class="summary-row"><span class="summary-label">&#128203; Managers</span> <span
+										class="summary-value" th:text="${roleManager}  ?: '0'">0</span></div>
+								<div class="summary-row"><span class="summary-label">&#128100; HR</span> <span
+										class="summary-value" th:text="${roleHr}       ?: '0'">0</span></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END REPORTS ===================== -->
+
+			<!-- ===================== SETTINGS PAGE ===================== -->
+			<div th:if="${activePage == 'settings'}">
+				<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+				<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+				<div class="dashboard-grid">
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>&#128100; Profile Settings</h2>
+								<p>Update your account information</p>
+							</div>
+						</div>
+						<form th:action="@{/admin/settings/profile}" method="post">
+							<div class="form-group">
+								<label>Username</label>
+								<div class="input-wrap"><input type="text" name="username" th:value="${adminName}"
+										required></div>
+							</div>
+							<div class="form-group">
+								<label>Email Address</label>
+								<div class="input-wrap"><input type="email" name="email" th:value="${adminEmail}"
+										placeholder="admin@example.com" required></div>
+							</div>
+							<div class="form-group">
+								<label>New Password <span style="color:#6b7280;font-weight:400;">(leave blank to keep
+										current)</span></label>
+								<div class="input-wrap"><input type="password" name="password"
+										placeholder="New password"></div>
+							</div>
+							<div class="form-group">
+								<label>Confirm New Password</label>
+								<div class="input-wrap"><input type="password" name="confirmPassword"
+										placeholder="Confirm new password"></div>
+							</div>
+							<div class="form-actions">
+								<button type="submit" class="btn btn-primary">&#128190; Save Changes</button>
+							</div>
+						</form>
+					</div>
+					<div class="right-col">
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>&#128736; System Info</h2>
+								</div>
+							</div>
+							<div class="summary-list">
+								<div class="summary-row"><span class="summary-label">Role</span> <span
+										class="summary-value"><span class="role-badge"
+											th:text="${adminRole} ?: 'ADMIN'">ADMIN</span></span></div>
+								<div class="summary-row"><span class="summary-label">Status</span> <span
+										class="summary-value"><span class="status-badge active">Active</span></span>
+								</div>
+								<div class="summary-row"><span class="summary-label">Total Users</span> <span
+										class="summary-value" th:text="${settingsTotalUsers} ?: '0'">0</span></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>&#128274; Security</h2>
+								</div>
+							</div>
+							<div class="summary-list">
+								<div class="summary-row"><span class="summary-label">Authentication</span><span
+										class="summary-value" style="font-size:12px;">JWT / Stateless</span></div>
+								<div class="summary-row"><span class="summary-label">Session</span> <span
+										class="summary-value" style="font-size:12px;">Cookie-based</span></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- ===================== END SETTINGS ===================== -->
+
+		</div><!-- /page-content -->
+	</div><!-- /main-wrapper -->
+
+	<script th:inline="javascript">
+		(function () {
+			var token = /*[[${newJwtToken}]]*/ null;
+			var role = /*[[${newJwtRole}]]*/ null;
+			var username = /*[[${newJwtUsername}]]*/ null;
+			if (!token) return;
+			localStorage.setItem('jwt_token', token);
+			if (role) localStorage.setItem('jwt_role', role);
+			if (username) localStorage.setItem('jwt_username', username);
+			try {
+				var payload = JSON.parse(atob(token.split('.')[1]));
+				var expires = new Date(payload.exp * 1000).toUTCString();
+				document.cookie = 'jwt_token=' + token + '; expires=' + expires + '; path=/; SameSite=Strict';
+			} catch (e) {
+				document.cookie = 'jwt_token=' + token + '; path=/; SameSite=Strict';
+			}
+		})();
+	</script>
+	<script>
+		// ── Sidebar mobile toggle ──────────────────────────────────────────────
+		var hamburger = document.getElementById('hamburgerBtn');
+		var sidebar = document.getElementById('sidebar');
+		var overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		sidebar.querySelectorAll('a').forEach(function (l) {
+			l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});
+		});
+
+		// ── Generic form toggle helper ─────────────────────────────────────────
+		function wireFormToggle(openId, closeId, cancelId, cardId) {
+			var card = document.getElementById(cardId);
+			var openB = document.getElementById(openId);
+			var closeB = document.getElementById(closeId);
+			var cancelB = document.getElementById(cancelId);
+			if (!card) return;
+			function show() {card.classList.remove('hidden'); card.scrollIntoView({behavior: 'smooth', block: 'start'});}
+			function hide() {card.classList.add('hidden');}
+			if (openB) openB.addEventListener('click', show);
+			if (closeB) closeB.addEventListener('click', hide);
+			if (cancelB) cancelB.addEventListener('click', hide);
+		}
+		wireFormToggle('openEmpForm', 'closeEmpForm', 'cancelEmpForm', 'addEmpCard');
+		wireFormToggle('openProjForm', 'closeProjForm', 'cancelProjForm', 'addProjCard');
+		wireFormToggle('openTaskForm', 'closeTaskForm', 'cancelTaskForm', 'addTaskCard');
+
+		// ── Global search filter ───────────────────────────────────────────────
+		var gs = document.getElementById('globalSearch');
+		if (gs) {
+			gs.addEventListener('input', function () {
+				var q = this.value.toLowerCase();
+				document.querySelectorAll('table tbody tr').forEach(function (row) {
+					row.style.display = row.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+				});
+			});
+		}
+
+		// ── Toast animate in → out → remove ───────────────────────────────────
+		document.querySelectorAll('.toast').forEach(function (t) {
+			requestAnimationFrame(function () {t.classList.add('toast-show');});
+			setTimeout(function () {
+				t.classList.remove('toast-show');
+				t.classList.add('toast-hide');
+				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
+			}, 3500);
+		});
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

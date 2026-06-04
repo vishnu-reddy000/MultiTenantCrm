@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">&#128100; Employee</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">&#128100;</div>
+        <h2>Employee</h2>
+    </div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'Employee', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="active">
+            <a href="#">&#128202; Dashboard</a>
+        </li>
+        <li>
+            <a href="#">&#128193; My Projects</a>
+        </li>
+        <li>
+            <a href="#">&#9989; My Tasks</a>
+        </li>
+        <li>
+            <a href="#">&#128197; Attendance</a>
+        </li>
+        <li>
+            <a href="#">&#128140; Leave Request</a>
+        </li>
+        <li>
+            <a href="#">&#9881; Settings</a>
+        </li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn">&#128682; Logout</button>
+    </a>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+    <div class="topbar">
+        <h1>My Dashboard</h1>
+        <div class="topbar-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search projects, tasks…">
+            </div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'Employee', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- STATS ROW -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon blue">&#128193;</div>
+                <div class="stat-info">
+                    <h3 th:text="${activeProjectsCount} ?: '0'">0</h3>
+                    <p>Active Projects</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">&#9989;</div>
+                <div class="stat-info">
+                    <h3 th:text="${completedTasks} ?: '0'">0</h3>
+                    <p>Tasks Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">&#128197;</div>
+                <div class="stat-info">
+                    <h3 th:text="${attendanceRate} ?: '0%'">0%</h3>
+                    <p>Attendance</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">&#9203;</div>
+                <div class="stat-info">
+                    <h3 th:text="${pendingLeaves} ?: '0'">0</h3>
+                    <p>Pending Leaves</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD GRID -->
+        <div class="dashboard-grid">
+
+            <!-- LEFT COLUMN: My Projects + My Tasks -->
+            <div class="left-col">
+
+                <!-- My Projects -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>My Projects</h2>
+                            <p>Active project assignments</p>
+                        </div>
+                        <a href="#" class="btn-link">View All &#8594;</a>
+                    </div>
+                    <div th:each="proj : ${myProjects}" class="project-item">
+                        <div>
+                            <div class="project-name" th:text="${proj.name}">Project Name</div>
+                            <div class="project-deadline" th:text="${proj.deadline}">Deadline</div>
+                        </div>
+                        <div class="project-progress-wrap">
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill-sm" th:style="'width:' + ${proj.progress} + '%'"></div>
+                            </div>
+                            <span class="progress-pct" th:text="${proj.progress} + '%'">0%</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(myProjects)}" class="empty-state" style="padding:20px;">
+                        <div style="font-size:32px;">&#128193;</div>
+                        <h3>No Projects Assigned</h3>
+                    </div>
+                </div>
+
+                <!-- My Tasks -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>My Tasks</h2>
+                            <p>Pending tasks</p>
+                        </div>
+                        <a href="#" class="btn-link">All Tasks &#8594;</a>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Project</th>
+                                    <th>Due Date</th>
+                                    <th>Priority</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="task : ${pendingTasks}">
+                                    <td th:text="${task.title}">Task title</td>
+                                    <td th:text="${task.projectName}">Project</td>
+                                    <td th:text="${task.dueDate}">Date</td>
+                                    <td><span class="priority-badge" th:text="${task.priority}">High</span></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(pendingTasks)}">
+                                    <td colspan="4">
+                                        <div class="empty-state" style="padding:20px;">
+                                            <div style="font-size:32px;">&#9989;</div>
+                                            <h3>No Pending Tasks</h3>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-col">
+
+                <!-- Attendance Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Attendance</h2>
+                            <p th:text="${attendanceMonth} ?: 'This Month'">This Month</p>
+                        </div>
+                    </div>
+                    <div class="attendance-row">
+                        <div class="att-item">
+                            <strong th:text="${presentDays} ?: '0'">0</strong>
+                            <span>Present</span>
+                        </div>
+                        <div class="att-item">
+                            <strong th:text="${absentDays} ?: '0'">0</strong>
+                            <span>Absent</span>
+                        </div>
+                        <div class="att-item">
+                            <strong th:text="${leaveDays} ?: '0'">0</strong>
+                            <span>Leave</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width:' + ${attendancePercent} + '%'"></div>
+                    </div>
+                    <div class="checkin-info">
+                        Last check-in: <strong th:text="${lastCheckin} ?: '—'">—</strong>
+                    </div>
+                </div>
+
+                <!-- Leave Requests -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Leave Requests</h2>
+                            <p>My recent requests</p>
+                        </div>
+                        <a href="#" class="btn-link">New &#43;</a>
+                    </div>
+                    <div th:each="req : ${leaveRequests}" class="leave-item">
+                        <div>
+                            <div class="leave-type" th:text="${req.type}">Sick Leave</div>
+                            <div class="leave-date" th:text="${req.dateRange}">Apr 10–12</div>
+                        </div>
+                        <span class="leave-status" th:text="${req.status}">Pending</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(leaveRequests)}" class="empty-state" style="padding:20px;">
+                        <div style="font-size:32px;">&#128140;</div>
+                        <h3>No Requests</h3>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Quick Actions</h2>
+                            <p>Common tasks</p>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#dcecf5;">&#128193;</span>
+                            <span>My Projects</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#dff5ea;">&#9989;</span>
+                            <span>My Tasks</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#fce9d8;">&#128197;</span>
+                            <span>Attendance</span>
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="qa-icon" style="background:#e9e2ff;">&#128140;</span>
+                            <span>Leave</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+    hamburger.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

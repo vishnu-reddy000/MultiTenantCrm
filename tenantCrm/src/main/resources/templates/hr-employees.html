@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR — Employees</title>
+    <link rel="stylesheet" th:href="@{/hr.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ── Table status cell with toggle switch ── */
+        .table-status-cell { display:flex; align-items:center; gap:10px; }
+        .toggle-btn {
+            position:relative; width:40px; height:22px; border-radius:30px;
+            border:none; cursor:pointer; padding:0; flex-shrink:0;
+            transition:background .3s ease;
+        }
+        .toggle-btn.active   { background:#17455e; }
+        .toggle-btn.inactive { background:#d1d5db; }
+        .toggle-knob {
+            position:absolute; top:3px; left:3px; width:16px; height:16px;
+            border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.2);
+            transition:transform .3s ease; display:block;
+        }
+        .toggle-btn.active   .toggle-knob { transform:translateX(18px); }
+        .toggle-btn.inactive .toggle-knob { transform:translateX(0); }
+
+        /* ── Action buttons ── */
+        .action-btns { display:flex; gap:8px; flex-wrap:wrap; }
+        .btn-action {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:5px 12px; border-radius:9px; font-size:12px; font-weight:600;
+            font-family:'Poppins',sans-serif; cursor:pointer; border:none;
+            text-decoration:none; transition:background .18s, transform .18s; white-space:nowrap;
+        }
+        .btn-action.edit   { background:#dcecf5; color:#17455e; }
+        .btn-action.edit:hover   { background:#c3d8e8; transform:translateY(-1px); }
+        .btn-action.delete { background:#fdecec; color:#d11a2a; }
+        .btn-action.delete:hover { background:#fad5d5; transform:translateY(-1px); }
+        /* Rows are clickable but status/actions cells are not */
+        #empTable tbody tr.emp-row { cursor:pointer; transition:background .15s; }
+        #empTable tbody tr.emp-row:hover { background:#f0f7fb; }
+        #empTable tbody tr.emp-row td.no-row-click { cursor:default; }
+
+        /* ── Delete modal ── */
+        .modal-overlay {
+            display:flex; position:fixed; inset:0; background:rgba(0,0,0,.5);
+            align-items:center; justify-content:center; z-index:2000; backdrop-filter:blur(2px);
+        }
+        .modal-overlay.hidden { display:none !important; }
+        .modal {
+            background:white; border-radius:20px; padding:32px; max-width:420px;
+            width:90%; box-shadow:0 20px 60px rgba(0,0,0,.2); text-align:center;
+        }
+        .modal-icon { margin-bottom:12px; }
+        .modal-title { font-size:19px; font-weight:800; color:#163647; margin-bottom:8px; }
+        .modal-msg { font-size:13.5px; color:#6b7280; margin-bottom:24px; line-height:1.5; }
+        .modal-msg strong { color:#163647; font-weight:700; }
+        .modal-actions { display:flex; gap:10px; }
+        .modal-actions .btn { min-width:110px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none;
+               height:50px; padding:0 26px; border-radius:14px; font-size:14px; font-weight:600;
+               font-family:'Poppins',sans-serif; cursor:pointer; transition:background .25s,transform .25s,box-shadow .25s;
+               white-space:nowrap; text-decoration:none; }
+        .btn-clear { background:#edf3f6; color:#163647; }
+        .btn-clear:hover { background:#dfeaf0; }
+        .btn-primary { background:#17455e; color:white; box-shadow:0 6px 16px rgba(23,69,94,.22); }
+        .btn-primary:hover { background:#21556f; transform:translateY(-2px); box-shadow:0 10px 22px rgba(23,69,94,.28); }
+        .btn-danger { background:#d11a2a; color:#fff; }
+        .btn-danger:hover { background:#b91525; transform:translateY(-2px); }
+
+        /* ── Toast ── */
+        .toast {
+            position:fixed; top:24px; right:24px; z-index:9999;
+            display:flex; align-items:center; gap:10px; padding:14px 20px;
+            border-radius:14px; font-size:14px; font-weight:600;
+            min-width:260px; max-width:420px; box-shadow:0 8px 28px rgba(0,0,0,.12);
+            pointer-events:none;
+        }
+        .toast.success { background:#dff5ea; color:#1b7a46; border:1.5px solid #6ee7b7; }
+        .toast.error   { background:#fdecec; color:#be123c; border:1.5px solid #fca5a5; }
+
+        /* ── Employee Detail Modal ── */
+        .emp-modal-overlay {
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
+            backdrop-filter:blur(3px); z-index:2000; align-items:center; justify-content:center;
+        }
+        .emp-modal-overlay.open { display:flex; }
+        .emp-modal {
+            background:white; border-radius:24px; width:90%; max-width:860px; max-height:88vh;
+            display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.2);
+            overflow:hidden; animation:modalIn .25s ease;
+        }
+        @keyframes modalIn { from{opacity:0;transform:translateY(20px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+        .emp-modal-header {
+            display:flex; align-items:center; gap:18px; padding:24px 28px 20px;
+            border-bottom:1px solid #edf3f6; flex-shrink:0;
+        }
+        .emp-modal-avatar {
+            width:64px; height:64px; border-radius:50%; background:#17455e; color:white;
+            font-size:26px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+        }
+        .emp-modal-title { flex:1; }
+        .emp-modal-title h2 { font-size:20px; font-weight:700; color:#163647; margin:0 0 4px; }
+        .emp-modal-title p  { font-size:13px; color:#6b7280; margin:0; }
+        .emp-modal-close {
+            width:36px; height:36px; border-radius:50%; border:none; background:#f3f8fb;
+            color:#6b7280; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s;
+        }
+        .emp-modal-close:hover { background:#fdecec; color:#d11a2a; }
+        .emp-modal-body { flex:1; overflow-y:auto; padding:24px 28px; display:flex; flex-direction:column; gap:22px; }
+        .emp-info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+        .emp-info-tile { background:#f5f9fb; border-radius:14px; padding:14px 16px; }
+        .emp-info-tile .label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+        .emp-info-tile .value { font-size:15px; font-weight:700; color:#163647; }
+        .emp-att-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+        .emp-att-stat { border-radius:14px; padding:14px 16px; text-align:center; }
+        .emp-att-stat .num { font-size:26px; font-weight:700; line-height:1; }
+        .emp-att-stat .lbl { font-size:11px; font-weight:600; margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
+        .emp-att-stat.green  { background:#dff5ea; color:#1b7a46; }
+        .emp-att-stat.red    { background:#fdecec; color:#d11a2a; }
+        .emp-att-stat.amber  { background:#fef3c7; color:#92400e; }
+        .emp-att-stat.purple { background:#fce7f3; color:#9d174d; }
+        .emp-att-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .emp-att-table thead th { text-align:left; padding:10px 12px; font-size:11px; font-weight:600; color:#6b7280; border-bottom:1px solid #e5edf2; text-transform:uppercase; letter-spacing:.04em; }
+        .emp-att-table tbody td { padding:11px 12px; border-bottom:1px solid #edf3f6; }
+        .emp-att-table tbody tr:last-child td { border-bottom:none; }
+        .emp-att-table tbody tr:hover { background:#f7fbfd; }
+        .emp-att-table tbody tr.row-weekend { background:#f5f3ff; }
+        .emp-att-table tbody tr.row-absent  { background:#fff8f8; }
+        .emp-att-table tbody tr.row-holiday { background:#fdf2f8; }
+        #empTable tbody tr { cursor:pointer; transition:background .15s; }
+        #empTable tbody tr:hover { background:#f0f7fb; }        .modal-loading { display:flex; align-items:center; justify-content:center; padding:48px; color:#6b7280; gap:12px; font-size:14px; }
+        .spinner { width:22px; height:22px; border:3px solid #e5edf2; border-top-color:#17455e; border-radius:50%; animation:spin .7s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        @media (max-width:600px) {
+            .emp-info-grid { grid-template-columns:1fr 1fr; }
+            .emp-att-stats { grid-template-columns:1fr 1fr; }
+            .emp-modal { border-radius:16px; }
+            .emp-modal-body { padding:16px; }
+            .modal-actions { flex-direction:column; }
+            .modal-actions .btn { width:100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        <h3 th:text="${adminName} ?: 'HR User'">HR User</h3><p th:text="${adminRole} ?: 'HR'">HR</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="active"><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+        <li><a th:href="@{/hr/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+        <li><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+        <li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div>
+            <h1>Employees</h1>
+            <p class="topbar-subtitle">Click any row to view details &amp; attendance</p>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" id="userSearch" placeholder="Search employees…"></div>
+            <a th:href="@{/hr/add-user}" class="btn btn-primary" style="height:46px;padding:0 20px;font-size:14px;text-decoration:none;">
+                <i data-lucide="user-plus"></i> Add Employee
+            </a>
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <!-- Flash messages -->
+        <div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+        <div class="toast error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+
+        <!-- Stats -->
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><h3 th:text="${totalEmployees} ?: '0'">0</h3><p>Total Members</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i data-lucide="user-check"></i></div><div class="stat-info"><h3 th:text="${activeEmployees} ?: '0'">0</h3><p>Active</p></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i data-lucide="user-x"></i></div><div class="stat-info"><h3 th:text="${inactiveEmployees} ?: '0'">0</h3><p>Inactive</p></div></div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>All Members</h2>
+                    <p th:text="${totalEmployees} + ' member(s)'">0 member(s)</p>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:10px;">
+                    <select id="statusFilter" class="select-input"
+                            style="padding:8px 14px;border-radius:8px;border:1.5px solid #e5e7eb;font-size:13px;background:#fff;cursor:pointer;min-width:130px;">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="empTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Employee</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="emp, stat : ${employees}"
+                            th:data-id="${emp.id}"
+                            th:data-name="${emp.username}"
+                            th:data-status="${emp.status}"
+                            class="emp-row">
+                            <td th:text="${stat.count}" style="color:#6b7280;font-weight:600;">1</td>
+                            <td>
+                                <div class="member-cell">
+                                    <div class="member-avatar" th:text="${#strings.substring(emp.username ?: 'U', 0, 1).toUpperCase()}">U</div>
+                                    <span style="font-weight:600;" th:text="${emp.username}">Name</span>
+                                </div>
+                            </td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${emp.email}">email</td>
+                            <td>
+                                <span class="role-badge"
+                                      th:style="${'MANAGER'.equalsIgnoreCase(emp.role)} ? 'background:#dcecf5;color:#17455e;' : (${'HR'.equalsIgnoreCase(emp.role)} ? 'background:#e9e2ff;color:#6b46c1;' : '')"
+                                      th:text="${emp.role} ?: '—'">Role</span>
+                            </td>
+                            <td class="no-row-click">
+                                <div class="table-status-cell">
+                                    <span class="status-badge active"   th:if="${emp.status == 'active' or emp.status == null}">Active</span>
+                                    <span class="status-badge inactive" th:unless="${emp.status == 'active' or emp.status == null}">Inactive</span>
+                                    <form th:action="@{/hr/toggle-user/{id}(id=${emp.id})}" method="post" style="display:inline-flex;align-items:center;">
+                                        <button type="submit"
+                                                th:class="${emp.status == 'active' or emp.status == null} ? 'toggle-btn active' : 'toggle-btn inactive'"
+                                                title="Toggle status">
+                                            <span class="toggle-knob"></span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td class="no-row-click">
+                                <div class="action-btns">
+                                    <a th:href="@{/hr/edit-employee/{id}(id=${emp.id})}"
+                                       class="btn-action edit">
+                                        <i data-lucide="pencil"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn-action delete"
+                                            th:data-id="${emp.id}" th:data-name="${emp.username}"
+                                            onclick="openDeleteModal(this)">
+                                        <i data-lucide="trash-2"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${employees == null or #lists.isEmpty(employees)}">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Members Yet</h3>
+                                    <p>Click "Add Employee" to create the first one.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="modal-overlay hidden" id="deleteModalOverlay">
+    <div class="modal">
+        <div class="modal-icon"><i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i></div>
+        <h3 class="modal-title">Delete Member</h3>
+        <p class="modal-msg">Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?<br>This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+            <form id="deleteEmployeeForm" method="post" style="display:contents;">
+                <button type="submit" class="btn btn-danger"><i data-lucide="trash-2"></i> Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── Employee Detail Modal ── -->
+<div class="emp-modal-overlay" id="empModalOverlay" onclick="closeEmpModal(event)">
+    <div class="emp-modal" id="empModal">
+        <div class="emp-modal-header">
+            <div class="emp-modal-avatar" id="modalAvatar">?</div>
+            <div class="emp-modal-title">
+                <h2 id="modalName">Loading…</h2>
+                <p id="modalEmail"></p>
+            </div>
+            <button class="emp-modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+        </div>
+        <div class="emp-modal-body" id="modalBody">
+            <div class="modal-loading"><div class="spinner"></div> Loading details…</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Sidebar ──
+    var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+    if(hamburger)hamburger.addEventListener('click',openSidebar);
+    if(overlay)overlay.addEventListener('click',closeSidebar);
+    if(sidebar)sidebar.querySelectorAll('a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<900)closeSidebar();});});
+
+    // ── Search + Status filter ──
+    function applyFilters() {
+        var q = (document.getElementById('userSearch').value || '').toLowerCase();
+        var status = (document.getElementById('statusFilter').value || 'all').toLowerCase();
+        document.querySelectorAll('#empTable tbody tr[data-id]').forEach(function(row) {
+            var text = row.textContent.toLowerCase();
+            var badge = row.querySelector('.status-badge');
+            var rowStatus = badge ? badge.textContent.trim().toLowerCase() : 'active';
+            var matchSearch = q === '' || text.indexOf(q) > -1;
+            var matchStatus = status === 'all' || rowStatus === status;
+            row.style.display = (matchSearch && matchStatus) ? '' : 'none';
+        });
+    }
+    var si = document.getElementById('userSearch');
+    if(si) si.addEventListener('input', applyFilters);
+    var sf = document.getElementById('statusFilter');
+    if(sf) sf.addEventListener('change', applyFilters);
+
+    // ── Delete modal ──
+    function openDeleteModal(btn) {
+        document.getElementById('deleteEmployeeName').textContent = btn.getAttribute('data-name');
+        document.getElementById('deleteEmployeeForm').action = '/hr/delete-user/' + btn.getAttribute('data-id');
+        document.getElementById('deleteModalOverlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModalOverlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    var delOverlay = document.getElementById('deleteModalOverlay');
+    if(delOverlay) delOverlay.addEventListener('click', function(e){ if(e.target===delOverlay) closeDeleteModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDeleteModal(); });
+
+    // ── Auto-dismiss toasts ──
+    document.querySelectorAll('.toast').forEach(function(t){
+        setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .5s'; setTimeout(function(){ t.remove(); },500); },4000);
+    });
+
+    // ── Employee Detail Modal ──
+    var empModalOverlay = document.getElementById('empModalOverlay');
+
+    // Use event delegation on the table body — ignore clicks on no-row-click cells
+    var empTableBody = document.querySelector('#empTable tbody');
+    if (empTableBody) {
+        empTableBody.addEventListener('click', function(e) {
+            // If the click originated inside a no-row-click cell, do nothing
+            if (e.target.closest('td.no-row-click')) return;
+            var row = e.target.closest('tr.emp-row');
+            if (row) openEmpModal(row);
+        });
+    }
+
+    function openEmpModal(row) {
+        var id   = row.getAttribute('data-id');
+        var name = row.getAttribute('data-name');
+        document.getElementById('modalName').textContent  = name;
+        document.getElementById('modalEmail').textContent = '';
+        document.getElementById('modalAvatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('modalBody').innerHTML = '<div class="modal-loading"><div class="spinner"></div> Loading details…</div>';
+        empModalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        fetch('/hr/api/employee/' + id)
+            .then(r => r.json())
+            .then(data => renderModal(data))
+            .catch(() => { document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">Failed to load details.</p>'; });
+    }
+    function closeModal() { empModalOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+    function closeEmpModal(e) { if(e.target===empModalOverlay) closeModal(); }
+
+    function statusBadge(s) {
+        var map = {
+            'present':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">Present</span>',
+            'late':     '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce9d8;color:#b45309;">Late</span>',
+            'absent':   '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fdecec;color:#d11a2a;">Absent</span>',
+            'half-day': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;">Half Day</span>',
+            'weekend':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e9e2ff;color:#6b46c1;">Weekend</span>',
+            'holiday':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce7f3;color:#9d174d;">Holiday</span>'
+        };
+        return map[s] || '<span style="color:#9ca3af;">—</span>';
+    }
+
+    function renderModal(d) {
+        if (d.error) {
+            document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">' + d.error + '</p>';
+            return;
+        }
+        document.getElementById('modalName').textContent  = d.username;
+        document.getElementById('modalEmail').textContent = d.email;
+        document.getElementById('modalAvatar').textContent = d.username.charAt(0).toUpperCase();
+
+        var rows = '';
+        (d.attendance || []).forEach(function(a) {
+            var rowClass = a.status==='weekend' ? 'row-weekend' : (a.status==='absent' ? 'row-absent' : (a.status==='holiday' ? 'row-holiday' : ''));
+            var checkIn  = a.checkIn  !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">' + a.checkIn  + '</span>' : '<span style="color:#9ca3af;">—</span>';
+            var checkOut = a.checkOut !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dcecf5;color:#17455e;">' + a.checkOut + '</span>' : '<span style="color:#9ca3af;">—</span>';
+            rows += '<tr class="' + rowClass + '">'
+                  + '<td style="font-weight:600;">' + a.date + '</td>'
+                  + '<td>' + checkIn + '</td>'
+                  + '<td>' + checkOut + '</td>'
+                  + '<td style="font-weight:600;color:#17455e;">' + a.worked + '</td>'
+                  + '<td style="color:#b45309;">' + a.breakTime + '</td>'
+                  + '<td>' + (a.dayType !== '—' ? '<span style="font-size:12px;font-weight:600;color:#17455e;">' + a.dayType + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>'
+                  + '<td>' + statusBadge(a.status) + '</td>'
+                  + '</tr>';
+        });
+
+        var roleColor = d.role==='MANAGER' ? 'background:#dcecf5;color:#17455e;' : (d.role==='HR' ? 'background:#e9e2ff;color:#6b46c1;' : 'background:#f3f8fb;color:#163647;');
+        document.getElementById('modalBody').innerHTML =
+            '<div class="emp-info-grid">'
+          + '  <div class="emp-info-tile"><div class="label">Username</div><div class="value">' + d.username + '</div></div>'
+          + '  <div class="emp-info-tile"><div class="label">Email</div><div class="value" style="font-size:13px;word-break:break-all;">' + d.email + '</div></div>'
+          + '  <div class="emp-info-tile"><div class="label">Role</div><div class="value"><span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;' + roleColor + '">' + d.role + '</span></div></div>'
+          + '  <div class="emp-info-tile"><div class="label">Status</div><div class="value">'
+          + (d.status==='active' ? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
+                                 : '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fdecec;color:#d11a2a;">Inactive</span>')
+          + '  </div></div>'
+          + '</div>'
+          + '<div>'
+          + '  <h3 style="font-size:15px;font-weight:700;color:#163647;margin:0 0 12px;">Last 30 Days Attendance</h3>'
+          + '  <div class="emp-att-stats">'
+          + '    <div class="emp-att-stat green"><div class="num">' + d.presentDays + '</div><div class="lbl">Present</div></div>'
+          + '    <div class="emp-att-stat red"><div class="num">'   + d.absentDays  + '</div><div class="lbl">Absent</div></div>'
+          + '    <div class="emp-att-stat amber"><div class="num">' + d.halfDays    + '</div><div class="lbl">Half Days</div></div>'
+          + '    <div class="emp-att-stat purple"><div class="num">'+ d.holidays    + '</div><div class="lbl">Holidays</div></div>'
+          + '  </div>'
+          + '</div>'
+          + '<div style="overflow-x:auto;">'
+          + '  <table class="emp-att-table">'
+          + '    <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Worked</th><th>Break</th><th>Day Type</th><th>Status</th></tr></thead>'
+          + '    <tbody>' + (rows || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No records found.</td></tr>') + '</tbody>'
+          + '  </table>'
+          + '</div>';
+        lucide.createIcons();
+    }
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

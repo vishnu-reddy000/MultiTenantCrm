@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager — Projects</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="briefcase"></i></div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+			<li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/manager/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1>Projects</h1>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" id="globalSearch" placeholder="Search projects…"></div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+				<div class="stat-card">
+					<div class="stat-icon blue"><i data-lucide="folder-open"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${totalProjects} ?: '0'">0</h3>
+						<p>Total Projects</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${activeProjects} ?: '0'">0</h3>
+						<p>Active</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="archive"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${completedProjects} ?: '0'">0</h3>
+						<p>Completed</p>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h2>All Projects</h2>
+						<p th:text="${totalProjects} + ' project(s)'">0 project(s)</p>
+					</div>
+				</div>
+				<div class="table-wrap">
+					<table id="projTable">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Project Name</th>
+								<th>Description</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="proj, stat : ${projects}">
+								<td th:text="${stat.count}">1</td>
+								<td style="font-weight:600;" th:text="${proj.name}">Project</td>
+								<td style="color:#6b7280;font-size:13px;" th:text="${proj.description} ?: '—'">—</td>
+								<td><span class="status-badge active"
+										th:if="${proj.status == 'active'}">Active</span><span class="status-badge"
+										style="background:#fce9d8;color:#b45309;" th:if="${proj.status == 'on-hold'}">On
+										Hold</span><span class="status-badge" style="background:#e9e2ff;color:#5b21b6;"
+										th:if="${proj.status == 'completed'}">Completed</span></td>
+							</tr>
+							<tr th:if="${projects == null or #lists.isEmpty(projects)}">
+								<td colspan="4">
+									<div class="empty-state"><i data-lucide="folder-open"
+											style="width:48px;height:48px;opacity:.3;"></i>
+										<h3>No Projects Yet</h3>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		var gs = document.getElementById('globalSearch'); if (gs) gs.addEventListener('input', function () {var q = this.value.toLowerCase(); document.querySelectorAll('#projTable tbody tr').forEach(r => {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});});
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

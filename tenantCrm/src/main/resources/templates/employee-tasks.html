@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee — My Tasks</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        .task-priority {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .task-priority.high   { background: #fee2e2; color: #b91c1c; }
+        .task-priority.medium { background: #fef3c7; color: #b45309; }
+        .task-priority.low    { background: #dcfce7; color: #15803d; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-done       { background: #dcfce7; color: #15803d; }
+        .badge-inprogress { background: #fce9d8; color: #b45309; }
+        .badge-pending    { background: #f1f5f9; color: #64748b; }
+        .badge-waiting    { background: #fef3c7; color: #b45309; }
+
+        .task-flash-toast {
+            position: fixed;
+            top: auto;
+            right: 24px;
+            bottom: 24px;
+            z-index: 10020;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            max-width: 390px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 14px 36px rgba(22, 54, 71, .18);
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+            transition: opacity .25s ease, transform .25s ease;
+            animation: taskToastIn .22s ease;
+        }
+
+        .task-flash-toast.task-flash-toast-hide {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        .task-attachments-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            max-width: 170px;
+        }
+
+        .task-attachment-item {
+            max-width: 100%;
+        }
+
+        .task-attachment-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 100%;
+            border: none;
+            background: none;
+            color: #1a6b8a;
+            cursor: pointer;
+            padding: 0;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .task-attachment-name {
+            display: inline-block;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .task-attachments-list:not(.expanded) .task-attachment-extra {
+            display: none;
+        }
+
+        .task-attachments-toggle {
+            border: 1px solid #cfe3ec;
+            border-radius: 999px;
+            background: #f3f9fc;
+            color: #17455e;
+            cursor: pointer;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: background .18s ease, border-color .18s ease;
+        }
+
+        .task-attachments-toggle:hover {
+            border-color: #17455e;
+            background: #e8f2f8;
+        }
+
+        .task-status-actions,
+        .task-status-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .task-status-select {
+            min-width: 112px;
+            padding: 7px 10px;
+            border: 1px solid #dbe7ee;
+            border-radius: 9px;
+            background: #fff;
+            color: #163647;
+            font-size: 12px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .task-upload-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 260px;
+            min-height: 34px;
+            padding: 4px 10px 4px 4px;
+            border: 1px solid #d8e7ee;
+            border-radius: 10px;
+            background: #f8fbfd;
+            cursor: pointer;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+
+        .task-upload-control:hover,
+        .task-upload-control:focus-within {
+            border-color: #17455e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(23, 69, 94, .1);
+        }
+
+        .task-file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .task-upload-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #e8f2f8;
+            color: #17455e;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .task-file-name {
+            min-width: 0;
+            max-width: 130px;
+            overflow: hidden;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 500;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .task-update-btn {
+            border: none;
+            border-radius: 9px;
+            background: #17455e;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .task-update-btn:hover {
+            background: #1f5573;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 560px) {
+            .task-flash-toast {
+                right: 16px;
+                bottom: 16px;
+                left: 16px;
+                min-width: 0;
+                max-width: none;
+            }
+
+            .task-status-form,
+            .task-status-select,
+            .task-upload-control,
+            .task-update-btn {
+                width: 100%;
+            }
+
+            .task-upload-control {
+                justify-content: space-between;
+                max-width: none;
+            }
+
+            .task-file-name {
+                max-width: calc(100% - 110px);
+            }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        }
+
+        @keyframes taskToastIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">Employee</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="user"></i></div>
+        <h2>Employee</h2>
+    </div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+        <li class="active"><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+        <li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+        <li><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+        <li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
+</div>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div>
+            <h1>My Tasks</h1>
+            <p class="topbar-subtitle">Tasks assigned to you</p>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box">
+                <input type="text" id="globalSearch" placeholder="Search tasks…">
+            </div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- Flash messages -->
+        <div class="toast success task-flash-toast" th:if="${successMessage}">
+            <i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row task-dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon green"><i data-lucide="check-circle-2"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${completedTasks} ?: '0'">0</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i data-lucide="clock"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${inProgressTasks} ?: '0'">0</h3>
+                    <p>In Progress</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i data-lucide="list-checks"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${pendingTasks} ?: '0'">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Table -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>My Tasks</h2>
+                    <p th:text="${totalTasks} + ' task(s) assigned to you'">0 task(s)</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Start Date</th>
+                            <th>Due Date</th>
+                            <th>Attachments</th>
+                            <th>Assigned By</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task, stat : ${myTasks}">
+                            <td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1</td>
+                            <td>
+                                <div style="font-weight:600;font-size:14px;color:#163647;" th:text="${task.title}">Task</div>
+                                <div th:if="${task.description != null and !#strings.isEmpty(task.description)}"
+                                     style="font-size:12px;color:#6b7280;margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                                     th:text="${task.description}"></div>
+                            </td>
+                            <td>
+                                <span class="task-priority"
+                                    th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')"
+                                    th:text="${task.priority}">Medium</span>
+                            </td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${task.startDate} ?: '—'">—</td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
+                            <td>
+                                <th:block th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}"
+                                          th:with="attachmentCount=${#lists.size(task.attachments)}">
+                                    <div class="task-attachments-list">
+                                    <div class="task-attachment-item" th:each="att, attStat : ${task.attachments}"
+                                         th:classappend="${attStat.index >= 2} ? ' task-attachment-extra' : ''">
+                                        <button type="button"
+                                                th:data-view-url="@{/employee/tasks/view/{id}(id=${att.id})}"
+                                                th:data-download-url="@{/employee/tasks/download/{id}(id=${att.id})}"
+                                                th:data-filename="${att.originalFilename}"
+                                                th:data-content-type="${att.contentType}"
+                                                onclick="openPreviewModal(this)"
+                                                class="task-attachment-link">
+                                            <i data-lucide="paperclip" style="width:12px;height:12px;"></i>
+                                            <span class="task-attachment-name" th:text="${att.originalFilename}"></span>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="task-attachments-toggle"
+                                            th:if="${attachmentCount > 2}"
+                                            th:attr="data-view-label=|View all (${attachmentCount - 2} more)|"
+                                            th:text="|View all (${attachmentCount - 2} more)|"
+                                            aria-expanded="false"
+                                            onclick="toggleTaskAttachments(this)">View all</button>
+                                    </div>
+                                </th:block>
+                                <th:block th:if="${!#lists.isEmpty(task.attachmentList) and (task.attachments == null or #lists.isEmpty(task.attachments))}"
+                                          th:with="attachmentCount=${#lists.size(task.attachmentList)}">
+                                    <div class="task-attachments-list">
+                                    <div class="task-attachment-item" th:each="att, attStat : ${task.attachmentList}"
+                                         th:classappend="${attStat.index >= 2} ? ' task-attachment-extra' : ''">
+                                        <button type="button"
+                                                th:data-view-url="@{/employee/tasks/view/{s}(s=${#strings.substringAfter(att,'::')})}"
+                                                th:data-download-url="@{/employee/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
+                                                th:data-filename="${#strings.substringBefore(att,'::')}"
+                                                th:data-content-type="'application/octet-stream'"
+                                                onclick="openPreviewModal(this)"
+                                                class="task-attachment-link">
+                                            <i data-lucide="paperclip" style="width:12px;height:12px;"></i>
+                                            <span class="task-attachment-name" th:text="${#strings.substringBefore(att,'::')}"></span>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="task-attachments-toggle"
+                                            th:if="${attachmentCount > 2}"
+                                            th:attr="data-view-label=|View all (${attachmentCount - 2} more)|"
+                                            th:text="|View all (${attachmentCount - 2} more)|"
+                                            aria-expanded="false"
+                                            onclick="toggleTaskAttachments(this)">View all</button>
+                                    </div>
+                                </th:block>
+                                <span th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and #lists.isEmpty(task.attachmentList)}"
+                                      style="color:#cbd5e1;font-size:13px;">—</span>
+                            </td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#4b6a7a;font-weight:500;"
+                                      th:if="${task.createdBy != null}">
+                                    <i data-lucide="user" style="width:12px;height:12px;"></i>
+                                    <span th:text="${task.createdBy}">Manager</span>
+                                </div>
+                                <span th:if="${task.createdBy == null}" style="color:#9ca3af;font-size:13px;">—</span>
+                            </td>
+                            <td>
+                                <div class="task-status-actions">
+                                    <!-- Status Update Form (visible unless task is approved) -->
+                                    <form th:action="@{/employee/tasks/update-status/{id}(id=${task.id})}" method="post" enctype="multipart/form-data"
+                                          class="task-status-form"
+                                          th:if="${task.verificationStatus != 'approved'}">
+                                        <select name="status" class="task-status-select">
+                                            <option value="pending" th:selected="${task.status == 'pending'}">Pending</option>
+                                            <option value="in-progress" th:selected="${task.status == 'in-progress'}">In Progress</option>
+                                            <option value="done" th:selected="${task.status == 'done'}">Done</option>
+                                        </select>
+                                        <label class="task-upload-control">
+                                            <input class="task-file-input" type="file" name="attachment"
+                                                   aria-label="Upload task attachment"
+                                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.zip,.txt">
+                                            <span class="task-upload-button">
+                                                <i data-lucide="upload-cloud" style="width:13px;height:13px;"></i>
+                                                Upload File
+                                            </span>
+                                            <span class="task-file-name">No file selected</span>
+                                        </label>
+                                        <button type="submit" class="task-update-btn">Update</button>
+                                    </form>
+
+                                    <!-- Status Badges -->
+                                    <span class="status-badge badge-done" th:if="${task.status == 'done' and task.verificationStatus == 'approved'}">
+                                        <i data-lucide="check-circle" style="width:12px;height:12px;"></i> Done
+                                    </span>
+                                    <span class="status-badge" style="background:#fef3c7;color:#b45309;font-size:11px;" th:if="${task.verificationStatus == 'waiting-for-review'}">
+                                        <i data-lucide="clock" style="width:12px;height:12px;"></i> Waiting for Review
+                                    </span>
+
+                                    <!-- Rejected Status with Feedback Button -->
+                                    <div th:if="${task.verificationStatus == 'rejected'}" style="display:flex;align-items:center;gap:6px;">
+                                        <span class="status-badge" style="background:#fee2e2;color:#991b1b;font-size:11px;display:inline-flex;align-items:center;gap:4px;">
+                                            <i data-lucide="alert-circle" style="width:12px;height:12px;"></i> Rejected
+                                        </span>
+                                        <button type="button" 
+                                            th:data-feedback="${task.verificationReason ?: 'No feedback provided'}"
+                                            th:data-verified-by="${task.lastVerifiedBy ?: 'Manager'}"
+                                            onclick="openFeedbackModal(this)"
+                                            style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#fff4e6;color:#b45309;border:1px solid #fed7aa;cursor:pointer;transition:background .18s;white-space:nowrap;">
+                                            <i data-lucide="message-circle" style="width:12px;height:12px;"></i> View Feedback
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${myTasks == null or #lists.isEmpty(myTasks)}">
+                            <td colspan="8">
+                                <div class="empty-state" style="padding:40px 20px;">
+                                    <i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Tasks Assigned</h3>
+                                    <p>Tasks assigned to you will appear here.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /page-content -->
+</div><!-- /main-wrapper -->
+
+<!-- ══════════════════════════════════════════
+     ATTACHMENT PREVIEW MODAL
+     ══════════════════════════════════════════ -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(10,30,50,0.6);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:18px;width:95%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.22);animation:fadeUp .22s ease;">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;border-bottom:1px solid #f0f4f8;flex-shrink:0;">
+            <h3 style="margin:0;font-size:15px;font-weight:700;color:#0f2d4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 130px);display:flex;align-items:center;gap:8px;">
+                <i data-lucide="file" style="width:16px;height:16px;color:#1a6b8a;flex-shrink:0;"></i>
+                <span id="previewFilename">File Preview</span>
+            </h3>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <a id="previewDownloadBtn" href="#" download
+                   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;transition:background .18s;">
+                    <i data-lucide="download" style="width:13px;height:13px;"></i> Download
+                </a>
+                <button type="button" onclick="closePreviewModal()"
+                        style="background:#f4f7fa;border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;font-size:18px;">
+                    &times;
+                </button>
+            </div>
+        </div>
+        <!-- Preview body -->
+        <div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:380px;display:flex;align-items:center;justify-content:center;border-radius:0 0 18px 18px;">
+            <!-- content injected by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     REJECTION FEEDBACK MODAL
+     ══════════════════════════════════════════ -->
+<div id="feedbackModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+	<div style="background:white;border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.18);">
+		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+			<h3 style="margin:0;font-size:18px;font-weight:700;color:#991b1b;display:flex;align-items:center;gap:10px;">
+				<i data-lucide="message-circle" style="width:20px;height:20px;"></i>
+				Manager Feedback
+			</h3>
+			<button type="button" onclick="closeFeedbackModal()" style="border:none;background:transparent;font-size:24px;cursor:pointer;color:#6b7280;">&times;</button>
+		</div>
+
+		<div style="margin-bottom:16px;padding:14px;background:#fee2e2;border-radius:10px;border-left:4px solid #d11a2a;">
+			<p style="margin:0 0 8px;font-size:12px;color:#6b7280;font-weight:500;text-transform:uppercase;">From: <span id="feedbackFrom" style="font-weight:600;color:#163647;">Manager</span></p>
+			<p id="feedbackText" style="margin:0;font-size:13px;line-height:1.6;color:#991b1b;white-space:pre-wrap;word-wrap:break-word;">No feedback</p>
+		</div>
+
+		<p style="margin:0 0 16px;font-size:12px;color:#6b7280;line-height:1.5;">Please review the feedback above and make the necessary improvements. Update your task status once you have addressed the concerns.</p>
+
+		<div style="display:flex;justify-content:flex-end;">
+			<button type="button" onclick="closeFeedbackModal()" style="border:none;border-radius:10px;background:#f3f8fb;color:#4b6a7a;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;">Close</button>
+		</div>
+	</div>
+</div>
+
+<script>
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click',   closeSidebar);
+
+    var gs = document.getElementById('globalSearch');
+    if (gs) gs.addEventListener('input', function () {
+        var q = this.value.toLowerCase();
+        document.querySelectorAll('#taskTable tbody tr').forEach(function (r) {
+            r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+        });
+    });
+
+    document.querySelectorAll('.task-file-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var fileName = this.files && this.files.length ? this.files[0].name : 'No file selected';
+            var label = this.closest('.task-upload-control');
+            var fileNameEl = label ? label.querySelector('.task-file-name') : null;
+            if (fileNameEl) fileNameEl.textContent = fileName;
+        });
+    });
+
+    /* ══════════════════════════════════════════
+       ATTACHMENT PREVIEW MODAL
+       ══════════════════════════════════════════ */
+    document.querySelectorAll('.task-flash-toast').forEach(function (toast) {
+        setTimeout(function () {
+            toast.classList.add('task-flash-toast-hide');
+            toast.addEventListener('transitionend', function () {
+                toast.remove();
+            }, {once: true});
+        }, 3500);
+    });
+
+    function toggleTaskAttachments(button) {
+        var list = button.closest('.task-attachments-list');
+        if (!list) return;
+
+        var expanded = list.classList.toggle('expanded');
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        button.textContent = expanded ? 'Show less' : (button.getAttribute('data-view-label') || 'View all');
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function openPreviewModal(btn) {
+        var viewUrl     = btn.getAttribute('data-view-url');
+        var downloadUrl = btn.getAttribute('data-download-url');
+        var filename    = btn.getAttribute('data-filename') || 'file';
+        var contentType = (btn.getAttribute('data-content-type') || '').toLowerCase();
+
+        document.getElementById('previewFilename').textContent = filename;
+        document.getElementById('previewDownloadBtn').href = downloadUrl;
+        document.getElementById('previewDownloadBtn').setAttribute('download', filename);
+
+        var body = document.getElementById('previewBody');
+        body.innerHTML = '';
+
+        if (contentType.startsWith('image/')) {
+            var img = document.createElement('img');
+            img.src = viewUrl;
+            img.alt = filename;
+            img.style.cssText = 'max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';
+            body.appendChild(img);
+
+        } else if (contentType === 'application/pdf') {
+            var iframe = document.createElement('iframe');
+            iframe.src = viewUrl;
+            iframe.style.cssText = 'width:100%;height:75vh;border:none;';
+            iframe.title = filename;
+            body.appendChild(iframe);
+
+        } else if (contentType.startsWith('text/') || contentType === 'application/json') {
+            var iframe = document.createElement('iframe');
+            iframe.src = viewUrl;
+            iframe.style.cssText = 'width:100%;height:75vh;border:none;background:#fff;';
+            iframe.title = filename;
+            body.appendChild(iframe);
+
+        } else {
+            body.innerHTML =
+                '<div style="text-align:center;padding:48px 24px;">' +
+                  '<p style="font-size:14px;font-weight:600;color:#374151;margin:0 0 8px;">' + escapeHtml(filename) + '</p>' +
+                  '<p style="font-size:13px;color:#6b7280;margin:0 0 20px;">This file type cannot be previewed in the browser.</p>' +
+                  '<a href="' + escapeHtml(downloadUrl) + '" download="' + escapeHtml(filename) + '" ' +
+                     'style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#17455e;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">' +
+                     'Download File</a>' +
+                '</div>';
+        }
+
+        var modal = document.getElementById('previewModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        lucide.createIcons();
+    }
+
+    function closePreviewModal() {
+        var modal = document.getElementById('previewModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.getElementById('previewBody').innerHTML = '';
+    }
+
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+        if (e.target === this) closePreviewModal();
+    });
+
+    /* ══════════════════════════════════════════
+       FEEDBACK MODAL FUNCTIONS
+       ══════════════════════════════════════════ */
+    function openFeedbackModal(btn) {
+        var feedback = btn.getAttribute('data-feedback');
+        var verifiedBy = btn.getAttribute('data-verified-by');
+        
+        document.getElementById('feedbackText').textContent = feedback || 'No feedback provided.';
+        document.getElementById('feedbackFrom').textContent = verifiedBy || 'Manager';
+        
+        var modal = document.getElementById('feedbackModalOverlay');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        lucide.createIcons();
+    }
+
+    function closeFeedbackModal() {
+        var modal = document.getElementById('feedbackModalOverlay');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    /* Close modal on escape key */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeFeedbackModal();
+            closePreviewModal();
+        }
+    });
+
+    /* Close modal when clicking overlay */
+    document.getElementById('feedbackModalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeFeedbackModal();
+    });
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

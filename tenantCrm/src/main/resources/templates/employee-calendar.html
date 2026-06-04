@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Employee — Calendar</title>
+	<link rel="stylesheet" th:href="@{/employee.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		.cal-wrapper {
+			display: grid;
+			grid-template-columns: 1fr 300px;
+			gap: 20px;
+			align-items: start;
+		}
+
+		.cal-card {
+			background: white;
+			border-radius: 22px;
+			padding: 24px;
+			box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+		}
+
+		.cal-nav {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 20px;
+		}
+
+		.cal-nav h2 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #163647;
+		}
+
+		.cal-nav-btn {
+			width: 38px;
+			height: 38px;
+			border-radius: 12px;
+			border: none;
+			background: #f0f7fb;
+			color: #17455e;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background 0.2s;
+		}
+
+		.cal-nav-btn:hover {
+			background: #dcecf5;
+		}
+
+		.cal-grid {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 6px;
+		}
+
+		.cal-day-label {
+			text-align: center;
+			font-size: 11px;
+			font-weight: 700;
+			color: #6b7280;
+			text-transform: uppercase;
+			padding: 6px 0;
+			letter-spacing: 0.05em;
+		}
+
+		.cal-cell {
+			min-height: 72px;
+			border-radius: 14px;
+			padding: 8px;
+			background: #f7fbfd;
+			border: 2px solid transparent;
+		}
+
+		.cal-cell.today {
+			background: #dcecf5;
+			border-color: #17455e;
+		}
+
+		.cal-cell.other-month {
+			opacity: 0.35;
+		}
+
+		.cal-cell.has-holiday {
+			background: #fff8e1;
+			border-color: #f59e0b;
+		}
+
+		.cal-cell.has-holiday.today {
+			background: #fef3c7;
+			border-color: #d97706;
+		}
+
+		/* ── Weekend highlights ── */
+		.cal-cell.saturday {
+			background: #f0f4ff;
+			border-color: #c7d4f5;
+		}
+
+		.cal-cell.saturday .cal-date {
+			color: #3b5bdb;
+		}
+
+		.cal-cell.sunday {
+			background: #fff0f0;
+			border-color: #f5c7c7;
+		}
+
+		.cal-cell.sunday .cal-date {
+			color: #c92a2a;
+		}
+
+		.cal-date {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+		}
+
+		.cal-holiday-dot {
+			margin-top: 4px;
+		}
+
+		.cal-holiday-name {
+			font-size: 10px;
+			font-weight: 600;
+			border-radius: 6px;
+			padding: 2px 6px;
+			display: inline-block;
+			max-width: 100%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.cal-holiday-name.public {
+			background: #dff5ea;
+			color: #1b7a46;
+		}
+
+		.cal-holiday-name.optional {
+			background: #e9e2ff;
+			color: #5b21b6;
+		}
+
+		.cal-holiday-name.company {
+			background: #fef3c7;
+			color: #b45309;
+		}
+
+		.legend {
+			display: flex;
+			gap: 14px;
+			flex-wrap: wrap;
+			margin-bottom: 16px;
+		}
+
+		.legend-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			color: #6b7280;
+		}
+
+		.legend-dot {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+		}
+
+		.list-card {
+			background: white;
+			border-radius: 22px;
+			padding: 22px;
+			box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+			max-height: 600px;
+			overflow-y: auto;
+		}
+
+		.list-card h3 {
+			font-size: 16px;
+			font-weight: 700;
+			color: #163647;
+			margin-bottom: 14px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.holiday-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 0;
+			border-bottom: 1px solid #edf3f6;
+		}
+
+		.holiday-item:last-child {
+			border-bottom: none;
+		}
+
+		.holiday-dot {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.holiday-dot.public {
+			background: #1b7a46;
+		}
+
+		.holiday-dot.optional {
+			background: #5b21b6;
+		}
+
+		.holiday-dot.company {
+			background: #b45309;
+		}
+
+		.holiday-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.holiday-info .h-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: #163647;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.holiday-info .h-date {
+			font-size: 11px;
+			color: #6b7280;
+			margin-top: 2px;
+		}
+
+		.empty-holidays {
+			text-align: center;
+			padding: 24px 0;
+			color: #9ab3bd;
+			font-size: 13px;
+		}
+
+		.readonly-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			background: #f0f7fb;
+			color: #17455e;
+			border-radius: 20px;
+			padding: 5px 14px;
+			font-size: 12px;
+			font-weight: 600;
+			margin-bottom: 16px;
+		}
+
+		@media(max-width:900px) {
+			.cal-wrapper {
+				grid-template-columns: 1fr;
+			}
+
+			.cal-cell {
+				min-height: 52px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="user"></i></div>
+			<h2>Employee</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			<h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+			<p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+			<li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+			<li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li class="active"><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+
+	<div class="main-wrapper">
+		<div class="topbar">
+			<div>
+				<h1>Holiday Calendar</h1>
+				<p style="font-size:14px;color:#6b7280;margin-top:4px;">Your company's holidays for the year.</p>
+			</div>
+			<div class="topbar-right">
+				<div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<div class="readonly-badge"><i data-lucide="eye" style="width:14px;height:14px;"></i> View Only — Holidays
+				are managed by Admin or HR</div>
+			<div class="cal-wrapper">
+				<div class="cal-card">
+					<div class="cal-nav">
+						<button class="cal-nav-btn" id="prevBtn"><i data-lucide="chevron-left"></i></button>
+						<h2 id="calTitle">May 2026</h2>
+						<button class="cal-nav-btn" id="nextBtn"><i data-lucide="chevron-right"></i></button>
+					</div>
+					<div class="legend">
+						<div class="legend-item">
+							<div class="legend-dot" style="background:#1b7a46;"></div> Public
+						</div>
+						<div class="legend-item">
+							<div class="legend-dot" style="background:#5b21b6;"></div> Optional
+						</div>
+						<div class="legend-item">
+							<div class="legend-dot" style="background:#b45309;"></div> Company
+						</div>
+					</div>
+					<div class="cal-grid" id="calGrid"></div>
+				</div>
+
+				<div class="list-card">
+					<h3><i data-lucide="list" style="width:18px;height:18px;"></i> Holidays <span id="holidayCount"
+							style="font-size:13px;font-weight:500;color:#6b7280;"></span></h3>
+					<div id="holidayList">
+						<div class="empty-holidays">Loading…</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+
+		var holidays = [], today = new Date(), curYear = today.getFullYear(), curMonth = today.getMonth();
+		var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		var DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+		function pad(n) {return n < 10 ? '0' + n : '' + n;}
+		function escHtml(s) {var d = document.createElement('div'); d.textContent = s; return d.innerHTML;}
+		function capitalize(s) {return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;}
+		function formatDate(s) {if (!s) return ''; var p = s.split('-'); if (p.length !== 3) return s; return MONTH_NAMES[parseInt(p[1]) - 1] + ' ' + parseInt(p[2]) + ', ' + p[0];}
+
+		function loadHolidays() {
+			fetch('/api/holidays', {credentials: 'include'}).then(function (r) {return r.json();}).then(function (data) {holidays = data; renderCalendar(); renderList();}).catch(function () {document.getElementById('holidayList').innerHTML = '<div class="empty-holidays">Failed to load holidays.</div>';});
+		}
+
+		function renderCalendar() {
+			document.getElementById('calTitle').textContent = MONTH_NAMES[curMonth] + ' ' + curYear;
+			var grid = document.getElementById('calGrid'); grid.innerHTML = '';
+			DAY_LABELS.forEach(function (d) {var el = document.createElement('div'); el.className = 'cal-day-label'; el.textContent = d; grid.appendChild(el);});
+			var firstDay = new Date(curYear, curMonth, 1).getDay(), daysInMonth = new Date(curYear, curMonth + 1, 0).getDate(), daysInPrev = new Date(curYear, curMonth, 0).getDate();
+			var hMap = {}; holidays.forEach(function (h) {hMap[h.date] = h;});
+			for (var i = 0; i < firstDay; i++) {grid.appendChild(makeCell(curYear, curMonth - 1, daysInPrev - firstDay + 1 + i, true, hMap));}
+			for (var d = 1; d <= daysInMonth; d++) {grid.appendChild(makeCell(curYear, curMonth, d, false, hMap));}
+			var total = firstDay + daysInMonth, remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+			for (var d = 1; d <= remaining; d++) {grid.appendChild(makeCell(curYear, curMonth + 1, d, true, hMap));}
+			lucide.createIcons();
+		}
+
+		function makeCell(year, month, day, otherMonth, hMap) {
+			var dt = new Date(year, month, day), y = dt.getFullYear(), m = dt.getMonth(), d = dt.getDate();
+			var dateStr = y + '-' + pad(m + 1) + '-' + pad(d);
+			var cell = document.createElement('div'); cell.className = 'cal-cell' + (otherMonth ? ' other-month' : '');
+			if (y === today.getFullYear() && m === today.getMonth() && d === today.getDate()) cell.classList.add('today');
+			var dow = dt.getDay(); // 0=Sun, 6=Sat
+			if (dow === 6) cell.classList.add('saturday');
+			if (dow === 0) cell.classList.add('sunday');
+			var h = hMap[dateStr]; if (h) cell.classList.add('has-holiday');
+			var dateEl = document.createElement('div'); dateEl.className = 'cal-date'; dateEl.textContent = d; cell.appendChild(dateEl);
+			if (h) {var dot = document.createElement('div'); dot.className = 'cal-holiday-dot'; var badge = document.createElement('span'); badge.className = 'cal-holiday-name ' + h.type; badge.textContent = h.name; badge.title = h.name; dot.appendChild(badge); cell.appendChild(dot);}
+			return cell;
+		}
+
+		function renderList() {
+			var list = document.getElementById('holidayList'), count = document.getElementById('holidayCount');
+			count.textContent = '(' + holidays.length + ')';
+			if (holidays.length === 0) {list.innerHTML = '<div class="empty-holidays">No holidays added yet.</div>'; return;}
+			list.innerHTML = '';
+			holidays.forEach(function (h) {
+				var item = document.createElement('div'); item.className = 'holiday-item';
+				item.innerHTML = '<div class="holiday-dot ' + h.type + '"></div><div class="holiday-info"><div class="h-name">' + escHtml(h.name) + '</div><div class="h-date">' + formatDate(h.date) + ' &bull; ' + capitalize(h.type) + '</div></div>';
+				list.appendChild(item);
+			});
+		}
+
+		document.getElementById('prevBtn').addEventListener('click', function () {curMonth--; if (curMonth < 0) {curMonth = 11; curYear--;} renderCalendar();});
+		document.getElementById('nextBtn').addEventListener('click', function () {curMonth++; if (curMonth > 11) {curMonth = 0; curYear++;} renderCalendar();});
+
+		loadHolidays();
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Super Admin Dashboard</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" th:href="@{/superadmin.css}">
+</head>
+
+<body>
+
+	<!-- MOBILE TOPBAR -->
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+			<span></span><span></span><span></span>
+		</button>
+		<span class="mobile-title">&#128737; SuperAdmin</span>
+	</div>
+
+	<!-- SIDEBAR OVERLAY -->
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+	<!-- ========================= SIDEBAR ========================= -->
+	<div class="sidebar" id="sidebar">
+
+		<div class="sidebar-logo">
+			<div class="logo-icon">&#128737;</div>
+			<h2>SuperAdmin</h2>
+		</div>
+
+		<div class="profile-box">
+			<div class="profile-avatar">S</div>
+			<h3>Super Admin</h3>
+			<p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@gmail.com'">
+				superadmin@gmail.com
+			</p>
+			<div style="margin-top:8px">
+				<span style="font-size:11px;color:#b8d8ea;font-weight:500;">
+					<span class="online-dot"></span>Online
+				</span>
+			</div>
+		</div>
+
+		<ul class="sidebar-menu">
+			<li th:classappend="${activePage == 'dashboard'} ? 'active'">
+				<a th:href="@{/superadmin}">
+					<span class="menu-icon">&#128202;</span> Dashboard
+				</a>
+			</li>
+			<li th:classappend="${activePage == 'admins'} ? 'active'">
+				<a th:href="@{/superadmin/admins}">
+					<span class="menu-icon">&#128101;</span> Admins
+				</a>
+			</li>
+			<li th:classappend="${activePage == 'views'} ? 'active'">
+				<a th:href="@{/superadmin/views}">
+					<span class="menu-icon">&#128065;</span> Views
+				</a>
+			</li>
+			<li th:classappend="${activePage == 'profile'} ? 'active'">
+				<a th:href="@{/superadmin/profile}">
+					<span class="menu-icon">&#128100;</span> Profile
+				</a>
+			</li>
+		</ul>
+
+		<div class="sidebar-divider"></div>
+
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn">&#128682; Logout</button>
+		</a>
+	</div>
+
+	<!-- ========================= MAIN WRAPPER ========================= -->
+	<div class="main-wrapper">
+
+		<!-- TOPBAR -->
+		<div class="topbar">
+			<div>
+				<h1 th:text="${activePage == 'dashboard'} ? 'Dashboard' :
+                         (${activePage == 'admins'}   ? 'Admins' :
+                         (${activePage == 'views'}    ? 'Views'  : 'Profile'))">Dashboard</h1>
+				<p class="topbar-subtitle"
+					th:text="
+                        (${activePage == 'admins'}   ? 'Manage all administrator accounts' :
+                        (${activePage == 'views'}    ? 'Analytics and overview reports' : 'Manage your account settings'))">
+					Welcome back
+				</p>
+			</div>
+			<div class="topbar-right">
+				<div class="search-box">
+					<span class="search-icon">&#128269;</span>
+					<input type="text" id="globalSearch" placeholder="Search admins…">
+				</div>
+				<button class="notif-btn" title="Notifications">
+					&#128276;
+					<span class="notif-dot"></span>
+				</button>
+				<div class="user-badge">S</div>
+			</div>
+		</div>
+
+		<!-- ========================= PAGE CONTENT ========================= -->
+		<div class="page-content">
+
+			<!-- ======================================================
+             DASHBOARD PAGE
+        ====================================================== -->
+			<div th:if="${activePage == 'dashboard'}">
+
+				<!-- Flash messages -->
+				<div class="toast success" th:if="${successMessage}">
+					&#10003; <span th:text="${successMessage}"></span>
+				</div>
+				<div class="toast error" th:if="${errorMessage}">
+					&#9888; <span th:text="${errorMessage}"></span>
+				</div>
+
+			<!-- BREADCRUMB removed — topbar already shows page title -->
+
+				<!-- STATS ROW -->
+				<div class="stats-row">
+					<div class="stat-card">
+						<div class="stat-icon green">&#128101;</div>
+						<div class="stat-info">
+							<h3 th:text="${totalAdmins}">0</h3>
+							<p>Total Admins</p>
+							<span class="stat-trend up">&#8593; All time</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon blue">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${activeAdmins}">0</h3>
+							<p>Active Admins</p>
+							<span class="stat-trend up">&#8593; Live</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange">&#128197;</div>
+						<div class="stat-info">
+							<h3 th:text="${todayAdmins}">0</h3>
+							<p>Added Today</p>
+							<span class="stat-trend up">&#8593; Today</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple">&#128065;</div>
+						<div class="stat-info">
+							<h3>120</h3>
+							<p>Total Views</p>
+							<span class="stat-trend up">&#8593; +12%</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- DASHBOARD GRID -->
+				<div class="dashboard-grid">
+
+					<!-- RECENT ADMINS TABLE -->
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Recent Admins</h2>
+								<p>Latest registered administrators</p>
+							</div>
+							<a th:href="@{/superadmin/admins}" class="btn-link">View All &#8594;</a>
+						</div>
+						<div class="card-body">
+							<div class="table-wrap">
+								<table>
+									<thead>
+										<tr>
+											<th>Admin</th>
+											<th>Email</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="admin : ${admins}">
+											<td>
+												<div class="admin-cell">
+													<div class="admin-avatar"
+														th:text="${#strings.substring(admin.username, 0, 1).toUpperCase()}">
+														A</div>
+													<div>
+														<div style="font-weight:600;font-size:13.5px;"
+															th:text="${admin.username}">Admin</div>
+														<div style="font-size:11px;color:#9ab3bd;">Administrator</div>
+													</div>
+												</div>
+											</td>
+											<td style="color:var(--text-muted);font-size:13px;"
+												th:text="${admin.email}">admin@example.com</td>
+											<td>
+												<span class="status-badge active"
+													th:if="${admin.status == 'active'}">Active</span>
+												<span class="status-badge inactive"
+													th:unless="${admin.status == 'active'}">Inactive</span>
+											</td>
+										</tr>
+										<tr th:if="${#lists.isEmpty(admins)}">
+											<td colspan="3">
+												<div class="empty-state">
+													<div style="font-size:42px">&#128100;</div>
+													<h3>No Admins Yet</h3>
+													<p>Go to <a th:href="@{/superadmin/admins}"
+															style="color:var(--primary);font-weight:600;">Admins</a>
+														to add one.</p>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<!-- RIGHT COLUMN -->
+					<div style="display:flex;flex-direction:column;gap:18px;">
+
+						<!-- Quick Actions -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>Quick Actions</h2>
+									<p>Common tasks at a glance</p>
+								</div>
+							</div>
+							<div class="card-body" style="padding:6px 0 4px;">
+								<div class="quick-actions">
+									<a th:href="@{/superadmin/admins}" class="quick-action-btn">
+										<span class="qa-icon"
+											style="background:var(--green-bg);color:var(--green-fg);">&#128101;</span>
+										<span>Manage Admins</span>
+									</a>
+									<a th:href="@{/superadmin/admins(add=true)}" class="quick-action-btn">
+										<span class="qa-icon"
+											style="background:var(--blue-bg);color:var(--blue-fg);">&#10133;</span>
+										<span>Add Admin</span>
+									</a>
+									<a th:href="@{/superadmin/views}" class="quick-action-btn">
+										<span class="qa-icon"
+											style="background:var(--purple-bg);color:var(--purple-fg);">&#128065;</span>
+										<span>View Reports</span>
+									</a>
+									<a th:href="@{/superadmin/profile}" class="quick-action-btn">
+										<span class="qa-icon"
+											style="background:var(--orange-bg);color:var(--orange-fg);">&#128100;</span>
+										<span>My Profile</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- System Summary -->
+						<div class="card">
+							<div class="card-header">
+								<div>
+									<h2>System Summary</h2>
+									<p>Current platform overview</p>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="summary-list">
+									<div class="summary-row">
+										<span class="summary-label">Total Admins</span>
+										<span class="summary-value" th:text="${totalAdmins}">0</span>
+									</div>
+									<div class="summary-row">
+										<span class="summary-label">Active Admins</span>
+										<span class="summary-value" th:text="${activeAdmins}">0</span>
+									</div>
+									<div class="summary-row">
+										<span class="summary-label">Inactive Admins</span>
+										<span class="summary-value" th:text="${totalAdmins - activeAdmins}">0</span>
+									</div>
+									<div class="summary-row">
+										<span class="summary-label">Added Today</span>
+										<span class="summary-value" th:text="${todayAdmins}">0</span>
+									</div>
+									<div class="summary-row">
+										<span class="summary-label">Total Views</span>
+										<span class="summary-value">120</span>
+									</div>
+									<div class="summary-row">
+										<span class="summary-label">Platform Status</span>
+										<span class="status-badge active" style="font-size:11px;">Online</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<!-- END DASHBOARD -->
+
+
+			<!-- ======================================================
+             ADMINS PAGE
+        ====================================================== -->
+			<div th:if="${activePage == 'admins'}">
+
+				<!-- Flash messages -->
+				<div class="toast success" th:if="${successMessage}">
+					&#10003; <span th:text="${successMessage}"></span>
+				</div>
+				<div class="toast error" th:if="${errorMessage}">
+					&#9888; <span th:text="${errorMessage}"></span>
+				</div>
+
+				<!-- ADD ADMIN FORM (hidden by default) -->
+				<div class="card edit-card hidden" id="addAdminCard"
+					th:data-open="${showAddForm != null and showAddForm} ? 'true' : 'false'">
+					<div class="card-header">
+						<div>
+							<h2>&#10133; Add New Admin</h2>
+							<p>Create a new administrator account</p>
+						</div>
+						<button type="button" class="btn-icon-close" id="closeAddForm" title="Cancel">&#10005;</button>
+					</div>
+					<div class="card-body">
+						<form th:action="@{/superadmin/add-admin}" method="post">
+							<div class="form-grid">
+								<div class="form-group">
+									<label>Email Address</label>
+									<div class="input-wrap">
+										<input type="email" name="email" placeholder="admin@example.com" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Username</label>
+									<div class="input-wrap">
+										<input type="text" name="username" placeholder="Enter username" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Password</label>
+									<div class="input-wrap">
+										<input type="password" name="password" placeholder="Create password" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Confirm Password</label>
+									<div class="input-wrap">
+										<input type="password" name="confirmPassword" placeholder="Confirm password"
+											required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Status</label>
+									<div class="input-wrap">
+										<select name="status" class="select-input">
+											<option value="active">Active</option>
+											<option value="inactive">Inactive</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="form-actions">
+								<button type="button" class="btn btn-clear" id="cancelAddForm">Cancel</button>
+								<button type="submit" class="btn btn-primary">
+									&#10133; Add Admin
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<!-- EDIT ADMIN FORM -->
+				<div class="card edit-card" th:if="${editAdmin != null}">
+					<div class="card-header">
+						<div>
+							<h2>&#9999; Edit Admin</h2>
+							<p>Update administrator details</p>
+						</div>
+						<a th:href="@{/superadmin/admins}" class="btn-icon-close" title="Cancel">&#10005;</a>
+					</div>
+					<div class="card-body">
+						<form th:action="@{/superadmin/edit-admin/{id}(id=${editAdmin.id})}" method="post">
+							<div class="form-grid">
+								<div class="form-group">
+									<label>Email Address</label>
+									<div class="input-wrap">
+										<input type="email" name="email" th:value="${editAdmin.email}" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Username</label>
+									<div class="input-wrap">
+										<input type="text" name="username" th:value="${editAdmin.username}" required>
+									</div>
+								</div>
+								<div class="form-group" style="grid-column:1/-1;">
+									<label>Status</label>
+									<div class="toggle-field">
+										<input type="hidden" name="status" id="editStatusHidden"
+											th:value="${editAdmin.status}">
+										<button type="button"
+											th:class="${editAdmin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
+											id="editStatusToggle" onclick="toggleEditStatus()">
+											<span class="toggle-knob"></span>
+										</button>
+										<span class="toggle-label" id="editStatusLabel"
+											th:text="${editAdmin.status == 'active'} ? 'Active' : 'Inactive'">
+											Active
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="form-actions">
+								<a th:href="@{/superadmin/admins}" class="btn btn-outline-cancel">Cancel</a>
+								<button type="submit" class="btn btn-primary">
+									&#10003; Save Changes
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<!-- ADMINS TABLE -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>All Admins</h2>
+							<p th:text="${totalAdmins} + ' administrator(s) registered'">
+								0 administrator(s) registered
+							</p>
+						</div>
+						<button type="button" class="btn btn-primary" id="openAddForm">
+							&#10133; Add Admin
+						</button>
+					</div>
+					<div class="card-body">
+						<div class="table-wrap">
+							<table id="adminsTable">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Admin</th>
+										<th>Email</th>
+										<th>Role</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="admin, stat : ${admins}">
+										<td style="color:var(--text-muted);font-weight:600;" th:text="${stat.count}">1
+										</td>
+										<td>
+											<div class="admin-cell">
+												<div class="admin-avatar"
+													th:text="${#strings.substring(admin.username, 0, 1).toUpperCase()}">
+													A</div>
+												<div>
+													<div style="font-weight:600;" th:text="${admin.username}">Admin
+													</div>
+													<div style="font-size:11px;color:#9ab3bd;">
+														Administrator
+													</div>
+												</div>
+											</div>
+										</td>
+										<td style="color:var(--text-muted);font-size:13px;" th:text="${admin.email}">
+											admin@example.com</td>
+										<td><span class="role-badge">ADMIN</span></td>
+										<td>
+											<div class="table-status-cell">
+												<span class="status-badge active"
+													th:if="${admin.status == 'active'}">Active</span>
+												<span class="status-badge inactive"
+													th:if="${admin.status != 'active'}">Inactive</span>
+												<form th:action="@{/superadmin/toggle-status/{id}(id=${admin.id})}"
+													method="post" style="display:inline-flex;align-items:center;">
+													<button type="submit"
+														th:class="${admin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
+														title="Toggle status">
+														<span class="toggle-knob"></span>
+													</button>
+												</form>
+											</div>
+										</td>
+										<td>
+											<div class="action-btns">
+												<a th:href="@{/superadmin/edit-admin/{id}(id=${admin.id})}"
+													class="btn-action edit">&#9999; Edit</a>
+												<button type="button" class="btn-action delete" th:data-id="${admin.id}"
+													th:data-name="${admin.username}" onclick="openDeleteModal(this)">
+													&#128465; Delete
+												</button>
+											</div>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(admins)}">
+										<td colspan="6">
+											<div class="empty-state">
+												<div style="font-size:48px;">&#128100;</div>
+												<h3>No Admins Found</h3>
+												<p>Click "Add Admin" to create the first administrator.</p>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- DELETE MODAL -->
+				<div class="modal-overlay hidden" id="deleteModalOverlay">
+					<div class="modal">
+						<div class="modal-icon">&#128465;</div>
+						<h3 class="modal-title">Delete Admin</h3>
+						<p class="modal-msg">
+							Are you sure you want to delete
+							<strong id="deleteAdminName"></strong>?<br>
+							This action cannot be undone.
+						</p>
+						<div class="modal-actions">
+							<button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+							<form id="deleteAdminForm" method="post" style="display:contents;">
+								<button type="submit" class="btn btn-danger">
+									&#128465; Yes, Delete
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- END ADMINS PAGE -->
+
+
+			<!-- ======================================================
+             VIEWS PAGE
+        ====================================================== -->
+			<div th:if="${activePage == 'views'}">
+
+				<!-- STATS -->
+				<div class="stats-row">
+					<div class="stat-card">
+						<div class="stat-icon green">&#128101;</div>
+						<div class="stat-info">
+							<h3 th:text="${totalAdmins}">0</h3>
+							<p>Total Admins</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon blue">&#9989;</div>
+						<div class="stat-info">
+							<h3 th:text="${activeAdmins}">0</h3>
+							<p>Active Admins</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange">&#128197;</div>
+						<div class="stat-info">
+							<h3 th:text="${todayAdmins}">0</h3>
+							<p>Added Today</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple">&#128065;</div>
+						<div class="stat-info">
+							<h3>120</h3>
+							<p>Total Views</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- OVERVIEW CARDS -->
+				<div class="views-grid">
+					<div class="card views-card">
+						<div class="views-icon" style="background:var(--green-bg);color:var(--green-fg);">&#128100;
+						</div>
+						<div class="views-info">
+							<h3 th:text="${totalAdmins}">0</h3>
+							<p>Registered Admins</p>
+						</div>
+					</div>
+					<div class="card views-card">
+						<div class="views-icon" style="background:var(--blue-bg);color:var(--blue-fg);">&#9989;</div>
+						<div class="views-info">
+							<h3 th:text="${activeAdmins}">0</h3>
+							<p>Active Admins</p>
+						</div>
+					</div>
+					<div class="card views-card">
+						<div class="views-icon" style="background:var(--orange-bg);color:var(--orange-fg);">&#128197;
+						</div>
+						<div class="views-info">
+							<h3 th:text="${todayAdmins}">0</h3>
+							<p>Added Today</p>
+						</div>
+					</div>
+					<div class="card views-card">
+						<div class="views-icon" style="background:var(--purple-bg);color:var(--purple-fg);">&#128065;
+						</div>
+						<div class="views-info">
+							<h3>120</h3>
+							<p>Page Views</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- ADMIN OVERVIEW TABLE -->
+				<div class="card" style="margin-top:4px;">
+					<div class="card-header">
+						<div>
+							<h2>Admin Overview</h2>
+							<p>All registered administrators at a glance</p>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Admin</th>
+										<th>Email</th>
+										<th>Role</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="admin, stat : ${admins}">
+										<td style="color:var(--text-muted);font-weight:600;" th:text="${stat.count}">1
+										</td>
+										<td>
+											<div class="admin-cell">
+												<div class="admin-avatar"
+													th:text="${#strings.substring(admin.username, 0, 1).toUpperCase()}">
+													A</div>
+												<span style="font-weight:600;" th:text="${admin.username}">Admin</span>
+											</div>
+										</td>
+										<td style="color:var(--text-muted);font-size:13px;" th:text="${admin.email}">
+											admin@example.com</td>
+										<td><span class="role-badge">ADMIN</span></td>
+										<td>
+											<span class="status-badge active"
+												th:if="${admin.status == 'active'}">Active</span>
+											<span class="status-badge inactive"
+												th:unless="${admin.status == 'active'}">Inactive</span>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(admins)}">
+										<td colspan="5">
+											<div class="empty-state">
+												<h3>No Admins</h3>
+												<p>No admins registered yet.</p>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- END VIEWS PAGE -->
+
+
+			<!-- ======================================================
+             PROFILE PAGE
+        ====================================================== -->
+			<div th:if="${activePage == 'profile'}">
+
+				<div class="toast success" th:if="${successMessage}">
+					&#10003; <span th:text="${successMessage}"></span>
+				</div>
+				<div class="toast error" th:if="${errorMessage}">
+					&#9888; <span th:text="${errorMessage}"></span>
+				</div>
+
+				<div class="profile-page-grid">
+
+					<!-- Profile info card -->
+					<div class="card profile-info-card">
+						<div class="profile-page-avatar">S</div>
+						<h2 th:text="${superAdminUser != null} ? ${superAdminUser.username} : 'Super Admin'">
+							Super Admin
+						</h2>
+						<p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@gmail.com'">
+							superadmin@gmail.com
+						</p>
+						<span class="role-badge" style="margin-top:12px;">SUPER ADMIN</span>
+						<div style="margin-top:10px;">
+							<span class="status-badge active" style="font-size:11px;">
+								Online
+							</span>
+						</div>
+						<div class="profile-stats">
+							<div class="profile-stat">
+								<h4 th:text="${totalAdmins}">0</h4>
+								<p>Admins Managed</p>
+							</div>
+							<div class="profile-stat">
+								<h4>120</h4>
+								<p>Total Views</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Edit profile form -->
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>&#9999; Edit Profile</h2>
+								<p>Update your account information</p>
+							</div>
+						</div>
+						<div class="card-body">
+							<form th:action="@{/superadmin/update-profile}" method="post">
+								<div class="form-grid">
+									<div class="form-group">
+										<label>Username</label>
+										<div class="input-wrap">
+											<input type="text" name="username"
+												th:value="${superAdminUser != null} ? ${superAdminUser.username} : ''"
+												placeholder="Username" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label>Email Address</label>
+										<div class="input-wrap">
+											<input type="email" name="email"
+												th:value="${superAdminUser != null} ? ${superAdminUser.email} : ''"
+												placeholder="Email" required>
+										</div>
+									</div>
+									<div class="form-group">
+										<label>
+											New Password
+											<span style="font-weight:400;color:var(--text-muted);">(leave blank to
+												keep)</span>
+										</label>
+										<div class="input-wrap">
+											<input type="password" name="password" placeholder="New password">
+										</div>
+									</div>
+									<div class="form-group">
+										<label>Confirm Password</label>
+										<div class="input-wrap">
+											<input type="password" name="confirmPassword"
+												placeholder="Confirm new password">
+										</div>
+									</div>
+								</div>
+								<div class="form-actions">
+									<button type="reset" class="btn btn-clear">&#8635; Reset</button>
+									<button type="submit" class="btn btn-primary">
+										&#10003; Save Changes
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<!-- END PROFILE PAGE -->
+
+		</div><!-- end page-content -->
+	</div><!-- end main-wrapper -->
+
+	<script th:inline="javascript">
+		(function () {
+			var token = /*[[${newJwtToken}]]*/ null;
+			var role = /*[[${newJwtRole}]]*/ null;
+			var username = /*[[${newJwtUsername}]]*/ null;
+			if (!token) return;
+			localStorage.setItem('jwt_token', token);
+			if (role) localStorage.setItem('jwt_role', role);
+			if (username) localStorage.setItem('jwt_username', username);
+			try {
+				var payload = JSON.parse(atob(token.split('.')[1]));
+				var expires = new Date(payload.exp * 1000).toUTCString();
+				document.cookie = 'jwt_token=' + token + '; expires=' + expires + '; path=/; SameSite=Strict';
+			} catch (e) {
+				document.cookie = 'jwt_token=' + token + '; path=/; SameSite=Strict';
+			}
+		})();
+	</script>
+	<script>
+		// ── Mobile sidebar ─────────────────────────────────────────────────────────
+		const hamburger = document.getElementById('hamburgerBtn');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('sidebarOverlay');
+
+		function openSidebar() {
+			sidebar.classList.add('open');
+			overlay.classList.add('active');
+			hamburger.classList.add('is-open');
+			document.body.style.overflow = 'hidden';
+		}
+		function closeSidebar() {
+			sidebar.classList.remove('open');
+			overlay.classList.remove('active');
+			hamburger.classList.remove('is-open');
+			document.body.style.overflow = '';
+		}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		sidebar && sidebar.querySelectorAll('a').forEach(function (link) {
+			link.addEventListener('click', function () {
+				if (window.innerWidth < 900) closeSidebar();
+			});
+		});
+
+		// ── Add Admin inline toggle ────────────────────────────────────────────────
+		var addCard = document.getElementById('addAdminCard');
+		var openBtn = document.getElementById('openAddForm');
+		var closeBtn = document.getElementById('closeAddForm');
+		var cancelBtn = document.getElementById('cancelAddForm');
+
+		function showAddForm() {
+			if (addCard) {
+				addCard.classList.remove('hidden');
+				addCard.scrollIntoView({behavior: 'smooth', block: 'start'});
+			}
+		}
+		function hideAddForm() {
+			if (addCard) addCard.classList.add('hidden');
+		}
+		if (openBtn) openBtn.addEventListener('click', showAddForm);
+		if (closeBtn) closeBtn.addEventListener('click', hideAddForm);
+		if (cancelBtn) cancelBtn.addEventListener('click', hideAddForm);
+
+		if (addCard) {
+			var params = new URLSearchParams(window.location.search);
+			var serverOpen = addCard.getAttribute('data-open') === 'true';
+			if (params.get('add') === 'true' || serverOpen) showAddForm();
+		}
+
+		// ── Edit form status toggle ────────────────────────────────────────────────
+		function toggleEditStatus() {
+			var hidden = document.getElementById('editStatusHidden');
+			var btn = document.getElementById('editStatusToggle');
+			var label = document.getElementById('editStatusLabel');
+			if (hidden.value === 'active') {
+				hidden.value = 'inactive';
+				btn.className = 'toggle-btn inactive';
+				label.textContent = 'Inactive';
+			} else {
+				hidden.value = 'active';
+				btn.className = 'toggle-btn active';
+				label.textContent = 'Active';
+			}
+		}
+
+		// ── Delete modal ───────────────────────────────────────────────────────────
+		function openDeleteModal(btn) {
+			var id = btn.getAttribute('data-id');
+			var name = btn.getAttribute('data-name');
+			document.getElementById('deleteAdminName').textContent = name;
+			document.getElementById('deleteAdminForm').action =
+				'/superadmin/delete-admin/' + id;
+			document.getElementById('deleteModalOverlay').classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+		}
+		function closeDeleteModal() {
+			document.getElementById('deleteModalOverlay').classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+		var modalOverlay = document.getElementById('deleteModalOverlay');
+		if (modalOverlay) {
+			modalOverlay.addEventListener('click', function (e) {
+				if (e.target === modalOverlay) closeDeleteModal();
+			});
+		}
+		// ESC key closes modal
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				closeDeleteModal();
+				hideAddForm();
+			}
+		});
+
+		// ── Global search filter ───────────────────────────────────────────────────
+		var searchInput = document.getElementById('globalSearch');
+		if (searchInput) {
+			searchInput.addEventListener('input', function () {
+				var q = this.value.toLowerCase().trim();
+				var rows = document.querySelectorAll('#adminsTable tbody tr');
+				rows.forEach(function (row) {
+					row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+				});
+			});
+		}
+
+		// ── Auto-dismiss toasts ────────────────────────────────────────────────────
+		document.querySelectorAll('.toast').forEach(function (toast) {
+			setTimeout(function () {
+				toast.style.transition = 'opacity .5s ease, max-height .5s ease, margin .5s ease, padding .5s ease';
+				toast.style.opacity = '0';
+				toast.style.maxHeight = '0';
+				toast.style.margin = '0';
+				toast.style.padding = '0';
+			}, 4000);
+		});
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

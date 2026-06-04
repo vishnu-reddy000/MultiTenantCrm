@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Employee &mdash; Settings</title>
+	<link rel="stylesheet" th:href="@{/employee.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		.topbar { align-items: flex-start; }
+		.topbar-subtitle { font-size: 13px; color: #6b7280; margin-top: 2px; }
+		.breadcrumb { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #6b7280; margin-top: 8px; font-weight: 500; }
+		.breadcrumb a { color: #17455e; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+		.breadcrumb span { color: #aabbc4; }
+		.notif-btn { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,.07); position: relative; }
+		.notif-dot { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #f87171; border: 2px solid #fff; }
+		.profile-combined-card { display: flex; align-items: flex-start; gap: 0; padding: 0; overflow: hidden; }
+		.profile-identity { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 32px; min-width: 220px; flex-shrink: 0; }
+		.profile-page-avatar { width: 88px; height: 88px; border-radius: 50%; background: #17455e; color: #fff; font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(23,69,94,.28); }
+		.profile-identity h2 { font-size: 18px; font-weight: 800; color: #163647; letter-spacing: -.01em; }
+		.profile-identity > p { font-size: 12px; color: #6b7280; margin-top: 4px; word-break: break-all; }
+		.profile-divider { width: 1px; align-self: stretch; background: #e5edf2; flex-shrink: 0; }
+		.profile-form-side { flex: 1; padding: 28px 28px 24px; min-width: 0; }
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+		.profile-form-side .input-wrap { position: relative; display: block; }
+		.profile-form-side .input-wrap input { height: 48px; border: 1.5px solid transparent; background: #f3f8fb; border-radius: 14px; padding: 0 16px; }
+		.profile-form-side .input-wrap input:focus { background: #fff; border-color: #17455e; box-shadow: 0 0 0 3px rgba(23,69,94,.12); }
+		.pwd-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; color: #6b7280; }
+		.input-wrap input.has-toggle { padding-right: 40px; }
+		.form-actions { justify-content: flex-end; }
+		.btn-clear { background: #eef3f7; color: #163647; }
+		.btn-clear:hover { background: #e0eaf0; }
+		@media (max-width: 860px) {
+			.profile-combined-card { flex-direction: column; }
+			.profile-identity { width: 100%; padding: 28px 24px 20px; border-bottom: 1px solid #e5edf2; }
+			.profile-divider { display: none; }
+			.profile-form-side { width: 100%; padding: 22px 20px 20px; }
+		}
+		@media (max-width: 600px) {
+			.form-grid { grid-template-columns: 1fr; }
+			.form-actions { flex-direction: column; }
+			.form-actions .btn { width: 100%; justify-content: center; }
+		}
+	</style>
+</head>
+
+<body>
+	<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			<h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+			<p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+			<li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+			<li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li class="active"><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<div>
+				<h1>Settings</h1>
+				<p class="topbar-subtitle">Manage your account settings</p>
+				<div class="breadcrumb"><a th:href="@{/employee/dashboard}"><i data-lucide="home"></i> Home</a><span>&#8250;</span><span>Settings</span></div>
+			</div>
+			<div class="topbar-right">
+				<button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+				<div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+			<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+			<div class="card profile-combined-card">
+				<div class="profile-identity">
+					<div class="profile-page-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+					<h2 th:text="${employeeName} ?: 'Employee'">Employee</h2>
+					<p th:text="${employeeEmail} ?: 'employee@example.com'">employee@example.com</p>
+					<span class="role-badge" style="margin-top:12px;">EMPLOYEE</span>
+					<div style="margin-top:10px;"><span class="status-badge active">Online</span></div>
+				</div>
+				<div class="profile-divider"></div>
+				<div class="profile-form-side">
+					<div class="card-header" style="margin-bottom:18px;"><div><h2>Edit Profile</h2><p>Update your account information</p></div></div>
+					<form th:action="@{/employee/settings/profile}" method="post">
+						<div class="form-grid">
+							<div class="form-group"><label>Username</label><div class="input-wrap"><input type="text" name="username" th:value="${employeeName}" required autocomplete="username"></div></div>
+							<div class="form-group"><label>Email Address</label><div class="input-wrap"><input type="email" name="email" th:value="${employeeEmail}" placeholder="employee@example.com" required autocomplete="email"></div></div>
+							<div class="form-group"><label>New Password <span class="optional-text">(leave blank to keep)</span></label><div class="input-wrap"><input class="has-toggle" type="password" name="password" id="passwordField" placeholder="New password" autocomplete="new-password"><button type="button" class="pwd-toggle" id="togglePassword" aria-label="Toggle password visibility"><i data-lucide="eye" id="togglePasswordIcon"></i></button></div></div>
+							<div class="form-group"><label>Confirm Password</label><div class="input-wrap"><input class="has-toggle" type="password" name="confirmPassword" id="confirmPasswordField" placeholder="Confirm new password" autocomplete="new-password"><button type="button" class="pwd-toggle" id="toggleConfirmPassword" aria-label="Toggle confirm password visibility"><i data-lucide="eye" id="toggleConfirmPasswordIcon"></i></button></div></div>
+						</div>
+						<div class="form-actions">
+							<button type="reset" class="btn btn-clear"><i data-lucide="refresh-cw"></i> Reset</button>
+							<button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Save Changes</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:inline="javascript">
+		(function () {
+			var token = /*[[${newJwtToken}]]*/ null;
+			var role = /*[[${newJwtRole}]]*/ null;
+			var username = /*[[${newJwtUsername}]]*/ null;
+			if (!token) return;
+			localStorage.setItem('jwt_token', token);
+			if (role) localStorage.setItem('jwt_role', role);
+			if (username) localStorage.setItem('jwt_username', username);
+			try {
+				var payload = JSON.parse(atob(token.split('.')[1]));
+				var expires = new Date(payload.exp * 1000).toUTCString();
+				document.cookie = 'jwt_token=' + token + '; expires=' + expires + '; path=/; SameSite=Strict';
+			} catch (e) {
+				document.cookie = 'jwt_token=' + token + '; path=/; SameSite=Strict';
+			}
+		})();
+	</script>
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+		function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		document.querySelectorAll('.toast').forEach(function (t) { requestAnimationFrame(function () { t.classList.add('toast-show'); }); setTimeout(function () { t.classList.remove('toast-show'); t.classList.add('toast-hide'); t.addEventListener('transitionend', function () { t.remove(); }, { once: true }); }, 3500); });
+		lucide.createIcons();
+		function setupPasswordToggle(inputId, toggleBtnId, iconId) {
+			var input = document.getElementById(inputId), btn = document.getElementById(toggleBtnId), icon = document.getElementById(iconId);
+			if (!input || !btn || !icon) return;
+			btn.addEventListener('click', function () {
+				var hidden = input.type === 'password';
+				input.type = hidden ? 'text' : 'password';
+				icon.setAttribute('data-lucide', hidden ? 'eye-off' : 'eye');
+				lucide.createIcons();
+			});
+		}
+		setupPasswordToggle('passwordField', 'togglePassword', 'togglePasswordIcon');
+		setupPasswordToggle('confirmPasswordField', 'toggleConfirmPassword', 'toggleConfirmPasswordIcon');
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

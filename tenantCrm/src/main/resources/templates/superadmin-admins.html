@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin — Admins</title>
+    <link rel="stylesheet" th:href="@{/superadmin.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+        /* Toast fade-out removes space too */
+        .toast { transition: opacity .5s ease, margin .5s ease, padding .5s ease, max-height .5s ease; max-height: 80px; overflow: hidden; }
+        .toast.fade-out { opacity: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; max-height: 0; }
+
+        /* ── Analytics charts row ── */
+        .admins-analytics-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Fixed-height chart boxes */
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+        .chart-box canvas { display: block; }
+
+        /* Chart badge */
+        .chart-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+        }
+        .chart-badge::before {
+            content: ''; width: 6px; height: 6px;
+            border-radius: 50%; background: currentColor;
+        }
+        .badge-blue   { background: var(--blue-bg);   color: var(--blue-fg); }
+        .badge-purple { background: var(--purple-bg); color: var(--purple-fg); }
+
+        /* ── Responsive ── */
+        @media (max-width: 800px) {
+            .admins-analytics-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr !important; }
+            .form-actions { flex-direction: column; gap: 10px; }
+            .form-actions .btn,
+            .form-actions .btn-outline-cancel { width: 100%; justify-content: center; }
+            .card-header { flex-wrap: wrap; gap: 10px; }
+            .card-header .btn { width: 100%; justify-content: center; }
+            .toggle-field { flex-wrap: wrap; }
+            .chart-box { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <span class="mobile-title">SuperAdmin</span>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="shield"></i></div>
+        <h2>SuperAdmin</h2>
+    </div>
+    <div class="profile-box">
+        <div class="profile-avatar">S</div>
+        <h3>Super Admin</h3>
+        <p th:text="${superAdminUser != null} ? ${superAdminUser.email} : 'superadmin@crm.com'">superadmin@crm.com</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/superadmin/dashboard}"><span class="menu-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a></li>
+        <li class="active"><a th:href="@{/superadmin/admins}"><span class="menu-icon"><i data-lucide="users"></i></span> Admins</a></li>
+        <li><a th:href="@{/superadmin/profile}"><span class="menu-icon"><i data-lucide="user"></i></span> Profile</a></li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div>
+            <h1>Admins</h1>
+            <p class="topbar-subtitle">Manage all administrator accounts</p>
+            <div class="breadcrumb">
+                <a th:href="@{/superadmin/dashboard}"><i data-lucide="home"></i> Home</a>
+                <span>&#8250;</span>
+                <span>Admins</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box">
+                <span class="search-icon"><i data-lucide="search"></i></span>
+                <input type="text" id="globalSearch" placeholder="Search admins…">
+            </div>
+            <button class="notif-btn" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+            <div class="user-badge">S</div>
+        </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+        <!-- Toast messages — zero height when empty -->
+        <div th:if="${successMessage}" class="toast success">
+            <i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="toast error">
+            <i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- ── ANALYTICS CHARTS ── -->
+        <div class="admins-analytics-row">
+
+            <!-- Active vs Inactive — Doughnut -->
+            <div class="card">
+                <div class="card-header">
+                    <div><h2>Status Breakdown</h2><p>Active vs Inactive admins</p></div>
+                    <span class="chart-badge badge-purple">Doughnut</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas id="statusDoughnut"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Activity — Horizontal Bar -->
+            <div class="card">
+                <div class="card-header">
+                    <div><h2>Admin Overview</h2><p>Count by status category</p></div>
+                    <span class="chart-badge badge-blue">Bar Chart</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas id="statusBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end analytics row -->
+
+        <!-- ── EDIT ADMIN INLINE FORM (shown when editAdmin is set) ── -->
+        <div class="card edit-card" th:if="${editAdmin != null}">
+            <div class="card-header">
+                <div>
+                    <h2>Update Administrator</h2>
+                    <p>Modify the details for <strong th:text="${editAdmin.username}">Admin</strong></p>
+                </div>
+                <a th:href="@{/superadmin/admins}" class="btn-icon-close" title="Cancel">
+                    <i data-lucide="x"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/superadmin/edit-admin/{id}(id=${editAdmin.id})}" method="post">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="input-wrap">
+                                <input type="email" name="email" th:value="${editAdmin.email}" required autocomplete="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <div class="input-wrap">
+                                <input type="text" name="username" th:value="${editAdmin.username}" required autocomplete="username">
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Status</label>
+                            <div class="toggle-field">
+                                <input type="hidden" name="status" id="editStatusHidden" th:value="${editAdmin.status}">
+                                <button type="button"
+                                    th:class="${editAdmin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
+                                    id="editStatusToggle"
+                                    onclick="toggleEditStatus()"
+                                    aria-label="Toggle admin status">
+                                    <span class="toggle-knob"></span>
+                                </button>
+                                <span class="toggle-label" id="editStatusLabel"
+                                    th:text="${editAdmin.status == 'active'} ? 'Active' : 'Inactive'">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a th:href="@{/superadmin/admins}" class="btn btn-outline-cancel">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="check"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── ADMINS TABLE ── -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>All Admins</h2>
+                    <p th:text="${totalAdmins} + ' administrator(s) registered'">0 administrator(s) registered</p>
+                </div>
+                <a th:href="@{/superadmin/add-admin}" class="btn btn-primary">
+                    <i data-lucide="user-plus"></i> Add Admin
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-wrap">
+                    <table id="adminsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Admin</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="admin, stat : ${admins}">
+                                <td style="color:var(--text-muted);font-weight:600;" th:text="${stat.count}">1</td>
+                                <td>
+                                    <div class="admin-cell">
+                                        <div class="admin-avatar" th:text="${#strings.substring(admin.username,0,1).toUpperCase()}">A</div>
+                                        <div>
+                                            <div style="font-weight:600;" th:text="${admin.username}">Admin</div>
+                                            <div style="font-size:11px;color:#9ab3bd;">Administrator</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="color:var(--text-muted);font-size:13px;" th:text="${admin.email}">admin@example.com</td>
+                                <td><span class="role-badge">ADMIN</span></td>
+                                <td>
+                                    <div class="table-status-cell">
+                                        <span class="status-badge active"   th:if="${admin.status == 'active'}">Active</span>
+                                        <span class="status-badge inactive" th:if="${admin.status != 'active'}">Inactive</span>
+                                        <form th:action="@{/superadmin/toggle-status/{id}(id=${admin.id})}" method="post"
+                                              style="display:inline-flex;align-items:center;">
+                                            <button type="submit"
+                                                th:class="${admin.status == 'active'} ? 'toggle-btn active' : 'toggle-btn inactive'"
+                                                title="Toggle status">
+                                                <span class="toggle-knob"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-btns">
+                                        <a th:href="@{/superadmin/edit-admin/{id}(id=${admin.id})}"
+                                           class="btn-action edit">
+                                            <i data-lucide="pencil"></i> Edit
+                                        </a>
+                                        <button type="button" class="btn-action delete"
+                                            th:data-id="${admin.id}"
+                                            th:data-name="${admin.username}"
+                                            onclick="openDeleteModal(this)">
+                                            <i data-lucide="trash-2"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(admins)}">
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i data-lucide="user" style="width:48px;height:48px;opacity:.3;"></i>
+                                        <h3>No Admins Found</h3>
+                                        <p>Click "Add Admin" to create the first administrator.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── DELETE CONFIRMATION MODAL ── -->
+        <div class="modal-overlay hidden" id="deleteModalOverlay">
+            <div class="modal">
+                <div class="modal-icon">
+                    <i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i>
+                </div>
+                <h3 class="modal-title">Delete Admin</h3>
+                <p class="modal-msg">
+                    Are you sure you want to delete <strong id="deleteAdminName"></strong>?<br>
+                    This action cannot be undone.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+                    <form id="deleteAdminForm" method="post" style="display:contents;">
+                        <button type="submit" class="btn btn-danger">
+                            <i data-lucide="trash-2"></i> Yes, Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end page-content -->
+</div><!-- end main-wrapper -->
+
+<!-- ── Thymeleaf → JS data bridge ── -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+const ADMINS_DB = {
+    total:    /*[[${totalAdmins}]]*/ 0,
+    active:   /*[[${activeAdmins}]]*/ 0,
+    inactive: /*[[${totalAdmins - activeAdmins}]]*/ 0
+};
+/*]]>*/
+</script>
+
+<script>
+    // ── Mobile sidebar ──────────────────────────────────────────────────────────
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
+
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    hamburger.classList.add('is-open');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); hamburger.classList.remove('is-open'); document.body.style.overflow = ''; }
+
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click', closeSidebar);
+
+    sidebar && sidebar.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() { if (window.innerWidth < 900) closeSidebar(); });
+    });
+
+    // ── Edit form status toggle ─────────────────────────────────────────────────
+    function toggleEditStatus() {
+        var hidden = document.getElementById('editStatusHidden');
+        var btn    = document.getElementById('editStatusToggle');
+        var label  = document.getElementById('editStatusLabel');
+        if (!hidden) return;
+        if (hidden.value === 'active') {
+            hidden.value      = 'inactive';
+            btn.className     = 'toggle-btn inactive';
+            label.textContent = 'Inactive';
+        } else {
+            hidden.value      = 'active';
+            btn.className     = 'toggle-btn active';
+            label.textContent = 'Active';
+        }
+    }
+
+    // ── Delete modal ────────────────────────────────────────────────────────────
+    function openDeleteModal(btn) {
+        document.getElementById('deleteAdminName').textContent = btn.getAttribute('data-name');
+        document.getElementById('deleteAdminForm').action = '/superadmin/delete-admin/' + btn.getAttribute('data-id');
+        document.getElementById('deleteModalOverlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModalOverlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    var modalOverlay = document.getElementById('deleteModalOverlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) closeDeleteModal();
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeDeleteModal(); }
+    });
+
+    // ── Global search filter ────────────────────────────────────────────────────
+    var searchInput = document.getElementById('globalSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#adminsTable tbody tr').forEach(function(row) {
+                row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+            });
+        });
+    }
+
+    // ── Auto-dismiss toasts — collapse space after fade ────────────────────────
+    document.querySelectorAll('.toast').forEach(function(t) {
+        setTimeout(function() { t.classList.add('fade-out'); }, 4000);
+    });
+
+    // ── Analytics ───────────────────────────────────────────────────────────────
+    const total    = ADMINS_DB.total    || 0;
+    const active   = ADMINS_DB.active   || 0;
+    const inactive = ADMINS_DB.inactive || 0;
+
+    // Chart.js defaults
+    Chart.defaults.font.family = "'Poppins', sans-serif";
+    Chart.defaults.font.size   = 12;
+    Chart.defaults.color       = '#6b7280';
+    Chart.defaults.plugins.legend.labels.usePointStyle    = true;
+    Chart.defaults.plugins.legend.labels.pointStyleWidth  = 10;
+    Chart.defaults.plugins.legend.labels.padding          = 16;
+    Chart.defaults.plugins.tooltip.padding                = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius           = 10;
+
+    // Use static fallback values if DB has no data yet
+    const dActive   = active   > 0 || inactive > 0 ? active   : 4;
+    const dInactive = active   > 0 || inactive > 0 ? inactive : 1;
+    const dTotal    = dActive + dInactive;
+
+    // 1. Status Doughnut
+    new Chart(document.getElementById('statusDoughnut'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Active', 'Inactive'],
+            datasets: [{
+                data: [dActive, dInactive],
+                backgroundColor: ['rgba(27,122,70,.85)', 'rgba(209,26,42,.80)'],
+                borderColor: ['#fff', '#fff'],
+                borderWidth: 3,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            var t = ctx.dataset.data.reduce(function(a,b){return a+b;}, 0);
+                            var p = t > 0 ? Math.round(ctx.parsed / t * 100) : 0;
+                            return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + p + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Status Horizontal Bar
+    new Chart(document.getElementById('statusBarChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Total', 'Active', 'Inactive'],
+            datasets: [{
+                label: 'Admins',
+                data: [dTotal, dActive, dInactive],
+                backgroundColor: [
+                    'rgba(23,69,94,.75)',
+                    'rgba(27,122,70,.80)',
+                    'rgba(209,26,42,.75)'
+                ],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, precision: 0 },
+                    grid: { color: '#f0f6f9' }
+                },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

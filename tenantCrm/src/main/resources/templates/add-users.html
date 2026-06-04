@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees — CRM</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ── Toggle switch ── */
+        .table-status-cell { display:flex; align-items:center; gap:10px; }
+        .toggle-btn {
+            position:relative; width:40px; height:22px; border-radius:30px;
+            border:none; cursor:pointer; padding:0; flex-shrink:0; transition:background .3s;
+        }
+        .toggle-btn.active   { background:#17455e; }
+        .toggle-btn.inactive { background:#d1d5db; }
+        .toggle-knob {
+            position:absolute; top:3px; left:3px; width:16px; height:16px;
+            border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.2);
+            transition:transform .3s; display:block;
+        }
+        .toggle-btn.active   .toggle-knob { transform:translateX(18px); }
+        .toggle-btn.inactive .toggle-knob { transform:translateX(0); }
+    </style>
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">CRM Admin</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="layout-dashboard"></i></div><h2>Admin</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
+        <h3 th:text="${adminName} ?: 'Admin'">Admin</h3>
+        <p th:text="${adminRole} ?: 'ADMIN'">ADMIN</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="active"><a th:href="@{/admin/employees}"><i data-lucide="users"></i> Employees</a></li>
+        <li><a th:href="@{/admin/projects}"><i data-lucide="folder-open"></i> Projects</a></li>
+        <li><a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+        <li><a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+        <li><a th:href="@{/admin/schedule-meeting}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+        <li><a th:href="@{/admin/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/admin/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div>
+            <h1>Employees</h1>
+            <p class="topbar-subtitle">Manage your company's team members</p>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box"><input type="text" id="userSearch" placeholder="Search employees…"></div>
+            <a th:href="@{/admin/add-employee}" class="btn btn-primary"
+               style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;height:46px;padding:0 20px;">
+                <i data-lucide="user-plus"></i> Add Employee
+            </a>
+            <div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <!-- Flash messages -->
+        <div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+        <div class="toast error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+
+        <!-- Stats -->
+        <div class="stats-row au-stats">
+            <div class="stat-card">
+                <div class="stat-icon green"><i data-lucide="users"></i></div>
+                <div class="stat-info"><h3 th:text="${totalEmployees} ?: '0'">0</h3><p>Total Members</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i data-lucide="user-check"></i></div>
+                <div class="stat-info"><h3 th:text="${activeEmployees} ?: '0'">0</h3><p>Active</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i data-lucide="user-x"></i></div>
+                <div class="stat-info"><h3 th:text="${inactiveEmployees} ?: '0'">0</h3><p>Inactive</p></div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>All Members</h2>
+                    <p th:text="${totalManagers} + ' registered employee(s)'">0 registered employee(s)</p>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:10px;">
+                    <select id="statusFilter" class="select-input"
+                            style="padding:8px 14px;border-radius:8px;border:1.5px solid #e5e7eb;font-size:13px;background:#fff;cursor:pointer;min-width:130px;">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Employee</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="mgr, stat : ${managers}">
+                            <td style="color:#6b7280;font-weight:600;" th:text="${stat.count}">1</td>
+                            <td>
+                                <div class="member-cell">
+                                    <div class="member-avatar" th:text="${#strings.substring(mgr.username, 0, 1).toUpperCase()}">U</div>
+                                    <span style="font-weight:600;" th:text="${mgr.username}">User</span>
+                                </div>
+                            </td>
+                            <td style="color:#6b7280;font-size:13px;" th:text="${mgr.email}">email</td>
+                            <td><span class="role-badge" th:text="${mgr.role} ?: '—'">Role</span></td>
+                            <td>
+                                <div class="table-status-cell">
+                                    <span class="status-badge active"   th:if="${mgr.status == 'active' or mgr.status == null}">Active</span>
+                                    <span class="status-badge inactive" th:unless="${mgr.status == 'active' or mgr.status == null}">Inactive</span>
+                                    <form th:action="@{/admin/toggle-user/{id}(id=${mgr.id})}" method="post"
+                                          style="display:inline-flex;align-items:center;">
+                                        <button type="submit"
+                                                th:class="${mgr.status == 'active' or mgr.status == null} ? 'toggle-btn active' : 'toggle-btn inactive'"
+                                                title="Toggle status">
+                                            <span class="toggle-knob"></span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a th:href="@{/admin/edit-employee/{id}(id=${mgr.id})}" class="btn-action edit">
+                                        <i data-lucide="pencil"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn-action delete"
+                                            th:data-id="${mgr.id}" th:data-name="${mgr.username}"
+                                            onclick="openDeleteModal(this)">
+                                        <i data-lucide="trash-2"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${managers == null or #lists.isEmpty(managers)}">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Employees Yet</h3>
+                                    <p>Click "Add Employee" to create the first one.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DELETE MODAL -->
+        <div class="modal-overlay hidden" id="deleteModalOverlay">
+            <div class="modal">
+                <div class="modal-icon"><i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i></div>
+                <h3 class="modal-title">Delete Employee</h3>
+                <p class="modal-msg">Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?<br>This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
+                    <form id="deleteEmployeeForm" method="post" style="display:contents;">
+                        <button type="submit" class="btn btn-danger"><i data-lucide="trash-2"></i> Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /page-content -->
+</div><!-- /main-wrapper -->
+
+<script>
+    // Sidebar
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click', closeSidebar);
+    if (sidebar)   sidebar.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', function(){ if(window.innerWidth<900) closeSidebar(); }); });
+
+    // Search + Status filter
+    function applyFilters() {
+        var q      = (document.getElementById('userSearch').value || '').toLowerCase();
+        var status = (document.getElementById('statusFilter').value || 'all').toLowerCase();
+        document.querySelectorAll('#usersTable tbody tr').forEach(function(row) {
+            var text   = row.textContent.toLowerCase();
+            var badge  = row.querySelector('.status-badge');
+            var rowSt  = badge ? badge.textContent.trim().toLowerCase() : 'active';
+            var matchQ = q === '' || text.indexOf(q) > -1;
+            var matchS = status === 'all' || rowSt === status;
+            row.style.display = (matchQ && matchS) ? '' : 'none';
+        });
+    }
+    var si = document.getElementById('userSearch');
+    if (si) si.addEventListener('input', applyFilters);
+    var sf = document.getElementById('statusFilter');
+    if (sf) sf.addEventListener('change', applyFilters);
+
+    // Delete modal
+    function openDeleteModal(btn) {
+        document.getElementById('deleteEmployeeName').textContent = btn.getAttribute('data-name');
+        document.getElementById('deleteEmployeeForm').action = '/admin/delete-employee/' + btn.getAttribute('data-id');
+        document.getElementById('deleteModalOverlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModalOverlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    var delOverlay = document.getElementById('deleteModalOverlay');
+    if (delOverlay) delOverlay.addEventListener('click', function(e){ if(e.target===delOverlay) closeDeleteModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDeleteModal(); });
+
+    // Toast auto-dismiss
+    document.querySelectorAll('.toast').forEach(function(t) {
+        requestAnimationFrame(function(){ t.classList.add('toast-show'); });
+        setTimeout(function(){
+            t.classList.remove('toast-show'); t.classList.add('toast-hide');
+            t.addEventListener('transitionend', function(){ t.remove(); }, { once: true });
+        }, 3500);
+    });
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

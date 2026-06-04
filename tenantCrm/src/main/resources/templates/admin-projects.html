@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin — Projects</title>
+	<link rel="stylesheet" th:href="@{/admin.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">CRM
+			Admin</span></div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="layout-dashboard"></i></div>
+			<h2>Admin</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+			</div>
+			<h3 th:text="${adminName} ?: 'Admin'">Admin</h3>
+			<p th:text="${adminRole} ?: 'ADMIN'">ADMIN</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/admin/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/admin/employees}"><i data-lucide="users"></i> Employees</a></li>
+			<li><a th:href="@{/admin/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li><a th:href="@{/admin/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/admin/schedule-meeting}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/admin/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/admin/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1>Projects</h1>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" id="globalSearch" placeholder="Search projects…"></div>
+				<div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A
+				</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+			<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+			<div class="stats-row au-stats">
+				<div class="stat-card">
+					<div class="stat-icon blue"><i data-lucide="folder-open"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${totalProjects} ?: '0'">0</h3>
+						<p>Total Projects</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${activeProjects} ?: '0'">0</h3>
+						<p>Active</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="archive"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${completedProjects} ?: '0'">0</h3>
+						<p>Completed</p>
+					</div>
+				</div>
+			</div>
+			<div class="card au-form-card hidden" id="addProjCard">
+				<div class="card-header">
+					<div>
+						<h2>Create New Project</h2>
+						<p>Fill in the project details</p>
+					</div><button type="button" class="au-close-btn" id="closeProjForm"><i data-lucide="x"></i></button>
+				</div>
+				<form th:action="@{/admin/projects}" method="post">
+					<div class="au-form-grid">
+						<div class="form-group"><label>Project Name</label>
+							<div class="input-wrap"><input type="text" name="name" placeholder="Enter project name"
+									required></div>
+						</div>
+						<div class="form-group"><label>Status</label>
+							<div class="input-wrap"><select name="status" class="select-input" required>
+									<option value="active">Active</option>
+									<option value="on-hold">On Hold</option>
+									<option value="completed">Completed</option>
+								</select></div>
+						</div>
+						<div class="form-group" style="grid-column:1/-1;"><label>Description</label>
+							<div class="input-wrap"><textarea name="description" placeholder="Project description…"
+									rows="3" style="height:auto;padding:12px 16px;resize:vertical;"></textarea></div>
+						</div>
+					</div>
+					<div class="form-actions"><button type="button" class="btn btn-clear"
+							id="cancelProjForm">Cancel</button><button type="submit" class="btn btn-primary"><i
+								data-lucide="plus"></i> Create Project</button></div>
+				</form>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h2>All Projects</h2>
+						<p th:text="${totalProjects} + ' project(s)'">0 project(s)</p>
+					</div><button type="button" class="btn btn-primary" id="openProjForm"><i data-lucide="plus"></i> New
+						Project</button>
+				</div>
+				<div class="table-wrap">
+					<table id="projTable">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Project Name</th>
+								<th>Description</th>
+								<th>Status</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="proj, stat : ${projects}">
+								<td th:text="${stat.count}">1</td>
+								<td style="font-weight:600;" th:text="${proj.name}">Project</td>
+								<td style="color:#6b7280;font-size:13px;" th:text="${proj.description} ?: '—'">—</td>
+								<td><span class="status-badge active"
+										th:if="${proj.status == 'active'}">Active</span><span class="status-badge"
+										style="background:#fce9d8;color:#b45309;" th:if="${proj.status == 'on-hold'}">On
+										Hold</span><span class="status-badge" style="background:#e9e2ff;color:#5b21b6;"
+										th:if="${proj.status == 'completed'}">Completed</span></td>
+								<td>
+									<div class="action-btns">
+										<form th:action="@{/admin/projects/delete/{id}(id=${proj.id})}" method="post"
+											style="display:inline;" onsubmit="return confirm('Delete this project?')">
+											<button type="submit" class="action-btn delete-btn"><i
+													data-lucide="trash-2"></i> Delete</button></form>
+									</div>
+								</td>
+							</tr>
+							<tr th:if="${projects == null or #lists.isEmpty(projects)}">
+								<td colspan="5">
+									<div class="empty-state"><i data-lucide="folder-open"
+											style="width:48px;height:48px;opacity:.3;"></i>
+										<h3>No Projects Yet</h3>
+										<p>Click "New Project" to create one.</p>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		var card = document.getElementById('addProjCard');
+		document.getElementById('openProjForm').addEventListener('click', function () {card.classList.remove('hidden'); card.scrollIntoView({behavior: 'smooth', block: 'start'});});
+		document.getElementById('closeProjForm').addEventListener('click', function () {card.classList.add('hidden');});
+		document.getElementById('cancelProjForm').addEventListener('click', function () {card.classList.add('hidden');});
+		var gs = document.getElementById('globalSearch'); if (gs) gs.addEventListener('input', function () {var q = this.value.toLowerCase(); document.querySelectorAll('#projTable tbody tr').forEach(r => {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});});
+		document.querySelectorAll('.toast').forEach(function (t) {requestAnimationFrame(function () {t.classList.add('toast-show');}); setTimeout(function () {t.classList.remove('toast-show'); t.classList.add('toast-hide'); t.addEventListener('transitionend', function () {t.remove();}, {once: true});}, 3500);});
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

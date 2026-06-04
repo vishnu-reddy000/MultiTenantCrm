@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager — Reports</title>
+	<link rel="stylesheet" th:href="@{/manager.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body>
+	<div class="mobile-topbar"><button class="hamburger"
+			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Manager</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="briefcase"></i></div>
+			<h2>Manager</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			<h3 th:text="${managerName} ?: 'Manager'">Manager</h3>
+			<p>Manager</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/manager/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/manager/team}"><i data-lucide="users"></i> My Team</a></li>
+			<li><a th:href="@{/manager/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+			<li class="active"><a th:href="@{/manager/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+			<li><a th:href="@{/manager/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li><a th:href="@{/manager/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
+				Logout</button></a>
+	</div>
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1>Reports</h1>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" placeholder="Search…"></div>
+				<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
+			</div>
+		</div>
+		<div class="page-content">
+			<div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i data-lucide="users"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${teamCount} ?: '0'">0</h3>
+						<p>Team Members</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i data-lucide="folder-open"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${projectCount} ?: '0'">0</h3>
+						<p>Projects</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="check-square"></i></div>
+					<div class="stat-info">
+						<h3 th:text="${taskCount} ?: '0'">0</h3>
+						<p>Tasks</p>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h2>Team Summary</h2>
+						<p>Overview of your team's performance</p>
+					</div>
+				</div>
+				<div class="summary-list">
+					<div class="summary-row"><span class="summary-label">Team Members</span><span class="summary-value"
+							th:text="${teamCount} ?: '0'">0</span></div>
+					<div class="summary-row"><span class="summary-label">Active Projects</span><span
+							class="summary-value" th:text="${projectCount} ?: '0'">0</span></div>
+					<div class="summary-row"><span class="summary-label">Total Tasks</span><span class="summary-value"
+							th:text="${taskCount} ?: '0'">0</span></div>
+					<div class="summary-row"><span class="summary-label">Overdue Tasks</span><span class="summary-value"
+							th:text="${overdueTasks} ?: '0'">0</span></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		lucide.createIcons();
+	</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

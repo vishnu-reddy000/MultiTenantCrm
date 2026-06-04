@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Employee — Leave Request</title>
+	<link rel="stylesheet" th:href="@{/employee.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		.leave-content-grid {
+			display: grid;
+			grid-template-columns: 1fr 360px;
+			gap: 20px;
+			align-items: start;
+		}
+
+		.lf-group {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			margin-bottom: 16px;
+		}
+
+		.lf-group:last-child {
+			margin-bottom: 0;
+		}
+
+		.lf-group label {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-secondary, #6b7280);
+			text-transform: uppercase;
+			letter-spacing: .4px;
+		}
+
+		.lf-group select,
+		.lf-group input[type=date],
+		.lf-group textarea {
+			background: var(--input-bg, #f9fafb);
+			border: 1px solid var(--border-color, #e5e7eb);
+			color: var(--text-primary, #111827);
+			padding: 9px 13px;
+			border-radius: 8px;
+			font-size: 13px;
+			outline: none;
+			width: 100%;
+			font-family: inherit;
+			transition: border-color .15s;
+		}
+
+		.lf-group select:focus,
+		.lf-group input[type=date]:focus,
+		.lf-group textarea:focus {
+			border-color: var(--primary-color, #7c3aed);
+			box-shadow: 0 0 0 3px var(--primary-light, rgba(124, 58, 237, .1));
+		}
+
+		.lf-group textarea {
+			resize: vertical;
+			min-height: 90px;
+			line-height: 1.6;
+		}
+
+		.lf-date-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 16px;
+		}
+
+		.lf-date-row .lf-group {
+			margin-bottom: 0;
+		}
+
+		.lf-days-info {
+			display: none;
+			margin-top: -8px;
+			margin-bottom: 16px;
+			padding: 8px 13px;
+			background: var(--primary-light, rgba(124, 58, 237, .08));
+			border-left: 3px solid var(--primary-color, #7c3aed);
+			border-radius: 0 8px 8px 0;
+			font-size: 12px;
+			color: var(--primary-color, #7c3aed);
+			font-weight: 600;
+		}
+
+		.lf-upload-zone {
+			border: 1.5px dashed var(--border-color, #e5e7eb);
+			border-radius: 8px;
+			padding: 22px 16px;
+			text-align: center;
+			cursor: pointer;
+			transition: border-color .15s, background .15s;
+			background: var(--input-bg, #f9fafb);
+			display: block;
+		}
+
+		.lf-upload-zone:hover {
+			border-color: var(--primary-color, #7c3aed);
+			background: var(--primary-light, rgba(124, 58, 237, .04));
+		}
+
+		.lf-upload-zone input[type=file] {
+			display: none;
+		}
+
+		.leave-rejection-note {
+			margin-top: 8px;
+			padding: 8px 12px;
+			background: rgba(248, 113, 113, 0.1);
+			border: 1px solid rgba(248, 113, 113, 0.3);
+			border-radius: 8px;
+			color: #991b1b;
+			font-size: 12px;
+			line-height: 1.5;
+		}
+
+		.leave-rejection-note strong {
+			display: block;
+			margin-bottom: 3px;
+			font-size: 11px;
+			text-transform: uppercase;
+			letter-spacing: .3px;
+			color: #b91c1c;
+		}
+
+		.lf-upload-icon {
+			width: 28px;
+			height: 28px;
+			color: var(--text-muted, #9ca3af);
+			margin: 0 auto 8px;
+			display: block;
+		}
+
+		.lf-upload-zone p {
+			font-size: 13px;
+			color: var(--text-secondary, #6b7280);
+		}
+
+		.lf-upload-zone span {
+			font-size: 11px;
+			color: var(--text-muted, #9ca3af);
+			margin-top: 3px;
+			display: block;
+		}
+
+		.lf-file-preview {
+			display: none;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 13px;
+			background: var(--input-bg, #f9fafb);
+			border-radius: 8px;
+			border: 1px solid var(--border-color, #e5e7eb);
+			margin-top: 8px;
+		}
+
+		.lf-file-preview svg {
+			width: 16px;
+			height: 16px;
+			color: var(--text-secondary, #6b7280);
+			flex-shrink: 0;
+		}
+
+		.lf-file-preview span {
+			font-size: 12px;
+			color: var(--text-primary, #111827);
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.lf-file-preview button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 2px;
+			color: var(--text-muted, #9ca3af);
+			display: flex;
+		}
+
+		.lf-file-preview button:hover {
+			color: #ef4444;
+		}
+
+		.lf-optional {
+			font-size: 10px;
+			color: var(--text-muted, #9ca3af);
+			background: var(--border-light, #f3f4f6);
+			padding: 2px 7px;
+			border-radius: 4px;
+			margin-left: 6px;
+			font-weight: 400;
+			letter-spacing: .2px;
+			text-transform: none;
+			vertical-align: middle;
+		}
+
+		.lf-submit-btn {
+			width: 100%;
+			padding: 11px;
+			background: var(--primary-color, #7c3aed);
+			color: #fff;
+			border: none;
+			border-radius: 8px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			margin-top: 20px;
+			transition: opacity .15s;
+			letter-spacing: .3px;
+		}
+
+		.lf-submit-btn:hover {
+			opacity: .88;
+		}
+
+		.lf-error {
+			border-color: #ef4444 !important;
+		}
+
+		.lf-form-body {
+			padding: 20px;
+		}
+
+		@media (max-width: 900px) {
+			.leave-content-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 540px) {
+			.lf-date-row {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+		<span class="mobile-title">Employee</span>
+	</div>
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-logo">
+			<div class="logo-icon"><i data-lucide="user"></i></div>
+			<h2>Employee</h2>
+		</div>
+		<div class="profile-box">
+			<div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			<h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+			<p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+		</div>
+		<ul class="sidebar-menu">
+			<li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+			<li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+			<li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+			<li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+			<li class="active"><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+			<li><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+			<li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+			<li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+		</ul>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+		</a>
+	</div>
+
+	<div class="main-wrapper">
+		<div class="topbar">
+			<h1>Leave Request</h1>
+			<div class="topbar-right">
+				<div class="search-box"><input type="text" placeholder="Search…"></div>
+				<div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
+			<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+			<!-- Stats Row -->
+			<div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i data-lucide="file-text"></i></div>
+					<div class="stat-info">
+						<h3 id="statPending" th:text="${pendingLeaves} ?: '0'">0</h3>
+						<p>Pending</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+					<div class="stat-info">
+						<h3 id="statApproved" th:text="${approvedLeaves} ?: '0'">0</h3>
+						<p>Approved</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i data-lucide="x-circle"></i></div>
+					<div class="stat-info">
+						<h3 id="statRejected" th:text="${rejectedLeaves} ?: '0'">0</h3>
+						<p>Rejected</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Two-column grid: Form + History -->
+			<div class="leave-content-grid">
+
+				<!-- LEFT: New Leave Request Form -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>New Leave Request</h2>
+							<p>Fill in the details below to submit your leave</p>
+						</div>
+					</div>
+					<form class="lf-form-body" id="leaveForm" th:action="@{/employee/leaves}" method="post"
+						enctype="multipart/form-data">
+
+						<!-- Leave Type -->
+						<div class="lf-group">
+							<label>Leave Type</label>
+							<select id="lfType" name="type" required>
+								<option value="" disabled selected>Select leave type…</option>
+								<option value="Sick Leave">Sick Leave</option>
+								<option value="Casual Leave">Casual Leave</option>
+								<option value="Annual Leave">Annual Leave</option>
+								<option value="Maternity Leave">Maternity Leave</option>
+								<option value="Paternity Leave">Paternity Leave</option>
+								<option value="Emergency Leave">Emergency Leave</option>
+								<option value="Work From Home">Work From Home</option>
+								<option value="Compensatory Leave">Compensatory Leave</option>
+							</select>
+						</div>
+
+						<!-- From / To Date -->
+						<div class="lf-date-row">
+							<div class="lf-group">
+								<label>From Date</label>
+								<input type="date" id="lfFrom" name="fromDate" required>
+							</div>
+							<div class="lf-group">
+								<label>To Date</label>
+								<input type="date" id="lfTo" name="toDate" required>
+							</div>
+						</div>
+
+						<!-- Duration badge -->
+						<div class="lf-days-info" id="lfDaysInfo"></div>
+
+						<!-- Reason -->
+						<div class="lf-group">
+							<label>Reason</label>
+							<textarea id="lfReason" name="reason" required
+								placeholder="Briefly describe the reason for your leave…"></textarea>
+						</div>
+
+						<!-- Attachment -->
+						<div class="lf-group">
+							<label>Attachment <span class="lf-optional">Optional</span></label>
+							<label class="lf-upload-zone" id="lfUploadZone" for="lfFile">
+								<svg class="lf-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.5">
+									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+									<polyline points="17 8 12 3 7 8" />
+									<line x1="12" y1="3" x2="12" y2="15" />
+								</svg>
+								<p>Click or drag file to upload</p>
+								<span>PDF, JPG, PNG — max 5MB</span>
+								<input type="file" id="lfFile" name="attachment" accept=".pdf,.jpg,.jpeg,.png">
+							</label>
+							<div class="lf-file-preview" id="lfPreview">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+									<polyline points="14 2 14 8 20 8" />
+								</svg>
+								<span id="lfFileName"></span>
+								<button id="lfClearFile" type="button" title="Remove file">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										width="14" height="14">
+										<line x1="18" y1="6" x2="6" y2="18" />
+										<line x1="6" y1="6" x2="18" y2="18" />
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<button class="lf-submit-btn" id="lfSubmit" type="submit">Submit Leave Request</button>
+					</form>
+				</div>
+
+				<!-- RIGHT: Leave History -->
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2>My Leave Requests</h2>
+							<p>Recent requests</p>
+						</div>
+					</div>
+
+					<!-- Server-rendered existing requests -->
+					<div id="lfHistory" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+						<div th:each="req : ${leaveRequests}" class="leave-item" style="display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;">
+							<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+								<div>
+									<div class="leave-type" th:text="${req.type}" style="font-weight:600;font-size:13px;color:#111827;">Sick Leave</div>
+									<div class="leave-date" th:text="${req.dateRange}" style="font-size:12px;color:#6b7280;margin-top:2px;">Apr 10–12</div>
+								</div>
+								<span class="leave-status" th:text="${req.status}"
+									th:style="${req.status == 'Approved'} ? 'background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;' :
+									          (${req.status == 'Rejected'} ? 'background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;' :
+									          'background:#fef3c7;color:#b45309;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;')">Pending</span>
+							</div>
+							<div class="leave-rejection-note"
+								th:if="${req.status == 'Rejected' and req.rejectionMessage != null and req.rejectionMessage != ''}">
+								<strong>HR Reason:</strong>
+								<span th:text="${req.rejectionMessage}">Reason from HR</span>
+							</div>
+						</div>
+						<div th:if="${leaveRequests == null or #lists.isEmpty(leaveRequests)}" class="empty-state"
+							id="lfEmptyState" style="padding:40px;">
+							<i data-lucide="file-text" style="width:48px;height:48px;opacity:.3;"></i>
+							<h3>No Leave Requests</h3>
+							<p>Your leave requests will appear here.</p>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script>
+		/* ---------- Sidebar ---------- */
+		var hamburger = document.getElementById('hamburgerBtn'),
+			sidebar = document.getElementById('sidebar'),
+			overlay = document.getElementById('sidebarOverlay');
+		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
+		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		if (hamburger) hamburger.addEventListener('click', openSidebar);
+		if (overlay) overlay.addEventListener('click', closeSidebar);
+		lucide.createIcons();
+
+		/* ---------- Leave Form Logic ---------- */
+		var lfType = document.getElementById('lfType');
+		var lfFrom = document.getElementById('lfFrom');
+		var lfTo = document.getElementById('lfTo');
+		var lfReason = document.getElementById('lfReason');
+		var lfFile = document.getElementById('lfFile');
+		var lfPreview = document.getElementById('lfPreview');
+		var lfFileName = document.getElementById('lfFileName');
+		var lfDaysInfo = document.getElementById('lfDaysInfo');
+		var lfHistory = document.getElementById('lfHistory');
+		var lfEmptyState = document.getElementById('lfEmptyState');
+
+		/* File upload */
+		lfFile.addEventListener('change', function () {
+			if (!this.files.length) return;
+			lfFileName.textContent = this.files[0].name;
+			lfPreview.style.display = 'flex';
+		});
+		document.getElementById('lfClearFile').addEventListener('click', function (e) {
+			e.preventDefault(); e.stopPropagation();
+			lfFile.value = '';
+			lfPreview.style.display = 'none';
+		});
+
+		/* Date duration calculator */
+		function calcDays() {
+			if (!lfFrom.value || !lfTo.value) {lfDaysInfo.style.display = 'none'; return;}
+			var days = Math.round((new Date(lfTo.value) - new Date(lfFrom.value)) / 864e5) + 1;
+			if (days < 1) {lfDaysInfo.style.display = 'none'; return;}
+			lfDaysInfo.textContent = 'Duration: ' + days + ' day' + (days > 1 ? 's' : '');
+			lfDaysInfo.style.display = 'block';
+		}
+		lfFrom.addEventListener('change', calcDays);
+		lfTo.addEventListener('change', calcDays);
+
+		/* Validation helper */
+		function markError(el, hasError) {
+			el.classList[hasError ? 'add' : 'remove']('lf-error');
+		}
+
+		/* Format date */
+		function fmtDate(str) {
+			return new Date(str).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+		}
+		/* Submit validation */
+		document.getElementById('leaveForm').addEventListener('submit', function (e) {
+			var type = lfType.value;
+			var from = lfFrom.value;
+			var to = lfTo.value;
+			var reason = lfReason.value.trim();
+			var valid = true;
+
+			markError(lfType, !type); if (!type) valid = false;
+			markError(lfFrom, !from); if (!from) valid = false;
+			markError(lfTo, !to); if (!to) valid = false;
+			markError(lfReason, !reason); if (!reason) valid = false;
+			if (!valid) e.preventDefault();
+		});
+
+		document.querySelectorAll('.toast').forEach(function (t) {
+			requestAnimationFrame(function () {t.classList.add('toast-show');});
+			setTimeout(function () {
+				t.classList.remove('toast-show');
+				t.classList.add('toast-hide');
+				t.addEventListener('transitionend', function () {t.remove();}, {once: true});
+			}, 3500);
+		});</script>
+	<script th:src="@{/auth.js}"></script>
+</body>
+
+</html>

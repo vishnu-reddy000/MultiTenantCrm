@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee — Meetings</title>
+    <link rel="stylesheet" th:href="@{/employee.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ── Meeting type badges ── */
+        .badge-online   { background: #dcecf5; color: #17455e; }
+        .badge-inperson { background: #dff5ea; color: #1b7a46; }
+        .badge-hybrid   { background: #e9e2ff; color: #5b21b6; }
+
+        /* ── Meetings table card ── */
+        .meetings-table-card {
+            background: white;
+            border-radius: 22px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .meetings-table-card .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 26px 18px;
+            border-bottom: 1px solid #edf3f6;
+        }
+
+        .meetings-table-card .card-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #163647;
+            margin: 0;
+        }
+
+        .meetings-table-card .card-header p {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 3px;
+            margin-bottom: 0;
+        }
+
+        .card-header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: #dff5ea;
+            color: #1b7a46;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── Join button ── */
+        .btn-join {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            background: #17455e; color: white; text-decoration: none;
+            border: none; cursor: pointer; transition: background .18s, transform .15s;
+            white-space: nowrap;
+        }
+        .btn-join:hover { background: #1e5a7a; transform: translateY(-1px); }
+        .btn-join i[data-lucide] { width: 13px; height: 13px; }
+
+        .btn-join-disabled {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            background: #f3f4f6; color: #9ca3af; cursor: not-allowed; white-space: nowrap;
+        }
+        .btn-join-disabled i[data-lucide] { width: 13px; height: 13px; }
+
+        /* ── View Participants button ── */
+        .btn-participants {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            background: #e9f0f5;
+            color: #17455e;
+            border: 1.5px solid #c8dfe9;
+            cursor: pointer;
+            transition: background .18s, border-color .18s, transform .15s;
+            white-space: nowrap;
+        }
+        .btn-participants:hover {
+            background: #dcecf5;
+            border-color: #17455e;
+            transform: translateY(-1px);
+        }
+        .btn-participants i[data-lucide] { width: 12px; height: 12px; }
+
+        /* ── Participants cell ── */
+        .participants-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* ── Participants modal list ── */
+        .participants-modal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .participants-modal-list::-webkit-scrollbar { width: 4px; }
+        .participants-modal-list::-webkit-scrollbar-track { background: transparent; }
+        .participants-modal-list::-webkit-scrollbar-thumb { background: #d1dce3; border-radius: 4px; }
+        .pm-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            background: #f7fbfd;
+            border: 1.5px solid #e5edf2;
+        }
+        .pm-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #17455e; color: white;
+            font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .pm-name { font-size: 13px; font-weight: 600; color: #163647; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 9000;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal {
+            background: white; border-radius: 22px;
+            padding: 36px 32px 28px;
+            max-width: 420px; width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            text-align: center;
+        }
+        .modal-title { font-size: 19px; font-weight: 700; color: #163647; margin-bottom: 10px; }
+        .modal-actions { display: flex; justify-content: center; gap: 12px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            border: none; height: 46px; padding: 0 22px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; font-family: 'Poppins', sans-serif;
+            cursor: pointer; transition: background .2s, transform .15s;
+            white-space: nowrap; text-decoration: none;
+        }
+        .btn-clear {
+            background: #f3f8fb; color: #4b6a7a; border: 1.5px solid #e5edf2;
+        }
+        .btn-clear:hover { background: #e8f2f8; }
+    </style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <span class="mobile-title">Employee</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="user"></i></div>
+        <h2>Employee</h2>
+    </div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>
+        <li><a th:href="@{/employee/tasks}"><i data-lucide="check-square"></i> My Tasks</a></li>
+        <li><a th:href="@{/employee/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+        <li><a th:href="@{/employee/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
+        <li class="active"><a th:href="@{/employee/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+        <li><a th:href="@{/employee/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+        <li><a th:href="@{/employee/settings}"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+    <a href="#" data-logout style="text-decoration:none;">
+        <button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+    </a>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div>
+            <h1>My Meetings</h1>
+            <p class="topbar-subtitle">Meetings you have been invited to</p>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box">
+                <input type="text" id="meetingSearch" placeholder="Search meetings…">
+            </div>
+            <div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+        <!-- Toasts -->
+        <div class="toast success" th:if="${successMessage}">
+            <i data-lucide="check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div class="toast error" th:if="${errorMessage}">
+            <i data-lucide="alert-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- ── Meetings Table Card ── -->
+        <div class="meetings-table-card">
+            <div class="card-header">
+                <div>
+                    <h2>Scheduled Meetings</h2>
+                    <p th:text="${meetings != null} ? (${#lists.size(meetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
+                </div>
+                <div class="card-header-icon">
+                    <i data-lucide="calendar-check" style="width:18px;height:18px;"></i>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="meetingsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                            <th>Type</th>
+                            <th>Participants</th>
+                            <th>Join</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m, stat : ${meetings}">
+                            <td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1</td>
+                            <td>
+                                <span style="font-weight:600;font-size:14px;color:#163647;" th:text="${m.title}">Title</span>
+                            </td>
+                            <td>
+                                <span style="font-size:13px;color:#4b6a7a;font-weight:500;"
+                                    th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</span>
+                            </td>
+                            <td>
+                                <span style="font-size:13px;color:#4b6a7a;font-weight:500;"
+                                    th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</span>
+                            </td>
+                            <td>
+                                <span style="font-size:13px;color:#6b7280;"
+                                    th:text="${m.duration != null} ? (${m.duration} + ' min') : '—'">—</span>
+                            </td>
+                            <td>
+                                <span class="status-badge badge-online"   th:if="${m.meetingType == 'ONLINE'}">Online</span>
+                                <span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
+                                <span class="status-badge badge-hybrid"   th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
+                            </td>
+                            <td>
+                                <div class="participants-cell">
+                                    <button type="button" class="btn-participants"
+                                        th:if="${m.participants != null and !#strings.isEmpty(m.participants)}"
+                                        th:attr="data-participants=${m.participants}"
+                                        onclick="openParticipantsModal(this)">
+                                        <i data-lucide="users"></i>
+                                        View Participants
+                                    </button>
+                                    <span th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
+                                </div>
+                            </td>
+                            <td>
+                                <th:block th:with="
+                                    isToday=${m.meetingDate != null and m.meetingDate.equals(T(java.time.LocalDate).now())},
+                                    hasStarted=${m.meetingTime != null and !m.meetingTime.isAfter(T(java.time.LocalTime).now())},
+                                    hasUrl=${m.location != null and (#strings.startsWith(m.location,'http://') or #strings.startsWith(m.location,'https://'))}">
+                                    <a th:if="${isToday and hasStarted and hasUrl}"
+                                       th:href="${m.location}" target="_blank" rel="noopener noreferrer"
+                                       class="btn-join">
+                                        <i data-lucide="video"></i> Join
+                                    </a>
+                                    <span th:if="${isToday and hasStarted and !hasUrl}"
+                                          class="btn-join-disabled"
+                                          th:title="${m.location ?: 'No link provided'}">
+                                        <i data-lucide="map-pin"></i>
+                                        <span th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No Link</span>
+                                    </span>
+                                    <span th:if="${!isToday or !hasStarted}"
+                                          style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;background:#fef3c7;color:#92400e;white-space:nowrap;">
+                                        <i data-lucide="clock" style="width:13px;height:13px;"></i>
+                                        <span th:text="${isToday} ? 'Starting Soon' : 'Scheduled'">Scheduled</span>
+                                    </span>
+                                </th:block>
+                            </td>
+                        </tr>
+                        <tr th:if="${meetings == null or #lists.isEmpty(meetings)}">
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i data-lucide="calendar-clock" style="width:48px;height:48px;opacity:.3;"></i>
+                                    <h3>No Meetings Scheduled</h3>
+                                    <p>You haven't been invited to any meetings yet. Check back later.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="meetings-table-card" style="margin-top:18px;">
+            <div class="card-header">
+                <div>
+                    <h2>Past Meetings / History</h2>
+                    <p th:text="${pastMeetings != null} ? (${#lists.size(pastMeetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
+                </div>
+                <div class="card-header-icon">
+                    <i data-lucide="history" style="width:18px;height:18px;"></i>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="pastMeetingsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Participants</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m, stat : ${pastMeetings}">
+                            <td style="color:#9ca3af;font-weight:600;font-size:13px;" th:text="${stat.count}">1</td>
+                            <td><span style="font-weight:600;font-size:14px;color:#163647;" th:text="${m.title}">Title</span></td>
+                            <td><span style="font-size:13px;color:#4b6a7a;font-weight:500;" th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</span></td>
+                            <td><span style="font-size:13px;color:#4b6a7a;font-weight:500;" th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</span></td>
+                            <td><span class="status-badge badge-online" th:if="${m.meetingType == 'ONLINE'}">Online</span><span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span><span class="status-badge badge-hybrid" th:if="${m.meetingType == 'HYBRID'}">Hybrid</span></td>
+                            <td>
+                                <th:block th:if="${m.participants != null and !#strings.isEmpty(m.participants)}">
+                                    <th:block th:with="parts=${#strings.arraySplit(m.participants, ',')}">
+                                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
+                                            <span th:each="p, iter : ${parts}" th:if="${iter.index < 2}" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#1d4ed8; font-size:12px; font-weight:600;">[[${p.trim()}]]</span>
+                                            <button th:if="${#arrays.length(parts) > 2}" type="button" style="border:none; background:none; color:#2563eb; font-size:12px; font-weight:600; cursor:pointer; padding:0;" th:attr="data-participants=${m.participants}" onclick="openParticipantsModal(this)">View all</button>
+                                        </div>
+                                    </th:block>
+                                </th:block>
+                                <span th:unless="${m.participants != null and !#strings.isEmpty(m.participants)}" style="font-size:13px;color:#6b7280;">—</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${pastMeetings == null or #lists.isEmpty(pastMeetings)}">
+                            <td colspan="6"><div class="empty-state"><i data-lucide="history" style="width:48px;height:48px;opacity:.3;"></i><h3>No Past Meetings</h3><p>Completed meetings will appear here.</p></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /page-content -->
+
+    <!-- Participants Modal -->
+    <div class="modal-overlay hidden" id="participantsModalOverlay">
+        <div class="modal" style="max-width:460px;text-align:left;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;">
+                <div>
+                    <h3 class="modal-title" style="margin:0;text-align:left;">Meeting Participants</h3>
+                    <p style="font-size:12px;color:#6b7280;margin:4px 0 0;" id="participantsModalCount"></p>
+                </div>
+                <button type="button" style="border:none;background:#f3f8fb;color:#6b7280;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="closeParticipantsModal()">&times;</button>
+            </div>
+            <div class="participants-modal-list" id="participantsModalList">No participants</div>
+            <div class="modal-actions" style="margin-top:20px;justify-content:flex-end;">
+                <button type="button" class="btn btn-clear" onclick="closeParticipantsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /main-wrapper -->
+
+<script>
+    // Sidebar
+    var hamburger = document.getElementById('hamburgerBtn');
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebarOverlay');
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow='hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+    if (overlay)   overlay.addEventListener('click',   closeSidebar);
+
+    // Search
+    var ms = document.getElementById('meetingSearch');
+    if (ms) ms.addEventListener('input', function() {
+        var q = this.value.toLowerCase();
+        document.querySelectorAll('#meetingsTable tbody tr, #pastMeetingsTable tbody tr').forEach(function(r) {
+            r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+        });
+    });
+
+    // Toast auto-dismiss
+    document.querySelectorAll('.toast').forEach(function(t) {
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.classList.add('toast-show'); }); });
+        setTimeout(function(){
+            t.classList.remove('toast-show'); t.classList.add('toast-hide');
+            t.addEventListener('transitionend', function(){ t.remove(); }, { once: true });
+        }, 3500);
+    });
+
+    function escapeHtml(text) {
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function openParticipantsModal(btn) {
+        var raw = btn.getAttribute('data-participants') || '';
+        var list = document.getElementById('participantsModalList');
+        var countEl = document.getElementById('participantsModalCount');
+        var items = raw.split(',').map(function(item) { return item.trim(); }).filter(function(item) { return item.length > 0; });
+        if (items.length === 0) {
+            list.innerHTML = '<div style="color:#64748b;text-align:center;padding:16px;">No participants</div>';
+            if (countEl) countEl.textContent = '';
+        } else {
+            if (countEl) countEl.textContent = items.length + ' participant' + (items.length !== 1 ? 's' : '');
+            list.innerHTML = items.map(function(item) {
+                var initial = item.charAt(0).toUpperCase();
+                return '<div class="pm-item"><div class="pm-avatar">' + escapeHtml(initial) + '</div><div class="pm-name">' + escapeHtml(item) + '</div></div>';
+            }).join('');
+        }
+        document.getElementById('participantsModalOverlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeParticipantsModal() {
+        document.getElementById('participantsModalOverlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    var participantsOverlay = document.getElementById('participantsModalOverlay');
+    if (participantsOverlay) participantsOverlay.addEventListener('click', function(e) { if (e.target === participantsOverlay) closeParticipantsModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeParticipantsModal(); });
+
+    lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>
