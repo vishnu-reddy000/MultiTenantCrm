@@ -40,11 +40,11 @@
 			<li th:classappend="${activePage == 'tasks'} ? 'active' : ''">
 				<a th:href="@{/manager/tasks}">&#9989; Tasks</a>
 			</li>
-			<li th:classappend="${activePage == 'reports'} ? 'active' : ''">
-				<a th:href="@{/manager/reports}">&#128196; Reports</a>
-			</li>
 			<li th:classappend="${activePage == 'attendance'} ? 'active' : ''">
 				<a th:href="@{/manager/attendance}">&#128197; Attendance</a>
+			</li>
+			<li th:classappend="${activePage == 'attendance'} ? 'active' : ''">
+				<a th:href="@{/manager/leave}">&#128197; Apply leave</a>
 			</li>
 			<li th:classappend="${activePage == 'settings'} ? 'active' : ''">
 				<a th:href="@{/manager/settings}">&#9881; Settings</a>
