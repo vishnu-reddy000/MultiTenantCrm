@@ -11,7 +11,7 @@ public class AttendanceDay {
 
     private final LocalDate date;
     private final Attendance record;      // null for synthetic days
-    private final String     status;      // "present","late","half-day","absent","weekend","holiday"
+    private final String     status;      // "present","late","half-day","absent","leave","weekend","holiday"
     private final String     holidayName; // non-null only when status == "holiday"
 
     /** Wrap a real attendance record */
@@ -53,6 +53,7 @@ public class AttendanceDay {
     public boolean isReal()     { return record != null; }
     public boolean isWeekend()  { return "weekend".equals(status); }
     public boolean isAbsent()   { return "absent".equals(status); }
+    public boolean isOnLeave()  { return "leave".equals(status); }
     public boolean isHoliday()  { return "holiday".equals(status); }
     public boolean isHalfDay()  { return "half-day".equals(status); }
 
@@ -62,5 +63,8 @@ public class AttendanceDay {
     public String getCheckOutDisplay() { return record != null ? record.getCheckOutDisplay() : "—"; }
     public String getWorkedHours()     { return record != null ? record.getWorkedHours()     : "—"; }
     public String getBreakDuration()   { return record != null ? record.getBreakDuration()   : "—"; }
+    public String getBreakSummary()    { return record != null ? record.getBreakSummary()    : "—"; }
+    public String getBreak1Summary()   { return record != null ? record.getBreak1Summary()   : "—"; }
+    public String getBreak2Summary()   { return record != null ? record.getBreak2Summary()   : "—"; }
     public String getDayType()         { return record != null ? record.getDayType()         : "—"; }
 }

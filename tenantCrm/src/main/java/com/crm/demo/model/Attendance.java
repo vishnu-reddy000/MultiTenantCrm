@@ -106,17 +106,23 @@ public class Attendance {
         return break2End != null ? String.format("%02d:%02d", break2End.getHour(), break2End.getMinute()) : "—";
     }
 
-    /** Total break minutes across both breaks */
+    /** Total break minutes across both breaks, including any active break in progress. */
     public long getTotalBreakMinutes() {
         long mins = 0;
-        if (breakStart != null && breakEnd != null) {
-            long d = java.time.Duration.between(breakStart, breakEnd).toMinutes();
+        java.time.LocalTime now = java.time.LocalTime.now();
+
+        if (breakStart != null) {
+            java.time.LocalTime endTime = breakEnd != null ? breakEnd : now;
+            long d = java.time.Duration.between(breakStart, endTime).toMinutes();
             if (d > 0) mins += d;
         }
-        if (break2Start != null && break2End != null) {
-            long d = java.time.Duration.between(break2Start, break2End).toMinutes();
+
+        if (break2Start != null) {
+            java.time.LocalTime endTime = break2End != null ? break2End : now;
+            long d = java.time.Duration.between(break2Start, endTime).toMinutes();
             if (d > 0) mins += d;
         }
+
         return mins;
     }
 
@@ -124,6 +130,38 @@ public class Attendance {
     public String getBreakDuration() {
         long mins = getTotalBreakMinutes();
         return mins > 0 ? mins + "m" : "—";
+    }
+
+    public String getBreak1Summary() {
+        if (breakStart != null || breakEnd != null) {
+            String start = breakStart != null ? String.format("%02d:%02d", breakStart.getHour(), breakStart.getMinute()) : "—";
+            String end   = breakEnd != null ? String.format("%02d:%02d", breakEnd.getHour(), breakEnd.getMinute()) : "—";
+            return "Break 1: " + start + " - " + end;
+        }
+        return "—";
+    }
+
+    public String getBreak2Summary() {
+        if (break2Start != null || break2End != null) {
+            String start = break2Start != null ? String.format("%02d:%02d", break2Start.getHour(), break2Start.getMinute()) : "—";
+            String end   = break2End != null ? String.format("%02d:%02d", break2End.getHour(), break2End.getMinute()) : "—";
+            return "Break 2: " + start + " - " + end;
+        }
+        return "—";
+    }
+
+    /** Human-readable break timeline rendered as two visible lines. */
+    public String getBreakSummary() {
+        String first = getBreak1Summary();
+        String second = getBreak2Summary();
+
+        if ("—".equals(first) && "—".equals(second)) {
+            return "—";
+        }
+
+        return ("—".equals(first) ? "" : first)
+                + ("—".equals(first) || "—".equals(second) ? "" : "<br/>")
+                + ("—".equals(second) ? "" : second);
     }
 
     /** Worked minutes excluding all breaks (returns -1 if not punched out) */

@@ -107,7 +107,7 @@
 										class="status-badge inactive" th:if="${task.status == 'pending'}">Pending</span>
 								</td>
 								<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: 'â€”'">â€”</td>
-								<td th:text="${task.assignedTo} ?: 'Unassigned'">Unassigned</td><td th:text="${task.createdBy} ?: '—'">—</td>
+								<td th:text="${task.assignedTo} ?: 'Unassigned'">Unassigned</td><td th:text="${task.createdBy} ?: 'ï¿½'">ï¿½</td>
 							</tr>
 							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
 								<td colspan="7">

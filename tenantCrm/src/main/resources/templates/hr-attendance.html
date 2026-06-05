@@ -211,6 +211,8 @@
                         <span class="att-tile-label">Break</span>
                         <span class="att-tile-value"
                               th:text="${todayRecord != null} ? ${todayRecord.breakDuration} : '—'">—</span>
+                        <small style="display:block;color:#6b7280;font-size:11px;margin-top:2px;line-height:1.4;"
+                               th:utext="${todayRecord != null} ? ${todayRecord.breakSummary} : '—'">—</small>
                     </div>
                 </div>
                 <div class="att-summary-tile">
@@ -324,7 +326,7 @@
                                 <span th:unless="${day.real}" style="color:#9ca3af;">—</span>
                             </td>
                             <td style="font-weight:600;color:#17455e;" th:text="${day.workedHours}">—</td>
-                            <td style="font-weight:500;color:#b45309;" th:text="${day.breakDuration}">—</td>
+                            <td style="font-weight:500;color:#b45309;" th:utext="${day.breakSummary}">—</td>
                             <td>
                                 <span th:if="${day.real and day.record.checkOut != null}"
                                       th:class="${day.record.workedMinutes >= 240} ? 'status-badge active' : 'status-badge att-half-day'"

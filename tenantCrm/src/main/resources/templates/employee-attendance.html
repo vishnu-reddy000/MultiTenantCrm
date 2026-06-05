@@ -208,6 +208,8 @@
                         <span class="att-tile-label">Break</span>
                         <span class="att-tile-value"
                               th:text="${todayRecord != null} ? ${todayRecord.breakDuration} : '—'">—</span>
+                        <small style="display:block;color:#6b7280;font-size:11px;margin-top:2px;line-height:1.4;"
+                               th:utext="${todayRecord != null} ? ${todayRecord.breakSummary} : '—'">—</small>
                     </div>
                 </div>
 
@@ -217,7 +219,8 @@
                     </div>
                     <div class="att-tile-body">
                         <span class="att-tile-label">Status</span>
-                        <span class="att-tile-value" th:if="${todayRecord == null}">—</span>
+                        <span class="att-tile-value" th:if="${todayRecord == null and !todayOnLeave}">—</span>
+                        <span class="status-badge inactive" th:if="${todayOnLeave}">On Leave</span>
                         <span class="status-badge active"   th:if="${todayRecord != null and todayRecord.status == 'present'}">Present</span>
                         <span class="status-badge att-late" th:if="${todayRecord != null and todayRecord.status == 'late'}">Late</span>
                         <span class="status-badge inactive" th:if="${todayRecord != null and todayRecord.status == 'absent'}">Absent</span>
@@ -280,6 +283,7 @@
                         <option value="present" th:selected="${filterStatus == 'present'}">Present</option>
                         <option value="late"    th:selected="${filterStatus == 'late'}">Late</option>
                         <option value="absent"  th:selected="${filterStatus == 'absent'}">Absent</option>
+                        <option value="leave"   th:selected="${filterStatus == 'leave'}">On Leave</option>
                         <option value="weekend" th:selected="${filterStatus == 'weekend'}">Weekend</option>
                     </select>
                     <button type="submit"
@@ -307,7 +311,7 @@
                     </thead>
                     <tbody>
                         <tr th:each="day, stat : ${attendanceDays}"
-                            th:classappend="${day.status == 'weekend'} ? 'row-weekend' : (${day.status == 'absent'} ? 'row-absent' : '')">
+                            th:classappend="${day.status == 'weekend'} ? 'row-weekend' : (${day.status == 'absent' or day.status == 'leave'} ? 'row-absent' : '')">
                             <td style="color:#6b7280;font-weight:600;" th:text="${stat.count}">1</td>
                             <td style="font-weight:600;" th:text="${day.date}">2026-01-01</td>
                             <td>
@@ -321,11 +325,12 @@
                                 <span th:unless="${day.real}" style="color:#9ca3af;">—</span>
                             </td>
                             <td style="font-weight:600;color:#17455e;" th:text="${day.workedHours}">—</td>
-                            <td style="font-weight:500;color:#b45309;" th:text="${day.breakDuration}">—</td>
+                            <td style="font-weight:500;color:#b45309;" th:utext="${day.breakSummary}">—</td>
                             <td>
                                 <span class="status-badge active"   th:if="${day.status == 'present'}">Present</span>
                                 <span class="status-badge att-late" th:if="${day.status == 'late'}">Late</span>
                                 <span class="status-badge inactive" th:if="${day.status == 'absent'}">Absent</span>
+                                <span class="status-badge inactive" th:if="${day.status == 'leave'}">On Leave</span>
                                 <span class="status-badge weekend"  th:if="${day.status == 'weekend'}">Weekend</span>
                             </td>
                         </tr>

@@ -1,4 +1,4 @@
-package com.crm.demo.controller;
+                package com.crm.demo.controller;
 
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;
@@ -8,9 +8,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -98,6 +100,14 @@ public class EmployeeController {
         } catch (Exception e) { return ""; }
     }
 
+    private boolean hasApprovedLeave(User user, LocalDate date) {
+        if (user == null || date == null) return false;
+        return leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(user).stream()
+                .anyMatch(leave -> "Approved".equalsIgnoreCase(leave.getStatus())
+                        && !date.isBefore(leave.getFromDate())
+                        && !date.isAfter(leave.getToDate()));
+    }
+
     /**
      * Build a merged day list for the given date range.
      * Priority: holiday > weekend > real record > absent (past weekday with no record).
@@ -105,9 +115,26 @@ public class EmployeeController {
      */
     private List<AttendanceDay> buildDayList(List<Attendance> records,
                                              LocalDate from, LocalDate to,
-                                             Map<LocalDate, String> holidays) {
+                                             Map<LocalDate, String> holidays,
+                                             User user) {
         Map<LocalDate, Attendance> byDate = new LinkedHashMap<>();
         for (Attendance a : records) byDate.put(a.getDate(), a);
+
+        Set<LocalDate> approvedLeaveDates = new LinkedHashSet<>();
+        if (user != null) {
+            for (LeaveRequest leave : leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(user)) {
+                if (!"Approved".equalsIgnoreCase(leave.getStatus()) || leave.getFromDate() == null || leave.getToDate() == null) {
+                    continue;
+                }
+                LocalDate cursor = leave.getFromDate();
+                while (!cursor.isAfter(leave.getToDate())) {
+                    if (!cursor.isBefore(from) && !cursor.isAfter(to)) {
+                        approvedLeaveDates.add(cursor);
+                    }
+                    cursor = cursor.plusDays(1);
+                }
+            }
+        }
 
         List<AttendanceDay> days = new ArrayList<>();
         LocalDate today  = LocalDate.now();
@@ -121,6 +148,8 @@ public class EmployeeController {
                     days.add(new AttendanceDay(cursor, "weekend"));
                 } else if (byDate.containsKey(cursor)) {
                     days.add(new AttendanceDay(byDate.get(cursor)));
+                } else if (approvedLeaveDates.contains(cursor)) {
+                    days.add(new AttendanceDay(cursor, "leave"));
                 } else if (!cursor.isAfter(today)) {
                     days.add(new AttendanceDay(cursor, "absent"));
                 }
@@ -369,7 +398,9 @@ public class EmployeeController {
                         (a.getBreakEnd() != null && a.getBreak2Start() == null)).orElse(false);
 
         // Build merged day list (fills absent/weekend/holiday gaps)
-        List<AttendanceDay> allDays = buildDayList(records, filterFrom, filterTo, holidays);
+        boolean todayOnLeave = hasApprovedLeave(emp, today);
+
+        List<AttendanceDay> allDays = buildDayList(records, filterFrom, filterTo, holidays, emp);
 
         // Apply status filter
         List<AttendanceDay> filteredDays = allDays;
@@ -395,6 +426,7 @@ public class EmployeeController {
         model.addAttribute("attendanceDays",    filteredDays);
         model.addAttribute("totalRecords",      filteredDays.size());
         model.addAttribute("todayRecord",       todayOpt.orElse(null));
+        model.addAttribute("todayOnLeave",      todayOnLeave);
         model.addAttribute("punchedIn",         punchedIn);
         model.addAttribute("punchedOut",        punchedOut);
         model.addAttribute("onBreak",           onBreak);
@@ -425,6 +457,11 @@ public class EmployeeController {
             return "redirect:/employee/attendance";
         }
 
+        if (hasApprovedLeave(emp, today)) {
+            ra.addFlashAttribute("errorMessage", "You are on approved leave today. Punch-in is not allowed.");
+            return "redirect:/employee/attendance";
+        }
+
         if (attendanceRepository.findByUserAndDate(emp, today).isPresent()) {
             ra.addFlashAttribute("errorMessage", "You have already punched in today.");
             return "redirect:/employee/attendance";
@@ -452,6 +489,11 @@ public class EmployeeController {
         if (emp == null) return "redirect:/employee/attendance";
 
         LocalDate today = LocalDate.now();
+        if (hasApprovedLeave(emp, today)) {
+            ra.addFlashAttribute("errorMessage", "You are on approved leave today. Punch-out is not allowed.");
+            return "redirect:/employee/attendance";
+        }
+
         Optional<Attendance> opt = attendanceRepository.findByUserAndDate(emp, today);
 
         if (opt.isEmpty()) {
@@ -479,6 +521,11 @@ public class EmployeeController {
         if (emp == null) return "redirect:/employee/attendance";
 
         LocalDate today = LocalDate.now();
+        if (hasApprovedLeave(emp, today)) {
+            ra.addFlashAttribute("errorMessage", "You are on approved leave today. Break actions are not allowed.");
+            return "redirect:/employee/attendance";
+        }
+
         Optional<Attendance> opt = attendanceRepository.findByUserAndDate(emp, today);
 
         if (opt.isEmpty()) {
@@ -521,6 +568,11 @@ public class EmployeeController {
         if (emp == null) return "redirect:/employee/attendance";
 
         LocalDate today = LocalDate.now();
+        if (hasApprovedLeave(emp, today)) {
+            ra.addFlashAttribute("errorMessage", "You are on approved leave today. Break actions are not allowed.");
+            return "redirect:/employee/attendance";
+        }
+
         Optional<Attendance> opt = attendanceRepository.findByUserAndDate(emp, today);
 
         if (opt.isEmpty()) {
