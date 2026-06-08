@@ -1633,7 +1633,6 @@ public class ManagerController {
 		report.setTitle("Performance Review Update - " + reviewMonth);
 
 		// Calculate stats for the report snapshot
-		String tenant = getTenantSegment(manager);
 		java.time.YearMonth ym = java.time.YearMonth.parse(reviewMonth);
 		LocalDate from = ym.atDay(1);
 		LocalDate to   = ym.atEndOfMonth().isAfter(LocalDate.now()) ? LocalDate.now() : ym.atEndOfMonth();
