@@ -15,10 +15,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.crm.demo.model.Meeting;
 import com.crm.demo.model.Project;
+import com.crm.demo.model.Report;
+import com.crm.demo.model.ReportAttachment;
 import com.crm.demo.model.Task;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.MeetingRepository;
 import com.crm.demo.repository.ProjectRepository;
+import com.crm.demo.repository.ReportAttachmentRepository;
+import com.crm.demo.repository.ReportRepository;
 import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.UserRepository;
 import com.crm.demo.service.ProfileUpdateService;
@@ -42,6 +46,12 @@ public class AdminController {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private ReportRepository reportRepository;
+
+	@Autowired
+	private ReportAttachmentRepository reportAttachmentRepository;
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -379,7 +389,44 @@ public class AdminController {
 		model.addAttribute("roleManager",     roleManager);
 		model.addAttribute("roleHr",          roleHr);
 
+		// Manager-sent reports for this tenant
+		User admin = userRepository.findByUsername(username);
+		List<Report> allReports;
+		if (admin != null) {
+			allReports = reportRepository.findByRecipientId(String.valueOf(admin.getId()), tenant);
+		} else {
+			allReports = java.util.Collections.emptyList();
+		}
+		model.addAttribute("allReports",  allReports);
+		model.addAttribute("reportCount", allReports.size());
+
 		return "admin-reports";
+	}
+
+	@GetMapping("/reports/view/{attachmentId}")
+	public org.springframework.http.ResponseEntity<?> viewReportAttachment(
+			@PathVariable Long attachmentId) {
+		ReportAttachment att = reportAttachmentRepository.findById(attachmentId).orElse(null);
+		if (att == null) return org.springframework.http.ResponseEntity.notFound().build();
+		String ct = att.getContentType() != null ? att.getContentType() : "application/octet-stream";
+		return org.springframework.http.ResponseEntity.ok()
+				.header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+						"inline; filename=\"" + att.getOriginalFilename() + "\"")
+				.header(org.springframework.http.HttpHeaders.CONTENT_TYPE, ct)
+				.body(att.getFileData());
+	}
+
+	@GetMapping("/reports/download/{attachmentId}")
+	public org.springframework.http.ResponseEntity<?> downloadReportAttachment(
+			@PathVariable Long attachmentId) {
+		ReportAttachment att = reportAttachmentRepository.findById(attachmentId).orElse(null);
+		if (att == null) return org.springframework.http.ResponseEntity.notFound().build();
+		String ct = att.getContentType() != null ? att.getContentType() : "application/octet-stream";
+		return org.springframework.http.ResponseEntity.ok()
+				.header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+						"attachment; filename=\"" + att.getOriginalFilename() + "\"")
+				.header(org.springframework.http.HttpHeaders.CONTENT_TYPE, ct)
+				.body(att.getFileData());
 	}
 
 	// =========================================================

@@ -7,209 +7,229 @@
 	<link rel="stylesheet" th:href="@{/manager.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 	<style>
-		/* ── Modal Overlay ── */
-		.modal-overlay {
-			display: none;
-			position: fixed;
-			inset: 0;
-			background: rgba(10,30,50,0.55);
-			backdrop-filter: blur(4px);
-			z-index: 9999;
-			align-items: center;
-			justify-content: center;
+		/* ── Grade badge ── */
+		.grade-badge {
+			display:inline-flex;align-items:center;justify-content:center;
+			padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;
 		}
-		.modal-overlay.active { display: flex; }
+		.grade-A-plus,.grade-A { background:#dff5ea;color:#15803d; }
+		.grade-B               { background:#dbeafe;color:#1d4ed8; }
+		.grade-C               { background:#fef9c3;color:#a16207; }
+		.grade-D               { background:#fee2e2;color:#b91c1c; }
 
-		/* ── Modal Box ── */
-		.modal-box {
-			background: #fff;
-			border-radius: 18px;
-			width: 100%;
-			max-width: 640px;
-			max-height: 92vh;
-			overflow-y: auto;
-			box-shadow: 0 24px 60px rgba(0,0,0,.18);
-			animation: modalIn .25s cubic-bezier(.34,1.56,.64,1);
+		/* ── Score bar ── */
+		.score-bar-track { height:6px;background:#e8f0f5;border-radius:99px;overflow:hidden;margin-top:4px; }
+		.score-bar-fill  { height:100%;border-radius:99px; }
+		.bar-blue   { background:linear-gradient(90deg,#60a5fa,#2563eb); }
+		.bar-green  { background:linear-gradient(90deg,#34d399,#059669); }
+		.bar-orange { background:linear-gradient(90deg,#fb923c,#ea580c); }
+
+		/* ── Modal overlay ── */
+		.modal-overlay {
+			display:none;position:fixed;inset:0;
+			background:rgba(10,30,50,.55);backdrop-filter:blur(4px);
+			z-index:9999;align-items:center;justify-content:center;
 		}
+		.modal-overlay.active { display:flex; }
+		.modal-box {
+			background:#fff;border-radius:18px;width:100%;max-width:680px;
+			max-height:92vh;overflow-y:auto;
+			box-shadow:0 24px 60px rgba(0,0,0,.18);
+			animation:modalIn .22s ease;
+		}
+		.modal-box-wide { max-width:860px; }
 		@keyframes modalIn {
-			from { opacity:0; transform:translateY(28px) scale(.97); }
-			to   { opacity:1; transform:translateY(0) scale(1); }
+			from { opacity:0;transform:translateY(24px) scale(.97); }
+			to   { opacity:1;transform:translateY(0) scale(1); }
 		}
 		.modal-header {
-			display:flex; align-items:center; justify-content:space-between;
-			padding:22px 28px 16px; border-bottom:1px solid #f0f4f8;
+			display:flex;align-items:center;justify-content:space-between;
+			padding:20px 26px 14px;border-bottom:1px solid #f0f4f8;
 		}
-		.modal-header h2 { font-size:18px; font-weight:700; color:#0f2d4a; margin:0; }
+		.modal-header h2 { font-size:17px;font-weight:700;color:#0f2d4a;margin:0; }
 		.modal-close {
-			background:#f4f7fa; border:none; border-radius:50%; width:36px; height:36px;
-			display:flex; align-items:center; justify-content:center; cursor:pointer;
-			color:#64748b; transition:background .2s,color .2s;
+			background:#f4f7fa;border:none;border-radius:50%;width:34px;height:34px;
+			display:flex;align-items:center;justify-content:center;cursor:pointer;
+			color:#64748b;transition:background .2s,color .2s;flex-shrink:0;
 		}
-		.modal-close:hover { background:#fee2e2; color:#dc2626; }
-		.modal-body { padding:24px 28px; }
+		.modal-close:hover { background:#fee2e2;color:#dc2626; }
+		.modal-body { padding:20px 26px 26px; }
 		.modal-footer {
-			padding:16px 28px 24px; display:flex; gap:12px; justify-content:flex-end;
+			padding:14px 26px 22px;display:flex;gap:10px;justify-content:flex-end;
 			border-top:1px solid #f0f4f8;
 		}
 
-		/* ── Form ── */
-		.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-		.form-group { display:flex; flex-direction:column; gap:6px; }
+		/* ── Detail sections ── */
+		.detail-section { margin-bottom:20px; }
+		.detail-section-title {
+			font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+			color:#94a3b8;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;
+		}
+		.detail-grid {
+			display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+		}
+		.detail-tile {
+			background:#f8fafc;border-radius:10px;padding:10px 12px;
+		}
+		.detail-tile-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:3px; }
+		.detail-tile-value { font-size:18px;font-weight:800;color:#163647;line-height:1; }
+		.detail-tile-sub   { font-size:10px;color:#94a3b8;margin-top:2px; }
+
+		/* ── Score row in detail ── */
+		.score-row { display:flex;flex-direction:column;gap:5px;margin-bottom:8px; }
+		.score-row-label {
+			display:flex;justify-content:space-between;align-items:center;
+			font-size:12px;font-weight:600;color:#475569;
+		}
+
+		/* ── Review section ── */
+		.review-chip {
+			display:flex;align-items:flex-start;gap:10px;
+			background:#dff5ea;border:1px solid #6ee7b7;
+			border-radius:10px;padding:10px 12px;
+		}
+		.review-chip-stars { color:#f59e0b;font-size:14px;letter-spacing:1px;white-space:nowrap; }
+		.review-chip-text  { font-size:12px;color:#166534;line-height:1.5; }
+		.review-chip-meta  { font-size:10px;color:#64748b;margin-top:2px; }
+
+		/* ── Star rating ── */
+		.star-row { display:flex;gap:6px;align-items:center; }
+		.star-btn {
+			background:none;border:none;cursor:pointer;padding:0;
+			color:#d1d5db;font-size:22px;transition:color .15s,transform .1s;line-height:1;
+		}
+		.star-btn:hover,.star-btn.selected { color:#f59e0b;transform:scale(1.15); }
+
+		/* ── Report list in detail ── */
+		.report-row {
+			display:flex;align-items:flex-start;gap:10px;
+			padding:10px 0;border-bottom:1px solid #edf3f6;
+		}
+		.report-row:last-child { border-bottom:none; }
+		.report-icon {
+			width:32px;height:32px;border-radius:10px;
+			background:#eef6fb;color:#1a6b8a;
+			display:flex;align-items:center;justify-content:center;flex-shrink:0;
+		}
+		.report-attach-link {
+			background:none;border:none;cursor:pointer;padding:0;
+			color:#0369a1;font-size:12px;font-weight:600;
+			text-decoration:underline;text-underline-offset:2px;
+			display:inline-flex;align-items:center;gap:4px;
+		}
+
+		/* ── Send report form ── */
+		.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+		.form-group { display:flex;flex-direction:column;gap:6px; }
 		.form-group.full { grid-column:1/-1; }
-		.form-group label {
-			font-size:12px; font-weight:600; text-transform:uppercase;
-			letter-spacing:.5px; color:#64748b;
+		.form-group label { font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#64748b; }
+		.form-group label span.req { color:#ef4444;margin-left:2px; }
+		.form-group input,.form-group select,.form-group textarea {
+			padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:10px;
+			font-size:14px;color:#1e293b;background:#f8fafc;
+			transition:border-color .2s,box-shadow .2s;outline:none;width:100%;box-sizing:border-box;
 		}
-		.form-group label span.req { color:#ef4444; margin-left:2px; }
-		.form-group input,
-		.form-group select,
-		.form-group textarea {
-			padding:10px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
-			font-size:14px; color:#1e293b; background:#f8fafc;
-			transition:border-color .2s,box-shadow .2s; outline:none;
-			width:100%; box-sizing:border-box;
+		.form-group input:focus,.form-group select:focus,.form-group textarea:focus {
+			border-color:#1a6b8a;box-shadow:0 0 0 3px rgba(26,107,138,.12);background:#fff;
 		}
-		.form-group input:focus,
-		.form-group select:focus,
-		.form-group textarea:focus {
-			border-color:#1a6b8a; box-shadow:0 0 0 3px rgba(26,107,138,.12); background:#fff;
+		.form-group textarea { resize:vertical;min-height:90px; }
+		.section-divider {
+			grid-column:1/-1;font-size:11px;font-weight:700;text-transform:uppercase;
+			letter-spacing:1px;color:#94a3b8;padding-top:4px;border-top:1px solid #f1f5f9;margin-top:4px;
 		}
-		.form-group textarea { resize:vertical; min-height:100px; }
+		.err-msg { font-size:11.5px;color:#ef4444;margin-top:2px;display:none; }
+		.err-msg.show { display:block; }
 
 		/* ── Recipient checkboxes ── */
-		.recipient-grid {
-			display:grid; grid-template-columns:1fr 1fr; gap:8px;
-			max-height:180px; overflow-y:auto; padding:4px;
-		}
+		.recipient-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:180px;overflow-y:auto;padding:4px; }
 		.recipient-item {
-			display:flex; align-items:center; gap:8px;
-			padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:10px;
-			cursor:pointer; transition:border-color .18s, background .18s;
+			display:flex;align-items:center;gap:8px;
+			padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;
+			transition:border-color .18s,background .18s;
 		}
-		.recipient-item:has(input:checked) {
-			border-color:#1a6b8a; background:#eef6fb;
-		}
-		.recipient-item input[type="checkbox"] {
-			width:15px; height:15px; accent-color:#1a6b8a;
-			flex-shrink:0; cursor:pointer; border:none; padding:0; background:none;
-		}
+		.recipient-item:has(input:checked) { border-color:#1a6b8a;background:#eef6fb; }
+		.recipient-item input[type="checkbox"] { width:15px;height:15px;accent-color:#1a6b8a;flex-shrink:0;cursor:pointer;border:none;padding:0;background:none; }
 		.recipient-avatar {
-			width:28px; height:28px; border-radius:50%;
+			width:28px;height:28px;border-radius:50%;
 			background:linear-gradient(135deg,#1a6b8a,#0f4f69);
-			color:#fff; font-size:11px; font-weight:700;
-			display:flex; align-items:center; justify-content:center; flex-shrink:0;
+			color:#fff;font-size:11px;font-weight:700;
+			display:flex;align-items:center;justify-content:center;flex-shrink:0;
 		}
-		.recipient-name { font-size:13px; font-weight:600; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+		.recipient-avatar.blue { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
+		.recipient-avatar.purple { background: linear-gradient(135deg,#9333ea,#7e22ce); }
+		.recipient-avatar.orange { background: linear-gradient(135deg,#ea580c,#c2410c); }
+		.recipient-name { font-size:13px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 
 		/* ── File upload ── */
 		.file-upload-area {
-			border:2px dashed #cbd5e1; border-radius:12px; padding:18px;
-			text-align:center; cursor:pointer; position:relative;
-			background:#f8fafc; transition:border-color .2s,background .2s;
+			border:2px dashed #cbd5e1;border-radius:12px;padding:18px;text-align:center;
+			cursor:pointer;position:relative;background:#f8fafc;transition:border-color .2s,background .2s;
 		}
-		.file-upload-area:hover { border-color:#1a6b8a; background:#eef6fb; }
-		.file-upload-area input[type="file"] {
-			position:absolute; inset:0; opacity:0; cursor:pointer;
-			width:100%; height:100%; border:none; padding:0;
-		}
-		.file-upload-area p { margin:0; font-size:13px; color:#64748b; }
-		.file-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+		.file-upload-area:hover { border-color:#1a6b8a;background:#eef6fb; }
+		.file-upload-area input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0; }
+		.file-upload-area p { margin:0;font-size:13px;color:#64748b; }
+		.file-list { margin-top:10px;display:flex;flex-direction:column;gap:6px; }
 		.file-item {
-			display:flex; align-items:center; gap:8px;
-			background:#f0f9ff; border:1px solid #bae6fd;
-			border-radius:8px; padding:7px 12px; font-size:13px; color:#0369a1;
+			display:flex;align-items:center;gap:8px;
+			background:#f0f9ff;border:1px solid #bae6fd;
+			border-radius:8px;padding:7px 12px;font-size:13px;color:#0369a1;
 		}
-		.file-item span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-		.file-item button {
-			background:none; border:none; color:#94a3b8; cursor:pointer;
-			display:flex; align-items:center; padding:0; flex-shrink:0;
-		}
+		.file-item span { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+		.file-item button { background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;padding:0;flex-shrink:0; }
 		.file-item button:hover { color:#ef4444; }
 
 		/* ── Buttons ── */
-		.btn-send-report {
-			display:flex; align-items:center; gap:7px;
-			padding:9px 18px; background:linear-gradient(135deg,#1a6b8a,#0f4f69);
-			color:#fff; border:none; border-radius:10px; font-size:14px;
-			font-weight:700; cursor:pointer; transition:opacity .2s,transform .15s;
-			white-space:nowrap;
+		.btn-primary-action {
+			display:inline-flex;align-items:center;gap:7px;
+			padding:9px 18px;background:linear-gradient(135deg,#1a6b8a,#0f4f69);
+			color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;
+			cursor:pointer;transition:opacity .2s,transform .15s;white-space:nowrap;font-family:inherit;
 		}
-		.btn-send-report:hover { opacity:.9; transform:translateY(-1px); }
-		.btn-cancel {
-			padding:10px 22px; border:1.5px solid #e2e8f0; background:#fff;
-			color:#475569; border-radius:10px; font-size:14px; font-weight:600;
-			cursor:pointer; transition:background .2s;
+		.btn-primary-action:hover { opacity:.9;transform:translateY(-1px); }
+		.btn-cancel-action {
+			padding:10px 22px;border:1.5px solid #e2e8f0;background:#fff;
+			color:#475569;border-radius:10px;font-size:14px;font-weight:600;
+			cursor:pointer;transition:background .2s;font-family:inherit;
 		}
-		.btn-cancel:hover { background:#f8fafc; }
-		.btn-modal-send {
-			padding:10px 26px; background:linear-gradient(135deg,#1a6b8a,#0f4f69);
-			color:#fff; border:none; border-radius:10px; font-size:14px;
-			font-weight:700; cursor:pointer; display:flex; align-items:center;
-			gap:8px; transition:opacity .2s,transform .15s;
-		}
-		.btn-modal-send:hover { opacity:.92; transform:translateY(-1px); }
+		.btn-cancel-action:hover { background:#f8fafc; }
 
-		/* ── Reports table ── */
-		.report-recipients {
-			font-size:12px; color:#64748b; margin-top:2px;
-		}
-		.report-attach-count {
-			display:inline-flex; align-items:center; gap:4px;
-			background:#f0f9ff; border:1px solid #bae6fd;
-			color:#0369a1; padding:2px 8px; border-radius:20px;
-			font-size:11px; font-weight:600;
-		}
-
-		/* ── Preview modal ── */
+		/* ── Preview overlay ── */
 		.preview-overlay {
-			display:none; position:fixed; inset:0;
-			background:rgba(10,30,50,0.72); backdrop-filter:blur(3px);
-			z-index:20000; align-items:center; justify-content:center;
+			display:none;position:fixed;inset:0;
+			background:rgba(10,30,50,.72);backdrop-filter:blur(3px);
+			z-index:20000;align-items:center;justify-content:center;
 		}
 		.preview-overlay.active { display:flex; }
 		.preview-box {
-			background:#fff; border-radius:18px; width:100%; max-width:860px;
-			max-height:92vh; display:flex; flex-direction:column;
+			background:#fff;border-radius:18px;width:100%;max-width:860px;
+			max-height:92vh;display:flex;flex-direction:column;
 			box-shadow:0 24px 60px rgba(0,0,0,.18);
 		}
 
 		/* ── Toast ── */
 		.toast {
-			position:fixed; bottom:30px; right:30px; background:#0f2d4a; color:#fff;
-			padding:13px 22px; border-radius:12px; font-size:14px; font-weight:600;
-			display:flex; align-items:center; gap:10px;
-			box-shadow:0 8px 30px rgba(0,0,0,.18); z-index:99999;
-			opacity:0; transform:translateY(12px); transition:opacity .3s,transform .3s;
-			pointer-events:none;
+			position:fixed;bottom:28px;right:28px;background:#0f2d4a;color:#fff;
+			padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;
+			display:flex;align-items:center;gap:10px;
+			box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:99999;
+			opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;
 		}
-		.toast.show { opacity:1; transform:translateY(0); }
+		.toast.show { opacity:1;transform:translateY(0); }
 		.toast.success { border-left:4px solid #22c55e; }
 		.toast.error   { border-left:4px solid #ef4444; }
 
-		/* ── Section divider ── */
-		.section-divider {
-			grid-column:1/-1; font-size:11px; font-weight:700;
-			text-transform:uppercase; letter-spacing:1px; color:#94a3b8;
-			padding-top:4px; border-top:1px solid #f1f5f9; margin-top:4px;
-		}
-
-		/* ── Error msg ── */
-		.err-msg { font-size:11.5px; color:#ef4444; margin-top:2px; display:none; }
-		.err-msg.show { display:block; }
+		/* table alignment */
+		#reportsTable tbody td { vertical-align:middle; }
 
 		@media (max-width:640px) {
 			.form-grid { grid-template-columns:1fr; }
-			.form-group.full { grid-column:1; }
 			.recipient-grid { grid-template-columns:1fr; }
-			.modal-box { margin:12px; max-height:95vh; }
-			.modal-body { padding:18px; }
-			.modal-header, .modal-footer { padding-left:18px; padding-right:18px; }
+			.detail-grid { grid-template-columns:1fr 1fr; }
 		}
 	</style>
 </head>
 <body>
 
-<!-- ── Mobile Top Bar ── -->
 <div class="mobile-topbar">
 	<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
 	<span class="mobile-title">Manager</span>
@@ -236,6 +256,7 @@
 		<li><a th:href="@{/manager/leaves}"><i data-lucide="file-text"></i> Leave Request</a></li>
 		<li><a th:href="@{/manager/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
 		<li><a th:href="@{/manager/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+		<li><a th:href="@{/manager/performance}"><i data-lucide="bar-chart-2"></i> Performance</a></li>
 		<li><a th:href="@{/manager/settings}"><i data-lucide="settings"></i> Settings</a></li>
 	</ul>
 	<a href="#" data-logout style="text-decoration:none;">
@@ -249,7 +270,7 @@
 		<h1>Reports</h1>
 		<div class="topbar-right">
 			<div class="search-box">
-				<input type="text" id="globalSearch" placeholder="Search reports…">
+				<input type="text" id="globalSearch" placeholder="Search employees…">
 			</div>
 			<div class="user-badge" th:text="${#strings.substring(managerName ?: 'M', 0, 1).toUpperCase()}">M</div>
 		</div>
@@ -279,29 +300,29 @@
 				</div>
 			</div>
 			<div class="stat-card">
-				<div class="stat-icon blue"><i data-lucide="folder-open"></i></div>
-				<div class="stat-info">
-					<h3 th:text="${projectCount} ?: '0'">0</h3>
-					<p>Projects</p>
-				</div>
-			</div>
-			<div class="stat-card">
 				<div class="stat-icon orange"><i data-lucide="send"></i></div>
 				<div class="stat-info">
 					<h3 th:text="${sentReportCount} ?: '0'">0</h3>
 					<p>Reports Sent</p>
 				</div>
 			</div>
+			<div class="stat-card">
+				<div class="stat-icon blue"><i data-lucide="calendar"></i></div>
+				<div class="stat-info">
+					<h3 th:text="${selectedMonth}">—</h3>
+					<p>Current Period</p>
+				</div>
+			</div>
 		</div>
 
-		<!-- Sent Reports Table -->
+		<!-- Employees Table -->
 		<div class="card">
 			<div class="card-header">
 				<div>
-					<h2>Sent Reports</h2>
-					<p th:text="${sentReportCount} + ' report(s) sent'">0 report(s) sent</p>
+					<h2>Team Employee Reports</h2>
+					<p th:text="${#lists.size(perfList)} + ' employee(s) — click any row to view full details'">0 employee(s)</p>
 				</div>
-				<button class="btn-send-report" id="openReportModalBtn">
+				<button class="btn-primary-action" id="openSendReportBtn">
 					<i data-lucide="send" style="width:16px;height:16px;"></i> Send Report
 				</button>
 			</div>
@@ -311,106 +332,100 @@
 					<thead>
 						<tr>
 							<th>#</th>
-							<th>Title</th>
-							<th>Recipients</th>
-							<th>Attachments</th>
-							<th>Sent At</th>
+							<th>Employee</th>
+							<th>Tasks</th>
+							<th>Attendance</th>
+							<th>Overall Score</th>
+							<th>Grade</th>
+							<th>Review</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="report, stat : ${sentReports}">
-							<td th:text="${stat.count}">1</td>
-							<td>
-								<div style="font-weight:600;font-size:14px;" th:text="${report.title}">Title</div>
-								<div style="font-size:12px;color:#64748b;margin-top:2px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-									 th:text="${report.message != null and !#strings.isEmpty(report.message)} ? ${report.message} : '—'">—</div>
-							</td>
-							<td>
-								<div style="font-size:13px;color:#0f2d4a;font-weight:600;" th:text="${report.recipientNames} ?: '—'">—</div>
-							</td>
-							<td>
-								<th:block th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}">
-									<span class="report-attach-count">
-										<i data-lucide="paperclip" style="width:11px;height:11px;"></i>
-										<span th:text="${#lists.size(report.attachments)}">0</span>
-									</span>
-								</th:block>
-								<span th:if="${report.attachments == null or #lists.isEmpty(report.attachments)}"
-									  style="color:#cbd5e1;font-size:13px;">—</span>
-							</td>
-							<td style="color:#6b7280;font-size:13px;" th:text="${report.sentAtFormatted}">—</td>
-							<td>
-								<button type="button"
-										class="view-report-btn"
-										th:data-report-id="${report.id}"
-										th:data-title="${report.title}"
-										th:data-message="${report.message} ?: ''"
-										th:data-recipients="${report.recipientNames} ?: '—'"
-										th:data-sent-at="${report.sentAtFormatted}"
-										onclick="openViewModal(this)"
-										style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#eef2ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;">
-									<i data-lucide="eye" style="width:13px;height:13px;"></i> View
-								</button>
-								<!-- Hidden attachments data for this report -->
-								<div class="report-attachments-data" style="display:none;">
-									<th:block th:each="att : ${report.attachments}">
-										<span class="att-item"
-											  th:data-att-id="${att.id}"
-											  th:data-filename="${att.originalFilename}"
-											  th:data-view-url="@{/manager/reports/view/{id}(id=${att.id})}"
-											  th:data-download-url="@{/manager/reports/download/{id}(id=${att.id})}"
-											  th:data-content-type="${att.contentType}"></span>
-									</th:block>
-								</div>
-							</td>
-						</tr>
-						<tr th:if="${sentReports == null or #lists.isEmpty(sentReports)}">
-							<td colspan="6">
+						<tr th:if="${perfList == null or #lists.isEmpty(perfList)}">
+							<td colspan="8">
 								<div class="empty-state">
-									<i data-lucide="send" style="width:48px;height:48px;opacity:.3;"></i>
-									<h3>No Reports Sent Yet</h3>
-									<p>Click "Send Report" to share a report with your team.</p>
+									<i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
+									<h3>No Team Members</h3>
+									<p>Add employees to your team to see their reports.</p>
 								</div>
 							</td>
 						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-		<!-- Team Members quick overview -->
-		<div class="card" th:if="${teamMembers != null and !#lists.isEmpty(teamMembers)}">
-			<div class="card-header">
-				<div>
-					<h2>Team Members</h2>
-					<p th:text="${#lists.size(teamMembers)} + ' member(s)'">0 member(s)</p>
-				</div>
-			</div>
-			<div class="table-wrap">
-				<table>
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>Username</th>
-							<th>Email</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="member, stat : ${teamMembers}">
+						<tr th:each="perf, stat : ${perfList}" style="cursor:pointer;"
+							th:onclick="|openEmployeeDetail(${perf.employee.id})|"
+							th:attr="data-emp-name=${perf.employee.username}">
 							<td th:text="${stat.count}">1</td>
+							<td>
+								<div class="member-cell">
+									<div class="member-avatar"
+										 th:text="${#strings.substring(perf.employee.username, 0, 1).toUpperCase()}">E</div>
+									<div>
+										<div style="font-weight:600;font-size:13px;" th:text="${perf.employee.username}">—</div>
+										<div style="font-size:11px;color:#94a3b8;" th:text="${perf.employee.email}">—</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<div style="font-size:13px;font-weight:600;" th:text="${perf.doneTasks} + '/' + ${perf.totalTasks}">0/0</div>
+								<div style="font-size:11px;color:#94a3b8;" th:text="${perf.overdueTasks} + ' overdue'">0 overdue</div>
+							</td>
+							<td>
+								<div style="font-size:13px;font-weight:600;" th:text="${perf.presentDays} + ' present'">0</div>
+								<div style="font-size:11px;color:#94a3b8;" th:text="${perf.absentDays} + ' absent · ' + ${perf.leaveDays} + ' leave'">—</div>
+							</td>
 							<td>
 								<div style="display:flex;align-items:center;gap:8px;">
-									<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1a6b8a,#0f4f69);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
-										 th:text="${#strings.substring(member.username,0,1).toUpperCase()}">E</div>
-									<span style="font-weight:600;" th:text="${member.username}">—</span>
+									<div style="flex:1;min-width:60px;">
+										<div class="score-bar-track">
+											<div class="score-bar-fill bar-orange"
+												 th:style="'width:' + ${perf.overallScore} + '%'"></div>
+										</div>
+									</div>
+									<span style="font-size:13px;font-weight:700;color:#163647;min-width:36px;"
+										  th:text="${perf.overallScore} + '%'">0%</span>
 								</div>
 							</td>
-							<td style="color:#64748b;font-size:13px;" th:text="${member.email} ?: '—'">—</td>
 							<td>
-								<span class="status-badge active" th:if="${member.status == 'active'}">Active</span>
-								<span class="status-badge inactive" th:if="${member.status != 'active'}">Inactive</span>
+								<span class="grade-badge"
+									  th:classappend="${perf.grade == 'A+' or perf.grade == 'A'} ? 'grade-A' : (${perf.grade == 'B'} ? 'grade-B' : (${perf.grade == 'C'} ? 'grade-C' : 'grade-D'))"
+									  th:text="${perf.grade}">B</span>
+							</td>
+							<td>
+								<span th:if="${perf.existingReview != null}"
+									  style="color:#f59e0b;font-size:13px;"
+									  th:text="${'★'.repeat(perf.existingReview.rating)}">★★★</span>
+								<span th:if="${perf.existingReview == null}"
+									  style="color:#cbd5e1;font-size:12px;">Not reviewed</span>
+							</td>
+							<td onclick="event.stopPropagation()">
+								<button type="button"
+										style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#eef2ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;"
+										th:onclick="|openEmployeeDetail(${perf.employee.id})|">
+									<i data-lucide="eye" style="width:13px;height:13px;"></i> View
+								</button>
+							</td>
+
+							<!-- Hidden data for modal -->
+							<td style="display:none;" class="emp-detail-data"
+								th:attr="data-emp-id=${perf.employee.id},
+								         data-emp-name=${perf.employee.username},
+								         data-emp-email=${perf.employee.email},
+								         data-total-tasks=${perf.totalTasks},
+								         data-done-tasks=${perf.doneTasks},
+								         data-pending-tasks=${perf.pendingTasks},
+								         data-overdue-tasks=${perf.overdueTasks},
+								         data-task-score=${perf.taskScore},
+								         data-present-days=${perf.presentDays},
+								         data-late-days=${perf.lateDays},
+								         data-leave-days=${perf.leaveDays},
+								         data-absent-days=${perf.absentDays},
+								         data-att-score=${perf.attendanceScore},
+								         data-overall-score=${perf.overallScore},
+								         data-grade=${perf.grade},
+								         data-existing-rating=${perf.existingReview != null ? perf.existingReview.rating : 0},
+								         data-existing-remarks=${perf.existingReview != null ? (perf.existingReview.remarks ?: '') : ''},
+								         data-review-by=${perf.existingReview != null ? perf.existingReview.reviewedBy : ''},
+								         data-review-at=${perf.existingReview != null ? perf.existingReview.reviewedAtFormatted : ''}">
 							</td>
 						</tr>
 					</tbody>
@@ -423,88 +438,205 @@
 
 
 <!-- ════════════════════════════════════════════
+     EMPLOYEE DETAIL MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="empDetailModal" role="dialog" aria-modal="true" style="z-index:10000;">
+	<div class="modal-box modal-box-wide">
+		<div class="modal-header">
+			<h2>
+				<i data-lucide="user" style="width:17px;height:17px;vertical-align:-3px;margin-right:6px;color:#1a6b8a;"></i>
+				<span id="detailEmpName">Employee Details</span>
+			</h2>
+			<div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+				<button type="button" id="detailSendReportBtn"
+						style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#1a6b8a;color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer;">
+					<i data-lucide="send" style="width:12px;height:12px;"></i> Send Report
+				</button>
+				<a id="detailDownloadBtn" href="#" download
+				   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">
+					<i data-lucide="download" style="width:12px;height:12px;"></i> Download PDF
+				</a>
+				<button class="modal-close" onclick="closeEmpDetail()" aria-label="Close">
+					<i data-lucide="x" style="width:16px;height:16px;"></i>
+				</button>
+			</div>
+		</div>
+		<div class="modal-body" id="detailBody">
+
+			<!-- Employee info -->
+			<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+				<div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#17455e,#2f6784);color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+					 id="detailEmpAvatar">E</div>
+				<div>
+					<div style="font-size:16px;font-weight:700;color:#163647;" id="detailEmpNameSub">—</div>
+					<div style="font-size:12px;color:#94a3b8;" id="detailEmpEmail">—</div>
+				</div>
+				<div style="margin-left:auto;">
+					<span class="grade-badge grade-B" id="detailGradeBadge" style="font-size:14px;padding:5px 14px;">B</span>
+				</div>
+			</div>
+
+			<!-- Score bars -->
+			<div class="detail-section">
+				<div class="detail-section-title">Performance Scores</div>
+				<div class="score-row">
+					<div class="score-row-label">
+						<span><i data-lucide="check-square" style="width:12px;height:12px;margin-right:4px;"></i>Task Score</span>
+						<strong id="detailTaskScoreLabel">0%</strong>
+					</div>
+					<div class="score-bar-track"><div class="score-bar-fill bar-blue" id="detailTaskScoreBar" style="width:0%"></div></div>
+				</div>
+				<div class="score-row">
+					<div class="score-row-label">
+						<span><i data-lucide="calendar-check" style="width:12px;height:12px;margin-right:4px;"></i>Attendance Score</span>
+						<strong id="detailAttScoreLabel">0%</strong>
+					</div>
+					<div class="score-bar-track"><div class="score-bar-fill bar-green" id="detailAttScoreBar" style="width:0%"></div></div>
+				</div>
+				<div class="score-row">
+					<div class="score-row-label">
+						<span><i data-lucide="bar-chart-2" style="width:12px;height:12px;margin-right:4px;"></i>Overall Score</span>
+						<strong id="detailOverallScoreLabel">0%</strong>
+					</div>
+					<div class="score-bar-track"><div class="score-bar-fill bar-orange" id="detailOverallScoreBar" style="width:0%"></div></div>
+				</div>
+			</div>
+
+			<!-- Task + Attendance stats -->
+			<div class="detail-section">
+				<div class="detail-section-title">Statistics (This Month)</div>
+				<div class="detail-grid">
+					<div class="detail-tile">
+						<div class="detail-tile-label">Total Tasks</div>
+						<div class="detail-tile-value" id="detailTotalTasks">0</div>
+						<div class="detail-tile-sub" id="detailTaskSub">0 done · 0 pending</div>
+					</div>
+					<div class="detail-tile">
+						<div class="detail-tile-label">Overdue</div>
+						<div class="detail-tile-value" id="detailOverdue" style="color:#b91c1c;">0</div>
+						<div class="detail-tile-sub">tasks past due date</div>
+					</div>
+					<div class="detail-tile">
+						<div class="detail-tile-label">Present Days</div>
+						<div class="detail-tile-value" id="detailPresent">0</div>
+						<div class="detail-tile-sub" id="detailAttSub">0 late · 0 leave</div>
+					</div>
+					<div class="detail-tile">
+						<div class="detail-tile-label">Absent Days</div>
+						<div class="detail-tile-value" id="detailAbsent">0</div>
+						<div class="detail-tile-sub">working days missed</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Performance review -->
+			<div class="detail-section">
+				<div class="detail-section-title">Performance Review</div>
+				<div id="detailReviewArea"></div>
+				<button type="button" id="detailGiveReviewBtn"
+						style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#17455e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+					<i data-lucide="star" style="width:14px;height:14px;"></i>
+					<span id="detailReviewBtnLabel">Give Review</span>
+				</button>
+			</div>
+
+			<!-- Reports sent to this employee -->
+			<div class="detail-section">
+				<div class="detail-section-title">Reports Sent to This Employee</div>
+				<div id="detailReportsArea">
+					<p style="color:#94a3b8;font-size:13px;">No reports sent yet.</p>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
      SEND REPORT MODAL
 ════════════════════════════════════════════ -->
-<div class="modal-overlay" id="sendReportModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="sendReportModal" role="dialog" aria-modal="true" style="z-index:11000;">
 	<div class="modal-box">
 		<div class="modal-header">
 			<h2>
 				<i data-lucide="send" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:#1a6b8a;"></i>
-				Send Report to Team
+				Send Report
 			</h2>
-			<button class="modal-close" id="closeReportModalBtn" aria-label="Close">
+			<button class="modal-close" id="closeSendReportBtn" aria-label="Close">
 				<i data-lucide="x" style="width:16px;height:16px;"></i>
 			</button>
 		</div>
 		<div class="modal-body">
 			<form id="sendReportForm" th:action="@{/manager/reports/send}" method="POST" enctype="multipart/form-data" novalidate>
-				<div class="form-grid">
+				<!-- Performance snapshots (hidden) -->
+				<input type="hidden" name="taskScore"       id="hiddenTaskScore">
+				<input type="hidden" name="attendanceScore" id="hiddenAttScore">
+				<input type="hidden" name="overallScore"    id="hiddenOverallScore">
+				<input type="hidden" name="grade"           id="hiddenGrade">
+				<input type="hidden" name="totalTasks"      id="hiddenTotalTasks">
+				<input type="hidden" name="doneTasks"       id="hiddenDoneTasks">
+				<input type="hidden" name="pendingTasks"    id="hiddenPendingTasks">
+				<input type="hidden" name="overdueTasks"    id="hiddenOverdueTasks">
+				<input type="hidden" name="presentDays"     id="hiddenPresentDays">
+				<input type="hidden" name="absentDays"      id="hiddenAbsentDays">
+				<input type="hidden" name="lateDays"        id="hiddenLateDays">
+				<input type="hidden" name="leaveDays"       id="hiddenLeaveDays">
 
-					<!-- Title -->
+				<div class="form-grid">
 					<div class="form-group full">
 						<label for="reportTitle">Report Title <span class="req">*</span></label>
 						<input type="text" id="reportTitle" name="title" placeholder="e.g. Weekly Performance Summary" maxlength="200" autocomplete="off">
 						<span class="err-msg" id="errTitle">Title is required.</span>
 					</div>
-
-					<!-- Message -->
 					<div class="form-group full">
 						<label for="reportMessage">Message / Details</label>
-						<textarea id="reportMessage" name="message" placeholder="Add details, findings, or instructions for the team…" maxlength="3000"></textarea>
+						<textarea id="reportMessage" name="message" placeholder="Add details, findings, or instructions…" maxlength="3000"></textarea>
 					</div>
-
-					<!-- Divider -->
 					<div class="section-divider">Recipients</div>
-
-					<!-- Recipient checkboxes -->
 					<div class="form-group full">
 						<label>Send To <span class="req">*</span></label>
-						<div th:if="${teamMembers != null and !#lists.isEmpty(teamMembers)}">
+						<div th:if="${allRecipients != null and !#lists.isEmpty(allRecipients)}">
 							<div style="display:flex;gap:8px;margin-bottom:8px;">
-								<button type="button" onclick="selectAllRecipients(true)"
-										style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;cursor:pointer;color:#374151;font-weight:600;">Select All</button>
-								<button type="button" onclick="selectAllRecipients(false)"
-										style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;cursor:pointer;color:#374151;font-weight:600;">Clear</button>
+								<button type="button" onclick="selectAllRecipients(true)" style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;cursor:pointer;color:#374151;font-weight:600;">Select All</button>
+								<button type="button" onclick="selectAllRecipients(false)" style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;cursor:pointer;color:#374151;font-weight:600;">Clear</button>
 							</div>
 							<div class="recipient-grid" id="recipientGrid">
-								<label class="recipient-item" th:each="member : ${teamMembers}">
-									<input type="checkbox" name="recipientIds" th:value="${member.id}">
-									<div class="recipient-avatar" th:text="${#strings.substring(member.username,0,1).toUpperCase()}">E</div>
-									<span class="recipient-name" th:text="${member.username}">Employee</span>
+								<label class="recipient-item" th:each="member : ${allRecipients}">
+									<input type="checkbox" name="recipientIds" th:value="${member.id}" class="recipient-cb" th:attr="data-emp-id=${member.id}">
+									<div class="recipient-avatar"
+										 th:classappend="${member.role == 'HR' ? 'purple' : (member.role == 'ADMIN' ? 'orange' : 'blue')}"
+										 th:text="${#strings.substring(member.username,0,1).toUpperCase()}">E</div>
+									<div style="display:flex;flex-direction:column;">
+										<span class="recipient-name" th:text="${member.username}">Employee</span>
+										<span style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;" th:text="${member.role}">ROLE</span>
+									</div>
 								</label>
 							</div>
 						</div>
-						<div th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}"
+						<div th:if="${allRecipients == null or #lists.isEmpty(allRecipients)}"
 							 style="padding:12px;background:#fef9e7;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">
-							No team members found. Add employees to your team first.
+							No recipients found.
 						</div>
 						<span class="err-msg" id="errRecipients">Please select at least one recipient.</span>
 					</div>
-
-					<!-- Divider -->
 					<div class="section-divider">Attachments (optional)</div>
-
-					<!-- File upload -->
 					<div class="form-group full">
-						<label>Attach Files
-							<span style="font-size:11px;color:#94a3b8;text-transform:none;letter-spacing:0;">(PDF, DOCX, XLSX, PNG, JPG — max 10 MB each, up to 5 files)</span>
-						</label>
+						<label>Attach Files <span style="font-size:11px;color:#94a3b8;text-transform:none;letter-spacing:0;">(max 10 MB each, up to 5)</span></label>
 						<div class="file-upload-area" id="reportDropZone">
-							<input type="file" id="reportFiles" name="attachments" multiple
-								   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.zip,.txt">
+							<input type="file" id="reportFiles" name="attachments" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.txt">
 							<p><i data-lucide="upload-cloud" style="width:28px;height:28px;color:#94a3b8;margin-bottom:6px;display:block;margin-left:auto;margin-right:auto;"></i>
-							   <strong style="color:#1a6b8a;">Click to browse</strong> or drag &amp; drop</p>
+							<strong style="color:#1a6b8a;">Click to browse</strong> or drag &amp; drop</p>
 						</div>
 						<div class="file-list" id="reportFileList"></div>
 						<span class="err-msg" id="errFiles"></span>
 					</div>
-
-				</div><!-- /form-grid -->
+				</div>
 			</form>
 		</div>
 		<div class="modal-footer">
-			<button class="btn-cancel" id="cancelReportModalBtn" type="button">Cancel</button>
-			<button class="btn-modal-send" id="submitReportBtn" type="button">
+			<button class="btn-cancel-action" id="cancelSendReportBtn" type="button">Cancel</button>
+			<button class="btn-primary-action" id="submitReportBtn" type="button">
 				<i data-lucide="send" style="width:15px;height:15px;"></i> Send Report
 			</button>
 		</div>
@@ -513,38 +645,54 @@
 
 
 <!-- ════════════════════════════════════════════
-     VIEW REPORT MODAL
+     REVIEW MODAL
 ════════════════════════════════════════════ -->
-<div class="modal-overlay" id="viewReportModal" role="dialog" aria-modal="true" style="z-index:10000;">
-	<div class="modal-box" style="max-width:680px;">
+<div class="modal-overlay" id="reviewModal" role="dialog" aria-modal="true" style="z-index:12000;">
+	<div class="modal-box" style="max-width:520px;">
 		<div class="modal-header">
 			<h2>
-				<i data-lucide="file-text" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:#1a6b8a;"></i>
-				<span id="viewReportTitle">Report</span>
+				<i data-lucide="star" style="width:17px;height:17px;vertical-align:-3px;margin-right:6px;color:#f59e0b;"></i>
+				<span id="reviewModalTitle">Performance Review</span>
 			</h2>
-			<button class="modal-close" onclick="closeViewModal()" aria-label="Close">
+			<button class="modal-close" onclick="closeReviewModal()" aria-label="Close">
 				<i data-lucide="x" style="width:16px;height:16px;"></i>
 			</button>
 		</div>
 		<div class="modal-body">
-			<div style="display:grid;gap:12px;font-size:13px;color:#334155;">
-				<div>
-					<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;">Sent To</span>
-					<p style="margin:4px 0 0;font-weight:600;color:#0f2d4a;" id="viewReportRecipients">—</p>
+			<form id="reviewForm" th:action="@{/manager/performance/review}" method="POST">
+				<input type="hidden" id="reviewEmpId"  name="employeeId">
+				<input type="hidden" id="reviewMonth"  name="reviewMonth">
+				<input type="hidden" id="reviewRating" name="rating" value="0">
+				<p style="font-size:13px;color:#64748b;margin:0 0 14px;">Month: <strong id="reviewMonthDisplay">—</strong></p>
+				<div style="margin-bottom:16px;">
+					<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:8px;">Rating <span style="color:#ef4444;">*</span></div>
+					<div class="star-row" id="starRow">
+						<button type="button" class="star-btn" data-val="1" onclick="setRating(1)">★</button>
+						<button type="button" class="star-btn" data-val="2" onclick="setRating(2)">★</button>
+						<button type="button" class="star-btn" data-val="3" onclick="setRating(3)">★</button>
+						<button type="button" class="star-btn" data-val="4" onclick="setRating(4)">★</button>
+						<button type="button" class="star-btn" data-val="5" onclick="setRating(5)">★</button>
+						<span id="ratingLabel" style="font-size:13px;color:#64748b;margin-left:8px;">—</span>
+					</div>
+					<span id="errRating" style="display:none;font-size:12px;color:#dc2626;">Please select a rating.</span>
 				</div>
-				<div>
-					<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;">Sent At</span>
-					<p style="margin:4px 0 0;" id="viewReportSentAt">—</p>
+				<div style="margin-bottom:18px;">
+					<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:8px;">Remarks / Feedback</div>
+					<textarea id="reviewRemarks" name="remarks" maxlength="1000" placeholder="Add feedback or observations…"
+							  style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;box-sizing:border-box;background:#f8fafc;transition:border-color .2s;"
+							  onfocus="this.style.borderColor='#17455e'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+					<div style="font-size:11px;color:#94a3b8;text-align:right;"><span id="remarksCount">0</span>/1000</div>
 				</div>
-				<div>
-					<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;">Message</span>
-					<p style="margin:4px 0 0;line-height:1.6;white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;" id="viewReportMessage">—</p>
+				<div style="background:#f8fafc;border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#64748b;line-height:1.8;">
+					<strong style="color:#374151;">Guide:</strong> ⭐ Poor · ⭐⭐ Below Avg · ⭐⭐⭐ Average · ⭐⭐⭐⭐ Good · ⭐⭐⭐⭐⭐ Excellent
 				</div>
-				<div>
-					<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;">Attachments</span>
-					<div id="viewReportAttachments" style="margin-top:8px;display:grid;gap:6px;"></div>
+				<div style="display:flex;gap:10px;justify-content:flex-end;">
+					<button type="button" onclick="closeReviewModal()" class="btn-cancel-action">Cancel</button>
+					<button type="button" onclick="submitReview()" class="btn-primary-action">
+						<i data-lucide="save" style="width:14px;height:14px;"></i> Save Review
+					</button>
 				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -556,18 +704,15 @@
 <div class="preview-overlay" id="previewModal" role="dialog" aria-modal="true">
 	<div class="preview-box">
 		<div class="modal-header" style="flex-shrink:0;">
-			<h2 style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 130px);">
+			<h2 style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 140px);">
 				<i data-lucide="file" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;color:#1a6b8a;"></i>
 				<span id="previewFilename">File Preview</span>
 			</h2>
 			<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-				<a id="previewDownloadBtn" href="#" download
-				   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#1a6b8a;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">
+				<a id="previewDownloadBtn" href="#" download style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#1a6b8a;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">
 					<i data-lucide="download" style="width:13px;height:13px;"></i> Download
 				</a>
-				<button class="modal-close" onclick="closePreviewModal()">
-					<i data-lucide="x" style="width:16px;height:16px;"></i>
-				</button>
+				<button class="modal-close" onclick="closePreviewModal()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
 			</div>
 		</div>
 		<div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;"></div>
@@ -579,6 +724,22 @@
 	<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
 	<span id="toastText"></span>
 </div>
+
+<!-- Pass sent reports data to JS as JSON -->
+<script th:inline="javascript">
+var sentReportsData = [];
+/*<![CDATA[*/
+/*[# th:each="r : ${sentReports}"]*/
+sentReportsData.push({
+	title:      /*[[${r.title}]]*/        '',
+	message:    /*[[${r.message ?: ''}]]*/ '',
+	recipients: /*[[${r.recipientIds}]]*/ '',
+	sentAt:     /*[[${r.sentAtFormatted}]]*/ '',
+	attachmentCount: /*[[${#lists.size(r.attachments)}]]*/ 0
+});
+/*[/]*/
+/*]]>*/
+</script>
 
 <script>
 (function () {
@@ -596,227 +757,373 @@
 	if (gs) gs.addEventListener('input', function () {
 		var q = this.value.toLowerCase();
 		document.querySelectorAll('#reportsTable tbody tr').forEach(function (r) {
-			r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+			r.style.display = (r.getAttribute('data-emp-name') || '').toLowerCase().includes(q) ? '' : 'none';
 		});
 	});
 
-	/* ── Send Report Modal ── */
-	var sendModal   = document.getElementById('sendReportModal'),
-		openBtn     = document.getElementById('openReportModalBtn'),
-		closeBtn    = document.getElementById('closeReportModalBtn'),
-		cancelBtn   = document.getElementById('cancelReportModalBtn'),
-		submitBtn   = document.getElementById('submitReportBtn');
+	/* ─────────────────────────────────────────
+	   EMPLOYEE DETAIL MODAL
+	───────────────────────────────────────── */
+	var currentEmpId = null;
+	var selectedMonth = document.getElementById('reviewMonth') ? document.getElementById('reviewMonth').value : '';
 
-	function openSendModal()  { sendModal.classList.add('active'); document.body.style.overflow='hidden'; lucide.createIcons(); }
+	window.openEmployeeDetail = function (empId) {
+		var row = document.querySelector('tr td.emp-detail-data[data-emp-id="' + empId + '"]');
+		if (!row) return;
+		currentEmpId = empId;
+
+		var d = row;
+		var name    = d.getAttribute('data-emp-name') || '—';
+		var email   = d.getAttribute('data-emp-email') || '—';
+		var grade   = d.getAttribute('data-grade') || '—';
+		var taskScore = parseInt(d.getAttribute('data-task-score') || '0');
+		var attScore  = parseInt(d.getAttribute('data-att-score')  || '0');
+		var overall   = parseInt(d.getAttribute('data-overall-score') || '0');
+		var totalT    = d.getAttribute('data-total-tasks')   || '0';
+		var doneT     = d.getAttribute('data-done-tasks')    || '0';
+		var pendingT  = d.getAttribute('data-pending-tasks') || '0';
+		var overdueT  = d.getAttribute('data-overdue-tasks') || '0';
+		var present   = d.getAttribute('data-present-days')  || '0';
+		var lateD     = d.getAttribute('data-late-days')     || '0';
+		var leaveD    = d.getAttribute('data-leave-days')    || '0';
+		var absent    = d.getAttribute('data-absent-days')   || '0';
+		var exRating  = parseInt(d.getAttribute('data-existing-rating') || '0');
+		var exRemarks = d.getAttribute('data-existing-remarks') || '';
+		var revBy     = d.getAttribute('data-review-by') || '';
+		var revAt     = d.getAttribute('data-review-at') || '';
+		var empMonth  = document.querySelector('input[name="reviewMonth"]')
+			? document.querySelector('input[name="reviewMonth"]').value
+			: (new Date().toISOString().slice(0,7));
+
+		// Fill header
+		document.getElementById('detailEmpName').textContent    = name;
+		document.getElementById('detailEmpNameSub').textContent = name;
+		document.getElementById('detailEmpEmail').textContent   = email;
+		document.getElementById('detailEmpAvatar').textContent  = name.charAt(0).toUpperCase();
+
+		// Grade badge
+		var gb = document.getElementById('detailGradeBadge');
+		gb.textContent = grade;
+		gb.className = 'grade-badge ' +
+			(grade==='A+'||grade==='A' ? 'grade-A' : grade==='B' ? 'grade-B' : grade==='C' ? 'grade-C' : 'grade-D');
+
+		// Score bars
+		document.getElementById('detailTaskScoreLabel').textContent    = taskScore + '%';
+		document.getElementById('detailAttScoreLabel').textContent     = attScore  + '%';
+		document.getElementById('detailOverallScoreLabel').textContent = overall   + '%';
+		document.getElementById('detailTaskScoreBar').style.width    = taskScore + '%';
+		document.getElementById('detailAttScoreBar').style.width     = attScore  + '%';
+		document.getElementById('detailOverallScoreBar').style.width = overall   + '%';
+
+		// Stats
+		document.getElementById('detailTotalTasks').textContent = totalT;
+		document.getElementById('detailTaskSub').textContent    = doneT + ' done · ' + pendingT + ' pending';
+		document.getElementById('detailOverdue').textContent    = overdueT;
+		document.getElementById('detailOverdue').style.color    = parseInt(overdueT) > 0 ? '#b91c1c' : '#163647';
+		document.getElementById('detailPresent').textContent    = present;
+		document.getElementById('detailAttSub').textContent     = lateD + ' late · ' + leaveD + ' leave';
+		document.getElementById('detailAbsent').textContent     = absent;
+		document.getElementById('detailAbsent').style.color     = parseInt(absent) > 0 ? '#b91c1c' : '#163647';
+
+		// Review area
+		var ra = document.getElementById('detailReviewArea');
+		if (exRating > 0) {
+			ra.innerHTML = '<div class="review-chip">' +
+				'<i data-lucide="star" style="width:16px;height:16px;color:#f59e0b;flex-shrink:0;margin-top:1px;"></i>' +
+				'<div>' +
+				'<div class="review-chip-stars">' + '★'.repeat(exRating) + '☆'.repeat(5-exRating) + '</div>' +
+				'<div class="review-chip-text">' + escapeHtml(exRemarks || 'No remarks.') + '</div>' +
+				'<div class="review-chip-meta">Reviewed by ' + escapeHtml(revBy) + ' · ' + escapeHtml(revAt) + '</div>' +
+				'</div></div>';
+			document.getElementById('detailReviewBtnLabel').textContent = 'Update Review';
+		} else {
+			ra.innerHTML = '<p style="color:#94a3b8;font-size:13px;margin:0;">No review submitted for this month.</p>';
+			document.getElementById('detailReviewBtnLabel').textContent = 'Give Review';
+		}
+
+		// Wire give-review button
+		document.getElementById('detailGiveReviewBtn').onclick = function () {
+			closeEmpDetail();
+			openReviewModal(empId, name, empMonth, exRating, exRemarks);
+		};
+
+		// Wire send-report-to-this-employee button
+		document.getElementById('detailSendReportBtn').onclick = function () {
+			closeEmpDetail();
+			openSendModalForEmp(empId);
+		};
+
+		// Reports sent to this employee (filter from sentReportsData by recipientIds containing empId)
+		var reportsArea = document.getElementById('detailReportsArea');
+		var empReports = (window.sentReportsData || []).filter(function(r) {
+			return (r.recipients || '').split(',').map(function(s){return s.trim();}).indexOf(String(empId)) !== -1;
+		});
+		if (empReports.length > 0) {
+			var html = '';
+			empReports.forEach(function(r) {
+				html += '<div class="report-row">' +
+					'<div class="report-icon"><i data-lucide="file-text" style="width:15px;height:15px;"></i></div>' +
+					'<div style="flex:1;min-width:0;">' +
+					'<div style="font-size:13px;font-weight:700;color:#163647;">' + escapeHtml(r.title) + '</div>' +
+					'<div style="font-size:11px;color:#94a3b8;margin-top:2px;">' + escapeHtml(r.sentAt) +
+					(r.attachmentCount > 0 ? ' · <span style="color:#0369a1;">' + r.attachmentCount + ' attachment(s)</span>' : '') +
+					'</div>' +
+					(r.message ? '<div style="font-size:12px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px;">' + escapeHtml(r.message) + '</div>' : '') +
+					'</div></div>';
+			});
+			reportsArea.innerHTML = html;
+		} else {
+			reportsArea.innerHTML = '<p style="color:#94a3b8;font-size:13px;margin:0;">No reports sent to this employee yet.</p>';
+		}
+
+		// Download PDF — simple print-to-pdf of the modal body
+		document.getElementById('detailDownloadBtn').onclick = function(e) {
+			e.preventDefault();
+			var content = document.getElementById('detailBody').innerHTML;
+			var win = window.open('', '_blank', 'width=800,height=900');
+			win.document.write('<html><head><title>Performance Report - ' + name + '</title>' +
+				'<style>body{font-family:Arial,sans-serif;padding:24px;color:#163647;} .modal-header,.modal-close,.detail-section-title{font-weight:bold;} .score-bar-track{height:8px;background:#e8f0f5;border-radius:4px;margin:4px 0;} .score-bar-fill{height:100%;border-radius:4px;background:#17455e;} .detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;} .detail-tile{border:1px solid #e2e8f0;border-radius:8px;padding:10px;} .review-chip{background:#dff5ea;border:1px solid #6ee7b7;border-radius:8px;padding:10px;}</style>' +
+				'</head><body>' + content + '</body></html>');
+			win.document.close();
+			win.focus();
+			setTimeout(function(){ win.print(); win.close(); }, 500);
+			return false;
+		};
+
+		document.getElementById('empDetailModal').classList.add('active');
+		document.body.style.overflow = 'hidden';
+		lucide.createIcons();
+	};
+
+	window.closeEmpDetail = function () {
+		document.getElementById('empDetailModal').classList.remove('active');
+		document.body.style.overflow = '';
+	};
+
+	document.getElementById('empDetailModal').addEventListener('click', function(e){ if(e.target===this) closeEmpDetail(); });
+
+	/* ─────────────────────────────────────────
+	   SEND REPORT MODAL
+	───────────────────────────────────────── */
+	var sendModal  = document.getElementById('sendReportModal');
+	var openSendBtn  = document.getElementById('openSendReportBtn');
+	var closeSendBtn = document.getElementById('closeSendReportBtn');
+	var cancelSend   = document.getElementById('cancelSendReportBtn');
+	var submitBtn    = document.getElementById('submitReportBtn');
+
+	function openSendModal() {
+		sendModal.classList.add('active');
+		document.body.style.overflow = 'hidden';
+		lucide.createIcons();
+	}
+
+	window.openSendModalForEmp = function(empId) {
+		// Pre-select this employee's checkbox
+		document.querySelectorAll('.recipient-cb').forEach(function(cb){ cb.checked = false; });
+		var cb = document.querySelector('.recipient-cb[data-emp-id="' + empId + '"]');
+		if (cb) cb.checked = true;
+
+		// Grab data from the row
+		var row = document.querySelector('.emp-detail-data[data-emp-id="' + empId + '"]');
+		if (row) {
+			document.getElementById('hiddenTaskScore').value    = row.getAttribute('data-task-score') || '';
+			document.getElementById('hiddenAttScore').value     = row.getAttribute('data-att-score') || '';
+			document.getElementById('hiddenOverallScore').value = row.getAttribute('data-overall-score') || '';
+			document.getElementById('hiddenGrade').value        = row.getAttribute('data-grade') || '';
+			document.getElementById('hiddenTotalTasks').value   = row.getAttribute('data-total-tasks') || '';
+			document.getElementById('hiddenDoneTasks').value    = row.getAttribute('data-done-tasks') || '';
+			document.getElementById('hiddenPendingTasks').value = row.getAttribute('data-pending-tasks') || '';
+			document.getElementById('hiddenOverdueTasks').value = row.getAttribute('data-overdue-tasks') || '';
+			document.getElementById('hiddenPresentDays').value  = row.getAttribute('data-present-days') || '';
+			document.getElementById('hiddenAbsentDays').value   = row.getAttribute('data-absent-days') || '';
+			document.getElementById('hiddenLateDays').value     = row.getAttribute('data-late-days') || '';
+			document.getElementById('hiddenLeaveDays').value    = row.getAttribute('data-leave-days') || '';
+		}
+
+		openSendModal();
+	};
+
 	function closeSendModal() {
 		sendModal.classList.remove('active');
-		document.body.style.overflow='';
-		resetForm();
+		document.body.style.overflow = '';
+		resetSendForm();
+
+		// Clear hidden performance fields
+		[
+			'hiddenTaskScore','hiddenAttScore','hiddenOverallScore','hiddenGrade',
+			'hiddenTotalTasks','hiddenDoneTasks','hiddenPendingTasks','hiddenOverdueTasks',
+			'hiddenPresentDays','hiddenAbsentDays','hiddenLateDays','hiddenLeaveDays'
+		].forEach(id => {
+			var el = document.getElementById(id);
+			if (el) el.value = '';
+		});
 	}
-	if (openBtn)   openBtn.addEventListener('click', openSendModal);
-	if (closeBtn)  closeBtn.addEventListener('click', closeSendModal);
-	if (cancelBtn) cancelBtn.addEventListener('click', closeSendModal);
+
+	if (openSendBtn)  openSendBtn.addEventListener('click', openSendModal);
+	if (closeSendBtn) closeSendBtn.addEventListener('click', closeSendModal);
+	if (cancelSend)   cancelSend.addEventListener('click', closeSendModal);
 	sendModal.addEventListener('click', function(e){ if(e.target===this) closeSendModal(); });
 
-	/* ── Select all recipients ── */
 	window.selectAllRecipients = function(val) {
 		document.querySelectorAll('#recipientGrid input[type="checkbox"]').forEach(function(cb){ cb.checked = val; });
 	};
 
-	/* ── Validation ── */
-	function validateReportForm() {
+	function validateSendForm() {
 		var valid = true;
 		var title = document.getElementById('reportTitle');
 		var errT  = document.getElementById('errTitle');
-		if (!title.value.trim()) {
-			errT.classList.add('show'); title.style.borderColor='#ef4444'; valid = false;
-		} else {
-			errT.classList.remove('show'); title.style.borderColor='';
-		}
+		if (!title.value.trim()) { errT.classList.add('show'); title.style.borderColor='#ef4444'; valid=false; }
+		else { errT.classList.remove('show'); title.style.borderColor=''; }
 		var checked = document.querySelectorAll('#recipientGrid input[type="checkbox"]:checked');
 		var errR = document.getElementById('errRecipients');
-		if (checked.length === 0) {
-			errR.classList.add('show'); valid = false;
-		} else {
-			errR.classList.remove('show');
-		}
+		if (checked.length === 0) { errR.classList.add('show'); valid=false; }
+		else { errR.classList.remove('show'); }
 		return valid;
 	}
 
 	if (submitBtn) submitBtn.addEventListener('click', function() {
-		if (!validateReportForm()) return;
+		if (!validateSendForm()) return;
 		syncFileInput();
 		document.getElementById('sendReportForm').submit();
 	});
 
-	/* ── File upload ── */
-	var dropZone   = document.getElementById('reportDropZone'),
-		fileInput  = document.getElementById('reportFiles'),
-		fileList   = document.getElementById('reportFileList'),
-		errFiles   = document.getElementById('errFiles');
+	/* File upload */
+	var dropZone  = document.getElementById('reportDropZone'),
+		fileInput = document.getElementById('reportFiles'),
+		fileList  = document.getElementById('reportFileList'),
+		errFiles  = document.getElementById('errFiles');
 	var selectedFiles = [], MAX_FILES=5, MAX_BYTES=10*1024*1024;
 	var ALLOWED_EXTS  = ['pdf','doc','docx','xls','xlsx','ppt','pptx','png','jpg','jpeg','gif','zip','txt'];
 
-	function humanSize(b) { return b<1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
-	function getExt(n)    { return n.split('.').pop().toLowerCase(); }
-
-	function renderFiles() {
-		fileList.innerHTML = '';
+	function humanSize(b){ return b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB'; }
+	function getExt(n){ return n.split('.').pop().toLowerCase(); }
+	function renderFiles(){
+		fileList.innerHTML='';
 		selectedFiles.forEach(function(f,i){
-			var item = document.createElement('div');
-			item.className = 'file-item';
-			item.innerHTML = '<i data-lucide="file-text" style="width:14px;height:14px;flex-shrink:0;"></i>' +
-				'<span>' + escapeHtml(f.name) + ' <em style="color:#94a3b8;">(' + humanSize(f.size) + ')</em></span>' +
-				'<button type="button" data-idx="' + i + '"><i data-lucide="x-circle" style="width:15px;height:15px;"></i></button>';
+			var item=document.createElement('div'); item.className='file-item';
+			item.innerHTML='<i data-lucide="file-text" style="width:14px;height:14px;flex-shrink:0;"></i>' +
+				'<span>'+escapeHtml(f.name)+' <em style="color:#94a3b8;">('+humanSize(f.size)+')</em></span>' +
+				'<button type="button" data-idx="'+i+'"><i data-lucide="x-circle" style="width:15px;height:15px;"></i></button>';
 			fileList.appendChild(item);
 		});
 		lucide.createIcons();
 		fileList.querySelectorAll('button[data-idx]').forEach(function(b){
-			b.addEventListener('click', function(){ selectedFiles.splice(parseInt(this.dataset.idx),1); renderFiles(); syncFileInput(); });
+			b.addEventListener('click',function(){ selectedFiles.splice(parseInt(this.dataset.idx),1); renderFiles(); syncFileInput(); });
 		});
 	}
-
-	function syncFileInput() {
-		try { var dt=new DataTransfer(); selectedFiles.forEach(function(f){dt.items.add(f);}); fileInput.files=dt.files; } catch(e){}
+	function syncFileInput(){
+		try{ var dt=new DataTransfer(); selectedFiles.forEach(function(f){dt.items.add(f);}); fileInput.files=dt.files; }catch(e){}
 	}
-
-	function addFiles(newFiles) {
-		var errs = [];
+	function addFiles(newFiles){
+		var errs=[];
 		Array.from(newFiles).forEach(function(f){
-			if (selectedFiles.length >= MAX_FILES) { errs.push('Max 5 files.'); return; }
-			if (!ALLOWED_EXTS.includes(getExt(f.name))) { errs.push('"'+f.name+'" — unsupported type.'); return; }
-			if (f.size > MAX_BYTES) { errs.push('"'+f.name+'" exceeds 10 MB.'); return; }
-			if (selectedFiles.some(function(sf){ return sf.name===f.name&&sf.size===f.size; })) { errs.push('"'+f.name+'" already added.'); return; }
+			if(selectedFiles.length>=MAX_FILES){errs.push('Max 5 files.'); return;}
+			if(!ALLOWED_EXTS.includes(getExt(f.name))){errs.push('"'+f.name+'" — unsupported.'); return;}
+			if(f.size>MAX_BYTES){errs.push('"'+f.name+'" exceeds 10 MB.'); return;}
+			if(selectedFiles.some(function(sf){return sf.name===f.name&&sf.size===f.size;})){errs.push('"'+f.name+'" already added.'); return;}
 			selectedFiles.push(f);
 		});
-		if (errs.length) { errFiles.textContent=errs[0]; errFiles.classList.add('show'); }
-		else             { errFiles.classList.remove('show'); }
+		if(errs.length){errFiles.textContent=errs[0];errFiles.classList.add('show');}
+		else{errFiles.classList.remove('show');}
 		renderFiles(); syncFileInput();
 	}
-
-	if (fileInput) fileInput.addEventListener('change', function(){ addFiles(this.files); this.value=''; });
-	if (dropZone) {
-		dropZone.addEventListener('dragover',  function(e){ e.preventDefault(); dropZone.style.borderColor='#1a6b8a'; });
-		dropZone.addEventListener('dragleave', function(){  dropZone.style.borderColor=''; });
-		dropZone.addEventListener('drop',      function(e){ e.preventDefault(); dropZone.style.borderColor=''; addFiles(e.dataTransfer.files); });
+	if(fileInput) fileInput.addEventListener('change',function(){addFiles(this.files);this.value='';});
+	if(dropZone){
+		dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.style.borderColor='#1a6b8a';});
+		dropZone.addEventListener('dragleave',function(){dropZone.style.borderColor='';});
+		dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.style.borderColor='';addFiles(e.dataTransfer.files);});
+	}
+	function resetSendForm(){
+		var form=document.getElementById('sendReportForm'); if(form) form.reset();
+		selectedFiles=[]; if(fileList) fileList.innerHTML='';
+		document.querySelectorAll('.err-msg').forEach(function(e){e.classList.remove('show');});
 	}
 
-	function resetForm() {
-		var form = document.getElementById('sendReportForm');
-		if (form) form.reset();
-		selectedFiles = [];
-		if (fileList) fileList.innerHTML = '';
-		document.querySelectorAll('.err-msg').forEach(function(e){ e.classList.remove('show'); });
-	}
+	/* ─────────────────────────────────────────
+	   REVIEW MODAL
+	───────────────────────────────────────── */
+	var ratingLabels = ['','Poor','Below Average','Average','Good','Excellent'];
+	var currentRating = 0;
 
-	/* ── View Report Modal ── */
-	window.openViewModal = function(btn) {
-		document.getElementById('viewReportTitle').textContent     = btn.getAttribute('data-title') || '—';
-		document.getElementById('viewReportRecipients').textContent = btn.getAttribute('data-recipients') || '—';
-		document.getElementById('viewReportSentAt').textContent    = btn.getAttribute('data-sent-at') || '—';
-		var msg = btn.getAttribute('data-message') || '';
-		document.getElementById('viewReportMessage').textContent   = msg || '—';
+	window.setRating = function(val){
+		currentRating=val;
+		document.getElementById('reviewRating').value=val;
+		document.getElementById('ratingLabel').textContent=ratingLabels[val]||'';
+		document.querySelectorAll('.star-btn').forEach(function(b){ b.classList.toggle('selected',parseInt(b.getAttribute('data-val'))<=val); });
+		document.getElementById('errRating').style.display='none';
+	};
 
-		// Attachments
-		var container = document.getElementById('viewReportAttachments');
-		container.innerHTML = '';
-		var row = btn.closest('tr');
-		var attItems = row ? row.querySelectorAll('.att-item') : [];
-		if (attItems.length > 0) {
-			attItems.forEach(function(span) {
-				var filename    = span.getAttribute('data-filename') || 'File';
-				var viewUrl     = span.getAttribute('data-view-url');
-				var downloadUrl = span.getAttribute('data-download-url');
-				var ct          = span.getAttribute('data-content-type') || '';
-
-				var wrapper = document.createElement('div');
-				wrapper.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;';
-
-				var previewBtn = document.createElement('button');
-				previewBtn.type = 'button';
-				previewBtn.style.cssText = 'background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#0369a1;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:2px;overflow:hidden;max-width:300px;';
-				previewBtn.innerHTML = '<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(filename) + '</span>';
-				previewBtn.setAttribute('data-view-url', viewUrl);
-				previewBtn.setAttribute('data-download-url', downloadUrl);
-				previewBtn.setAttribute('data-filename', filename);
-				previewBtn.setAttribute('data-content-type', ct);
-				previewBtn.addEventListener('click', function(){ openPreviewModal(this); });
-
-				var dlBtn = document.createElement('a');
-				dlBtn.href = downloadUrl;
-				dlBtn.setAttribute('download', filename);
-				dlBtn.style.cssText = 'flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;background:#1a6b8a;color:#fff;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;';
-				dlBtn.innerHTML = '<i data-lucide="download" style="width:12px;height:12px;"></i> Download';
-
-				wrapper.appendChild(previewBtn);
-				wrapper.appendChild(dlBtn);
-				container.appendChild(wrapper);
-			});
-		} else {
-			container.innerHTML = '<p style="color:#6b7280;margin:0;font-size:13px;">No attachments.</p>';
-		}
-
-		document.getElementById('viewReportModal').classList.add('active');
-		document.body.style.overflow = 'hidden';
+	window.openReviewModal = function(empId, empName, month, existRating, existRemarks){
+		document.getElementById('reviewModalTitle').textContent = 'Review: ' + empName;
+		document.getElementById('reviewEmpId').value  = empId;
+		document.getElementById('reviewMonth').value  = month;
+		document.getElementById('reviewMonthDisplay').textContent = month;
+		document.getElementById('reviewRemarks').value = existRemarks || '';
+		document.getElementById('remarksCount').textContent = (existRemarks||'').length;
+		currentRating = existRating || 0;
+		document.getElementById('reviewRating').value = currentRating;
+		document.getElementById('ratingLabel').textContent = ratingLabels[currentRating] || (currentRating ? '' : '—');
+		document.querySelectorAll('.star-btn').forEach(function(b){ b.classList.toggle('selected',parseInt(b.getAttribute('data-val'))<=currentRating); });
+		document.getElementById('errRating').style.display='none';
+		document.getElementById('reviewModal').classList.add('active');
+		document.body.style.overflow='hidden';
 		lucide.createIcons();
 	};
 
-	window.closeViewModal = function() {
-		document.getElementById('viewReportModal').classList.remove('active');
-		document.body.style.overflow = '';
+	window.closeReviewModal = function(){
+		document.getElementById('reviewModal').classList.remove('active');
+		document.body.style.overflow='';
 	};
-	document.getElementById('viewReportModal').addEventListener('click', function(e){ if(e.target===this) closeViewModal(); });
 
-	/* ── File Preview Modal ── */
-	window.openPreviewModal = function(btn) {
-		var viewUrl     = btn.getAttribute('data-view-url');
-		var downloadUrl = btn.getAttribute('data-download-url');
-		var filename    = btn.getAttribute('data-filename') || 'file';
-		var ct          = (btn.getAttribute('data-content-type') || '').toLowerCase();
+	window.submitReview = function(){
+		if(!currentRating||currentRating<1){ document.getElementById('errRating').style.display='block'; return; }
+		document.getElementById('reviewForm').submit();
+	};
 
-		document.getElementById('previewFilename').textContent = filename;
-		document.getElementById('previewDownloadBtn').href = downloadUrl;
-		document.getElementById('previewDownloadBtn').setAttribute('download', filename);
+	document.getElementById('reviewModal').addEventListener('click',function(e){if(e.target===this)closeReviewModal();});
 
-		var body = document.getElementById('previewBody');
-		body.innerHTML = '';
+	var remarksArea=document.getElementById('reviewRemarks');
+	if(remarksArea) remarksArea.addEventListener('input',function(){document.getElementById('remarksCount').textContent=this.value.length;});
 
-		if (ct.startsWith('image/')) {
-			var img = document.createElement('img');
-			img.src = viewUrl; img.alt = filename;
-			img.style.cssText = 'max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';
-			body.appendChild(img);
-		} else if (ct === 'application/pdf' || ct.startsWith('text/')) {
-			var iframe = document.createElement('iframe');
-			iframe.src = viewUrl; iframe.title = filename;
-			iframe.style.cssText = 'width:100%;height:75vh;border:none;';
-			body.appendChild(iframe);
-		} else {
-			body.innerHTML = '<div style="text-align:center;padding:48px 24px;">' +
-				'<i data-lucide="file" style="width:56px;height:56px;color:#94a3b8;margin-bottom:16px;"></i>' +
-				'<p style="font-size:14px;font-weight:600;color:#374151;margin:0 0 8px;">' + escapeHtml(filename) + '</p>' +
-				'<p style="font-size:13px;color:#6b7280;margin:0 0 20px;">This file cannot be previewed.</p>' +
-				'<a href="' + escapeHtml(downloadUrl) + '" download="' + escapeHtml(filename) + '" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#1a6b8a;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">' +
-				'<i data-lucide="download" style="width:14px;height:14px;"></i> Download File</a></div>';
+	/* ─────────────────────────────────────────
+	   FILE PREVIEW MODAL
+	───────────────────────────────────────── */
+	window.openPreviewModal = function(btn){
+		var viewUrl    = btn.getAttribute('data-view-url');
+		var downloadUrl= btn.getAttribute('data-download-url');
+		var filename   = btn.getAttribute('data-filename')||'file';
+		var ct         = (btn.getAttribute('data-content-type')||'').toLowerCase();
+		document.getElementById('previewFilename').textContent=filename;
+		document.getElementById('previewDownloadBtn').href=downloadUrl;
+		document.getElementById('previewDownloadBtn').setAttribute('download',filename);
+		var body=document.getElementById('previewBody'); body.innerHTML='';
+		if(ct.startsWith('image/')){
+			var img=document.createElement('img'); img.src=viewUrl; img.alt=filename;
+			img.style.cssText='max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;'; body.appendChild(img);
+		}else if(ct==='application/pdf'||ct.startsWith('text/')){
+			var iframe=document.createElement('iframe'); iframe.src=viewUrl; iframe.title=filename;
+			iframe.style.cssText='width:100%;height:75vh;border:none;'; body.appendChild(iframe);
+		}else{
+			body.innerHTML='<div style="text-align:center;padding:48px 24px;"><i data-lucide="file" style="width:56px;height:56px;color:#94a3b8;"></i><p style="font-size:14px;font-weight:600;color:#374151;margin:16px 0 8px;">'+escapeHtml(filename)+'</p><p style="font-size:13px;color:#6b7280;margin:0 0 20px;">Cannot preview this file type.</p><a href="'+escapeHtml(downloadUrl)+'" download="'+escapeHtml(filename)+'" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#1a6b8a;color:#fff;font-size:13px;font-weight:600;text-decoration:none;"><i data-lucide="download" style="width:14px;height:14px;"></i> Download File</a></div>';
 		}
-
 		document.getElementById('previewModal').classList.add('active');
-		document.body.style.overflow = 'hidden';
+		document.body.style.overflow='hidden';
 		lucide.createIcons();
 	};
-
-	window.closePreviewModal = function() {
+	window.closePreviewModal = function(){
 		document.getElementById('previewModal').classList.remove('active');
-		document.body.style.overflow = '';
-		document.getElementById('previewBody').innerHTML = '';
+		document.body.style.overflow='';
+		document.getElementById('previewBody').innerHTML='';
 	};
-	document.getElementById('previewModal').addEventListener('click', function(e){ if(e.target===this) closePreviewModal(); });
+	document.getElementById('previewModal').addEventListener('click',function(e){if(e.target===this)closePreviewModal();});
 
-	document.addEventListener('keydown', function(e){
-		if (e.key === 'Escape') { closePreviewModal(); closeViewModal(); closeSendModal(); }
+	/* ── Escape key ── */
+	document.addEventListener('keydown',function(e){
+		if(e.key==='Escape'){ closePreviewModal(); closeReviewModal(); closeSendModal(); closeEmpDetail(); }
 	});
+	function closeSendModal(){ if(sendModal) sendModal.classList.remove('active'); document.body.style.overflow=''; resetSendForm(); }
 
-	function escapeHtml(s) {
+	function escapeHtml(s){
 		return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 	}
 

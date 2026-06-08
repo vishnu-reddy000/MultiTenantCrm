@@ -49,7 +49,6 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/**/*.woff"),
                     new AntPathRequestMatcher("/**/*.woff2")
                 ).permitAll()
-                // ── Holiday API ─────────────────────────────────────────────
                 // GET  /api/holidays   — any authenticated user (all roles see their tenant's holidays)
                 // POST /api/holidays   — ADMIN or HR only
                 // PUT  /api/holidays/* — ADMIN or HR only

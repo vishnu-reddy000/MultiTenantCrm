@@ -235,21 +235,6 @@ public class EmployeeController {
             model.addAttribute("myTeamSize",    0);
         }
 
-        // ── Recent reports ────────────────────────────────────────────────
-        if (emp != null) {
-            String tenant = getTenantSegment(emp);
-            List<Report> recentReports = reportRepository.findByRecipientId(
-                    String.valueOf(emp.getId()), tenant);
-            // Show only latest 3 on dashboard
-            List<Report> dashReports = recentReports.size() > 3
-                    ? recentReports.subList(0, 3) : recentReports;
-            model.addAttribute("recentReports", dashReports);
-            model.addAttribute("totalReportCount", recentReports.size());
-        } else {
-            model.addAttribute("recentReports", java.util.Collections.emptyList());
-            model.addAttribute("totalReportCount", 0);
-        }
-
         return "employee-dashboard";
     }
 

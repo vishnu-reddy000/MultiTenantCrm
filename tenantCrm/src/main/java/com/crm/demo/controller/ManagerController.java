@@ -44,6 +44,7 @@ import com.crm.demo.model.AttendanceDay;
 import com.crm.demo.model.Holiday;
 import com.crm.demo.model.LeaveRequest;
 import com.crm.demo.model.Meeting;
+import com.crm.demo.model.PerformanceReview;
 import com.crm.demo.model.Project;
 import com.crm.demo.model.Report;
 import com.crm.demo.model.ReportAttachment;
@@ -55,6 +56,7 @@ import com.crm.demo.repository.AttendanceRepository;
 import com.crm.demo.repository.HolidayRepository;
 import com.crm.demo.repository.LeaveRequestRepository;
 import com.crm.demo.repository.MeetingRepository;
+import com.crm.demo.repository.PerformanceReviewRepository;
 import com.crm.demo.repository.ProjectRepository;
 import com.crm.demo.repository.ReportAttachmentRepository;
 import com.crm.demo.repository.ReportRepository;
@@ -105,6 +107,9 @@ public class ManagerController {
 
 	@Autowired
 	private ReportAttachmentRepository reportAttachmentRepository;
+
+	@Autowired
+	private PerformanceReviewRepository performanceReviewRepository;
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -648,19 +653,92 @@ public class ManagerController {
 		if (manager != null) {
 			String tenant = getTenantSegment(manager);
 
-			// Team members available as recipients
+			// Team members with full performance stats
 			List<User> teamMembers = getManagedTeamMembers(manager);
 			model.addAttribute("teamMembers", teamMembers);
 
-			// Sent reports history
+			// All possible recipients (Team members + HR + Admin)
+			List<User> allTenantUsers = userRepository.findByTenantSegment(tenant);
+			List<User> allRecipients = allTenantUsers.stream()
+					.filter(u -> "HR".equalsIgnoreCase(u.getRole()) || "ADMIN".equalsIgnoreCase(u.getRole()) || teamMembers.contains(u))
+					.distinct()
+					.toList();
+			model.addAttribute("allRecipients", allRecipients);
+
+			// Sent reports history (for "Send Report" tracking)
 			List<Report> sentReports = reportRepository
 					.findBySentByAndTenantSegmentOrderBySentAtDesc(manager.getUsername(), tenant);
 			model.addAttribute("sentReports", sentReports);
 			model.addAttribute("sentReportCount", sentReports.size());
+
+			// Build per-employee detail for click-to-view
+			java.time.YearMonth ym = java.time.YearMonth.now();
+			LocalDate from = ym.atDay(1);
+			LocalDate to   = LocalDate.now();
+			int workingDays = 0;
+			LocalDate wd = from;
+			while (!wd.isAfter(to)) {
+				java.time.DayOfWeek dow = wd.getDayOfWeek();
+				if (dow != java.time.DayOfWeek.SATURDAY && dow != java.time.DayOfWeek.SUNDAY) workingDays++;
+				wd = wd.plusDays(1);
+			}
+			if (workingDays < 1) workingDays = 1;
+
+			List<EmployeePerf> perfList = new ArrayList<>();
+			for (User emp : teamMembers) {
+				EmployeePerf p = new EmployeePerf();
+				p.employee = emp;
+				List<Task> tasks = taskRepository.findByAssignedToAndTenantSegment(emp.getUsername(), tenant);
+				p.totalTasks   = tasks.size();
+				p.doneTasks    = (int) tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+				p.pendingTasks = (int) tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+				p.overdueTasks = (int) tasks.stream()
+						.filter(t -> !"done".equalsIgnoreCase(t.getStatus())
+								&& t.getDueDate() != null && !t.getDueDate().isBlank()
+								&& LocalDate.parse(t.getDueDate()).isBefore(LocalDate.now()))
+						.count();
+				if (p.totalTasks > 0) {
+					double raw = ((double) p.doneTasks / p.totalTasks) * 100.0 - (p.overdueTasks * 5.0);
+					p.taskScore = (int) Math.max(0, Math.min(100, raw));
+				} else { p.taskScore = 100; }
+
+				List<Attendance> attRecords = attendanceRepository.findByUserAndDateBetweenOrderByDateDesc(emp, from, to);
+				p.presentDays = (int) attRecords.stream().filter(a -> "present".equalsIgnoreCase(a.getStatus())).count();
+				p.lateDays    = (int) attRecords.stream().filter(a -> "late".equalsIgnoreCase(a.getStatus())).count();
+				List<LeaveRequest> leaves = leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(emp);
+				int leaveDaysCount = 0;
+				for (LeaveRequest lr : leaves) {
+					if (!"Approved".equalsIgnoreCase(lr.getStatus()) || lr.getFromDate() == null) continue;
+					LocalDate lStart = lr.getFromDate().isBefore(from) ? from : lr.getFromDate();
+					LocalDate lEnd   = lr.getToDate() == null ? lStart : (lr.getToDate().isAfter(to) ? to : lr.getToDate());
+					LocalDate c = lStart;
+					while (!c.isAfter(lEnd)) {
+						java.time.DayOfWeek d2 = c.getDayOfWeek();
+						if (d2 != java.time.DayOfWeek.SATURDAY && d2 != java.time.DayOfWeek.SUNDAY) leaveDaysCount++;
+						c = c.plusDays(1);
+					}
+				}
+				p.leaveDays  = leaveDaysCount;
+				int effectiveWorking = Math.max(1, workingDays - p.leaveDays);
+				p.absentDays = Math.max(0, effectiveWorking - p.presentDays - p.lateDays);
+				double attRaw = ((p.presentDays + p.lateDays * 0.5) / effectiveWorking) * 100.0;
+				p.attendanceScore = (int) Math.max(0, Math.min(100, attRaw));
+				p.overallScore = (int) (p.taskScore * 0.6 + p.attendanceScore * 0.4);
+				p.grade = p.overallScore >= 90 ? "A+" : p.overallScore >= 75 ? "A" :
+				          p.overallScore >= 60 ? "B"  : p.overallScore >= 45 ? "C" : "D";
+				p.existingReview = performanceReviewRepository
+						.findByEmployeeAndReviewMonthAndTenantSegment(emp, ym.toString(), tenant)
+						.orElse(null);
+				perfList.add(p);
+			}
+			model.addAttribute("perfList",      perfList);
+			model.addAttribute("selectedMonth", ym.toString());
 		} else {
 			model.addAttribute("teamMembers", java.util.Collections.emptyList());
 			model.addAttribute("sentReports", java.util.Collections.emptyList());
 			model.addAttribute("sentReportCount", 0);
+			model.addAttribute("perfList", java.util.Collections.emptyList());
+			model.addAttribute("selectedMonth", java.time.YearMonth.now().toString());
 		}
 
 		return "manager-reports";
@@ -675,6 +753,18 @@ public class ManagerController {
 			@RequestParam(required = false) String message,
 			@RequestParam(value = "recipientIds", required = false) List<Long> recipientIds,
 			@RequestParam(value = "attachments", required = false) MultipartFile[] attachments,
+			@RequestParam(required = false) Integer taskScore,
+			@RequestParam(required = false) Integer attendanceScore,
+			@RequestParam(required = false) Integer overallScore,
+			@RequestParam(required = false) String grade,
+			@RequestParam(required = false) Integer totalTasks,
+			@RequestParam(required = false) Integer doneTasks,
+			@RequestParam(required = false) Integer pendingTasks,
+			@RequestParam(required = false) Integer overdueTasks,
+			@RequestParam(required = false) Integer presentDays,
+			@RequestParam(required = false) Integer absentDays,
+			@RequestParam(required = false) Integer lateDays,
+			@RequestParam(required = false) Integer leaveDays,
 			RedirectAttributes ra) {
 
 		User manager = getCurrentManager();
@@ -693,14 +783,16 @@ public class ManagerController {
 
 		String tenant = getTenantSegment(manager);
 
-		// Verify recipients are in this manager's team
+		// Verify recipients are in this manager's tenant and have valid roles (Employee in team, HR, or Admin)
+		List<User> allTenantUsers = userRepository.findByTenantSegment(tenant);
 		List<User> teamMembers = getManagedTeamMembers(manager);
-		List<User> validRecipients = teamMembers.stream()
+		List<User> validRecipients = allTenantUsers.stream()
 				.filter(u -> recipientIds.contains(u.getId()))
+				.filter(u -> "HR".equalsIgnoreCase(u.getRole()) || "ADMIN".equalsIgnoreCase(u.getRole()) || teamMembers.contains(u))
 				.toList();
 
 		if (validRecipients.isEmpty()) {
-			ra.addFlashAttribute("errorMessage", "None of the selected recipients are in your team.");
+			ra.addFlashAttribute("errorMessage", "None of the selected recipients are valid or in your tenant.");
 			return "redirect:/manager/reports";
 		}
 
@@ -715,6 +807,21 @@ public class ManagerController {
 		report.setTenantSegment(tenant);
 		report.setRecipientIds(idsCsv);
 		report.setRecipientNames(namesCsv);
+
+		// Performance Snapshots
+		report.setTaskScore(taskScore);
+		report.setAttendanceScore(attendanceScore);
+		report.setOverallScore(overallScore);
+		report.setGrade(grade);
+		report.setTotalTasks(totalTasks);
+		report.setDoneTasks(doneTasks);
+		report.setPendingTasks(pendingTasks);
+		report.setOverdueTasks(overdueTasks);
+		report.setPresentDays(presentDays);
+		report.setAbsentDays(absentDays);
+		report.setLateDays(lateDays);
+		report.setLeaveDays(leaveDays);
+
 		reportRepository.save(report);
 
 		// Save attachments
@@ -1324,5 +1431,303 @@ public class ManagerController {
 
 		ra.addFlashAttribute("errorMessage", "No active break to end.");
 		return "redirect:/manager/attendance";
+	}
+
+	// =========================
+	// PERFORMANCE PAGE
+	// =========================
+
+	/** Inner DTO holding computed stats for one employee. */
+	public static class EmployeePerf {
+		public User   employee;
+		public int    totalTasks;
+		public int    doneTasks;
+		public int    pendingTasks;
+		public int    overdueTasks;
+		public int    presentDays;
+		public int    absentDays;
+		public int    lateDays;
+		public int    leaveDays;
+		public int    attendanceScore; // 0-100
+		public int    taskScore;       // 0-100
+		public int    overallScore;    // 0-100
+		public String grade;           // A+/A/B/C/D
+		public PerformanceReview existingReview; // null if not yet reviewed this month
+	}
+
+	@GetMapping("/performance")
+	public String performancePage(
+			@RequestParam(required = false) String month,
+			Model model) {
+
+		injectStats(model);
+
+		User manager = getCurrentManager();
+		if (manager == null) return "manager-performance";
+
+		String tenant = getTenantSegment(manager);
+
+		// Default to current month
+		java.time.YearMonth ym = (month != null && !month.isBlank())
+				? java.time.YearMonth.parse(month)
+				: java.time.YearMonth.now();
+
+		LocalDate from = ym.atDay(1);
+		LocalDate to   = ym.atEndOfMonth().isAfter(LocalDate.now()) ? LocalDate.now() : ym.atEndOfMonth();
+
+		// Working days in the selected range (Mon–Fri, excluding today if future)
+		int workingDays = 0;
+		LocalDate d = from;
+		while (!d.isAfter(to)) {
+			java.time.DayOfWeek dow = d.getDayOfWeek();
+			if (dow != java.time.DayOfWeek.SATURDAY && dow != java.time.DayOfWeek.SUNDAY) workingDays++;
+			d = d.plusDays(1);
+		}
+		if (workingDays < 1) workingDays = 1;
+
+		List<User> teamMembers = getManagedTeamMembers(manager);
+		List<EmployeePerf> perfList = new ArrayList<>();
+
+		for (User emp : teamMembers) {
+			EmployeePerf p = new EmployeePerf();
+			p.employee = emp;
+
+			// ── Task stats ──────────────────────────────────────────────
+			List<Task> tasks = taskRepository.findByAssignedToAndTenantSegment(emp.getUsername(), tenant);
+			p.totalTasks   = tasks.size();
+			p.doneTasks    = (int) tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+			p.pendingTasks = (int) tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+			// Overdue = pending/in-progress tasks whose due date is before today
+			p.overdueTasks = (int) tasks.stream()
+					.filter(t -> !"done".equalsIgnoreCase(t.getStatus())
+							&& t.getDueDate() != null
+							&& !t.getDueDate().isBlank()
+							&& LocalDate.parse(t.getDueDate()).isBefore(LocalDate.now()))
+					.count();
+
+			// Task score: done% out of total, penalise overdue
+			if (p.totalTasks > 0) {
+				double raw = ((double) p.doneTasks / p.totalTasks) * 100.0
+						- (p.overdueTasks * 5.0);
+				p.taskScore = (int) Math.max(0, Math.min(100, raw));
+			} else {
+				p.taskScore = 100; // no tasks = no penalty
+			}
+
+			// ── Attendance stats (selected month) ───────────────────────
+			List<Attendance> attRecords = attendanceRepository
+					.findByUserAndDateBetweenOrderByDateDesc(emp, from, to);
+
+			p.presentDays = (int) attRecords.stream()
+					.filter(a -> "present".equalsIgnoreCase(a.getStatus())).count();
+			p.lateDays    = (int) attRecords.stream()
+					.filter(a -> "late".equalsIgnoreCase(a.getStatus())).count();
+
+			// Leave days in this month
+			List<LeaveRequest> leaves = leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(emp);
+			int leaveDaysCount = 0;
+			for (LeaveRequest lr : leaves) {
+				if (!"Approved".equalsIgnoreCase(lr.getStatus())) continue;
+				if (lr.getFromDate() == null || lr.getToDate() == null) continue;
+				LocalDate lStart = lr.getFromDate().isBefore(from) ? from : lr.getFromDate();
+				LocalDate lEnd   = lr.getToDate().isAfter(to)      ? to   : lr.getToDate();
+				if (lStart.isAfter(lEnd)) continue;
+				LocalDate c = lStart;
+				while (!c.isAfter(lEnd)) {
+					java.time.DayOfWeek dow2 = c.getDayOfWeek();
+					if (dow2 != java.time.DayOfWeek.SATURDAY && dow2 != java.time.DayOfWeek.SUNDAY) leaveDaysCount++;
+					c = c.plusDays(1);
+				}
+			}
+			p.leaveDays  = leaveDaysCount;
+			int effectiveWorking = Math.max(1, workingDays - p.leaveDays);
+			p.absentDays = Math.max(0, effectiveWorking - p.presentDays - p.lateDays);
+
+			// Attendance score: present+late as % of effective working days, late counts half
+			double attRaw = ((p.presentDays + p.lateDays * 0.5) / effectiveWorking) * 100.0;
+			p.attendanceScore = (int) Math.max(0, Math.min(100, attRaw));
+
+			// Overall: 60% task + 40% attendance
+			p.overallScore = (int) (p.taskScore * 0.6 + p.attendanceScore * 0.4);
+
+			// Grade
+			p.grade = p.overallScore >= 90 ? "A+" :
+			          p.overallScore >= 75 ? "A"  :
+			          p.overallScore >= 60 ? "B"  :
+			          p.overallScore >= 45 ? "C"  : "D";
+
+			// Existing review this month
+			p.existingReview = performanceReviewRepository
+					.findByEmployeeAndReviewMonthAndTenantSegment(emp, ym.toString(), tenant)
+					.orElse(null);
+
+			perfList.add(p);
+		}
+
+		// Pre-compute summary stats (lambdas not supported in Thymeleaf SpEL)
+		int avgScore = perfList.isEmpty() ? 0
+				: (int) Math.round(perfList.stream().mapToInt(p -> p.overallScore).average().orElse(0));
+		int totalDone = perfList.stream().mapToInt(p -> p.doneTasks).sum();
+		long reviewedCount = perfList.stream().filter(p -> p.existingReview != null).count();
+
+		model.addAttribute("perfList",      perfList);
+		model.addAttribute("selectedMonth", ym.toString());
+		model.addAttribute("workingDays",   workingDays);
+		model.addAttribute("filterFrom",    from.toString());
+		model.addAttribute("filterTo",      to.toString());
+		model.addAttribute("avgScore",      avgScore);
+		model.addAttribute("totalDone",     totalDone);
+		model.addAttribute("reviewedCount", reviewedCount);
+
+		return "manager-performance";
+	}
+
+	@PostMapping("/performance/review")
+	public String saveReview(
+			@RequestParam Long employeeId,
+			@RequestParam int rating,
+			@RequestParam(required = false) String remarks,
+			@RequestParam String reviewMonth,
+			RedirectAttributes ra) {
+
+		User manager = getCurrentManager();
+		if (manager == null) {
+			ra.addFlashAttribute("errorMessage", "Session expired.");
+			return "redirect:/manager/performance";
+		}
+
+		String tenant = getTenantSegment(manager);
+
+		// Verify employee belongs to this manager's team
+		List<User> teamMembers = getManagedTeamMembers(manager);
+		User emp = teamMembers.stream()
+				.filter(u -> u.getId().equals(employeeId))
+				.findFirst().orElse(null);
+
+		if (emp == null) {
+			ra.addFlashAttribute("errorMessage", "Employee not found in your team.");
+			return "redirect:/manager/performance?month=" + reviewMonth;
+		}
+
+		if (rating < 1 || rating > 5) {
+			ra.addFlashAttribute("errorMessage", "Rating must be between 1 and 5.");
+			return "redirect:/manager/performance?month=" + reviewMonth;
+		}
+
+		// Upsert — update existing review if one already exists for this month
+		PerformanceReview review = performanceReviewRepository
+				.findByEmployeeAndReviewMonthAndTenantSegment(emp, reviewMonth, tenant)
+				.orElse(new PerformanceReview());
+
+		review.setEmployee(emp);
+		review.setReviewedBy(manager.getUsername());
+		review.setTenantSegment(tenant);
+		review.setReviewMonth(reviewMonth);
+		review.setRating(rating);
+		review.setRemarks(remarks != null ? remarks.trim() : "");
+		review.setReviewedAt(System.currentTimeMillis());
+		performanceReviewRepository.save(review);
+
+		// Automatically send a report to the employee, HR, and Admin
+		Report report = new Report();
+		report.setTitle("Performance Review Update - " + reviewMonth);
+
+		// Calculate stats for the report snapshot
+		String tenant = getTenantSegment(manager);
+		java.time.YearMonth ym = java.time.YearMonth.parse(reviewMonth);
+		LocalDate from = ym.atDay(1);
+		LocalDate to   = ym.atEndOfMonth().isAfter(LocalDate.now()) ? LocalDate.now() : ym.atEndOfMonth();
+
+		int workingDays = 0;
+		LocalDate d = from;
+		while (!d.isAfter(to)) {
+			java.time.DayOfWeek dow = d.getDayOfWeek();
+			if (dow != java.time.DayOfWeek.SATURDAY && dow != java.time.DayOfWeek.SUNDAY) workingDays++;
+			d = d.plusDays(1);
+		}
+		if (workingDays < 1) workingDays = 1;
+
+		List<Task> tasks = taskRepository.findByAssignedToAndTenantSegment(emp.getUsername(), tenant);
+		int totalT   = tasks.size();
+		int doneT    = (int) tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+		int pendingT = (int) tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+		int overdueT = (int) tasks.stream()
+				.filter(t -> !"done".equalsIgnoreCase(t.getStatus())
+						&& t.getDueDate() != null && !t.getDueDate().isBlank()
+						&& LocalDate.parse(t.getDueDate()).isBefore(LocalDate.now()))
+				.count();
+
+		int taskScoreCalc = 100;
+		if (totalT > 0) {
+			double raw = ((double) doneT / totalT) * 100.0 - (overdueT * 5.0);
+			taskScoreCalc = (int) Math.max(0, Math.min(100, raw));
+		}
+
+		List<Attendance> attRecords = attendanceRepository.findByUserAndDateBetweenOrderByDateDesc(emp, from, to);
+		int presentD = (int) attRecords.stream().filter(a -> "present".equalsIgnoreCase(a.getStatus())).count();
+		int lateD    = (int) attRecords.stream().filter(a -> "late".equalsIgnoreCase(a.getStatus())).count();
+
+		List<LeaveRequest> leaves = leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(emp);
+		int leaveD = 0;
+		for (LeaveRequest lr : leaves) {
+			if (!"Approved".equalsIgnoreCase(lr.getStatus()) || lr.getFromDate() == null) continue;
+			LocalDate lStart = lr.getFromDate().isBefore(from) ? from : lr.getFromDate();
+			LocalDate lEnd   = lr.getToDate() == null ? lStart : (lr.getToDate().isAfter(to) ? to : lr.getToDate());
+			LocalDate c = lStart;
+			while (!c.isAfter(lEnd)) {
+				if (c.getDayOfWeek() != java.time.DayOfWeek.SATURDAY && c.getDayOfWeek() != java.time.DayOfWeek.SUNDAY) leaveD++;
+				c = c.plusDays(1);
+			}
+		}
+		int effWorking = Math.max(1, workingDays - leaveD);
+		int absentD = Math.max(0, effWorking - presentD - lateD);
+		double attRaw = ((presentD + lateD * 0.5) / effWorking) * 100.0;
+		int attScore = (int) Math.max(0, Math.min(100, attRaw));
+		int overall = (int) (taskScoreCalc * 0.6 + attScore * 0.4);
+		String gradeStr = overall >= 90 ? "A+" : overall >= 75 ? "A" : overall >= 60 ? "B" : overall >= 45 ? "C" : "D";
+
+		report.setMessage("A performance review has been updated for " + emp.getUsername() + ".\n" +
+				"Month: " + reviewMonth + "\n" +
+				"Rating: " + rating + "/5\n" +
+				"Remarks: " + (remarks != null ? remarks.trim() : "None") + "\n\n" +
+				"--- Performance Snapshot ---\n" +
+				"Overall Score: " + overall + "% (" + gradeStr + ")\n" +
+				"Task Score: " + taskScoreCalc + "% | Attendance Score: " + attScore + "%\n" +
+				"Tasks: " + totalT + " total, " + doneT + " done, " + overdueT + " overdue\n" +
+				"Attendance: " + presentD + " present, " + lateD + " late, " + absentD + " absent");
+
+		report.setTaskScore(taskScoreCalc);
+		report.setAttendanceScore(attScore);
+		report.setOverallScore(overall);
+		report.setGrade(gradeStr);
+		report.setTotalTasks(totalT);
+		report.setDoneTasks(doneT);
+		report.setPendingTasks(pendingT);
+		report.setOverdueTasks(overdueT);
+		report.setPresentDays(presentD);
+		report.setAbsentDays(absentD);
+		report.setLateDays(lateD);
+		report.setLeaveDays(leaveD);
+
+		report.setSentBy(manager.getUsername());
+		report.setTenantSegment(tenant);
+
+		List<User> recipients = new ArrayList<>();
+		recipients.add(emp);
+		List<User> hrAndAdmins = userRepository.findByTenantSegment(tenant).stream()
+				.filter(u -> "HR".equalsIgnoreCase(u.getRole()) || "ADMIN".equalsIgnoreCase(u.getRole()))
+				.filter(u -> !u.getId().equals(emp.getId()))
+				.toList();
+		recipients.addAll(hrAndAdmins);
+
+		String idsCsv   = recipients.stream().map(u -> String.valueOf(u.getId())).collect(java.util.stream.Collectors.joining(","));
+		String namesCsv = recipients.stream().map(User::getUsername).collect(java.util.stream.Collectors.joining(", "));
+		report.setRecipientIds(idsCsv);
+		report.setRecipientNames(namesCsv);
+		reportRepository.save(report);
+
+		ra.addFlashAttribute("successMessage",
+				"Performance review updated and report sent to employee, HR, and Admin.");
+		return "redirect:/manager/performance?month=" + reviewMonth;
 	}
 }

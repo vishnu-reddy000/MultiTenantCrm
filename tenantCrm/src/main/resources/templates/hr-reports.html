@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HR — Reports</title>
+	<link rel="stylesheet" th:href="@{/hr.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		.report-card {
+			background:#fff; border:1px solid #e2e8f0; border-radius:14px;
+			padding:20px 24px; transition:box-shadow .18s,border-color .18s;
+		}
+		.report-card:hover { box-shadow:0 4px 20px rgba(23,69,94,.10); border-color:#bae6fd; }
+		.report-title { font-size:15px; font-weight:700; color:#0f2d4a; margin:0; }
+		.report-meta  { font-size:12px; color:#94a3b8; margin-top:3px; }
+		.report-sender {
+			display:inline-flex; align-items:center; gap:6px;
+			background:#eef6fb; color:#17455e; padding:3px 10px;
+			border-radius:20px; font-size:12px; font-weight:600;
+		}
+		.report-recipients {
+			display:inline-flex; align-items:center; gap:6px;
+			background:#f0f9ff; color:#0369a1; padding:3px 10px;
+			border-radius:20px; font-size:12px; font-weight:600; margin-top:6px;
+		}
+		.report-message {
+			font-size:13px; color:#475569; line-height:1.6;
+			margin:8px 0 12px;
+			display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+		}
+		.report-message.expanded { display:block; -webkit-line-clamp:unset; }
+		.read-more-btn {
+			background:none; border:none; color:#17455e; font-size:12px;
+			font-weight:600; cursor:pointer; padding:0; margin-top:4px;
+			text-decoration:underline; text-underline-offset:2px;
+		}
+		.attach-row { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+		.attach-item {
+			display:flex; align-items:center; justify-content:space-between;
+			gap:10px; padding:8px 12px;
+			background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px;
+		}
+		.attach-link {
+			background:none; border:none; padding:0; cursor:pointer;
+			display:inline-flex; align-items:center; gap:6px;
+			color:#0369a1; font-size:13px; font-weight:600;
+			text-decoration:underline; text-underline-offset:2px;
+			overflow:hidden; max-width:280px;
+		}
+		.attach-link span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+		.dl-btn {
+			flex-shrink:0; display:inline-flex; align-items:center; gap:4px;
+			padding:5px 10px; border-radius:6px; background:#17455e; color:#fff;
+			font-size:11px; font-weight:600; text-decoration:none; white-space:nowrap;
+		}
+		.reports-grid {
+			display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:18px;
+		}
+		.preview-overlay {
+			display:none; position:fixed; inset:0;
+			background:rgba(10,30,50,0.72); backdrop-filter:blur(3px);
+			z-index:20000; align-items:center; justify-content:center;
+		}
+		.preview-overlay.active { display:flex; }
+		.preview-box {
+			background:#fff; border-radius:18px; width:100%; max-width:860px;
+			max-height:92vh; display:flex; flex-direction:column;
+			box-shadow:0 24px 60px rgba(0,0,0,.18);
+		}
+		.modal-header {
+			display:flex; align-items:center; justify-content:space-between;
+			padding:18px 24px 14px; border-bottom:1px solid #f0f4f8;
+		}
+		.modal-header h2 { font-size:15px; font-weight:700; color:#0f2d4a; margin:0; }
+		.modal-close {
+			background:#f4f7fa; border:none; border-radius:50%; width:34px; height:34px;
+			display:flex; align-items:center; justify-content:center; cursor:pointer;
+			color:#64748b; transition:background .2s,color .2s; flex-shrink:0;
+		}
+		.modal-close:hover { background:#fee2e2; color:#dc2626; }
+		.empty-inbox {
+			display:flex; flex-direction:column; align-items:center;
+			justify-content:center; padding:60px 24px; text-align:center;
+		}
+		.empty-inbox h3 { font-size:18px; color:#0f2d4a; margin:16px 0 8px; font-weight:700; }
+		.empty-inbox p  { font-size:14px; color:#94a3b8; margin:0; }
+	</style>
+</head>
+<body>
+<div class="mobile-topbar">
+	<button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+	<span class="mobile-title">HR</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+	<div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
+	<div class="profile-box">
+		<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+		<h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+		<p th:text="${adminRole} ?: 'HR'">HR</p>
+	</div>
+	<ul class="sidebar-menu">
+		<li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+		<li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+		<li><a th:href="@{/hr/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+		<li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+		<li><a th:href="@{/hr/attendance}"><i data-lucide="calendar"></i> Attendance</a></li>
+		<li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+		<li><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+		<li><a th:href="@{/hr/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+		<li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+		<li class="active"><a th:href="@{/hr/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+		<li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+	</ul>
+	<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+
+<div class="main-wrapper">
+	<div class="topbar">
+		<h1>Reports</h1>
+		<div class="topbar-right">
+			<div class="search-box"><input type="text" id="globalSearch" placeholder="Search reports…"></div>
+			<div class="user-badge" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+		</div>
+	</div>
+
+	<div class="page-content">
+
+		<!-- Stats -->
+		<div class="stats-row" style="grid-template-columns:repeat(2,1fr);max-width:480px;margin-bottom:20px;">
+			<div class="stat-card">
+				<div class="stat-icon blue"><i data-lucide="send"></i></div>
+				<div class="stat-info">
+					<h3 th:text="${reportCount} ?: '0'">0</h3>
+					<p>Total Reports</p>
+				</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-icon green"><i data-lucide="users"></i></div>
+				<div class="stat-info">
+					<h3 th:text="${totalEmployees} ?: '0'">0</h3>
+					<p>Team Members</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Reports grid -->
+		<div th:if="${allReports != null and !#lists.isEmpty(allReports)}">
+			<div class="reports-grid" id="reportsGrid">
+				<div class="report-card" th:each="report : ${allReports}">
+					<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+						<div style="min-width:0;">
+							<h3 class="report-title" th:text="${report.title}">Title</h3>
+							<div class="report-meta">
+								<i data-lucide="clock" style="width:11px;height:11px;vertical-align:-1px;"></i>
+								<span th:text="${report.sentAtFormatted}">—</span>
+							</div>
+						</div>
+						<span class="report-sender" style="flex-shrink:0;">
+							<i data-lucide="user" style="width:12px;height:12px;"></i>
+							<span th:text="${report.sentBy}">Manager</span>
+						</span>
+					</div>
+
+					<!-- Recipients -->
+					<div th:if="${report.recipientNames != null and !#strings.isEmpty(report.recipientNames)}">
+						<span class="report-recipients">
+							<i data-lucide="users" style="width:12px;height:12px;"></i>
+							<span th:text="'To: ' + ${report.recipientNames}">—</span>
+						</span>
+					</div>
+
+					<!-- Message -->
+					<div th:if="${report.message != null and !#strings.isEmpty(report.message)}" style="margin-top:8px;">
+						<p class="report-message" th:text="${report.message}" th:id="'msg-' + ${report.id}"></p>
+						<button class="read-more-btn" th:attr="data-msg-id=${'msg-' + report.id}" onclick="toggleMessage(this)">Read more</button>
+					</div>
+					<p th:if="${report.message == null or #strings.isEmpty(report.message)}"
+					   style="font-size:13px;color:#94a3b8;font-style:italic;margin:8px 0 0;">No message.</p>
+
+					<!-- Attachments -->
+					<div th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}" style="margin-top:10px;">
+						<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:6px;">
+							Attachments (<span th:text="${#lists.size(report.attachments)}">0</span>)
+						</div>
+						<div class="attach-row">
+							<div class="attach-item" th:each="att : ${report.attachments}">
+								<button type="button" class="attach-link"
+										th:data-view-url="@{/hr/reports/view/{id}(id=${att.id})}"
+										th:data-download-url="@{/hr/reports/download/{id}(id=${att.id})}"
+										th:data-filename="${att.originalFilename}"
+										th:data-content-type="${att.contentType}"
+										onclick="openPreviewModal(this)">
+									<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i>
+									<span th:text="${att.originalFilename}">file.pdf</span>
+								</button>
+								<a class="dl-btn"
+								   th:href="@{/hr/reports/download/{id}(id=${att.id})}"
+								   th:attr="download=${att.originalFilename}">
+									<i data-lucide="download" style="width:12px;height:12px;"></i> Download
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Empty state -->
+		<div th:if="${allReports == null or #lists.isEmpty(allReports)}" class="card">
+			<div class="empty-inbox">
+				<i data-lucide="inbox" style="width:56px;height:56px;opacity:.25;color:#17455e;"></i>
+				<h3>No Reports Yet</h3>
+				<p>No manager reports have been sent in your organization yet.</p>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!-- File Preview Modal -->
+<div class="preview-overlay" id="previewModal" role="dialog" aria-modal="true">
+	<div class="preview-box">
+		<div class="modal-header">
+			<h2 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 140px);">
+				<i data-lucide="file" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;color:#17455e;"></i>
+				<span id="previewFilename">File Preview</span>
+			</h2>
+			<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+				<a id="previewDownloadBtn" href="#" download
+				   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">
+					<i data-lucide="download" style="width:13px;height:13px;"></i> Download
+				</a>
+				<button class="modal-close" onclick="closePreviewModal()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+			</div>
+		</div>
+		<div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;"></div>
+	</div>
+</div>
+
+<script>
+(function(){
+	var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+	function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+	function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+	if(hamburger)hamburger.addEventListener('click',openSidebar);
+	if(overlay)overlay.addEventListener('click',closeSidebar);
+
+	var gs=document.getElementById('globalSearch');
+	if(gs)gs.addEventListener('input',function(){
+		var q=this.value.toLowerCase();
+		document.querySelectorAll('.report-card').forEach(function(c){
+			c.style.display=c.textContent.toLowerCase().includes(q)?'':'none';
+		});
+	});
+
+	window.toggleMessage=function(btn){
+		var id=btn.getAttribute('data-msg-id');
+		var p=document.getElementById(id); if(!p)return;
+		var exp=p.classList.toggle('expanded');
+		btn.textContent=exp?'Show less':'Read more';
+	};
+
+	window.openPreviewModal=function(btn){
+		var viewUrl=btn.getAttribute('data-view-url');
+		var downloadUrl=btn.getAttribute('data-download-url');
+		var filename=btn.getAttribute('data-filename')||'file';
+		var ct=(btn.getAttribute('data-content-type')||'').toLowerCase();
+		document.getElementById('previewFilename').textContent=filename;
+		document.getElementById('previewDownloadBtn').href=downloadUrl;
+		document.getElementById('previewDownloadBtn').setAttribute('download',filename);
+		var body=document.getElementById('previewBody'); body.innerHTML='';
+		if(ct.startsWith('image/')){
+			var img=document.createElement('img'); img.src=viewUrl; img.alt=filename;
+			img.style.cssText='max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';
+			body.appendChild(img);
+		}else if(ct==='application/pdf'||ct.startsWith('text/')){
+			var iframe=document.createElement('iframe'); iframe.src=viewUrl; iframe.title=filename;
+			iframe.style.cssText='width:100%;height:75vh;border:none;'; body.appendChild(iframe);
+		}else{
+			body.innerHTML='<div style="text-align:center;padding:48px 24px;"><i data-lucide="file" style="width:56px;height:56px;color:#94a3b8;"></i><p style="font-size:14px;font-weight:600;color:#374151;margin:16px 0 8px;">'+filename+'</p><p style="font-size:13px;color:#6b7280;margin:0 0 20px;">Cannot preview this file.</p><a href="'+downloadUrl+'" download="'+filename+'" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;background:#17455e;color:#fff;font-size:13px;font-weight:600;text-decoration:none;"><i data-lucide="download" style="width:14px;height:14px;"></i> Download</a></div>';
+		}
+		document.getElementById('previewModal').classList.add('active');
+		document.body.style.overflow='hidden'; lucide.createIcons();
+	};
+
+	window.closePreviewModal=function(){
+		document.getElementById('previewModal').classList.remove('active');
+		document.body.style.overflow='';
+		document.getElementById('previewBody').innerHTML='';
+	};
+	document.getElementById('previewModal').addEventListener('click',function(e){if(e.target===this)closePreviewModal();});
+	document.addEventListener('keydown',function(e){if(e.key==='Escape')closePreviewModal();});
+	lucide.createIcons();
+})();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

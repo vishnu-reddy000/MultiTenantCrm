@@ -34,6 +34,8 @@ import com.crm.demo.model.AttendanceDay;
 import com.crm.demo.model.Holiday;
 import com.crm.demo.model.LeaveRequest;
 import com.crm.demo.model.Meeting;
+import com.crm.demo.model.Report;
+import com.crm.demo.model.ReportAttachment;
 import com.crm.demo.model.Task;
 import com.crm.demo.model.Team;
 import com.crm.demo.model.User;
@@ -41,6 +43,8 @@ import com.crm.demo.repository.AttendanceRepository;
 import com.crm.demo.repository.HolidayRepository;
 import com.crm.demo.repository.LeaveRequestRepository;
 import com.crm.demo.repository.MeetingRepository;
+import com.crm.demo.repository.ReportAttachmentRepository;
+import com.crm.demo.repository.ReportRepository;
 import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
@@ -61,6 +65,8 @@ public class HrController {
     @Autowired private MeetingRepository     meetingRepository;
     @Autowired private LeaveRequestRepository leaveRequestRepository;
     @Autowired private TaskRepository         taskRepository;
+    @Autowired private com.crm.demo.repository.ReportRepository reportRepository;
+    @Autowired private com.crm.demo.repository.ReportAttachmentRepository reportAttachmentRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
     @Autowired private ProfileUpdateService  profileUpdateService;
 
@@ -713,6 +719,49 @@ public class HrController {
         model.addAttribute("pageHeading", "Holiday Calendar");
         model.addAttribute("activePage",  "calendar");
         return "hr-calendar";
+    }
+
+    @GetMapping("/reports")
+    public String reportsPage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(request, model);
+        String tenant = getTenantSegment(request);
+
+        User hr = getCurrentHr();
+        java.util.List<com.crm.demo.model.Report> allReports;
+        if (hr != null) {
+            allReports = reportRepository.findByRecipientId(String.valueOf(hr.getId()), tenant);
+        } else {
+            allReports = java.util.Collections.emptyList();
+        }
+
+        model.addAttribute("allReports",  allReports);
+        model.addAttribute("reportCount", allReports.size());
+        return "hr-reports";
+    }
+
+    @GetMapping("/reports/view/{attachmentId}")
+    public org.springframework.http.ResponseEntity<?> viewReportAttachment(
+            @PathVariable Long attachmentId) {
+        com.crm.demo.model.ReportAttachment att = reportAttachmentRepository.findById(attachmentId).orElse(null);
+        if (att == null) return org.springframework.http.ResponseEntity.notFound().build();
+        String ct = att.getContentType() != null ? att.getContentType() : "application/octet-stream";
+        return org.springframework.http.ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + att.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, ct)
+                .body(att.getFileData());
+    }
+
+    @GetMapping("/reports/download/{attachmentId}")
+    public org.springframework.http.ResponseEntity<?> downloadReportAttachment(
+            @PathVariable Long attachmentId) {
+        com.crm.demo.model.ReportAttachment att = reportAttachmentRepository.findById(attachmentId).orElse(null);
+        if (att == null) return org.springframework.http.ResponseEntity.notFound().build();
+        String ct = att.getContentType() != null ? att.getContentType() : "application/octet-stream";
+        return org.springframework.http.ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + att.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, ct)
+                .body(att.getFileData());
     }
 
     @GetMapping("/settings")

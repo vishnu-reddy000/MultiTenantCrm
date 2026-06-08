@@ -14,6 +14,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     /** All reports sent by a specific manager, newest first. */
     List<Report> findBySentByAndTenantSegmentOrderBySentAtDesc(String sentBy, String tenantSegment);
 
+    /** All reports for a tenant, newest first (used by Admin/HR). */
+    List<Report> findByTenantSegmentOrderBySentAtDesc(String tenantSegment);
+
     /**
      * Reports where the given user ID appears in the recipientIds CSV.
      * Uses LIKE to find the ID within the comma-separated string.
