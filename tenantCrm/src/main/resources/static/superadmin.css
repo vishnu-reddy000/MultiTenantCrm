@@ -1010,39 +1010,29 @@ tbody tr:hover {
    TOAST
 ========================= */
 .toast {
-	position: fixed;
-	top: 24px;
-	right: 24px;
-	z-index: 9999;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 14px 20px;
-	border-radius: 14px;
-	font-size: 14px;
-	font-weight: 600;
-	min-width: 260px;
-	max-width: 420px;
-	box-shadow: 0 8px 28px rgba(0,0,0,0.12);
-	opacity: 0;
-	transform: translateY(-16px);
-	transition: opacity .3s ease, transform .3s ease;
-	pointer-events: none;
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 280px;
+    max-width: 460px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
 }
-.toast.toast-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.toast.toast-hide { opacity: 0; transform: translateY(-16px); }
-
-.toast.success {
-	background: var(--green-bg);
-	color: var(--green-fg);
-	border: 1.5px solid #6ee7b7;
-}
-
-.toast.error {
-	background: var(--red-bg);
-	color: var(--red-fg);
-	border: 1.5px solid #fca5a5;
-}
+.toast.show, .toast.toast-show, .toast.success, .toast.error { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.toast-hide { opacity: 0; transform: translateY(20px); }
+.toast.success { background: #dff5ea; color: #1b7a46; border: 1.5px solid #6ee7b7; }
+.toast.error   { background: #fdecec; color: #be123c; border: 1.5px solid #fca5a5; }
 
 /* =========================
    EMPTY STATE

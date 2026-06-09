@@ -97,18 +97,7 @@
 		}
 		.modal-close:hover { background:#fee2e2; color:#dc2626; }
 
-		/* ── Toast ── */
-		.toast {
-			position:fixed; bottom:30px; right:30px; background:#0f2d4a; color:#fff;
-			padding:13px 22px; border-radius:12px; font-size:14px; font-weight:600;
-			display:flex; align-items:center; gap:10px;
-			box-shadow:0 8px 30px rgba(0,0,0,.18); z-index:99999;
-			opacity:0; transform:translateY(12px); transition:opacity .3s,transform .3s;
-			pointer-events:none;
-		}
-		.toast.show { opacity:1; transform:translateY(0); }
-		.toast.success { border-left:4px solid #22c55e; }
-		.toast.error   { border-left:4px solid #ef4444; }
+		/* Standard toast used from employee.css */
 
 		/* ── Grid layout for report cards ── */
 		.reports-grid {
@@ -178,12 +167,9 @@
 
 	<div class="page-content">
 
-		<!-- Flash messages -->
-		<div class="toast success show" th:if="${successMessage}"
-			 style="position:relative;bottom:auto;right:auto;margin-bottom:16px;opacity:1;transform:none;pointer-events:auto;">
-			<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
-			<span th:text="${successMessage}"></span>
-		</div>
+		<!-- Flash messages (shown as bottom-right toast via JS) -->
+		<span id="flashSuccess" th:if="${successMessage}" th:text="${successMessage}" style="display:none;"></span>
+		<span id="flashError"   th:if="${errorMessage}"   th:text="${errorMessage}"   style="display:none;"></span>
 
 		<!-- Stats row -->
 		<div class="stats-row" style="grid-template-columns:repeat(1,1fr);max-width:260px;margin-bottom:24px;">
@@ -375,6 +361,7 @@
 	}
 
 	lucide.createIcons();
+	(function(){var s=document.getElementById('flashSuccess'),e=document.getElementById('flashError'),t=document.getElementById('toastMsg'),tt=document.getElementById('toastText');if(t&&tt){if(s&&s.textContent.trim()){tt.textContent=s.textContent.trim();t.className='toast success toast-show';setTimeout(function(){t.className='toast success';},4000);}else if(e&&e.textContent.trim()){tt.textContent=e.textContent.trim();t.className='toast error toast-show';setTimeout(function(){t.className='toast error';},4000);}}})();
 })();
 </script>
 <script th:src="@{/auth.js}"></script>

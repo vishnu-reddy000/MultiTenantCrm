@@ -141,26 +141,26 @@ tbody tr:hover { background:#f7fbfd; }
 
 .toast {
     position: fixed;
-    top: 24px;
+    bottom: 28px;
     right: 24px;
-    z-index: 9999;
+    z-index: 99999;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 14px 20px;
+    padding: 14px 22px;
     border-radius: 14px;
     font-size: 14px;
     font-weight: 600;
-    min-width: 260px;
-    max-width: 420px;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    min-width: 280px;
+    max-width: 460px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
     opacity: 0;
-    transform: translateY(-16px);
-    transition: opacity .3s ease, transform .3s ease;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
-.toast.toast-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.toast.toast-hide { opacity: 0; transform: translateY(-16px); }
+.toast.show, .toast.toast-show, .toast.success, .toast.error { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.toast-hide { opacity: 0; transform: translateY(20px); }
 .toast.success { background: #dff5ea; color: #1b7a46; border: 1.5px solid #6ee7b7; }
 .toast.error   { background: #fdecec; color: #be123c; border: 1.5px solid #fca5a5; }
 .empty-state { text-align:center; padding:40px 20px; color:#6b7280; }
@@ -189,20 +189,58 @@ tbody tr:hover { background:#f7fbfd; }
 .info-value { font-weight:700; color:#163647; }
 .role-badge { display:inline-flex; align-items:center; padding:6px 14px; border-radius:30px; background:#dcecf5; color:#17455e; font-size:12px; font-weight:700; }
 
-@media (max-width:1200px) { .stats-row { grid-template-columns:repeat(2,1fr); } .dashboard-grid { grid-template-columns:1fr; } .settings-container { grid-template-columns:1fr; } }
-@media (max-width:900px) {
-  .mobile-topbar { display:flex; }
-  .sidebar { left:0; top:0; bottom:0; border-radius:0 28px 28px 0; transform:translateX(-110%); }
-  .sidebar.open { transform:translateX(0); }
-  .main-wrapper { position:static; left:unset; top:unset; right:unset; bottom:unset; padding:0; overflow:visible; height:auto; }
-  .page-content { overflow:visible; padding:16px; }
-  .topbar { padding:16px 16px 0; }
-  .search-box { width:100%; }
+@media (max-width: 900px) {
+    html { zoom: 1; }
+    html, body { overflow-y: auto; height: auto; }
+    
+    .mobile-topbar { display: flex; }
+    
+    .sidebar {
+        left: -280px;
+        top: 0; bottom: 0;
+        border-radius: 0;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 280px;
+        box-shadow: 20px 0 50px rgba(0,0,0,0.3);
+    }
+    .sidebar.open { transform: translateX(300px); }
+    
+    .main-wrapper {
+        position: static;
+        left: 0; padding: 20px;
+        min-height: 100vh;
+    }
+    
+    .topbar { flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 10px; }
+    .topbar h1 { font-size: 22px; }
+    .topbar-right { width: 100%; justify-content: space-between; }
+    .search-box { flex: 1; max-width: none; }
+    
+    .stats-row { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .stat-card { padding: 14px; }
+    .stat-info h3 { font-size: 20px; }
+    
+    .dashboard-grid { grid-template-columns: 1fr; gap: 24px; }
+    
+    .card { padding: 18px; border-radius: 20px; }
+    .card-header h2 { font-size: 17px; }
+    
+    /* Tables on mobile */
+    .table-wrap {
+        margin: 0 -18px;
+        padding: 0 18px;
+        -webkit-overflow-scrolling: touch;
+    }
+    table { min-width: 600px; }
 }
-@media (max-width:600px) { .stats-row { grid-template-columns:1fr 1fr; gap:12px; } }
-@media (max-width:400px) { .stats-row { grid-template-columns:1fr; } }
 
-@media (max-width:900px) { .task-dashboard-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 500px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .topbar-right { flex-direction: column; align-items: stretch; }
+    .user-badge { align-self: flex-end; margin-top: -46px; }
+}
+
+@media (max-width: 900px) { .task-dashboard-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:560px) {
   .task-dashboard-stats { grid-template-columns:1fr; }
   .task-dashboard-stats .stat-card { min-height:auto; padding:16px; border-radius:16px; }
