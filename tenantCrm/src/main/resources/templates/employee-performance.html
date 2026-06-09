@@ -11,6 +11,11 @@
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    <div class="profile-box">
+        <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
+        <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>
+        <p th:text="${employeeRole} ?: 'Employee'">Employee</p>
+    </div>
     <ul class="sidebar-menu">
         <li><a th:href="@{/employee/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
         <li><a th:href="@{/employee/projects}"><i data-lucide="folder-open"></i> My Projects</a></li>

@@ -10,7 +10,9 @@
 <div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    <a th:href="@{/employee/dashboard}" style="text-decoration: none; color: inherit; display: block;">
+        <div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>Employee</h2></div>
+    </a>
     <div class="profile-box">
         <div class="profile-avatar" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
         <h3 th:text="${employeeName} ?: 'Employee'">Employee</h3>

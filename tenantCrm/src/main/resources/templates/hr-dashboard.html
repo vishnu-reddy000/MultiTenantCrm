@@ -15,10 +15,12 @@
 			Dashboard</span></div>
 	<div class="sidebar-overlay" id="sidebarOverlay"></div>
 	<div class="sidebar" id="sidebar">
-		<div class="sidebar-logo">
-			<div class="logo-icon"><i data-lucide="users"></i></div>
-			<h2>HR</h2>
-		</div>
+		<a th:href="@{/hr/dashboard}" style="text-decoration: none; color: inherit; display: block;">
+			<div class="sidebar-logo">
+				<div class="logo-icon"><i data-lucide="users"></i></div>
+				<h2>HR</h2>
+			</div>
+		</a>
 		<div class="profile-box">
 			<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
 			<h3 th:text="${adminName} ?: 'HR User'">HR User</h3>

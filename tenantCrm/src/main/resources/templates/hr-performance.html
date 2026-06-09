@@ -11,7 +11,12 @@
 <div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR Dashboard</span></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-	<div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>HR Panel</h2></div>
+	<div class="sidebar-logo"><div class="logo-icon"><i data-lucide="users"></i></div><h2>HR</h2></div>
+	<div class="profile-box">
+		<div class="profile-avatar" th:text="${#strings.substring(adminName ?: 'H', 0, 1).toUpperCase()}">H</div>
+		<h3 th:text="${adminName} ?: 'HR User'">HR User</h3>
+		<p th:text="${adminRole} ?: 'HR'">HR</p>
+	</div>
 	<ul class="sidebar-menu">
 		<li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
 		<li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
