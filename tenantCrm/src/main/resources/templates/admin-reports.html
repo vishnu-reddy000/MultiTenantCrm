@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Admin — Reports</title>
 	<link rel="stylesheet" th:href="@{/admin.css}">
+	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
@@ -256,5 +257,6 @@
 		document.addEventListener('keydown',function(e){if(e.key==='Escape')closePreviewModal();});
 	</script>
 	<script th:src="@{/auth.js}"></script>
+	<script th:src="@{/notifications.js}"></script>
 </body>
 </html>

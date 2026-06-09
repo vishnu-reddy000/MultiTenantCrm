@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>HR — Dashboard</title>
 	<link rel="stylesheet" th:href="@{/hr.css}">
+	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
@@ -160,6 +161,12 @@
 						</div>
 					</div>
 					<div class="card">
+						<div class="card-header"><div><h2>Notifications</h2><p>Recent updates for you</p></div></div>
+						<div id="dashboardNotifFeed" style="padding:4px 0;">
+							<div class="notif-feed-empty"><i data-lucide="bell-off"></i><p>Loading notifications…</p></div>
+						</div>
+					</div>
+					<div class="card">
 						<div class="card-header">
 							<div>
 								<h2>Quick Actions</h2>
@@ -196,6 +203,7 @@
 		lucide.createIcons();
 	</script>
 	<script th:src="@{/auth.js}"></script>
+	<script th:src="@{/notifications.js}"></script>
 </body>
 
 </html>

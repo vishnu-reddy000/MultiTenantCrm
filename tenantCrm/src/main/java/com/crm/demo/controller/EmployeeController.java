@@ -46,6 +46,7 @@ import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.TaskAttachmentRepository;
 import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
+import com.crm.demo.service.NotificationService;
 import com.crm.demo.service.ProfileUpdateService;
 
 import java.nio.file.Files;
@@ -82,6 +83,7 @@ public class EmployeeController {
     @Autowired private ReportAttachmentRepository reportAttachmentRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
     @Autowired private ProfileUpdateService  profileUpdateService;
+    @Autowired private NotificationService   notificationService;
 
     // ── helpers ───────────────────────────────────────────────────────────
 
@@ -348,6 +350,10 @@ public class EmployeeController {
         }
         
         taskRepository.save(task);
+
+        if ("done".equalsIgnoreCase(normalizedStatus)) {
+            notificationService.notifyTaskSubmittedForReview(emp, task);
+        }
 
         String message = "Task status updated to " + normalizedStatus + ".";
         ra.addFlashAttribute("successMessage", message);
@@ -707,6 +713,7 @@ public class EmployeeController {
         }
 
         leaveRequestRepository.save(leave);
+        notificationService.notifyLeaveSubmitted(leave);
         ra.addFlashAttribute("successMessage", "Leave request submitted to HR.");
         return "redirect:/employee/leaves";
     }

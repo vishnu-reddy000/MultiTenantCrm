@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title th:text="${pageTitle} ?: 'CRM — Admin'">CRM — Admin</title>
 	<link rel="stylesheet" th:href="@{/admin.css}">
+	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<style>
 		/* Ensure sidebar scrolls so all nav items are visible */
 		.sidebar {
@@ -944,6 +945,7 @@
 		});
 	</script>
 	<script th:src="@{/auth.js}"></script>
+	<script th:src="@{/notifications.js}"></script>
 </body>
 
 </html>

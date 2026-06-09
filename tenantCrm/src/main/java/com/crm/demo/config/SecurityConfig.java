@@ -58,6 +58,10 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/holidays", "POST")).hasAnyRole("ADMIN", "HR")
                 .requestMatchers(new AntPathRequestMatcher("/api/holidays/**", "PUT")).hasAnyRole("ADMIN", "HR")
                 .requestMatchers(new AntPathRequestMatcher("/api/holidays/**", "DELETE")).hasAnyRole("ADMIN", "HR")
+                .requestMatchers(new AntPathRequestMatcher("/api/notifications", "GET")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "GET")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "POST")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "DELETE")).authenticated()
                 // ── Role-scoped pages ────────────────────────────────────────
                 .requestMatchers(new AntPathRequestMatcher("/superadmin/**")).hasRole("SUPER_ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")

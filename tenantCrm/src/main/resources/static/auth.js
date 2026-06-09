@@ -56,10 +56,14 @@
     window.crmFetch = function (url, options = {}) {
         const token = localStorage.getItem(TOKEN_KEY);
         const headers = Object.assign({}, options.headers || {}, {
-            'Authorization': token ? 'Bearer ' + token : '',
-            'Content-Type':  options.contentType || 'application/json'
+            'Authorization': token ? 'Bearer ' + token : ''
         });
-        return fetch(url, Object.assign({}, options, { headers }));
+        if (options.contentType !== null) {
+            headers['Content-Type'] = options.contentType || 'application/json';
+        }
+        const fetchOptions = Object.assign({}, options, { headers });
+        delete fetchOptions.contentType;
+        return fetch(url, fetchOptions);
     };
 
     // ── Logout ────────────────────────────────────────────────────────────────

@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Employee &mdash; Settings</title>
 	<link rel="stylesheet" th:href="@{/employee.css}">
+	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 	<style>
 		.topbar { align-items: flex-start; }
@@ -79,7 +80,6 @@
 				<div class="breadcrumb"><a th:href="@{/employee/dashboard}"><i data-lucide="home"></i> Home</a><span>&#8250;</span><span>Settings</span></div>
 			</div>
 			<div class="topbar-right">
-				<button class="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
 				<div class="user-badge" th:text="${#strings.substring(employeeName ?: 'E', 0, 1).toUpperCase()}">E</div>
 			</div>
 		</div>
@@ -153,6 +153,7 @@
 		setupPasswordToggle('confirmPasswordField', 'toggleConfirmPassword', 'toggleConfirmPasswordIcon');
 	</script>
 	<script th:src="@{/auth.js}"></script>
+	<script th:src="@{/notifications.js}"></script>
 </body>
 
 </html>

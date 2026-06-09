@@ -48,6 +48,7 @@ import com.crm.demo.repository.ReportRepository;
 import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
+import com.crm.demo.service.NotificationService;
 import com.crm.demo.service.ProfileUpdateService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,6 +70,7 @@ public class HrController {
     @Autowired private com.crm.demo.repository.ReportAttachmentRepository reportAttachmentRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
     @Autowired private ProfileUpdateService  profileUpdateService;
+    @Autowired private NotificationService   notificationService;
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -709,6 +711,16 @@ public class HrController {
         leave.setReviewedBy(hr != null ? hr.getUsername() : null);
         leave.setReviewedAt(LocalDateTime.now());
         leaveRequestRepository.save(leave);
+
+        if (leave.getEmployee() != null) {
+            notificationService.notifyLeaveReviewed(
+                    leave.getEmployee(),
+                    leave.getStatus(),
+                    leave.getType(),
+                    leave.getFromDate(),
+                    leave.getToDate(),
+                    hr != null ? hr.getUsername() : "HR");
+        }
         return "redirect:/hr/leaves";
     }
 
@@ -861,7 +873,10 @@ public class HrController {
             ra.addFlashAttribute("errorMessage", "Team not found.");
             return "redirect:/hr/teams";
         }
-        userRepository.findById(managerId).ifPresent(team::setManager);
+        userRepository.findById(managerId).ifPresent(manager -> {
+            team.setManager(manager);
+            notificationService.notifyManagerAssigned(manager, team.getName());
+        });
         teamRepository.save(team);
         ra.addFlashAttribute("successMessage", "Manager assigned to team '" + team.getName() + "'.");
         return "redirect:/hr/teams";
@@ -887,6 +902,7 @@ public class HrController {
         if (!team.getMembers().contains(emp)) {
             team.getMembers().add(emp);
             teamRepository.save(team);
+            notificationService.notifyTeamAdded(emp, team.getName());
             ra.addFlashAttribute("successMessage", emp.getUsername() + " added to team '" + team.getName() + "'.");
         } else {
             ra.addFlashAttribute("errorMessage", emp.getUsername() + " is already in this team.");
@@ -1028,6 +1044,7 @@ public class HrController {
         meetingForm.setTenantSegment(tenant);
         meetingForm.setScheduledBy(username != null ? username : "");
         meetingRepository.save(meetingForm);
+        notificationService.notifyMeetingParticipants(meetingForm);
         ra.addFlashAttribute("successMessage", "Meeting scheduled successfully.");
         return "redirect:/hr/meetings";
     }
@@ -1103,6 +1120,7 @@ public class HrController {
         existing.setAgenda(meetingForm.getAgenda());
         existing.setSendNotification(meetingForm.isSendNotification());
         meetingRepository.save(existing);
+        notificationService.notifyMeetingParticipants(existing);
 
         ra.addFlashAttribute("successMessage", "Meeting updated successfully.");
         return "redirect:/hr/meetings";

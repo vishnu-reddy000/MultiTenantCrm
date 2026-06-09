@@ -64,6 +64,7 @@ import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.TaskAttachmentRepository;
 import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.repository.UserRepository;
+import com.crm.demo.service.NotificationService;
 import com.crm.demo.service.ProfileUpdateService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -116,6 +117,9 @@ public class ManagerController {
 
 	@Autowired
 	private ProfileUpdateService profileUpdateService;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	// =========================
 	// COMMON STATS METHOD
@@ -434,6 +438,8 @@ public class ManagerController {
 			}
 		}
 
+		notificationService.notifyTaskAssigned(assignedUser, manager.getUsername(), task.getTitle());
+
 		ra.addFlashAttribute("successMessage", "Task assigned to " + assignedUser.getUsername() + " successfully.");
 		return "redirect:/manager/tasks";
 	}
@@ -527,7 +533,26 @@ public class ManagerController {
 		}
 
 		taskRepository.save(task);
+
+		User assignee = resolveTaskAssignee(task);
+		if (assignee != null) {
+			notificationService.notifyTaskVerified(
+					assignee, manager.getUsername(), task.getTitle(), action, reason);
+		}
+
 		return "redirect:/manager/tasks";
+	}
+
+	private User resolveTaskAssignee(Task task) {
+		if (task == null) return null;
+		if (task.getAssignedToId() != null) {
+			User byId = userRepository.findById(task.getAssignedToId()).orElse(null);
+			if (byId != null) return byId;
+		}
+		if (task.getAssignedTo() != null && !task.getAssignedTo().isBlank()) {
+			return userRepository.findByUsername(task.getAssignedTo());
+		}
+		return null;
 	}
 
 	// =========================
@@ -839,6 +864,10 @@ public class ManagerController {
 			}
 		}
 
+		for (User recipient : validRecipients) {
+			notificationService.notifyReportReceived(recipient, manager.getUsername(), title.trim());
+		}
+
 		ra.addFlashAttribute("successMessage", "Report sent to " + validRecipients.size() + " recipient(s) successfully.");
 		return "redirect:/manager/reports";
 	}
@@ -975,6 +1004,7 @@ public class ManagerController {
 		meetingForm.setTenantSegment(tenant);
 		meetingForm.setScheduledBy(username);
 		meetingRepository.save(meetingForm);
+		notificationService.notifyMeetingParticipants(meetingForm);
 		ra.addFlashAttribute("successMessage", "Meeting scheduled successfully.");
 		return "redirect:/manager/meetings";
 	}
@@ -1036,6 +1066,7 @@ public class ManagerController {
 		existing.setAgenda(meetingForm.getAgenda());
 		existing.setSendNotification(meetingForm.isSendNotification());
 		meetingRepository.save(existing);
+		notificationService.notifyMeetingParticipants(existing);
 
 		ra.addFlashAttribute("successMessage", "Meeting updated successfully.");
 		return "redirect:/manager/meetings";
@@ -1627,6 +1658,7 @@ public class ManagerController {
 		review.setRemarks(remarks != null ? remarks.trim() : "");
 		review.setReviewedAt(System.currentTimeMillis());
 		performanceReviewRepository.save(review);
+		notificationService.notifyPerformanceReview(emp, manager.getUsername(), reviewMonth, rating);
 
 		// Automatically send a report to the employee, HR, and Admin
 		Report report = new Report();

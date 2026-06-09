@@ -25,6 +25,7 @@ import com.crm.demo.repository.ReportAttachmentRepository;
 import com.crm.demo.repository.ReportRepository;
 import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.UserRepository;
+import com.crm.demo.service.NotificationService;
 import com.crm.demo.service.ProfileUpdateService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,6 +59,9 @@ public class AdminController {
 
 	@Autowired
 	private ProfileUpdateService profileUpdateService;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	// =========================================================
 	// COMMON USER DETAILS
@@ -557,7 +561,10 @@ public class AdminController {
 			return "admin-scheduleMeeting";
 		}
 
-		meetingForm.setTenantSegment(tenant);		meetingForm.setScheduledBy(username != null ? username : "");		meetingRepository.save(meetingForm);
+		meetingForm.setTenantSegment(tenant);
+		meetingForm.setScheduledBy(username != null ? username : "");
+		meetingRepository.save(meetingForm);
+		notificationService.notifyMeetingParticipants(meetingForm);
 		ra.addFlashAttribute("successMessage", "Meeting scheduled successfully.");
 		return "redirect:/admin/schedule-meeting";
 	}
@@ -636,6 +643,7 @@ public class AdminController {
 		existing.setAgenda(meetingForm.getAgenda());
 		existing.setSendNotification(meetingForm.isSendNotification());
 		meetingRepository.save(existing);
+		notificationService.notifyMeetingParticipants(existing);
 
 		ra.addFlashAttribute("successMessage", "Meeting updated successfully.");
 		return "redirect:/admin/schedule-meeting";

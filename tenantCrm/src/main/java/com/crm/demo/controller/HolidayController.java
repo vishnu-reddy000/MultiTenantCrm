@@ -16,6 +16,7 @@ import com.crm.demo.model.Holiday;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.UserRepository;
 import com.crm.demo.service.HolidayService;
+import com.crm.demo.service.NotificationService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -27,8 +28,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/holidays")
 public class HolidayController {
 
-    @Autowired private HolidayService  holidayService;
-    @Autowired private UserRepository  userRepository;
+    @Autowired private HolidayService       holidayService;
+    @Autowired private UserRepository       userRepository;
+    @Autowired private NotificationService  notificationService;
 
     // ── Tenant helper ─────────────────────────────────────────────────────
     private String getTenant(HttpServletRequest request) {
@@ -71,6 +73,7 @@ public class HolidayController {
         h.setType(type);
         h.setTenantSegment(tenant);
         holidayService.save(h);
+        notificationService.notifyHolidayAdded(tenant, name, date);
 
         resp.put("success", true);
         resp.put("message", "Holiday added.");

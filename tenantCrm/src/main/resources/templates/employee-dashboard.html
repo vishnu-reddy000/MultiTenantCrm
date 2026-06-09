@@ -4,6 +4,7 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee — Dashboard</title>
     <link rel="stylesheet" th:href="@{/employee.css}">
+	<link rel="stylesheet" th:href="@{/notifications.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
@@ -116,6 +117,12 @@
                     </div>
                 </div>
                 <div class="card">
+                    <div class="card-header"><div><h2>Notifications</h2><p>Recent updates for you</p></div></div>
+                    <div id="dashboardNotifFeed" style="padding:4px 0;">
+                        <div class="notif-feed-empty"><i data-lucide="bell-off"></i><p>Loading notifications…</p></div>
+                    </div>
+                </div>
+                <div class="card">
                     <div class="card-header"><div><h2>Quick Actions</h2></div></div>
                     <div class="quick-actions">
                         <a th:href="@{/employee/projects}" class="quick-action-btn"><span class="qa-icon" style="background:#dcecf5;color:#17455e;"><i data-lucide="folder-open"></i></span><span>My Projects</span></a>
@@ -137,5 +144,6 @@
     lucide.createIcons();
 </script>
 <script th:src="@{/auth.js}"></script>
+<script th:src="@{/notifications.js}"></script>
 </body>
 </html>
