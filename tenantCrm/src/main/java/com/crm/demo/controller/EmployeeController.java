@@ -806,4 +806,18 @@ public class EmployeeController {
                 .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .body(attachment.getFileData());
     }
+
+    @GetMapping("/performance")
+    public String performancePage(Model model) {
+        injectUser(model);
+        injectStats(model);
+        User emp = getCurrentEmployee();
+        if (emp != null) {
+            String tenant = getTenantSegment(emp);
+            // Employee sees their own performance metrics
+            // We can reuse the logic from ManagerController's calculatePerformance stats if needed,
+            // or just show the reports where they are mentioned.
+        }
+        return "employee-performance";
+    }
 }

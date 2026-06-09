@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HR — Performance</title>
+	<link rel="stylesheet" th:href="@{/hr.css}">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR Dashboard</span></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+	<div class="sidebar-logo"><div class="logo-icon"><i data-lucide="user"></i></div><h2>HR Panel</h2></div>
+	<ul class="sidebar-menu">
+		<li><a th:href="@{/hr/dashboard}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+		<li><a th:href="@{/hr/employees}"><i data-lucide="users"></i> Employees</a></li>
+		<li><a th:href="@{/hr/tasks}"><i data-lucide="check-square"></i> Tasks</a></li>
+		<li><a th:href="@{/hr/recruitment}"><i data-lucide="briefcase"></i> Recruitment</a></li>
+		<li><a th:href="@{/hr/attendance}"><i data-lucide="calendar-check"></i> Attendance</a></li>
+		<li><a th:href="@{/hr/leaves}"><i data-lucide="file-text"></i> Leave Requests</a></li>
+		<li><a th:href="@{/hr/teams}"><i data-lucide="users-round"></i> Teams</a></li>
+		<li><a th:href="@{/hr/meetings}"><i data-lucide="calendar-clock"></i> Meetings</a></li>
+		<li><a th:href="@{/hr/calendar}"><i data-lucide="calendar"></i> Calendar</a></li>
+		<li class="active"><a th:href="@{/hr/performance}"><i data-lucide="bar-chart-2"></i> Performance</a></li>
+		<li><a th:href="@{/hr/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
+		<li><a th:href="@{/hr/settings}"><i data-lucide="settings"></i> Settings</a></li>
+	</ul>
+	<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i> Logout</button></a>
+</div>
+<div class="main-wrapper">
+	<div class="topbar">
+		<h1>Performance Overview</h1>
+		<div class="topbar-right"><div class="user-badge" th:text="${#strings.substring(adminName ?: 'H',0,1).toUpperCase()}">H</div></div>
+	</div>
+	<div class="page-content">
+		<div class="card">
+			<div class="card-header"><div><h2>Employee Performance</h2><p>Overview of performance across all departments</p></div></div>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr><th>Employee</th><th>Role</th><th>Overall Score</th><th>Grade</th><th>Status</th></tr>
+					</thead>
+					<tbody>
+						<tr th:each="emp : ${employees}">
+							<td th:text="${emp.username}">Employee</td>
+							<td th:text="${emp.role}">Role</td>
+							<td><span class="status-badge" th:text="'85%'">0%</span></td>
+							<td><span class="grade-badge" th:text="'A'">B</span></td>
+							<td><span class="status-badge" th:classappend="${emp.active ? 'active' : 'inactive'}" th:text="${emp.status}">Active</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	var hamburger=document.getElementById('hamburgerBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay');
+	function openSidebar(){sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';}
+	function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';}
+	if(hamburger)hamburger.addEventListener('click',openSidebar);
+	if(overlay)overlay.addEventListener('click',closeSidebar);
+	lucide.createIcons();
+</script>
+<script th:src="@{/auth.js}"></script>
+</body>
+</html>

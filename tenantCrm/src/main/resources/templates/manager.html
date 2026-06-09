@@ -36,15 +36,26 @@
 			<li th:classappend="${activePage == 'team'} ? 'active' : ''">
 				<a th:href="@{/manager/team}">&#128101; My Team</a>
 			</li>
-
 			<li th:classappend="${activePage == 'tasks'} ? 'active' : ''">
 				<a th:href="@{/manager/tasks}">&#9989; Tasks</a>
+			</li>
+			<li th:classappend="${activePage == 'reports'} ? 'active' : ''">
+				<a th:href="@{/manager/reports}">&#128202; Reports</a>
 			</li>
 			<li th:classappend="${activePage == 'attendance'} ? 'active' : ''">
 				<a th:href="@{/manager/attendance}">&#128197; Attendance</a>
 			</li>
 			<li th:classappend="${activePage == 'leave'} ? 'active' : ''">
 				<a th:href="@{/manager/leaves}">&#128197; Leave Request</a>
+			</li>
+			<li th:classappend="${activePage == 'meetings'} ? 'active' : ''">
+				<a th:href="@{/manager/meetings}">&#128197; Meetings</a>
+			</li>
+			<li th:classappend="${activePage == 'calendar'} ? 'active' : ''">
+				<a th:href="@{/manager/calendar}">&#128197; Calendar</a>
+			</li>
+			<li th:classappend="${activePage == 'performance'} ? 'active' : ''">
+				<a th:href="@{/manager/performance}">&#128202; Performance</a>
 			</li>
 			<li th:classappend="${activePage == 'settings'} ? 'active' : ''">
 				<a th:href="@{/manager/settings}">&#9881; Settings</a>

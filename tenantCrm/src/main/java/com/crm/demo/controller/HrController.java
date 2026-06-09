@@ -1123,4 +1123,11 @@ public class HrController {
         }
         return "redirect:/hr/meetings";
     }
+
+    @GetMapping("/performance")
+    public String performancePage(HttpServletRequest request, Model model) {
+        injectUser(request, model);
+        injectStats(request, model);
+        return "hr-performance";
+    }
 }

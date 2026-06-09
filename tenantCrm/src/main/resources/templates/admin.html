@@ -98,15 +98,26 @@
 			<li th:classappend="${activePage == 'schedule-meeting'} ? 'active'">
 				<a th:href="@{/admin/schedule-meeting}">&#128197; Schedule Meeting</a>
 			</li>
-
+			<li th:classappend="${activePage == 'meetings'} ? 'active'">
+				<a th:href="@{/admin/meetings}">&#128101; Meetings</a>
+			</li>
+			<li th:classappend="${activePage == 'projects'} ? 'active'">
+				<a th:href="@{/admin/projects}">&#128193; Projects</a>
+			</li>
 			<li th:classappend="${activePage == 'tasks'} ? 'active'">
-				<a th:href="@{/admin/tasks}">&#9989; Tasks</a>
+				<a th:href="@{/admin/tasks}">&#128221; Tasks</a>
 			</li>
 			<li th:classappend="${activePage == 'reports'} ? 'active'">
-				<a th:href="@{/admin/reports}">&#128196; Reports</a>
+				<a th:href="@{/admin/reports}">&#128202; Reports</a>
 			</li>
 			<li th:classappend="${activePage == 'calendar'} ? 'active'">
 				<a th:href="@{/admin/calendar}">&#9884; Calendar</a>
+			</li>
+			<li th:classappend="${activePage == 'attendance'} ? 'active'">
+				<a th:href="@{/admin/attendance}">&#128197; Attendance</a>
+			</li>
+			<li th:classappend="${activePage == 'leaves'} ? 'active'">
+				<a th:href="@{/admin/leaves}">&#128196; Leaves</a>
 			</li>
 			<li th:classappend="${activePage == 'settings'} ? 'active'">
 				<a th:href="@{/admin/settings}">&#9881; Settings</a>
