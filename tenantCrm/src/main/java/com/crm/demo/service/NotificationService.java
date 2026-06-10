@@ -2,7 +2,9 @@ package com.crm.demo.service;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,18 +140,55 @@ public class NotificationService {
     }
 
     public void notifyTaskSubmittedForReview(User employee, Task task) {
+        notifyTaskStatusUpdated(employee, task, "done");
+    }
+
+    public void notifyTaskStatusUpdated(User employee, Task task, String status) {
         if (employee == null || task == null) return;
         String tenant = getTenantSegment(employee);
+        Map<Long, User> managers = new LinkedHashMap<>();
+
+        if (task.getCreatedBy() != null && !task.getCreatedBy().isBlank()) {
+            User creator = userRepository.findByUsername(task.getCreatedBy().trim());
+            addTaskStatusRecipient(managers, creator, employee, task);
+        }
+
         List<Team> teams = teamRepository.findByMemberAndTenant(employee, tenant);
         for (Team team : teams) {
             User manager = team.getManager();
-            if (manager == null) continue;
+            addTaskStatusRecipient(managers, manager, employee, task);
+        }
+
+        String displayStatus = displayTaskStatus(status != null ? status : task.getStatus());
+        boolean reviewReady = "done".equalsIgnoreCase(status != null ? status : task.getStatus());
+        String title = reviewReady ? "Task Ready for Review" : "Task Status Updated";
+        String message = reviewReady
+                ? employee.getUsername() + " updated \"" + task.getTitle() + "\" to Done and submitted it for your review."
+                : employee.getUsername() + " updated \"" + task.getTitle() + "\" to " + displayStatus + ".";
+
+        for (User manager : managers.values()) {
             notify(manager,
-                    "Task Ready for Review",
-                    employee.getUsername() + " submitted \"" + task.getTitle() + "\" for your review.",
+                    title,
+                    message,
                     "TASK",
                     tasksLink(manager));
         }
+    }
+
+    private void addTaskStatusRecipient(Map<Long, User> recipients, User manager, User employee, Task task) {
+        if (manager == null || manager.getId() == null) return;
+        if (employee != null && manager.getId().equals(employee.getId())) return;
+        if (task != null && task.getTenantSegment() != null && !task.getTenantSegment().isBlank()
+                && !task.getTenantSegment().equals(getTenantSegment(manager))) {
+            return;
+        }
+        recipients.putIfAbsent(manager.getId(), manager);
+    }
+
+    private String displayTaskStatus(String status) {
+        if ("in-progress".equalsIgnoreCase(status)) return "In Progress";
+        if ("done".equalsIgnoreCase(status)) return "Done";
+        return "Pending";
     }
 
     public void notifyTaskVerified(User employee, String managerName, String taskTitle,

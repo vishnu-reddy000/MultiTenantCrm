@@ -351,9 +351,7 @@ public class EmployeeController {
         
         taskRepository.save(task);
 
-        if ("done".equalsIgnoreCase(normalizedStatus)) {
-            notificationService.notifyTaskSubmittedForReview(emp, task);
-        }
+        notificationService.notifyTaskStatusUpdated(emp, task, normalizedStatus);
 
         String message = "Task status updated to " + normalizedStatus + ".";
         ra.addFlashAttribute("successMessage", message);
