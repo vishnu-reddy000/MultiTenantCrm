@@ -534,28 +534,44 @@
 
 	<!-- ── Add Member Modal ── -->
 	<div class="modal-overlay" id="addMemberModal">
-		<div class="modal">
+		<div class="modal" style="width:440px;max-width:95vw;">
 			<h3><i data-lucide="user-plus"
-					style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Add Member</h3>
-			<p id="addMemberTeamName" style="font-size:13px;color:#6b7280;margin-bottom:16px;"></p>
+					style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Add Members</h3>
+			<p id="addMemberTeamName" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
 			<form id="addMemberForm" method="post">
-				<div class="form-group">
-					<label>Select Employee</label>
-					<select name="employeeId" required>
-						<option value="">— Select Employee —</option>
-						<option th:each="emp : ${employees}" th:value="${emp.id}"
-							th:text="${emp.username} + ' (' + ${emp.email} + ')'">Employee</option>
-					</select>
+				<!-- Search filter -->
+				<div style="position:relative;margin-bottom:10px;">
+					<i data-lucide="search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ab3bd;pointer-events:none;"></i>
+					<input type="text" id="empSearch" placeholder="Search employees…"
+						style="width:100%;height:38px;border:1.5px solid #e5edf2;border-radius:10px;padding:0 12px 0 32px;font-size:13px;font-family:inherit;color:#163647;background:#f7fbfd;outline:none;box-sizing:border-box;"
+						oninput="filterEmpCheckboxes(this.value)">
 				</div>
+
+				<!-- Checkbox list -->
+				<div id="empCheckboxList"
+					style="max-height:240px;overflow-y:auto;border:1.5px solid #e5edf2;border-radius:12px;padding:6px 8px;background:#fafcfe;">
+					<!-- populated by JS when modal opens -->
+					<p style="text-align:center;color:#9ab3bd;font-size:13px;padding:16px 0;">Loading…</p>
+				</div>
+
+				<p id="noEmpMsg" style="display:none;text-align:center;color:#9ab3bd;font-size:13px;padding:8px 0;">
+					No available employees.
+				</p>
+
 				<div class="modal-actions">
 					<button type="button" class="btn-cancel" onclick="closeAddMemberModal()">Cancel</button>
-					<button type="submit" class="btn-confirm">Add to Team</button>
+					<button type="submit" class="btn-confirm" id="addMemberSubmit">Add to Team</button>
 				</div>
 			</form>
 		</div>
 	</div>
 
 	<div id="toast"></div>
+
+	<!-- Employee data for JS multi-select -->
+	<script id="employeeData" type="application/json" th:inline="javascript">
+		/*[[${employees.![{id: id, username: username, email: email}]}]]*/[]
+	</script>
 
 	<script>
 		// Sidebar toggle
@@ -570,17 +586,74 @@
 		function closeCreateModal() {document.getElementById('createModal').classList.remove('open');}
 
 		function closeAssignManagerModal() {document.getElementById('assignManagerModal').classList.remove('open');}
-		function closeAddMemberModal() {document.getElementById('addMemberModal').classList.remove('open');}
+		function closeAddMemberModal() {
+			document.getElementById('addMemberModal').classList.remove('open');
+			document.getElementById('empSearch').value = '';
+		}
 
-		// Build a global Set of ALL employee IDs already assigned to ANY team.
-		// This is computed once from the data-member-ids attributes on every "Add Member" button.
+		// All employees from Thymeleaf — serialized as JSON into a hidden element
+		var allEmployees = JSON.parse(document.getElementById('employeeData').textContent || '[]');
+
+		// Build a Set of ALL employee IDs already assigned to ANY team on this page
 		function getAllAssignedEmployeeIds() {
 			var allAssigned = new Set();
 			document.querySelectorAll('[data-action="add-member"]').forEach(function (btn) {
-				var ids = (btn.getAttribute('data-member-ids') || '').split(',').filter(Boolean);
-				ids.forEach(function (id) {allAssigned.add(id);});
+				(btn.getAttribute('data-member-ids') || '').split(',').filter(Boolean)
+					.forEach(function (id) { allAssigned.add(id); });
 			});
 			return allAssigned;
+		}
+
+		// Populate the checkbox list when opening the Add Members modal
+		function populateEmpCheckboxes(assignedInThisTeamIds) {
+			var allAssigned = getAllAssignedEmployeeIds();
+			var list = document.getElementById('empCheckboxList');
+			var noMsg = document.getElementById('noEmpMsg');
+			list.innerHTML = '';
+			var available = allEmployees.filter(function (emp) {
+				return !allAssigned.has(String(emp.id));
+			});
+			if (available.length === 0) {
+				list.style.display = 'none';
+				noMsg.style.display = 'block';
+				return;
+			}
+			list.style.display = '';
+			noMsg.style.display = 'none';
+			available.forEach(function (emp) {
+				var label = document.createElement('label');
+				label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;cursor:pointer;transition:background .15s;';
+				label.onmouseover = function() { this.style.background = '#f0f7fb'; };
+				label.onmouseout = function() { this.style.background = ''; };
+
+				var cb = document.createElement('input');
+				cb.type = 'checkbox';
+				cb.name = 'employeeIds';
+				cb.value = emp.id;
+				cb.style.cssText = 'width:16px;height:16px;accent-color:#17455e;flex-shrink:0;cursor:pointer;';
+
+				var avatar = document.createElement('div');
+				avatar.style.cssText = 'width:28px;height:28px;border-radius:50%;background:#e9e2ff;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;';
+				avatar.textContent = emp.username.charAt(0).toUpperCase();
+
+				var info = document.createElement('div');
+				info.style.cssText = 'flex:1;min-width:0;';
+				info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#163647;">' + emp.username + '</div>'
+					+ '<div style="font-size:11px;color:#9ab3bd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + emp.email + '</div>';
+
+				label.appendChild(cb);
+				label.appendChild(avatar);
+				label.appendChild(info);
+				list.appendChild(label);
+			});
+		}
+
+		function filterEmpCheckboxes(query) {
+			var q = query.toLowerCase();
+			document.querySelectorAll('#empCheckboxList label').forEach(function (label) {
+				var text = label.textContent.toLowerCase();
+				label.style.display = text.indexOf(q) > -1 ? '' : 'none';
+			});
 		}
 
 		// Event delegation — handles data-action buttons rendered inside th:each loops
@@ -600,19 +673,19 @@
 			if (action === 'add-member') {
 				document.getElementById('addMemberTeamName').textContent = 'Team: ' + teamName;
 				document.getElementById('addMemberForm').action = '/hr/teams/' + teamId + '/add-member';
-
-				// Collect ALL employee IDs already assigned to ANY team across the whole page.
-				// An employee already in another team will be hidden from the dropdown,
-				// enforcing the "one employee — one team" rule.
-				var allAssignedIds = getAllAssignedEmployeeIds();
-
-				var select = document.querySelector('#addMemberForm select[name="employeeId"]');
-				Array.from(select.options).forEach(function (opt) {
-					if (opt.value === '') return; // keep the placeholder option
-					opt.hidden = allAssignedIds.has(opt.value);
-				});
-
+				var memberIds = (btn.getAttribute('data-member-ids') || '').split(',').filter(Boolean);
+				populateEmpCheckboxes(memberIds);
+				document.getElementById('empSearch').value = '';
 				document.getElementById('addMemberModal').classList.add('open');
+			}
+		});
+
+		// Prevent submit if nothing is checked
+		document.getElementById('addMemberForm').addEventListener('submit', function (e) {
+			var checked = this.querySelectorAll('input[name="employeeIds"]:checked');
+			if (checked.length === 0) {
+				e.preventDefault();
+				alert('Please select at least one employee.');
 			}
 		});
 

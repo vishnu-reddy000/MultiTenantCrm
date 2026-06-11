@@ -1037,10 +1037,10 @@ public class HrController {
         return "redirect:/hr/teams";
     }
 
-    /** POST /hr/teams/{id}/add-member — add an employee to the team. */
+    /** POST /hr/teams/{id}/add-member — add one or more employees to the team. */
     @PostMapping("/teams/{id}/add-member")
     public String addMember(@PathVariable Long id,
-                            @RequestParam Long employeeId,
+                            @RequestParam(value = "employeeIds", required = false) List<Long> employeeIds,
                             HttpServletRequest request,
                             RedirectAttributes ra) {
         String tenant = getTenantSegment(request);
@@ -1049,18 +1049,37 @@ public class HrController {
             ra.addFlashAttribute("errorMessage", "Team not found.");
             return "redirect:/hr/teams";
         }
-        User emp = userRepository.findById(employeeId).orElse(null);
-        if (emp == null || !"EMPLOYEE".equalsIgnoreCase(emp.getRole())) {
-            ra.addFlashAttribute("errorMessage", "Employee not found.");
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            ra.addFlashAttribute("errorMessage", "Please select at least one employee.");
             return "redirect:/hr/teams";
         }
-        if (!team.getMembers().contains(emp)) {
+
+        int added = 0;
+        List<String> skipped = new ArrayList<>();
+
+        for (Long empId : employeeIds) {
+            User emp = userRepository.findById(empId).orElse(null);
+            if (emp == null || !"EMPLOYEE".equalsIgnoreCase(emp.getRole())) {
+                skipped.add("ID " + empId + " not found");
+                continue;
+            }
+            if (team.getMembers().contains(emp)) {
+                skipped.add(emp.getUsername() + " already in team");
+                continue;
+            }
             team.getMembers().add(emp);
-            teamRepository.save(team);
             notificationService.notifyTeamAdded(emp, team.getName());
-            ra.addFlashAttribute("successMessage", emp.getUsername() + " added to team '" + team.getName() + "'.");
+            added++;
+        }
+
+        if (added > 0) {
+            teamRepository.save(team);
+            String msg = added + " member(s) added to team '" + team.getName() + "'.";
+            if (!skipped.isEmpty()) msg += " Skipped: " + String.join(", ", skipped) + ".";
+            ra.addFlashAttribute("successMessage", msg);
         } else {
-            ra.addFlashAttribute("errorMessage", emp.getUsername() + " is already in this team.");
+            ra.addFlashAttribute("errorMessage",
+                    "No members added. " + (skipped.isEmpty() ? "" : "Skipped: " + String.join(", ", skipped)));
         }
         return "redirect:/hr/teams";
     }

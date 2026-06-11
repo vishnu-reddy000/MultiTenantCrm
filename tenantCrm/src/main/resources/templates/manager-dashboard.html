@@ -8,6 +8,91 @@
 	<link rel="stylesheet" th:href="@{/manager.css}">
 	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+	<style>
+		.analytics-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin-top: 4px;
+		}
+		.card-full { grid-column: 1 / -1; }
+		.chart-box {
+			position: relative;
+			width: 100%;
+			height: 240px;
+		}
+		.chart-box-tall {
+			position: relative;
+			width: 100%;
+			height: 260px;
+		}
+		.chart-box canvas, .chart-box-tall canvas { display: block; }
+		.insight-row {
+			display: flex;
+			gap: 8px;
+			margin-top: 14px;
+			flex-wrap: wrap;
+		}
+		.insight-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 11.5px;
+			font-weight: 600;
+		}
+		.insight-chip::before {
+			content: '';
+			width: 7px; height: 7px;
+			border-radius: 50%;
+			background: currentColor;
+			flex-shrink: 0;
+		}
+		.chip-green  { background: #dff5ea; color: #1b7a46; }
+		.chip-red    { background: #fdecec; color: #d11a2a; }
+		.chip-blue   { background: #dcecf5; color: #17455e; }
+		.chip-orange { background: #fce9d8; color: #c05621; }
+		.chip-purple { background: #e9e2ff; color: #6b46c1; }
+		.chip-teal   { background: #e0f2f9; color: #0891b2; }
+		.section-label {
+			font-size: 11px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: .08em;
+			color: #6b7280;
+			margin: 22px 0 14px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.chart-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 3px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.chart-badge::before {
+			content: '';
+			width: 6px; height: 6px;
+			border-radius: 50%;
+			background: currentColor;
+		}
+		@media (max-width: 1000px) {
+			.analytics-grid { grid-template-columns: 1fr; }
+			.card-full { grid-column: 1; }
+		}
+		@media (max-width: 600px) {
+			.chart-box { height: 200px; }
+			.chart-box-tall { height: 220px; }
+		}
+	</style>
 </head>
 
 <body>
@@ -81,6 +166,96 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- ── ANALYTICS SECTION ── -->
+			<p class="section-label">
+				<i data-lucide="bar-chart-2"></i> Analytics &amp; Insights
+			</p>
+			<div class="analytics-grid">
+
+				<!-- 1. Task Status Breakdown — Doughnut -->
+				<div class="card">
+					<div class="card-header">
+						<div><h2>Task Status</h2><p>Breakdown of all assigned tasks</p></div>
+						<span class="chart-badge chip-blue">Doughnut</span>
+					</div>
+					<div class="card-body">
+						<div class="chart-box"><canvas id="taskStatusChart"></canvas></div>
+						<div class="insight-row">
+							<span class="insight-chip chip-green"  id="chip-done">0 Done</span>
+							<span class="insight-chip chip-blue"   id="chip-inprog">0 In Progress</span>
+							<span class="insight-chip chip-orange" id="chip-pending">0 Pending</span>
+							<span class="insight-chip chip-purple" id="chip-review">0 Review</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. Task Priority — Pie -->
+				<div class="card">
+					<div class="card-header">
+						<div><h2>Task Priority</h2><p>Distribution across priority levels</p></div>
+						<span class="chart-badge chip-orange">Pie Chart</span>
+					</div>
+					<div class="card-body">
+						<div class="chart-box"><canvas id="taskPriorityChart"></canvas></div>
+						<div class="insight-row">
+							<span class="insight-chip chip-red"    id="chip-high">0 High</span>
+							<span class="insight-chip chip-orange" id="chip-medium">0 Medium</span>
+							<span class="insight-chip chip-green"  id="chip-low">0 Low</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- 3. Tasks per Member — Bar (full width) -->
+				<div class="card card-full">
+					<div class="card-header">
+						<div><h2>Tasks per Team Member</h2><p>Number of tasks assigned to each member</p></div>
+						<span class="chart-badge chip-teal">Bar Chart</span>
+					</div>
+					<div class="card-body">
+						<div class="chart-box-tall"><canvas id="memberTaskChart"></canvas></div>
+					</div>
+				</div>
+
+				<!-- 4. Team Status — Pie -->
+				<div class="card">
+					<div class="card-header">
+						<div><h2>Team Status</h2><p>Active vs Inactive members</p></div>
+						<span class="chart-badge chip-green">Pie Chart</span>
+					</div>
+					<div class="card-body">
+						<div class="chart-box"><canvas id="teamStatusChart"></canvas></div>
+						<div class="insight-row">
+							<span class="insight-chip chip-green" id="chip-active-team">0 Active</span>
+							<span class="insight-chip chip-red"   id="chip-inactive-team">0 Inactive</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- 5. Verification Status — Doughnut -->
+				<div class="card">
+					<div class="card-header">
+						<div><h2>Verification Status</h2><p>Task review and approval breakdown</p></div>
+						<span class="chart-badge chip-purple">Doughnut</span>
+					</div>
+					<div class="card-body">
+						<div class="chart-box"><canvas id="verificationChart"></canvas></div>
+						<div class="insight-row">
+							<span class="insight-chip chip-green"  id="chip-approved">0 Approved</span>
+							<span class="insight-chip chip-red"    id="chip-rejected">0 Rejected</span>
+							<span class="insight-chip chip-orange" id="chip-waiting">0 Waiting</span>
+							<span class="insight-chip chip-blue"   id="chip-unverified">0 Open</span>
+						</div>
+					</div>
+				</div>
+
+			</div><!-- end analytics-grid -->
+
+			<!-- ── OVERVIEW LABEL ── -->
+			<p class="section-label" style="margin-top:28px;">
+				<i data-lucide="layout-list"></i> Overview
+			</p>
+
 			<div class="dashboard-grid">
 				<div class="card">
 					<div class="card-header">
@@ -212,6 +387,182 @@
 		if (overlay) overlay.addEventListener('click', closeSidebar);
 		lucide.createIcons();
 	</script>
+
+	<!-- ── Thymeleaf → JS bridge ── -->
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	const DB = {
+		statusDone:       /*[[${chartStatusDone}]]*/ 0,
+		statusInProgress: /*[[${chartStatusInProgress}]]*/ 0,
+		statusPending:    /*[[${chartStatusPending}]]*/ 0,
+		statusReview:     /*[[${chartStatusReview}]]*/ 0,
+		priorityHigh:     /*[[${chartPriorityHigh}]]*/ 0,
+		priorityMedium:   /*[[${chartPriorityMedium}]]*/ 0,
+		priorityLow:      /*[[${chartPriorityLow}]]*/ 0,
+		memberLabels:     /*[[${chartMemberLabels}]]*/ [],
+		memberTaskCounts: /*[[${chartMemberTaskCounts}]]*/ [],
+		activeTeam:       /*[[${chartActiveTeam}]]*/ 0,
+		inactiveTeam:     /*[[${chartInactiveTeam}]]*/ 0,
+		verified:         /*[[${chartVerified}]]*/ 0,
+		rejected:         /*[[${chartRejected}]]*/ 0,
+		waiting:          /*[[${chartWaiting}]]*/ 0,
+		unverified:       /*[[${chartUnverified}]]*/ 0,
+		totalMyTasks:     /*[[${chartTotalMyTasks}]]*/ 0
+	};
+	/*]]>*/
+	</script>
+
+	<script>
+	// ── Chart.js global defaults ──────────────────────────────────────────
+	Chart.defaults.font.family = "'Poppins', sans-serif";
+	Chart.defaults.font.size   = 12;
+	Chart.defaults.color       = '#6b7280';
+	Chart.defaults.plugins.legend.labels.usePointStyle     = true;
+	Chart.defaults.plugins.legend.labels.pointStyleWidth   = 10;
+	Chart.defaults.plugins.legend.labels.padding           = 18;
+	Chart.defaults.plugins.tooltip.padding                 = 10;
+	Chart.defaults.plugins.tooltip.cornerRadius            = 10;
+	Chart.defaults.plugins.tooltip.titleFont               = { weight: '700' };
+
+	const PRIMARY = '#17455e', GREEN = '#1b7a46', RED = '#d11a2a',
+	      BLUE = '#2563eb', ORANGE = '#c05621', PURPLE = '#6b46c1',
+	      TEAL = '#0891b2', AMBER = '#d97706';
+
+	const pctLabel = ctx => {
+		const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+		const pct   = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
+		return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+	};
+
+	// ── Update insight chips ──────────────────────────────────────────────
+	document.getElementById('chip-done').textContent       = DB.statusDone + ' Done';
+	document.getElementById('chip-inprog').textContent     = DB.statusInProgress + ' In Progress';
+	document.getElementById('chip-pending').textContent    = DB.statusPending + ' Pending';
+	document.getElementById('chip-review').textContent     = DB.statusReview + ' Review';
+	document.getElementById('chip-high').textContent       = DB.priorityHigh + ' High';
+	document.getElementById('chip-medium').textContent     = DB.priorityMedium + ' Medium';
+	document.getElementById('chip-low').textContent        = DB.priorityLow + ' Low';
+	document.getElementById('chip-active-team').textContent   = DB.activeTeam + ' Active';
+	document.getElementById('chip-inactive-team').textContent = DB.inactiveTeam + ' Inactive';
+	document.getElementById('chip-approved').textContent   = DB.verified + ' Approved';
+	document.getElementById('chip-rejected').textContent   = DB.rejected + ' Rejected';
+	document.getElementById('chip-waiting').textContent    = DB.waiting + ' Waiting';
+	document.getElementById('chip-unverified').textContent = DB.unverified + ' Open';
+
+	// ── 1. Task Status — Doughnut ─────────────────────────────────────────
+	new Chart(document.getElementById('taskStatusChart'), {
+		type: 'doughnut',
+		data: {
+			labels: ['Done', 'In Progress', 'Pending', 'Waiting Review'],
+			datasets: [{
+				data: [DB.statusDone, DB.statusInProgress, DB.statusPending, DB.statusReview],
+				backgroundColor: [
+					'rgba(27,122,70,.85)', 'rgba(37,99,235,.85)',
+					'rgba(192,86,33,.85)', 'rgba(107,70,193,.85)'
+				],
+				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+			}]
+		},
+		options: {
+			responsive: true, maintainAspectRatio: false, cutout: '60%',
+			plugins: {
+				legend: { position: 'bottom' },
+				tooltip: { callbacks: { label: pctLabel } }
+			}
+		}
+	});
+
+	// ── 2. Task Priority — Pie ────────────────────────────────────────────
+	new Chart(document.getElementById('taskPriorityChart'), {
+		type: 'pie',
+		data: {
+			labels: ['High', 'Medium', 'Low'],
+			datasets: [{
+				data: [DB.priorityHigh, DB.priorityMedium, DB.priorityLow],
+				backgroundColor: [
+					'rgba(209,26,42,.85)', 'rgba(192,86,33,.80)', 'rgba(27,122,70,.80)'
+				],
+				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+			}]
+		},
+		options: {
+			responsive: true, maintainAspectRatio: false,
+			plugins: {
+				legend: { position: 'bottom' },
+				tooltip: { callbacks: { label: pctLabel } }
+			}
+		}
+	});
+
+	// ── 3. Tasks per Member — Bar (full width) ────────────────────────────
+	new Chart(document.getElementById('memberTaskChart'), {
+		type: 'bar',
+		data: {
+			labels: DB.memberLabels.length ? DB.memberLabels : ['No Members'],
+			datasets: [{
+				label: 'Tasks Assigned',
+				data: DB.memberTaskCounts.length ? DB.memberTaskCounts : [0],
+				backgroundColor: 'rgba(23,69,94,.18)',
+				borderColor: PRIMARY,
+				borderWidth: 2,
+				borderRadius: 8,
+				borderSkipped: false
+			}]
+		},
+		options: {
+			responsive: true, maintainAspectRatio: false,
+			plugins: { legend: { display: false } },
+			scales: {
+				y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f6f9' } },
+				x: { grid: { display: false } }
+			}
+		}
+	});
+
+	// ── 4. Team Status — Pie ──────────────────────────────────────────────
+	new Chart(document.getElementById('teamStatusChart'), {
+		type: 'pie',
+		data: {
+			labels: ['Active', 'Inactive'],
+			datasets: [{
+				data: [DB.activeTeam || 0, DB.inactiveTeam || 0],
+				backgroundColor: ['rgba(27,122,70,.85)', 'rgba(209,26,42,.80)'],
+				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+			}]
+		},
+		options: {
+			responsive: true, maintainAspectRatio: false,
+			plugins: {
+				legend: { position: 'bottom' },
+				tooltip: { callbacks: { label: pctLabel } }
+			}
+		}
+	});
+
+	// ── 5. Verification Status — Doughnut ────────────────────────────────
+	new Chart(document.getElementById('verificationChart'), {
+		type: 'doughnut',
+		data: {
+			labels: ['Approved', 'Rejected', 'Waiting Review', 'Open'],
+			datasets: [{
+				data: [DB.verified, DB.rejected, DB.waiting, DB.unverified],
+				backgroundColor: [
+					'rgba(27,122,70,.85)', 'rgba(209,26,42,.80)',
+					'rgba(192,86,33,.80)', 'rgba(37,99,235,.75)'
+				],
+				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+			}]
+		},
+		options: {
+			responsive: true, maintainAspectRatio: false, cutout: '60%',
+			plugins: {
+				legend: { position: 'bottom' },
+				tooltip: { callbacks: { label: pctLabel } }
+			}
+		}
+	});
+	</script>
+
 	<script th:src="@{/auth.js}"></script>
 	<script th:src="@{/notifications.js}"></script>
 </body>

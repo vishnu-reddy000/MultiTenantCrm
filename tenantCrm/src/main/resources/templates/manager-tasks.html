@@ -458,10 +458,162 @@
 			background: #e8f2f8;
 		}
 
-		/* uniform row alignment */
-		#taskTable tbody td {
-			vertical-align: middle;
+		/* ═══════════════════════════════════════════
+		   TASK TABLE — matches reference design
+		═══════════════════════════════════════════ */
+
+		/* Card header toolbar */
+		.tasks-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 18px 20px 14px;
+			border-bottom: 1px solid #f0f4f8;
+			flex-wrap: wrap;
+			gap: 10px;
 		}
+		.tasks-toolbar-left h2 { font-size:17px;font-weight:700;color:#0f172a;margin:0 0 2px; }
+		.tasks-toolbar-left p  { font-size:13px;color:#94a3b8;margin:0; }
+		.tasks-toolbar-right   { display:flex;align-items:center;gap:10px; }
+
+		.filter-select {
+			height:38px;padding:0 32px 0 12px;border:1.5px solid #e2e8f0;
+			border-radius:10px;font-size:13px;font-family:inherit;color:#334155;
+			background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+			appearance:none;cursor:pointer;outline:none;
+		}
+		.filter-select:focus { border-color:#1a6b8a; }
+
+		/* Table structure */
+		.tasks-table { width:100%;border-collapse:collapse; }
+
+		.tasks-table thead th {
+			padding:10px 16px;font-size:11px;font-weight:700;
+			text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;
+			background:#f8fafc;border-bottom:1px solid #eef2f7;text-align:left;
+			white-space:nowrap;
+		}
+		.tasks-table thead th:first-child { border-radius:8px 0 0 0; }
+		.tasks-table thead th:last-child  { border-radius:0 8px 0 0; }
+
+		/* Column widths */
+		.tasks-table th.col-num     { width:52px;text-align:center; }
+		.tasks-table th.col-details { /* flex */ }
+		.tasks-table th.col-pri     { width:110px; }
+		.tasks-table th.col-status  { width:150px; }
+		.tasks-table th.col-due     { width:130px; }
+		.tasks-table th.col-actions { width:220px; }
+		.tasks-table th.col-more    { width:36px; }
+
+		.tasks-table tbody tr {
+			border-bottom:1px solid #f1f5f9;
+			transition:background .15s;
+		}
+		.tasks-table tbody tr:last-child { border-bottom:none; }
+		.tasks-table tbody tr:hover      { background:#f8fbfd; }
+
+		.tasks-table tbody td {
+			padding:14px 16px;vertical-align:middle;font-size:13px;color:#334155;
+		}
+
+		/* # cell */
+		.td-num {
+			text-align:center;font-size:13px;font-weight:700;color:#c7d4de;
+		}
+
+		/* Task details cell */
+		.td-title    { font-size:14px;font-weight:700;color:#0f172a;margin-bottom:5px; }
+		.td-meta     { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+
+		.meta-chip {
+			display:inline-flex;align-items:center;gap:4px;
+			background:#f0f7fb;color:#1a6b8a;
+			border:1px solid #d6ecf5;border-radius:20px;
+			padding:3px 10px;font-size:12px;font-weight:600;
+		}
+		.meta-chip.attach {
+			background:#f5f3ff;color:#6b46c1;border-color:#ddd6fe;
+			cursor:pointer;
+		}
+		.meta-chip.attach:hover { background:#ede9fe; }
+		.meta-chip.empty-assign { background:#f8fafc;color:#94a3b8;border-color:#e2e8f0; }
+
+		/* Priority badge */
+		.pri-badge {
+			display:inline-flex;align-items:center;gap:5px;
+			padding:4px 12px;border-radius:20px;
+			font-size:12px;font-weight:700;
+		}
+		.pri-badge.high   { background:#fee2e2;color:#b91c1c; }
+		.pri-badge.medium { background:#fef3c7;color:#b45309; }
+		.pri-badge.low    { background:#dcfce7;color:#15803d; }
+
+		/* Status badge */
+		.stat-badge {
+			display:inline-flex;align-items:center;gap:5px;
+			padding:4px 12px;border-radius:20px;
+			font-size:12px;font-weight:600;white-space:nowrap;
+		}
+		.stat-badge.done     { background:#dcfce7;color:#15803d; }
+		.stat-badge.review   { background:#fef3c7;color:#b45309; }
+		.stat-badge.returned { background:#fee2e2;color:#991b1b; }
+		.stat-badge.inprog   { background:#fce9d8;color:#b45309; }
+		.stat-badge.pending  { background:#f1f5f9;color:#64748b; }
+
+		/* Due date */
+		.due-cell { display:flex;flex-direction:column;gap:2px; }
+		.due-main { display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#334155;font-weight:500; }
+		.due-sub  { font-size:11px;color:#94a3b8;padding-left:18px; }
+
+		/* Actions cell */
+		.act-wrap {
+			display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+		}
+		.act-btn {
+			display:inline-flex;align-items:center;gap:4px;
+			padding:5px 11px;border-radius:8px;font-size:12px;
+			font-weight:600;border:none;cursor:pointer;
+			white-space:nowrap;font-family:inherit;
+			line-height:1.3;flex-shrink:0;
+			transition:opacity .18s,transform .1s;
+		}
+		.act-btn:hover          { opacity:.85;transform:translateY(-1px); }
+		.act-btn.btn-verify     { background:#dcfce7;color:#15803d; }
+		.act-btn.btn-return     { background:#fff7ed;color:#c2410c;border:1px solid #fed7aa; }
+		.act-btn.btn-history    { background:#eff6ff;color:#1d4ed8; }
+		.act-btn.btn-delete     { background:#fef2f2;color:#dc2626; }
+
+		/* ⋮ more button */
+		.btn-more {
+			width:30px;height:30px;border:none;background:none;
+			color:#94a3b8;cursor:pointer;border-radius:6px;
+			display:flex;align-items:center;justify-content:center;
+			font-size:18px;transition:background .15s;
+		}
+		.btn-more:hover { background:#f1f5f9;color:#334155; }
+
+		/* Pagination bar */
+		.pagination-bar {
+			display:flex;align-items:center;justify-content:space-between;
+			padding:14px 20px;border-top:1px solid #f0f4f8;
+			font-size:13px;color:#64748b;flex-wrap:wrap;gap:10px;
+		}
+		.page-btns { display:flex;align-items:center;gap:6px; }
+		.page-btn {
+			width:32px;height:32px;border:1.5px solid #e2e8f0;
+			border-radius:8px;background:#fff;cursor:pointer;
+			display:flex;align-items:center;justify-content:center;
+			font-size:13px;font-weight:600;color:#334155;
+			transition:background .15s,border-color .15s;
+		}
+		.page-btn:hover { background:#f8fafc; }
+		.page-btn.active { background:#17455e;color:#fff;border-color:#17455e; }
+		.page-btn:disabled { opacity:.4;cursor:default; }
+		.rows-select { height:32px;padding:0 28px 0 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#334155;background:#fff;appearance:none;cursor:pointer;outline:none; }
+
+		/* scroll safety */
+		.tasks-scroll { overflow-x:auto;-webkit-overflow-scrolling:touch; }
+		.tasks-scroll table { min-width:680px; }
 
 		/* Standard toast used from manager.css */
 
@@ -592,150 +744,80 @@
 				</div>
 			</div>
 
-			<!-- Tasks Table (updated with extra columns) -->
-			<div class="card">
-				<div class="card-header">
-					<div>
+			<!-- ══════════════════════════════
+			     TASKS CARD
+			══════════════════════════════ -->
+			<div class="card" style="padding:0;overflow:hidden;">
+
+				<!-- Toolbar -->
+				<div class="tasks-toolbar">
+					<div class="tasks-toolbar-left">
 						<h2>All Tasks</h2>
 						<p th:text="${totalTasks} + ' task(s)'">0 task(s)</p>
 					</div>
-					<button class="btn-new-task" id="openModalBtn">
-						<i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Assign Task
-					</button>
+					<div class="tasks-toolbar-right">
+						<!-- Priority filter -->
+						<select class="filter-select" id="priorityFilter" onchange="filterTasks()">
+							<option value="">All Priorities</option>
+							<option value="High">High</option>
+							<option value="Medium">Medium</option>
+							<option value="Low">Low</option>
+						</select>
+						<button class="btn-new-task" id="openModalBtn">
+							<i data-lucide="plus-circle" style="width:15px;height:15px;"></i> Assign Task
+						</button>
+					</div>
 				</div>
-				<div class="table-wrap">
-					<table id="taskTable">
+
+				<!-- Table -->
+				<div class="tasks-scroll">
+					<table class="tasks-table" id="taskTable">
 						<thead>
 							<tr>
-								<th>#</th>
-								<th>Title</th>
-								<th>Assigned To</th>
-								<th>Priority</th>
-								<th>Status</th>
-								<th>Due Date</th>
-								<th>Attachments</th>
-								<th>Actions</th>
+								<th class="col-num">#</th>
+								<th class="col-details">Task Details</th>
+								<th class="col-pri">Priority</th>
+								<th class="col-status">Status</th>
+								<th class="col-due">Due Date</th>
+								<th class="col-actions">Actions</th>
+								<th class="col-more"></th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr th:each="task, stat : ${tasks}">
-								<td th:text="${stat.count}">1</td>
-								<td style="font-weight:600;" th:text="${task.title}">Task</td>
-								<td>
-									<span class="assignee-badge" th:if="${task.assignedTo != null and !#strings.isEmpty(task.assignedTo)}">
-										<i data-lucide="user" style="width:12px;height:12px;"></i>
-										<span th:text="${task.assignedTo}">Employee</span>
-									</span>
-									<span th:if="${task.assignedTo == null or #strings.isEmpty(task.assignedTo)}"
-										style="color:#94a3b8;font-size:13px;">—</span>
+						<tbody id="taskTbody">
+							<!-- Empty state -->
+							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
+								<td colspan="7" style="padding:52px;text-align:center;">
+									<div class="empty-state">
+										<i data-lucide="check-square" style="width:48px;height:48px;opacity:.25;"></i>
+										<h3>No Tasks Yet</h3>
+										<p>Click "Assign Task" to create your first task.</p>
+									</div>
 								</td>
-								<td>
-									<span class="task-priority"
-										th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')"
-										th:text="${task.priority}">Medium</span>
-								</td>
-								<td>
-									<!-- Done + Approved -->
-									<span class="status-badge active"
-										th:if="${task.status == 'done' and task.verificationStatus == 'approved'}">
-										<i data-lucide="check-circle" style="width:12px;height:12px;"></i> Done
-									</span>
-									<!-- Submitted by employee, awaiting manager review -->
-									<span class="status-badge" style="background:#fef3c7;color:#b45309;"
-										th:if="${task.verificationStatus == 'waiting-for-review'}">
-										<i data-lucide="clock" style="width:12px;height:12px;"></i> Awaiting Review
-									</span>
-									<!-- Returned to employee -->
-									<span class="status-badge" style="background:#fee2e2;color:#991b1b;"
-										th:if="${task.verificationStatus == 'rejected'}">
-										<i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Returned
-									</span>
-									<!-- In Progress -->
-									<span class="status-badge" style="background:#fce9d8;color:#b45309;"
-										th:if="${task.status == 'in-progress' and task.verificationStatus != 'rejected'}">In Progress</span>
-									<!-- Pending -->
-									<span class="status-badge inactive"
-										th:if="${task.status == 'pending' and task.verificationStatus == 'pending'}">Pending</span>
-								</td>
-								<td style="color:#6b7280;font-size:13px;" th:text="${task.dueDate} ?: '—'">—</td>
-								<td>
-									<th:block th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}"
-									          th:with="attachmentCount=${#lists.size(task.attachments)}">
-										<div class="task-attachments-list">
-										<div class="task-attachment-item" th:each="att, attStat : ${task.attachments}"
-										     th:classappend="${attStat.index >= 1} ? ' task-attachment-extra' : ''">
-											<button type="button"
-											        th:data-view-url="@{/manager/tasks/view/{id}(id=${att.id})}"
-											        th:data-download-url="@{/manager/tasks/download/{id}(id=${att.id})}"
-											        th:data-filename="${att.originalFilename}"
-											        th:data-content-type="${att.contentType}"
-											        onclick="openPreviewModal(this)"
-											        class="task-attachment-link">
-												<i data-lucide="paperclip" style="width:12px;height:12px;"></i>
-												<span class="task-attachment-name" th:text="${att.originalFilename}"></span>
-											</button>
-											<span class="attachment-uploader"
-											      th:text="${att.uploadedBy != null and !#strings.isEmpty(att.uploadedBy)} ? '↑ ' + ${att.uploadedBy} : '↑ Unknown'">
-											</span>
-										</div>
-										<button type="button" class="task-attachments-toggle"
-										        th:if="${attachmentCount > 1}"
-										        th:attr="data-view-label=|View more (${attachmentCount - 1} more)|,data-hide-label='Show less'"
-										        th:text="|View more (${attachmentCount - 1} more)|"
-										        aria-expanded="false"
-										        onclick="toggleTaskAttachments(this)">View more</button>
-										</div>
-									</th:block>
-									<th:block th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and !#lists.isEmpty(task.attachmentList)}"
-									          th:with="attachmentCount=${#lists.size(task.attachmentList)}">
-										<div class="task-attachments-list">
-										<div class="task-attachment-item" th:each="att, attStat : ${task.attachmentList}"
-										     th:classappend="${attStat.index >= 1} ? ' task-attachment-extra' : ''">
-											<button type="button"
-											        th:data-view-url="@{/manager/tasks/view/{s}(s=${#strings.substringAfter(att,'::')})}"
-											        th:data-download-url="@{/manager/tasks/download/{s}(s=${#strings.substringAfter(att,'::')})}"
-											        th:data-filename="${#strings.substringBefore(att,'::')}"
-											        th:data-content-type="'application/octet-stream'"
-											        onclick="openPreviewModal(this)"
-											        class="task-attachment-link">
-												<i data-lucide="paperclip" style="width:12px;height:12px;"></i>
-												<span class="task-attachment-name" th:text="${#strings.substringBefore(att,'::')}"></span>
-											</button>
-										</div>
-										<button type="button" class="task-attachments-toggle"
-										        th:if="${attachmentCount > 1}"
-										        th:attr="data-view-label=|View more (${attachmentCount - 1} more)|,data-hide-label='Show less'"
-										        th:text="|View more (${attachmentCount - 1} more)|"
-										        aria-expanded="false"
-										        onclick="toggleTaskAttachments(this)">View more</button>
-										</div>
-									</th:block>
-									<span th:if="${(task.attachments == null or #lists.isEmpty(task.attachments)) and #lists.isEmpty(task.attachmentList)}"
-										style="color:#cbd5e1;font-size:13px;">—</span>
-								</td>
-								<td>
-									<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+							</tr>
 
-										<!-- VERIFY DONE: shown when employee submitted for review -->
-										<form th:if="${task.verificationStatus == 'waiting-for-review'}"
-										      th:action="@{/manager/tasks/verify/{id}(id=${task.id})}" method="post" style="display:inline;">
-											<input type="hidden" name="action" value="approve">
-											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#dff5ea;color:#1b7a46;border:none;cursor:pointer;transition:background .18s;">
-												<i data-lucide="check-circle" style="width:13px;height:13px;"></i> Verify Done
-											</button>
-										</form>
+							<tr th:each="task, stat : ${tasks}"
+								th:attr="data-priority=${task.priority}">
 
-										<!-- RETURN TO EMPLOYEE: opens rejection modal -->
-										<button type="button"
-										        th:if="${task.verificationStatus == 'waiting-for-review'}"
-										        th:data-id="${task.id}"
-										        onclick="openRejectModal(this)"
-										        style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#fff4e6;color:#b45309;border:1px solid #fcd7aa;cursor:pointer;transition:background .18s;">
-											<i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i> Return
-										</button>
+								<!-- # -->
+								<td class="td-num" th:text="${stat.count}">1</td>
 
-										<button type="button"
-											class="history-btn"
+								<!-- Task details: title + chips -->
+								<td>
+									<div class="td-title" th:text="${task.title}">Task Title</div>
+									<div class="td-meta">
+										<!-- Assignee chip -->
+										<span class="meta-chip"
+											th:if="${task.assignedTo != null and !#strings.isEmpty(task.assignedTo)}">
+											<i data-lucide="user" style="width:11px;height:11px;"></i>
+											<span th:text="${task.assignedTo}">emp</span>
+										</span>
+										<span class="meta-chip empty-assign"
+											th:if="${task.assignedTo == null or #strings.isEmpty(task.assignedTo)}">
+											<i data-lucide="user" style="width:11px;height:11px;"></i> —
+										</span>
+										<!-- Attachment chip -->
+										<button type="button" class="meta-chip attach"
+											th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}"
 											th:data-task-id="${task.id}"
 											th:data-title="${task.title}"
 											th:data-description="${task.description}"
@@ -750,32 +832,139 @@
 											th:data-last-verified-at="${task.lastVerifiedAt}"
 											th:data-verification-reason="${task.verificationReason}"
 											th:data-tenant-segment="${task.tenantSegment}"
-											onclick="openTaskDetails(this)"
-											style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;background:#eef2ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;transition:background .18s;">
-											<i data-lucide="clock" style="width:13px;height:13px;"></i> History
+											onclick="openTaskDetails(this)">
+											<i data-lucide="paperclip" style="width:11px;height:11px;"></i>
+											<span th:text="${#lists.size(task.attachments)} + ' file(s)'">1 file(s)</span>
 										</button>
+									</div>
+								</td>
 
-										<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post" style="display:inline;" onsubmit="return confirm('Delete this task?');">
-											<button type="submit" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#fdecec;color:#d11a2a;border:none;cursor:pointer;transition:background .18s;">
-												<i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
+								<!-- Priority -->
+								<td>
+									<span class="pri-badge"
+										th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')">
+										<i data-lucide="arrow-up" style="width:11px;height:11px;"
+											th:if="${task.priority == 'High'}"></i>
+										<i data-lucide="minus" style="width:11px;height:11px;"
+											th:if="${task.priority == 'Medium'}"></i>
+										<i data-lucide="arrow-down" style="width:11px;height:11px;"
+											th:if="${task.priority == 'Low'}"></i>
+										<span th:text="${task.priority}">Medium</span>
+									</span>
+								</td>
+
+								<!-- Status -->
+								<td>
+									<span class="stat-badge done"
+										th:if="${(task.status == 'done' and task.verificationStatus == 'approved') or (task.status == 'done' and task.verificationStatus != 'waiting-for-review' and task.verificationStatus != 'rejected')}">
+										<i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> Done
+									</span>
+									<span class="stat-badge review"
+										th:if="${task.verificationStatus == 'waiting-for-review'}">
+										<i data-lucide="clock" style="width:12px;height:12px;"></i> Awaiting Review
+									</span>
+									<span class="stat-badge returned"
+										th:if="${task.verificationStatus == 'rejected'}">
+										<i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Returned
+									</span>
+									<span class="stat-badge inprog"
+										th:if="${task.status == 'in-progress' and task.verificationStatus != 'rejected' and task.verificationStatus != 'waiting-for-review'}">
+										In Progress
+									</span>
+									<span class="stat-badge pending"
+										th:if="${task.status == 'pending' and task.verificationStatus == 'pending'}">
+										Pending
+									</span>
+								</td>
+
+								<!-- Due Date -->
+								<td>
+									<div class="due-cell">
+										<span class="due-main">
+											<i data-lucide="calendar" style="width:13px;height:13px;color:#94a3b8;flex-shrink:0;"></i>
+											<span th:text="${task.dueDate} ?: '—'">—</span>
+										</span>
+									</div>
+								</td>
+
+								<!-- Actions -->
+								<td>
+									<div class="act-wrap">
+										<!-- Verify -->
+										<form th:if="${task.verificationStatus == 'waiting-for-review'}"
+										      th:action="@{/manager/tasks/verify/{id}(id=${task.id})}" method="post"
+										      style="display:contents;">
+											<input type="hidden" name="action" value="approve">
+											<button type="submit" class="act-btn btn-verify">
+												<i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verify
+											</button>
+										</form>
+										<!-- Return -->
+										<button type="button" class="act-btn btn-return"
+										        th:if="${task.verificationStatus == 'waiting-for-review'}"
+										        th:data-id="${task.id}"
+										        onclick="openRejectModal(this)">
+											<i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Return
+										</button>
+										<!-- History -->
+										<button type="button" class="act-btn btn-history"
+											th:data-task-id="${task.id}"
+											th:data-title="${task.title}"
+											th:data-description="${task.description}"
+											th:data-assigned-to="${task.assignedTo}"
+											th:data-created-by="${task.createdBy}"
+											th:data-start-date="${task.startDate}"
+											th:data-due-date="${task.dueDate}"
+											th:data-priority="${task.priority}"
+											th:data-status="${task.status}"
+											th:data-verification-status="${task.verificationStatus}"
+											th:data-last-verified-by="${task.lastVerifiedBy}"
+											th:data-last-verified-at="${task.lastVerifiedAt}"
+											th:data-verification-reason="${task.verificationReason}"
+											th:data-tenant-segment="${task.tenantSegment}"
+											onclick="openTaskDetails(this)">
+											<i data-lucide="clock" style="width:12px;height:12px;"></i> History
+										</button>
+										<!-- Delete -->
+										<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post"
+											style="display:contents;"
+											onsubmit="return confirm('Delete this task?');">
+											<button type="submit" class="act-btn btn-delete">
+												<i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete
 											</button>
 										</form>
 									</div>
 								</td>
-							</tr>
-							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
-								<td colspan="8">
-									<div class="empty-state">
-										<i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;"></i>
-										<h3>No Tasks Yet</h3>
-										<p>Click "Assign Task" to create your first task.</p>
-									</div>
+
+								<!-- ⋮ more (placeholder) -->
+								<td style="text-align:center;">
+									<button class="btn-more" title="More options">&#8942;</button>
 								</td>
+
 							</tr>
 						</tbody>
 					</table>
+				</div><!-- /tasks-scroll -->
+
+				<!-- Pagination bar -->
+				<div class="pagination-bar">
+					<span id="pageInfo">Showing tasks</span>
+					<div class="page-btns">
+						<button class="page-btn" id="prevPage" onclick="changePage(-1)" disabled>&#8249;</button>
+						<button class="page-btn active" id="pageNum">1</button>
+						<button class="page-btn" id="nextPage" onclick="changePage(1)">&#8250;</button>
+					</div>
+					<div style="display:flex;align-items:center;gap:8px;">
+						<span style="font-size:13px;color:#64748b;">Rows per page:</span>
+						<select class="rows-select" id="rowsPerPage" onchange="changeRows()">
+							<option value="10" selected>10</option>
+							<option value="25">25</option>
+							<option value="50">50</option>
+						</select>
+					</div>
 				</div>
-			</div>
+
+			</div><!-- /card -->
 		</div><!-- /page-content -->
 	</div><!-- /main-wrapper -->
 
@@ -1061,14 +1250,70 @@
 			if (hamburger) hamburger.addEventListener('click', openSidebar);
 			if (overlay) overlay.addEventListener('click', closeSidebar);
 
-			/* ── Global Search (unchanged) ── */
+			/* ── Global Search ── */
 			var gs = document.getElementById('globalSearch');
 			if (gs) gs.addEventListener('input', function () {
 				var q = this.value.toLowerCase();
 				document.querySelectorAll('#taskTable tbody tr').forEach(function (r) {
+					if (r.querySelector('.empty-state')) return; // skip empty-state row
 					r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
 				});
 			});
+
+			/* ── Priority filter + Pagination ── */
+			var currentPage = 1;
+			var rowsPerPage  = 10;
+
+			function getVisibleRows() {
+				return Array.from(document.querySelectorAll('#taskTbody tr:not([colspan])'));
+			}
+
+			function filterTasks() {
+				var pri = (document.getElementById('priorityFilter') || {}).value || '';
+				var q   = (document.getElementById('globalSearch')  || {}).value.toLowerCase() || '';
+				getVisibleRows().forEach(function (r) {
+					var priMatch = !pri || (r.getAttribute('data-priority') || '') === pri;
+					var qMatch   = !q   || r.textContent.toLowerCase().includes(q);
+					r.style.display = (priMatch && qMatch) ? '' : 'none';
+				});
+				currentPage = 1;
+				renderPage();
+			}
+
+			function renderPage() {
+				var rows = getVisibleRows().filter(function (r) { return r.style.display !== 'none'; });
+				var total = rows.length;
+				var start = (currentPage - 1) * rowsPerPage;
+				var end   = start + rowsPerPage;
+				rows.forEach(function (r, i) {
+					r.style.display = (i >= start && i < end) ? '' : 'none';
+				});
+				var infoEl = document.getElementById('pageInfo');
+				if (infoEl) infoEl.textContent = 'Showing ' + (Math.min(start + 1, total)) + ' to ' + Math.min(end, total) + ' of ' + total + ' tasks';
+				var prevBtn = document.getElementById('prevPage');
+				var nextBtn = document.getElementById('nextPage');
+				var numBtn  = document.getElementById('pageNum');
+				if (prevBtn) prevBtn.disabled = currentPage <= 1;
+				if (nextBtn) nextBtn.disabled = end >= total;
+				if (numBtn)  numBtn.textContent = currentPage;
+			}
+
+			function changePage(dir) {
+				currentPage += dir;
+				renderPage();
+			}
+
+			function changeRows() {
+				rowsPerPage = parseInt(document.getElementById('rowsPerPage').value, 10);
+				currentPage = 1;
+				renderPage();
+			}
+
+			// Initial render
+			filterTasks();
+
+			var gs2 = document.getElementById('globalSearch');
+			if (gs2) gs2.addEventListener('input', filterTasks);
 
 			/* ── Modal open/close ── */
 			var modal = document.getElementById('assignTaskModal'),
@@ -1116,63 +1361,62 @@
 				setText('detailVerifiedAt', button.getAttribute('data-last-verified-at'));
 				setText('detailReason', button.getAttribute('data-verification-reason'));
 
-				// Build attachments list from the attachment buttons already in this table row
+				// Fetch attachments from REST endpoint using the task id
+				var taskId = button.getAttribute('data-task-id');
 				var attachmentsContainer = document.getElementById('detailAttachments');
 				if (attachmentsContainer) {
-					attachmentsContainer.innerHTML = '';
-					var row = button.closest('tr');
-					var attachBtns = row ? row.querySelectorAll('.task-attachment-link') : [];
+					attachmentsContainer.innerHTML = '<p style="color:#94a3b8;font-size:13px;margin:0;">Loading…</p>';
+				}
 
-					if (attachBtns.length > 0) {
-						attachBtns.forEach(function (btn) {
-							var filename    = btn.getAttribute('data-filename') || btn.querySelector('.task-attachment-name')?.textContent || 'File';
-							var viewUrl     = btn.getAttribute('data-view-url');
-							var downloadUrl = btn.getAttribute('data-download-url');
-							var contentType = btn.getAttribute('data-content-type') || '';
-
-							// Find the uploader label sibling
-							var item        = btn.closest('.task-attachment-item');
-							var uploaderEl  = item ? item.querySelector('.attachment-uploader') : null;
-							var uploader    = uploaderEl ? uploaderEl.textContent.replace('↑ ', '').trim() : null;
-
-							var wrapper = document.createElement('div');
-							wrapper.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;';
-
-							var left = document.createElement('div');
-							left.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0;';
-
-							var previewBtn = document.createElement('button');
-							previewBtn.type = 'button';
-							previewBtn.style.cssText = 'background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#0369a1;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:2px;text-align:left;';
-							previewBtn.innerHTML = '<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;">' + escapeHtml(filename) + '</span>';
-							previewBtn.setAttribute('data-view-url', viewUrl);
-							previewBtn.setAttribute('data-download-url', downloadUrl);
-							previewBtn.setAttribute('data-filename', filename);
-							previewBtn.setAttribute('data-content-type', contentType);
-							previewBtn.addEventListener('click', function () { openPreviewModal(this); });
-
-							left.appendChild(previewBtn);
-
-							if (uploader) {
-								var uploaderSpan = document.createElement('span');
-								uploaderSpan.style.cssText = 'font-size:11px;color:#64748b;padding-left:19px;';
-								uploaderSpan.textContent = '↑ ' + uploader;
-								left.appendChild(uploaderSpan);
+				if (taskId && attachmentsContainer) {
+					fetch('/manager/api/task/' + taskId + '/attachments')
+						.then(function(r) { return r.json(); })
+						.then(function(attachments) {
+							attachmentsContainer.innerHTML = '';
+							if (!attachments || attachments.length === 0) {
+								attachmentsContainer.innerHTML = '<p style="color:#6b7280;margin:0;font-size:13px;">No attachments.</p>';
+								return;
 							}
+							attachments.forEach(function(att) {
+								var wrapper = document.createElement('div');
+								wrapper.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;';
 
-							var dlBtn = document.createElement('a');
-							dlBtn.href = downloadUrl;
-							dlBtn.setAttribute('download', filename);
-							dlBtn.style.cssText = 'flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;background:#1a6b8a;color:#fff;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;';
-							dlBtn.innerHTML = '<i data-lucide="download" style="width:12px;height:12px;"></i> Download';
+								var left = document.createElement('div');
+								left.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0;';
 
-							wrapper.appendChild(left);
-							wrapper.appendChild(dlBtn);
-							attachmentsContainer.appendChild(wrapper);
+								var previewBtn = document.createElement('button');
+								previewBtn.type = 'button';
+								previewBtn.style.cssText = 'background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#0369a1;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:2px;text-align:left;';
+								previewBtn.innerHTML = '<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;">' + escapeHtml(att.filename) + '</span>';
+								previewBtn.setAttribute('data-view-url', att.viewUrl);
+								previewBtn.setAttribute('data-download-url', att.downloadUrl);
+								previewBtn.setAttribute('data-filename', att.filename);
+								previewBtn.setAttribute('data-content-type', att.contentType);
+								previewBtn.addEventListener('click', function() { openPreviewModal(this); });
+								left.appendChild(previewBtn);
+
+								if (att.uploadedBy) {
+									var uploaderSpan = document.createElement('span');
+									uploaderSpan.style.cssText = 'font-size:11px;color:#64748b;padding-left:19px;';
+									uploaderSpan.textContent = '↑ ' + att.uploadedBy;
+									left.appendChild(uploaderSpan);
+								}
+
+								var dlBtn = document.createElement('a');
+								dlBtn.href = att.downloadUrl;
+								dlBtn.setAttribute('download', att.filename);
+								dlBtn.style.cssText = 'flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;background:#1a6b8a;color:#fff;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;';
+								dlBtn.innerHTML = '<i data-lucide="download" style="width:12px;height:12px;"></i> Download';
+
+								wrapper.appendChild(left);
+								wrapper.appendChild(dlBtn);
+								attachmentsContainer.appendChild(wrapper);
+							});
+							lucide.createIcons();
+						})
+						.catch(function() {
+							attachmentsContainer.innerHTML = '<p style="color:#d11a2a;margin:0;font-size:13px;">Failed to load attachments.</p>';
 						});
-					} else {
-						attachmentsContainer.innerHTML = '<p style="color:#6b7280;margin:0;font-size:13px;">No attachments.</p>';
-					}
 				}
 
 				modal.classList.add('active');

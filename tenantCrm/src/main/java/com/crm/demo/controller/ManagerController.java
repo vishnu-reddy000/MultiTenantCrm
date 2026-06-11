@@ -243,7 +243,92 @@ public class ManagerController {
 
 		injectStats(model);
 
+		// ── Additional analytics data for charts ──────────────────────────
+		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+		User manager = userRepository.findByUsername(currentUsername);
+
+		if (manager != null) {
+			String tenant = getTenantSegmentFromEmail(manager.getEmail());
+			List<User> teamMembers = getManagedTeamMembers(manager);
+
+			// Scope tasks to this manager's created tasks within their tenant
+			List<Task> myTasks = taskRepository.findByCreatedByAndTenantSegment(
+					currentUsername, tenant);
+
+			// Task status breakdown
+			long statusDone       = myTasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+			long statusInProgress = myTasks.stream().filter(t -> "in-progress".equalsIgnoreCase(t.getStatus())).count();
+			long statusPending    = myTasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+			long statusReview     = myTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getStatus())).count();
+
+			model.addAttribute("chartStatusDone",       statusDone);
+			model.addAttribute("chartStatusInProgress", statusInProgress);
+			model.addAttribute("chartStatusPending",    statusPending);
+			model.addAttribute("chartStatusReview",     statusReview);
+
+			// Task priority breakdown
+			long priorityHigh   = myTasks.stream().filter(t -> "High".equalsIgnoreCase(t.getPriority())).count();
+			long priorityMedium = myTasks.stream().filter(t -> "Medium".equalsIgnoreCase(t.getPriority())).count();
+			long priorityLow    = myTasks.stream().filter(t -> "Low".equalsIgnoreCase(t.getPriority())).count();
+
+			model.addAttribute("chartPriorityHigh",   priorityHigh);
+			model.addAttribute("chartPriorityMedium", priorityMedium);
+			model.addAttribute("chartPriorityLow",    priorityLow);
+
+			// Per-member task count (bar chart)
+			List<String> memberLabels = new ArrayList<>();
+			List<Long>   memberTaskCounts = new ArrayList<>();
+			for (User member : teamMembers) {
+				long count = myTasks.stream()
+						.filter(t -> member.getUsername().equalsIgnoreCase(t.getAssignedTo()))
+						.count();
+				memberLabels.add(member.getUsername());
+				memberTaskCounts.add(count);
+			}
+			model.addAttribute("chartMemberLabels",     memberLabels);
+			model.addAttribute("chartMemberTaskCounts", memberTaskCounts);
+
+			// Team active vs inactive
+			long activeCount   = teamMembers.stream().filter(User::isActive).count();
+			long inactiveCount = teamMembers.size() - activeCount;
+			model.addAttribute("chartActiveTeam",   activeCount);
+			model.addAttribute("chartInactiveTeam", inactiveCount);
+
+			// Verification status breakdown
+			long verified = myTasks.stream().filter(t -> "approved".equalsIgnoreCase(t.getVerificationStatus())).count();
+			long rejected = myTasks.stream().filter(t -> "rejected".equalsIgnoreCase(t.getVerificationStatus())).count();
+			long waiting  = myTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getVerificationStatus())).count();
+			long unverified = myTasks.size() - verified - rejected - waiting;
+
+			model.addAttribute("chartVerified",   verified);
+			model.addAttribute("chartRejected",   rejected);
+			model.addAttribute("chartWaiting",    waiting);
+			model.addAttribute("chartUnverified", unverified);
+
+			model.addAttribute("chartTotalMyTasks", myTasks.size());
+		} else {
+			// zero fallbacks
+			model.addAttribute("chartStatusDone", 0); model.addAttribute("chartStatusInProgress", 0);
+			model.addAttribute("chartStatusPending", 0); model.addAttribute("chartStatusReview", 0);
+			model.addAttribute("chartPriorityHigh", 0); model.addAttribute("chartPriorityMedium", 0);
+			model.addAttribute("chartPriorityLow", 0);
+			model.addAttribute("chartMemberLabels", new ArrayList<>());
+			model.addAttribute("chartMemberTaskCounts", new ArrayList<>());
+			model.addAttribute("chartActiveTeam", 0); model.addAttribute("chartInactiveTeam", 0);
+			model.addAttribute("chartVerified", 0); model.addAttribute("chartRejected", 0);
+			model.addAttribute("chartWaiting", 0); model.addAttribute("chartUnverified", 0);
+			model.addAttribute("chartTotalMyTasks", 0);
+		}
+
 		return "manager-dashboard";
+	}
+
+	/** Extract tenant segment from email: "mgr.tcs@crm.com" → "tcs" */
+	private String getTenantSegmentFromEmail(String email) {
+		if (email == null || !email.contains("@")) return "";
+		String local = email.substring(0, email.indexOf('@'));
+		int dot = local.lastIndexOf('.');
+		return dot >= 0 ? local.substring(dot + 1) : local;
 	}
 
 	// =========================
@@ -442,6 +527,31 @@ public class ManagerController {
 
 		ra.addFlashAttribute("successMessage", "Task assigned to " + assignedUser.getUsername() + " successfully.");
 		return "redirect:/manager/tasks";
+	}
+
+	// =========================
+	// LIST TASK ATTACHMENTS (REST — for modal)
+	// =========================
+	@GetMapping("/api/task/{taskId}/attachments")
+	@ResponseBody
+	public List<Map<String, Object>> listTaskAttachments(@PathVariable Long taskId) {
+		Task task = taskRepository.findById(taskId).orElse(null);
+		if (task == null) return Collections.emptyList();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+		if (task.getAttachments() != null) {
+			for (TaskAttachment att : task.getAttachments()) {
+				Map<String, Object> item = new LinkedHashMap<>();
+				item.put("id",           att.getId());
+				item.put("filename",     att.getOriginalFilename());
+				item.put("contentType",  att.getContentType() != null ? att.getContentType() : "application/octet-stream");
+				item.put("uploadedBy",   att.getUploadedBy() != null ? att.getUploadedBy() : "");
+				item.put("viewUrl",      "/manager/tasks/view/"      + att.getId());
+				item.put("downloadUrl",  "/manager/tasks/download/"  + att.getId());
+				result.add(item);
+			}
+		}
+		return result;
 	}
 
 	// =========================
