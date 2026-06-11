@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -653,7 +653,6 @@
 			font-weight: 700;
 		}
 
-<<<<<<< HEAD
 		.task-attachments-toggle:hover {
 			border-color: #17455e;
 			background: #e8f2f8;
@@ -826,8 +825,6 @@
 		}
 
 		/* Section divider label */
-=======
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 		.section-divider {
 			grid-column: 1 / -1;
 			font-size: 11px;
@@ -930,7 +927,6 @@
 					</div>
 				</div>
 			</div>
-<<<<<<< HEAD
 
 			<!-- ══════════════════════════════
 			     TASKS CARD
@@ -940,14 +936,8 @@
 				<!-- Toolbar -->
 				<div class="tasks-toolbar">
 					<div class="tasks-toolbar-left">
-=======
-			<div class="card">
-				<div class="card-header">
-					<div>
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 						<h2>All Tasks</h2>
 						<p th:text="${totalTasks} + ' task(s)'">0 task(s)</p>
-<<<<<<< HEAD
 					</div>
 					<div class="tasks-toolbar-right">
 						<!-- Priority filter -->
@@ -961,10 +951,6 @@
 							<i data-lucide="plus-circle" style="width:15px;height:15px;"></i> Assign Task
 						</button>
 					</div>
-=======
-					</div><button class="btn-new-task" id="openModalBtn"><i data-lucide="plus-circle"></i> Assign
-						Task</button>
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 				</div>
 
 				<!-- Table -->
@@ -981,7 +967,6 @@
 								<th class="col-more"></th>
 							</tr>
 						</thead>
-<<<<<<< HEAD
 						<tbody id="taskTbody">
 							<!-- Empty state -->
 							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
@@ -1020,68 +1005,6 @@
 											th:data-task-id="${task.id}"
 											th:data-title="${task.title}"
 											th:data-description="${task.description}"
-=======
-						<tbody>
-							<tr th:each="task, stat : ${tasks}">
-								<td th:text="${stat.count}">1</td>
-								<td th:text="${task.title}">Task</td>
-								<td><span class="assignee-badge" th:if="${task.assignedTo}"><i
-											data-lucide="user"></i><span
-											th:text="${task.assignedTo}"></span></span><span
-										th:unless="${task.assignedTo}">—</span></td>
-								<td><span class="task-priority"
-										th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')"
-										th:text="${task.priority}">Medium</span></td>
-								<td><span class="status-badge active"
-										th:if="${task.status == 'done' and task.verificationStatus == 'approved'}">Done</span><span
-										class="status-badge" style="background:#fef3c7;color:#b45309;"
-										th:if="${task.verificationStatus == 'waiting-for-review'}">Awaiting
-										Review</span><span class="status-badge"
-										style="background:#fee2e2;color:#991b1b;"
-										th:if="${task.verificationStatus == 'rejected'}">Returned</span><span
-										class="status-badge" style="background:#fce9d8;color:#b45309;"
-										th:if="${task.status == 'in-progress' and task.verificationStatus != 'rejected'}">In
-										Progress</span><span class="status-badge inactive"
-										th:if="${task.status == 'pending'}">Pending</span></td>
-								<td th:text="${task.dueDate} ?: '—'">—</td>
-								<td>
-									<th:block th:if="${task.attachments != null and !#lists.isEmpty(task.attachments)}">
-										<div class="task-attachments-list">
-											<div class="task-attachment-item"
-												th:each="att, attStat : ${task.attachments}"
-												th:classappend="${attStat.index >= 1} ? ' task-attachment-extra' : ''">
-												<button type="button"
-													th:data-view-url="@{/manager/tasks/view/{id}(id=${att.id})}"
-													th:data-download-url="@{/manager/tasks/download/{id}(id=${att.id})}"
-													th:data-filename="${att.originalFilename}"
-													th:data-content-type="${att.contentType}"
-													onclick="openPreviewModal(this)" class="task-attachment-link"><i
-														data-lucide="paperclip"></i><span class="task-attachment-name"
-														th:text="${att.originalFilename}"></span></button><span
-													class="attachment-uploader"
-													th:text="${att.uploadedBy} ? '↑ ' + ${att.uploadedBy} : '↑ Unknown'"></span>
-											</div><button type="button" class="task-attachments-toggle"
-												th:if="${#lists.size(task.attachments) > 1}"
-												th:attr="data-view-label=|View more (${#lists.size(task.attachments) - 1} more)|,data-hide-label='Show less'"
-												onclick="toggleTaskAttachments(this)">View more</button>
-										</div>
-									</th:block><span
-										th:unless="${task.attachments != null and !#lists.isEmpty(task.attachments)}"
-										style="color:#cbd5e1;">—</span>
-								</td>
-								<td>
-									<div style="display:flex;gap:8px;">
-										<form th:if="${task.verificationStatus == 'waiting-for-review'}"
-											th:action="@{/manager/tasks/verify/{id}(id=${task.id})}" method="post">
-											<input type="hidden" name="action" value="approve"><button type="submit"
-												style="background:#dff5ea;color:#1b7a46;border:none;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;">Verify</button>
-										</form><button type="button"
-											th:if="${task.verificationStatus == 'waiting-for-review'}"
-											th:data-id="${task.id}" onclick="openRejectModal(this)"
-											style="background:#fff4e6;color:#b45309;border:1px solid #fcd7aa;padding:5px 11px;border-radius:8px;font-size:12px;">Return</button><button
-											type="button" class="history-btn" th:data-task-id="${task.id}"
-											th:data-title="${task.title}" th:data-description="${task.description}"
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 											th:data-assigned-to="${task.assignedTo}"
 											th:data-created-by="${task.createdBy}"
 											th:data-start-date="${task.startDate}" th:data-due-date="${task.dueDate}"
@@ -1090,7 +1013,6 @@
 											th:data-last-verified-by="${task.lastVerifiedBy}"
 											th:data-last-verified-at="${task.lastVerifiedAt}"
 											th:data-verification-reason="${task.verificationReason}"
-<<<<<<< HEAD
 											th:data-tenant-segment="${task.tenantSegment}"
 											onclick="openTaskDetails(this)">
 											<i data-lucide="paperclip" style="width:11px;height:11px;"></i>
@@ -1192,30 +1114,13 @@
 											<button type="submit" class="act-btn btn-delete">
 												<i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete
 											</button>
-=======
-											onclick="openTaskDetails(this)"
-											style="background:#eef2ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:5px 11px;border-radius:8px;font-size:12px;">History</button>
-										<form th:action="@{/manager/tasks/delete/{id}(id=${task.id})}" method="post"
-											onsubmit="return confirm('Delete?');"><button type="submit"
-												style="background:#fdecec;color:#d11a2a;border:none;padding:5px 12px;border-radius:8px;">Delete</button>
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 										</form>
 									</div>
 								</td>
-<<<<<<< HEAD
 
 								<!-- ⋮ more (placeholder) -->
 								<td style="text-align:center;">
 									<button class="btn-more" title="More options">&#8942;</button>
-=======
-							</tr>
-							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
-								<td colspan="8">
-									<div class="empty-state"><i data-lucide="check-square"></i>
-										<h3>No Tasks Yet</h3>
-										<p>Click "Assign Task" to create your first task.</p>
-									</div>
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 								</td>
 
 							</tr>
@@ -1240,7 +1145,6 @@
 						</select>
 					</div>
 				</div>
-<<<<<<< HEAD
 
 			</div><!-- /card -->
 		</div><!-- /page-content -->
@@ -1270,8 +1174,6 @@
 			<!-- Preview area -->
 			<div id="previewBody" style="flex:1;overflow:auto;padding:0;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;">
 				<!-- content injected by JS -->
-=======
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 			</div>
 		</div>
 	</div>
@@ -1537,12 +1439,8 @@
 			if (hamburger) hamburger.addEventListener('click', openSidebar);
 			if (overlay) overlay.addEventListener('click', closeSidebar);
 
-<<<<<<< HEAD
 			/* ── Global Search ── */
-=======
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 			var gs = document.getElementById('globalSearch');
-<<<<<<< HEAD
 			if (gs) gs.addEventListener('input', function () {
 				var q = this.value.toLowerCase();
 				document.querySelectorAll('#taskTable tbody tr').forEach(function (r) {
@@ -1550,11 +1448,7 @@
 					r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
 				});
 			});
-=======
-			if (gs) gs.addEventListener('input', function () {var q = this.value.toLowerCase(); document.querySelectorAll('#taskTable tbody tr').forEach(function (r) {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});});
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 
-<<<<<<< HEAD
 			/* ── Priority filter + Pagination ── */
 			var currentPage = 1;
 			var rowsPerPage  = 10;
@@ -1726,11 +1620,6 @@
 				document.body.style.overflow = '';
 			};
 
-=======
-			var modal = document.getElementById('assignTaskModal'), openBtn = document.getElementById('openModalBtn'), closeBtn = document.getElementById('closeModalBtn'), cancelBtn = document.getElementById('cancelModalBtn'), submitBtn = document.getElementById('submitTaskBtn');
-			function openModal() {modal.classList.add('active'); document.body.style.overflow = 'hidden'; var today = new Date().toISOString().split('T')[0]; document.getElementById('startDate').value = today; document.getElementById('startDate').min = today; document.getElementById('dueDate').min = today; lucide.createIcons();}
-			function closeModal() {modal.classList.remove('active'); document.body.style.overflow = ''; resetForm();}
->>>>>>> branch 'master' of https://github.com/jayanthsaichikkala/MultiTenantCrm.git
 			if (openBtn) openBtn.addEventListener('click', openModal);
 			if (closeBtn) closeBtn.addEventListener('click', closeModal);
 			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
