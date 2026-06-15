@@ -324,6 +324,70 @@ public class ManagerController {
 	}
 
 	/** Extract tenant segment from email: "mgr.tcs@crm.com" → "tcs" */
+	@GetMapping("/dashboard/analytics")
+	@ResponseBody
+	public Map<String, Object> dashboardAnalytics() {
+		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+		User manager = userRepository.findByUsername(currentUsername);
+		if (manager == null) {
+			return buildDashboardAnalytics(Collections.emptyList(), Collections.emptyList());
+		}
+
+		String tenant = getTenantSegmentFromEmail(manager.getEmail());
+		List<User> teamMembers = getManagedTeamMembers(manager);
+		List<Task> myTasks = taskRepository.findByCreatedByAndTenantSegment(currentUsername, tenant);
+		return buildDashboardAnalytics(myTasks, teamMembers);
+	}
+
+	private Map<String, Object> buildDashboardAnalytics(List<Task> tasks, List<User> people) {
+		Map<String, Object> data = new LinkedHashMap<>();
+		List<Task> scopedTasks = tasks != null ? tasks : Collections.emptyList();
+		List<User> scopedPeople = people != null ? people : Collections.emptyList();
+
+		long statusDone = scopedTasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+		long statusInProgress = scopedTasks.stream().filter(t -> "in-progress".equalsIgnoreCase(t.getStatus())).count();
+		long statusPending = scopedTasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+		long statusReview = scopedTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getStatus())).count();
+		long priorityHigh = scopedTasks.stream().filter(t -> "High".equalsIgnoreCase(t.getPriority())).count();
+		long priorityMedium = scopedTasks.stream().filter(t -> "Medium".equalsIgnoreCase(t.getPriority())).count();
+		long priorityLow = scopedTasks.stream().filter(t -> "Low".equalsIgnoreCase(t.getPriority())).count();
+
+		List<String> memberLabels = new ArrayList<>();
+		List<Long> memberTaskCounts = new ArrayList<>();
+		for (User member : scopedPeople) {
+			long count = scopedTasks.stream()
+					.filter(t -> member.getUsername() != null && member.getUsername().equalsIgnoreCase(t.getAssignedTo()))
+					.count();
+			memberLabels.add(member.getUsername());
+			memberTaskCounts.add(count);
+		}
+
+		long activeCount = scopedPeople.stream().filter(User::isActive).count();
+		long inactiveCount = scopedPeople.size() - activeCount;
+		long verified = scopedTasks.stream().filter(t -> "approved".equalsIgnoreCase(t.getVerificationStatus())).count();
+		long rejected = scopedTasks.stream().filter(t -> "rejected".equalsIgnoreCase(t.getVerificationStatus())).count();
+		long waiting = scopedTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getVerificationStatus())).count();
+		long unverified = scopedTasks.size() - verified - rejected - waiting;
+
+		data.put("statusDone", statusDone);
+		data.put("statusInProgress", statusInProgress);
+		data.put("statusPending", statusPending);
+		data.put("statusReview", statusReview);
+		data.put("priorityHigh", priorityHigh);
+		data.put("priorityMedium", priorityMedium);
+		data.put("priorityLow", priorityLow);
+		data.put("memberLabels", memberLabels);
+		data.put("memberTaskCounts", memberTaskCounts);
+		data.put("activeTeam", activeCount);
+		data.put("inactiveTeam", inactiveCount);
+		data.put("verified", verified);
+		data.put("rejected", rejected);
+		data.put("waiting", waiting);
+		data.put("unverified", Math.max(unverified, 0));
+		data.put("totalMyTasks", scopedTasks.size());
+		return data;
+	}
+
 	private String getTenantSegmentFromEmail(String email) {
 		if (email == null || !email.contains("@")) return "";
 		String local = email.substring(0, email.indexOf('@'));

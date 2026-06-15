@@ -6,8 +6,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>HR — Dashboard</title>
 	<link rel="stylesheet" th:href="@{/hr.css}">
+	<link rel="stylesheet" th:href="@{/dashboard-analytics.css}">
 	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -57,7 +59,7 @@
 				<div class="stat-card">
 					<div class="stat-icon green"><i data-lucide="users"></i></div>
 					<div class="stat-info">
-						<h3 th:text="${totalEmployees} ?: '0'">0</h3>
+						<h3 data-analytics-stat="totalEmployees" th:text="${totalEmployees} ?: '0'">0</h3>
 						<p>Total Employees</p>
 					</div>
 				</div>
@@ -83,6 +85,30 @@
 					</div>
 				</div>
 			</div>
+			<p class="section-label"><i data-lucide="bar-chart-2"></i> Analytics &amp; Insights</p>
+			<div class="analytics-grid">
+				<div class="card">
+					<div class="card-header"><div><h2>Task Status</h2><p>Tenant-wide task breakdown</p></div><span class="chart-badge chip-blue">Doughnut</span></div>
+					<div class="card-body"><div class="chart-box"><canvas id="taskStatusChart"></canvas></div><div class="insight-row"><span class="insight-chip chip-green" id="chip-done">0 Done</span><span class="insight-chip chip-blue" id="chip-inprog">0 In Progress</span><span class="insight-chip chip-orange" id="chip-pending">0 Pending</span><span class="insight-chip chip-purple" id="chip-review">0 Review</span></div></div>
+				</div>
+				<div class="card">
+					<div class="card-header"><div><h2>Task Priority</h2><p>Distribution across priority levels</p></div><span class="chart-badge chip-orange">Pie Chart</span></div>
+					<div class="card-body"><div class="chart-box"><canvas id="taskPriorityChart"></canvas></div><div class="insight-row"><span class="insight-chip chip-red" id="chip-high">0 High</span><span class="insight-chip chip-orange" id="chip-medium">0 Medium</span><span class="insight-chip chip-green" id="chip-low">0 Low</span></div></div>
+				</div>
+				<div class="card card-full">
+					<div class="card-header"><div><h2>Tasks per Employee</h2><p>Assigned workload across employees</p></div><span class="chart-badge chip-teal">Bar Chart</span></div>
+					<div class="card-body"><div class="chart-box-tall"><canvas id="memberTaskChart"></canvas></div></div>
+				</div>
+				<div class="card">
+					<div class="card-header"><div><h2>Employee Status</h2><p>Active vs inactive employees</p></div><span class="chart-badge chip-green">Pie Chart</span></div>
+					<div class="card-body"><div class="chart-box"><canvas id="teamStatusChart"></canvas></div><div class="insight-row"><span class="insight-chip chip-green" id="chip-active-team">0 Active</span><span class="insight-chip chip-red" id="chip-inactive-team">0 Inactive</span></div></div>
+				</div>
+				<div class="card">
+					<div class="card-header"><div><h2>Verification Status</h2><p>Task review and approval breakdown</p></div><span class="chart-badge chip-purple">Doughnut</span></div>
+					<div class="card-body"><div class="chart-box"><canvas id="verificationChart"></canvas></div><div class="insight-row"><span class="insight-chip chip-green" id="chip-approved">0 Approved</span><span class="insight-chip chip-red" id="chip-rejected">0 Rejected</span><span class="insight-chip chip-orange" id="chip-waiting">0 Waiting</span><span class="insight-chip chip-blue" id="chip-unverified">0 Open</span></div></div>
+				</div>
+			</div>
+			<p class="section-label" style="margin-top:28px;"><i data-lucide="layout-list"></i> Overview</p>
 			<div class="dashboard-grid">
 				<div class="card">
 					<div class="card-header">
@@ -202,6 +228,33 @@
 		if (overlay) overlay.addEventListener('click', closeSidebar);
 		lucide.createIcons();
 	</script>
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	window.dashboardAnalytics = {
+		endpoint: /*[[@{/hr/dashboard/analytics}]]*/ '/hr/dashboard/analytics',
+		memberDatasetLabel: 'Tasks Assigned',
+		statBindings: { totalEmployees: 'totalEmployees' },
+		initialData: {
+			statusDone: /*[[${chartStatusDone}]]*/ 0,
+			statusInProgress: /*[[${chartStatusInProgress}]]*/ 0,
+			statusPending: /*[[${chartStatusPending}]]*/ 0,
+			statusReview: /*[[${chartStatusReview}]]*/ 0,
+			priorityHigh: /*[[${chartPriorityHigh}]]*/ 0,
+			priorityMedium: /*[[${chartPriorityMedium}]]*/ 0,
+			priorityLow: /*[[${chartPriorityLow}]]*/ 0,
+			memberLabels: /*[[${chartMemberLabels}]]*/ [],
+			memberTaskCounts: /*[[${chartMemberTaskCounts}]]*/ [],
+			activeTeam: /*[[${chartActiveTeam}]]*/ 0,
+			inactiveTeam: /*[[${chartInactiveTeam}]]*/ 0,
+			verified: /*[[${chartVerified}]]*/ 0,
+			rejected: /*[[${chartRejected}]]*/ 0,
+			waiting: /*[[${chartWaiting}]]*/ 0,
+			unverified: /*[[${chartUnverified}]]*/ 0
+		}
+	};
+	/*]]>*/
+	</script>
+	<script th:src="@{/dashboard-analytics.js}"></script>
 	<script th:src="@{/auth.js}"></script>
 	<script th:src="@{/notifications.js}"></script>
 </body>

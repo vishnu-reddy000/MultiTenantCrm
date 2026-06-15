@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.crm.demo.model.Attendance;
@@ -237,7 +238,97 @@ public class EmployeeController {
             model.addAttribute("myTeamSize",    0);
         }
 
+        addAnalyticsAttributes(model, dashboardAnalytics());
         return "employee-dashboard";
+    }
+
+    @GetMapping("/dashboard/analytics")
+    @ResponseBody
+    public Map<String, Object> dashboardAnalytics() {
+        User emp = getCurrentEmployee();
+        if (emp == null) {
+            return buildDashboardAnalytics(Collections.emptyList(), Collections.emptyList());
+        }
+
+        String tenant = getTenantSegment(emp);
+        List<Task> myTasks = taskRepository.findByAssignedToAndTenantSegment(emp.getUsername(), tenant);
+        List<User> teammates = new ArrayList<>();
+        List<Team> myTeams = teamRepository.findByMemberAndTenant(emp, tenant);
+        if (!myTeams.isEmpty()) {
+            teammates = myTeams.get(0).getMembers();
+        }
+
+        Map<String, Object> data = buildDashboardAnalytics(myTasks, teammates);
+        data.put("completedTasks", data.get("statusDone"));
+        data.put("pendingTaskTotal", (long) myTasks.stream()
+                .filter(t -> !"done".equalsIgnoreCase(t.getStatus()))
+                .count());
+        return data;
+    }
+
+    private Map<String, Object> buildDashboardAnalytics(List<Task> tasks, List<User> teammates) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        List<Task> scopedTasks = tasks != null ? tasks : Collections.emptyList();
+        List<User> scopedTeammates = teammates != null ? teammates : Collections.emptyList();
+
+        long statusDone = scopedTasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
+        long statusInProgress = scopedTasks.stream().filter(t -> "in-progress".equalsIgnoreCase(t.getStatus())).count();
+        long statusPending = scopedTasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+        long statusReview = scopedTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getStatus())).count();
+        long priorityHigh = scopedTasks.stream().filter(t -> "High".equalsIgnoreCase(t.getPriority())).count();
+        long priorityMedium = scopedTasks.stream().filter(t -> "Medium".equalsIgnoreCase(t.getPriority())).count();
+        long priorityLow = scopedTasks.stream().filter(t -> "Low".equalsIgnoreCase(t.getPriority())).count();
+
+        Map<String, Long> creatorCounts = new LinkedHashMap<>();
+        for (Task task : scopedTasks) {
+            String creator = task.getCreatedBy() == null || task.getCreatedBy().isBlank() ? "Unassigned" : task.getCreatedBy();
+            creatorCounts.put(creator, creatorCounts.getOrDefault(creator, 0L) + 1);
+        }
+
+        long activeCount = scopedTeammates.stream().filter(User::isActive).count();
+        long inactiveCount = scopedTeammates.size() - activeCount;
+        long verified = scopedTasks.stream().filter(t -> "approved".equalsIgnoreCase(t.getVerificationStatus())).count();
+        long rejected = scopedTasks.stream().filter(t -> "rejected".equalsIgnoreCase(t.getVerificationStatus())).count();
+        long waiting = scopedTasks.stream().filter(t -> "waiting-for-review".equalsIgnoreCase(t.getVerificationStatus())).count();
+        long unverified = scopedTasks.size() - verified - rejected - waiting;
+
+        data.put("statusDone", statusDone);
+        data.put("statusInProgress", statusInProgress);
+        data.put("statusPending", statusPending);
+        data.put("statusReview", statusReview);
+        data.put("priorityHigh", priorityHigh);
+        data.put("priorityMedium", priorityMedium);
+        data.put("priorityLow", priorityLow);
+        data.put("memberLabels", new ArrayList<>(creatorCounts.keySet()));
+        data.put("memberTaskCounts", new ArrayList<>(creatorCounts.values()));
+        data.put("activeTeam", activeCount);
+        data.put("inactiveTeam", inactiveCount);
+        data.put("verified", verified);
+        data.put("rejected", rejected);
+        data.put("waiting", waiting);
+        data.put("unverified", Math.max(unverified, 0));
+        data.put("totalMyTasks", scopedTasks.size());
+        return data;
+    }
+
+    private void addAnalyticsAttributes(Model model, Map<String, Object> data) {
+        model.addAttribute("chartStatusDone", data.get("statusDone"));
+        model.addAttribute("chartStatusInProgress", data.get("statusInProgress"));
+        model.addAttribute("chartStatusPending", data.get("statusPending"));
+        model.addAttribute("chartStatusReview", data.get("statusReview"));
+        model.addAttribute("chartPriorityHigh", data.get("priorityHigh"));
+        model.addAttribute("chartPriorityMedium", data.get("priorityMedium"));
+        model.addAttribute("chartPriorityLow", data.get("priorityLow"));
+        model.addAttribute("chartMemberLabels", data.get("memberLabels"));
+        model.addAttribute("chartMemberTaskCounts", data.get("memberTaskCounts"));
+        model.addAttribute("chartActiveTeam", data.get("activeTeam"));
+        model.addAttribute("chartInactiveTeam", data.get("inactiveTeam"));
+        model.addAttribute("chartVerified", data.get("verified"));
+        model.addAttribute("chartRejected", data.get("rejected"));
+        model.addAttribute("chartWaiting", data.get("waiting"));
+        model.addAttribute("chartUnverified", data.get("unverified"));
+        model.addAttribute("chartTotalMyTasks", data.get("totalMyTasks"));
+        model.addAttribute("completedTasks", data.get("statusDone"));
     }
 
     @GetMapping("/projects")
