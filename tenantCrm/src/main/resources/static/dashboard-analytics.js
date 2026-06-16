@@ -3,7 +3,8 @@
 
 	var cfg = window.dashboardAnalytics || {};
 	var data = cfg.initialData || {};
-	var charts = {};
+	var charts = window.dashboardCharts || {};
+	window.dashboardCharts = charts;
 	var pollMs = cfg.pollMs || 10000;
 
 	if (!window.Chart) return;
@@ -227,4 +228,5 @@
 
 	fetchLatest();
 	window.setInterval(fetchLatest, pollMs);
+	window.refreshDashboardAnalytics = render;
 })();

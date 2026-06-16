@@ -167,12 +167,11 @@ public class NotificationService {
                             meetingsLink(user));
                 });
 
-        // Broadcast to HR and Managers in the tenant
+        // Broadcast to all users in the tenant
         User creator = userRepository.findByUsername(scheduledBy);
         if (creator != null) {
             String tenant = getTenantSegment(creator);
-            sendLiveUpdateToTenantRole(tenant, "HR", "MEETING", "Meeting Scheduled", "Meeting: " + meeting.getTitle(), "/hr/meetings");
-            sendLiveUpdateToTenantRole(tenant, "MANAGER", "MEETING", "Meeting Scheduled", "Meeting: " + meeting.getTitle(), "/manager/meetings");
+            sendLiveUpdateToTenant(tenant, "MEETING", "Meeting Scheduled", "Meeting: " + meeting.getTitle(), "/meetings");
         }
     }
 
@@ -183,6 +182,7 @@ public class NotificationService {
                 assignerName + " assigned you: \"" + taskTitle + "\"",
                 "TASK",
                 tasksLink(employee));
+        sendLiveUpdateToTenant(getTenantSegment(employee), "TASK", "New Task Assigned", assignerName + " assigned you a task", "/tasks");
     }
 
     public void notifyTaskSubmittedForReview(User employee, Task task) {
@@ -219,6 +219,7 @@ public class NotificationService {
                     "TASK",
                     tasksLink(manager));
         }
+        sendLiveUpdateToTenant(tenant, "TASK", title, message, "/tasks");
     }
 
     private void addTaskStatusRecipient(Map<Long, User> recipients, User manager, User employee, Task task) {
@@ -259,6 +260,7 @@ public class NotificationService {
                     "TASK",
                     tasksLink(employee));
         }
+        sendLiveUpdateToTenant(getTenantSegment(employee), "TASK", "Task Verified", managerName + " verified task: " + taskTitle, "/tasks");
     }
 
     public void notifyLeaveSubmitted(LeaveRequest leave) {
@@ -272,6 +274,7 @@ public class NotificationService {
                 employeeName + " submitted " + leave.getType() + " leave (" + period + ").",
                 "LEAVE",
                 "/hr/leaves");
+        sendLiveUpdateToTenant(leave.getTenantSegment(), "LEAVE", "Leave Request Submitted", employeeName + " submitted leave request", "/leaves");
     }
 
     public void notifyLeaveReviewed(User employee, String status, String leaveType,
@@ -291,6 +294,7 @@ public class NotificationService {
                     "LEAVE",
                     leavesLink(employee));
         }
+        sendLiveUpdateToTenant(getTenantSegment(employee), "LEAVE", "Leave Request Reviewed", "Leave request was " + status.toLowerCase(), "/leaves");
     }
 
     public void notifyTeamAdded(User employee, String teamName) {
@@ -300,6 +304,7 @@ public class NotificationService {
                 "You have been added to team \"" + teamName + "\".",
                 "TEAM",
                 dashboardLink(employee));
+        sendLiveUpdateToTenant(getTenantSegment(employee), "TEAM", "Team Updated", "Employee added to team " + teamName, "/teams");
     }
 
     public void notifyManagerAssigned(User manager, String teamName) {
@@ -309,6 +314,7 @@ public class NotificationService {
                 "You have been assigned as manager of team \"" + teamName + "\".",
                 "TEAM",
                 teamLink(manager));
+        sendLiveUpdateToTenant(getTenantSegment(manager), "TEAM", "Team Updated", "Manager assigned to team " + teamName, "/teams");
     }
 
     public void notifyPerformanceReview(User employee, String reviewer, String reviewMonth, int rating) {
@@ -319,6 +325,7 @@ public class NotificationService {
                         + " (Rating: " + rating + "/5).",
                 "PERFORMANCE",
                 performanceLink(employee));
+        sendLiveUpdateToTenant(getTenantSegment(employee), "PERFORMANCE", "Performance Review Updated", reviewer + " updated performance review", "/performance");
     }
 
     public void notifyReportReceived(User recipient, String senderName, String reportTitle) {
@@ -328,6 +335,7 @@ public class NotificationService {
                 senderName + " sent you a report: \"" + reportTitle + "\".",
                 "REPORT",
                 reportsLink(recipient));
+        sendLiveUpdateToTenant(getTenantSegment(recipient), "REPORT", "Report Received", "Report received from " + senderName, "/reports");
     }
 
     public void notifyHolidayAdded(String tenant, String holidayName, String date) {
@@ -342,35 +350,9 @@ public class NotificationService {
     public void sendLiveUpdate(User recipient, String type, String title, String message, String link) {
         if (recipient == null || recipient.getId() == null) return;
         try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("id", -1L); // -1 signifies a live-update transient event (not stored in DB)
-            payload.put("title", title);
-            payload.put("message", message);
-            payload.put("type", type);
-            payload.put("link", link);
-            payload.put("read", false);
-            payload.put("createdAt", java.time.LocalDateTime.now().toString());
-
-            if (TransactionSynchronizationManager.isActualTransactionActive()) {
-                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        try {
-                            messagingTemplate.convertAndSend("/topic/notifications/" + recipient.getId(), payload);
-                        } catch (Exception e) {
-                            log.error("Failed to send live update to user {}: {}", recipient.getUsername(), e.getMessage());
-                        }
-                    }
-                });
-            } else {
-                try {
-                    messagingTemplate.convertAndSend("/topic/notifications/" + recipient.getId(), payload);
-                } catch (Exception e) {
-                    log.error("Failed to send live update to user {}: {}", recipient.getUsername(), e.getMessage());
-                }
-            }
+            notify(recipient, title, message, type, link);
         } catch (Exception e) {
-            log.error("Failed to create live update payload for user {}: {}", recipient.getUsername(), e.getMessage());
+            log.error("Failed to save and send live update to user {}: {}", recipient.getUsername(), e.getMessage());
         }
     }
 
@@ -403,6 +385,9 @@ public class NotificationService {
             "Attendance Updated", 
             employee.getUsername() + " performed " + action, 
             "/manager/attendance");
+
+        // Notify the entire tenant for instant UI update
+        sendLiveUpdateToTenant(tenant, "ATTENDANCE", "Attendance Updated", employee.getUsername() + " performed " + action, "/attendance");
     }
 
     public void notifyAttendanceModified(User employee, String reviewerName) {
@@ -411,6 +396,7 @@ public class NotificationService {
             "Attendance Record Updated", 
             reviewerName + " updated your attendance record.", 
             "/employee/attendance");
+        sendLiveUpdateToTenant(getTenantSegment(employee), "ATTENDANCE", "Attendance Updated", reviewerName + " updated attendance record.", "/attendance");
     }
 
     public void notifyEmployeeManagementChanged(String tenant, String action, String employeeName) {
@@ -422,6 +408,7 @@ public class NotificationService {
             "Employee List Updated", 
             "Employee " + employeeName + " was " + action, 
             "/manager/team");
+        sendLiveUpdateToTenant(tenant, "EMPLOYEE", "Employee List Updated", "Employee " + employeeName + " was " + action, "/employees");
     }
 
     private String linkFor(User user, String page) {

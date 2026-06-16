@@ -370,6 +370,7 @@
 		function loadHolidays() {
 			fetch('/api/holidays', {credentials: 'include'}).then(function (r) {return r.json();}).then(function (data) {holidays = data; renderCalendar(); renderList();}).catch(function () {document.getElementById('holidayList').innerHTML = '<div class="empty-holidays">Failed to load holidays.</div>';});
 		}
+		window.loadHolidays = loadHolidays;
 
 		function renderCalendar() {
 			document.getElementById('calTitle').textContent = MONTH_NAMES[curMonth] + ' ' + curYear;

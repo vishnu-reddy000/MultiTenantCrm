@@ -422,133 +422,146 @@
 		return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
 	};
 
-	// ── Update insight chips ──────────────────────────────────────────────
-	document.getElementById('chip-done').textContent       = DB.statusDone + ' Done';
-	document.getElementById('chip-inprog').textContent     = DB.statusInProgress + ' In Progress';
-	document.getElementById('chip-pending').textContent    = DB.statusPending + ' Pending';
-	document.getElementById('chip-review').textContent     = DB.statusReview + ' Review';
-	document.getElementById('chip-high').textContent       = DB.priorityHigh + ' High';
-	document.getElementById('chip-medium').textContent     = DB.priorityMedium + ' Medium';
-	document.getElementById('chip-low').textContent        = DB.priorityLow + ' Low';
-	document.getElementById('chip-active-team').textContent   = DB.activeTeam + ' Active';
-	document.getElementById('chip-inactive-team').textContent = DB.inactiveTeam + ' Inactive';
-	document.getElementById('chip-approved').textContent   = DB.verified + ' Approved';
-	document.getElementById('chip-rejected').textContent   = DB.rejected + ' Rejected';
-	document.getElementById('chip-waiting').textContent    = DB.waiting + ' Waiting';
-	document.getElementById('chip-unverified').textContent = DB.unverified + ' Open';
-
-	// ── 1. Task Status — Doughnut ─────────────────────────────────────────
-	new Chart(document.getElementById('taskStatusChart'), {
-		type: 'doughnut',
-		data: {
-			labels: ['Done', 'In Progress', 'Pending', 'Waiting Review'],
-			datasets: [{
-				data: [DB.statusDone, DB.statusInProgress, DB.statusPending, DB.statusReview],
-				backgroundColor: [
-					'rgba(27,122,70,.85)', 'rgba(37,99,235,.85)',
-					'rgba(192,86,33,.85)', 'rgba(107,70,193,.85)'
-				],
-				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
-			}]
-		},
-		options: {
-			responsive: true, maintainAspectRatio: false, cutout: '60%',
-			plugins: {
-				legend: { position: 'bottom' },
-				tooltip: { callbacks: { label: pctLabel } }
-			}
+	// ── Update insight chips and initialize charts ──────────────────────
+	window.initDashboardCharts = function () {
+		if (window.dashboardCharts) {
+			Object.keys(window.dashboardCharts).forEach(function (key) {
+				if (window.dashboardCharts[key]) {
+					try { window.dashboardCharts[key].destroy(); } catch (e) {}
+				}
+			});
 		}
-	});
+		window.dashboardCharts = {};
 
-	// ── 2. Task Priority — Pie ────────────────────────────────────────────
-	new Chart(document.getElementById('taskPriorityChart'), {
-		type: 'pie',
-		data: {
-			labels: ['High', 'Medium', 'Low'],
-			datasets: [{
-				data: [DB.priorityHigh, DB.priorityMedium, DB.priorityLow],
-				backgroundColor: [
-					'rgba(209,26,42,.85)', 'rgba(192,86,33,.80)', 'rgba(27,122,70,.80)'
-				],
-				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
-			}]
-		},
-		options: {
-			responsive: true, maintainAspectRatio: false,
-			plugins: {
-				legend: { position: 'bottom' },
-				tooltip: { callbacks: { label: pctLabel } }
-			}
-		}
-	});
+		document.getElementById('chip-done').textContent       = DB.statusDone + ' Done';
+		document.getElementById('chip-inprog').textContent     = DB.statusInProgress + ' In Progress';
+		document.getElementById('chip-pending').textContent    = DB.statusPending + ' Pending';
+		document.getElementById('chip-review').textContent     = DB.statusReview + ' Review';
+		document.getElementById('chip-high').textContent       = DB.priorityHigh + ' High';
+		document.getElementById('chip-medium').textContent     = DB.priorityMedium + ' Medium';
+		document.getElementById('chip-low').textContent        = DB.priorityLow + ' Low';
+		document.getElementById('chip-active-team').textContent   = DB.activeTeam + ' Active';
+		document.getElementById('chip-inactive-team').textContent = DB.inactiveTeam + ' Inactive';
+		document.getElementById('chip-approved').textContent   = DB.verified + ' Approved';
+		document.getElementById('chip-rejected').textContent   = DB.rejected + ' Rejected';
+		document.getElementById('chip-waiting').textContent    = DB.waiting + ' Waiting';
+		document.getElementById('chip-unverified').textContent = DB.unverified + ' Open';
 
-	// ── 3. Tasks per Member — Bar (full width) ────────────────────────────
-	new Chart(document.getElementById('memberTaskChart'), {
-		type: 'bar',
-		data: {
-			labels: DB.memberLabels.length ? DB.memberLabels : ['No Members'],
-			datasets: [{
-				label: 'Tasks Assigned',
-				data: DB.memberTaskCounts.length ? DB.memberTaskCounts : [0],
-				backgroundColor: 'rgba(23,69,94,.18)',
-				borderColor: PRIMARY,
-				borderWidth: 2,
-				borderRadius: 8,
-				borderSkipped: false
-			}]
-		},
-		options: {
-			responsive: true, maintainAspectRatio: false,
-			plugins: { legend: { display: false } },
-			scales: {
-				y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f6f9' } },
-				x: { grid: { display: false } }
+		// ── 1. Task Status — Doughnut ─────────────────────────────────────────
+		window.dashboardCharts.status = new Chart(document.getElementById('taskStatusChart'), {
+			type: 'doughnut',
+			data: {
+				labels: ['Done', 'In Progress', 'Pending', 'Waiting Review'],
+				datasets: [{
+					data: [DB.statusDone, DB.statusInProgress, DB.statusPending, DB.statusReview],
+					backgroundColor: [
+						'rgba(27,122,70,.85)', 'rgba(37,99,235,.85)',
+						'rgba(192,86,33,.85)', 'rgba(107,70,193,.85)'
+					],
+					borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+				}]
+			},
+			options: {
+				responsive: true, maintainAspectRatio: false, cutout: '60%',
+				plugins: {
+					legend: { position: 'bottom' },
+					tooltip: { callbacks: { label: pctLabel } }
+				}
 			}
-		}
-	});
+		});
 
-	// ── 4. Team Status — Pie ──────────────────────────────────────────────
-	new Chart(document.getElementById('teamStatusChart'), {
-		type: 'pie',
-		data: {
-			labels: ['Active', 'Inactive'],
-			datasets: [{
-				data: [DB.activeTeam || 0, DB.inactiveTeam || 0],
-				backgroundColor: ['rgba(27,122,70,.85)', 'rgba(209,26,42,.80)'],
-				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
-			}]
-		},
-		options: {
-			responsive: true, maintainAspectRatio: false,
-			plugins: {
-				legend: { position: 'bottom' },
-				tooltip: { callbacks: { label: pctLabel } }
+		// ── 2. Task Priority — Pie ────────────────────────────────────────────
+		window.dashboardCharts.priority = new Chart(document.getElementById('taskPriorityChart'), {
+			type: 'pie',
+			data: {
+				labels: ['High', 'Medium', 'Low'],
+				datasets: [{
+					data: [DB.priorityHigh, DB.priorityMedium, DB.priorityLow],
+					backgroundColor: [
+						'rgba(209,26,42,.85)', 'rgba(192,86,33,.80)', 'rgba(27,122,70,.80)'
+					],
+					borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+				}]
+			},
+			options: {
+				responsive: true, maintainAspectRatio: false,
+				plugins: {
+					legend: { position: 'bottom' },
+					tooltip: { callbacks: { label: pctLabel } }
+				}
 			}
-		}
-	});
+		});
 
-	// ── 5. Verification Status — Doughnut ────────────────────────────────
-	new Chart(document.getElementById('verificationChart'), {
-		type: 'doughnut',
-		data: {
-			labels: ['Approved', 'Rejected', 'Waiting Review', 'Open'],
-			datasets: [{
-				data: [DB.verified, DB.rejected, DB.waiting, DB.unverified],
-				backgroundColor: [
-					'rgba(27,122,70,.85)', 'rgba(209,26,42,.80)',
-					'rgba(192,86,33,.80)', 'rgba(37,99,235,.75)'
-				],
-				borderColor: '#fff', borderWidth: 3, hoverOffset: 10
-			}]
-		},
-		options: {
-			responsive: true, maintainAspectRatio: false, cutout: '60%',
-			plugins: {
-				legend: { position: 'bottom' },
-				tooltip: { callbacks: { label: pctLabel } }
+		// ── 3. Tasks per Member — Bar (full width) ────────────────────────────
+		window.dashboardCharts.member = new Chart(document.getElementById('memberTaskChart'), {
+			type: 'bar',
+			data: {
+				labels: DB.memberLabels.length ? DB.memberLabels : ['No Members'],
+				datasets: [{
+					label: 'Tasks Assigned',
+					data: DB.memberTaskCounts.length ? DB.memberTaskCounts : [0],
+					backgroundColor: 'rgba(23,69,94,.18)',
+					borderColor: PRIMARY,
+					borderWidth: 2,
+					borderRadius: 8,
+					borderSkipped: false
+				}]
+			},
+			options: {
+				responsive: true, maintainAspectRatio: false,
+				plugins: { legend: { display: false } },
+				scales: {
+					y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f6f9' } },
+					x: { grid: { display: false } }
+				}
 			}
-		}
-	});
+		});
+
+		// ── 4. Team Status — Pie ──────────────────────────────────────────────
+		window.dashboardCharts.team = new Chart(document.getElementById('teamStatusChart'), {
+			type: 'pie',
+			data: {
+				labels: ['Active', 'Inactive'],
+				datasets: [{
+					data: [DB.activeTeam || 0, DB.inactiveTeam || 0],
+					backgroundColor: ['rgba(27,122,70,.85)', 'rgba(209,26,42,.80)'],
+					borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+				}]
+			},
+			options: {
+				responsive: true, maintainAspectRatio: false,
+				plugins: {
+					legend: { position: 'bottom' },
+					tooltip: { callbacks: { label: pctLabel } }
+				}
+			}
+		});
+
+		// ── 5. Verification Status — Doughnut ────────────────────────────────
+		window.dashboardCharts.verification = new Chart(document.getElementById('verificationChart'), {
+			type: 'doughnut',
+			data: {
+				labels: ['Approved', 'Rejected', 'Waiting Review', 'Open'],
+				datasets: [{
+					data: [DB.verified, DB.rejected, DB.waiting, DB.unverified],
+					backgroundColor: [
+						'rgba(27,122,70,.85)', 'rgba(209,26,42,.80)',
+						'rgba(192,86,33,.80)', 'rgba(37,99,235,.75)'
+					],
+					borderColor: '#fff', borderWidth: 3, hoverOffset: 10
+				}]
+			},
+			options: {
+				responsive: true, maintainAspectRatio: false, cutout: '60%',
+				plugins: {
+					legend: { position: 'bottom' },
+					tooltip: { callbacks: { label: pctLabel } }
+				}
+			}
+		});
+	};
+
+	window.initDashboardCharts();
 	</script>
 
 	<script th:src="@{/auth.js}"></script>

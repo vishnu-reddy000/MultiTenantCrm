@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -639,6 +639,7 @@
 		function loadHolidays() {
 			fetch('/api/holidays', {credentials: 'include'}).then(function (r) {return r.json();}).then(function (data) {holidays = data; renderCalendar(); renderList();}).catch(function () {showToast('Failed to load holidays.', 'error');});
 		}
+		window.loadHolidays = loadHolidays;
 
 		function renderCalendar() {
 			document.getElementById('calTitle').textContent = MONTH_NAMES[curMonth] + ' ' + curYear;

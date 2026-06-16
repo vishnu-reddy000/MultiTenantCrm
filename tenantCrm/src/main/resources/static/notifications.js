@@ -5,7 +5,7 @@
 (function () {
     'use strict';
 
-    var POLL_MS = 10000;
+    var POLL_MS = 1000;
     var pollTimer = null;
     var isOpen = false;
     var notifications = [];
@@ -16,6 +16,7 @@
     var wsRetryCount = 0;
     var maxWsRetries = 5;
     var reconnectTimeout = null;
+    var isInitialized = false;
 
     function isAppPage() {
         var path = window.location.pathname;
@@ -171,11 +172,31 @@
                 return r.json();
             })
             .then(function (data) {
-                notifications = data.notifications || [];
+                var newNotifs = data.notifications || [];
+                var hasNew = false;
+                var newTypes = {};
+
+                if (isInitialized) {
+                    newNotifs.forEach(function (n) {
+                        if (!notifications.some(function (old) { return String(old.id) === String(n.id); })) {
+                            hasNew = true;
+                            newTypes[n.type] = true;
+                        }
+                    });
+                }
+
+                notifications = newNotifs;
                 unreadCount = data.unreadCount || 0;
                 updateBadge();
                 renderList();
                 renderDashboardFeed();
+
+                if (hasNew) {
+                    Object.keys(newTypes).forEach(function (type) {
+                        refreshPageContentIfRelevant(type);
+                    });
+                }
+
                 if (typeof cb === 'function') cb();
             })
             .catch(function (err) {
@@ -306,46 +327,58 @@
     }
 
     function loadLibrariesAndConnect(userId) {
-        var sockJsUrl = 'https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js';
-        var stompUrl = 'https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js';
+        var sockJsUrl = '/sockjs.min.js';
+        var stompUrl = '/stomp.min.js';
+
+        var sockLoaded = false;
+        var stompLoaded = false;
 
         function checkAndConnect() {
-            if (window.SockJS && window.Stomp) {
-                connectWebSocket(userId);
-            } else {
-                console.warn('WebSocket libraries loaded incorrectly. Falling back to HTTP polling.');
-                startPolling();
+            if (sockLoaded && stompLoaded) {
+                if (window.SockJS && window.Stomp) {
+                    connectWebSocket(userId);
+                } else {
+                    console.warn('WebSocket libraries loaded incorrectly. Falling back to HTTP polling.');
+                    startPolling();
+                }
             }
         }
 
-        if (!window.SockJS) {
+        if (window.SockJS) sockLoaded = true;
+        if (window.Stomp) stompLoaded = true;
+
+        if (sockLoaded && stompLoaded) {
+            checkAndConnect();
+            return;
+        }
+
+        var loadFailed = false;
+        function handleLoadError() {
+            if (loadFailed) return;
+            loadFailed = true;
+            console.warn('Failed to load WebSocket libraries. Falling back to HTTP polling.');
+            startPolling();
+        }
+
+        if (!sockLoaded) {
             loadScript(sockJsUrl, function (err) {
                 if (err) {
-                    startPolling();
+                    handleLoadError();
                     return;
                 }
-                if (!window.Stomp) {
-                    loadScript(stompUrl, function (err2) {
-                        if (err2) {
-                            startPolling();
-                            return;
-                        }
-                        checkAndConnect();
-                    });
-                } else {
-                    checkAndConnect();
-                }
-            });
-        } else if (!window.Stomp) {
-            loadScript(stompUrl, function (err) {
-                if (err) {
-                    startPolling();
-                    return;
-                }
+                sockLoaded = true;
                 checkAndConnect();
             });
-        } else {
-            checkAndConnect();
+        }
+        if (!stompLoaded) {
+            loadScript(stompUrl, function (err) {
+                if (err) {
+                    handleLoadError();
+                    return;
+                }
+                stompLoaded = true;
+                checkAndConnect();
+            });
         }
     }
 
@@ -353,7 +386,9 @@
         if (wsConnected) return;
 
         try {
-            var socket = new SockJS('/ws');
+            var socket = new SockJS('/ws', null, {
+                transports: ['websocket', 'xhr-streaming', 'xhr-polling']
+            });
             stompClient = Stomp.over(socket);
             stompClient.debug = null; // Suppress debug logging in console
 
@@ -371,8 +406,8 @@
                     try {
                         var n = JSON.parse(msg.body);
                         
-                        // Prevent duplicates
-                        if (notifications.some(function(item) { return item.id === n.id; })) {
+                        // Prevent duplicates for database-backed notifications
+                        if (n.id !== -1 && notifications.some(function(item) { return item.id === n.id; })) {
                             return;
                         }
 
@@ -412,7 +447,7 @@
         }
 
         if (wsRetryCount < maxWsRetries) {
-            var delay = Math.min(30000, Math.pow(2, wsRetryCount) * 2000);
+            var delay = Math.min(5000, Math.pow(2, wsRetryCount) * 1000);
             wsRetryCount++;
             console.log('Reconnecting WebSocket in ' + (delay / 1000) + 's (attempt ' + wsRetryCount + '/' + maxWsRetries + ')...');
             
@@ -464,32 +499,28 @@
 
     function shouldReloadPage(type) {
         var path = window.location.pathname.toLowerCase();
-        var t = (type || '').toUpperCase();
+        
+        // List of path segments that contain automatic data lists/tables/dashboards
+        var activePaths = [
+            '/dashboard',
+            '/tasks',
+            '/meetings',
+            '/schedule-meeting',
+            '/calendar',
+            '/leaves',
+            '/leave',
+            '/team',
+            '/teams',
+            '/reports',
+            '/performance',
+            '/attendance',
+            '/employees'
+        ];
 
-        if (path.indexOf('/dashboard') !== -1) {
-            return true;
-        }
-
-        if (t === 'TASK' && path.indexOf('/tasks') !== -1) {
-            return true;
-        }
-        if (t === 'MEETING' && (path.indexOf('/meetings') !== -1 || path.indexOf('/schedule-meeting') !== -1 || path.indexOf('/calendar') !== -1)) {
-            return true;
-        }
-        if (t === 'LEAVE' && (path.indexOf('/leaves') !== -1 || path.indexOf('/leave') !== -1)) {
-            return true;
-        }
-        if (t === 'TEAM' && (path.indexOf('/team') !== -1 || path.indexOf('/teams') !== -1)) {
-            return true;
-        }
-        if (t === 'HOLIDAY' && path.indexOf('/calendar') !== -1) {
-            return true;
-        }
-        if (t === 'REPORT' && path.indexOf('/reports') !== -1) {
-            return true;
-        }
-        if (t === 'PERFORMANCE' && path.indexOf('/performance') !== -1) {
-            return true;
+        for (var i = 0; i < activePaths.length; i++) {
+            if (path.indexOf(activePaths[i]) !== -1) {
+                return true;
+            }
         }
 
         return false;
@@ -506,28 +537,44 @@
 
         var activeEl = document.activeElement;
         if (activeEl) {
-            var isInsideReplacedContainer = false;
             var selectorsToCheck = [
                 '#lhList',
                 '#lhEmpty',
                 '#taskTbody',
                 '#taskTable',
+                '#tasksCard',
+                '#historyCard',
                 '#meetingList',
+                '#meetingsCard',
+                '#pastMeetingsCard',
+                '#meetingsTable',
+                '#pastMeetingsTable',
+                '#historyTable',
+                '#panelList',
+                '#panelHistory',
                 '#employeeTbody',
                 '#attendanceTbody',
                 '#teamList',
                 '#dashboardNotifFeed',
+                '#reportsCard',
+                '#reportsTable',
+                '#reportsGrid',
                 '.stats-row',
                 '.tasks-scroll'
             ];
+            var isInsideReplacedContainer = false;
             selectorsToCheck.forEach(function (sel) {
                 var container = document.querySelector(sel);
                 if (container && container.contains(activeEl)) {
-                    isInsideReplacedContainer = true;
+                    var tagName = (activeEl.tagName || '').toUpperCase();
+                    // Only skip if the user is actively typing or selecting inside the container
+                    if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
+                        isInsideReplacedContainer = true;
+                    }
                 }
             });
             if (isInsideReplacedContainer) {
-                console.log('User is interacting with elements inside the replaced container, skipping AJAX refresh.');
+                console.log('User is interacting with input elements inside the replaced container, skipping AJAX refresh.');
                 return;
             }
         }
@@ -545,6 +592,14 @@
                 return;
             }
 
+            // Ignore inner components of modals (like boxes, headers, bodies, close buttons, footers)
+            if (cls.indexOf('box') !== -1 || cls.indexOf('header') !== -1 || 
+                cls.indexOf('body') !== -1 || cls.indexOf('close') !== -1 || 
+                cls.indexOf('footer') !== -1 || cls.indexOf('content') !== -1 ||
+                cls.indexOf('list') !== -1 || cls.indexOf('avatar') !== -1) {
+                return;
+            }
+
             var style = window.getComputedStyle(el);
             if (style.display !== 'none' && style.visibility !== 'hidden' && el.offsetWidth > 0 && el.offsetHeight > 0) {
                 if (style.opacity !== '0') {
@@ -558,7 +613,7 @@
         }
 
         console.log('Refreshing page content via AJAX for type ' + type + '...');
-        fetch(window.location.href)
+        window.crmFetch(window.location.href, { method: 'GET', contentType: null })
             .then(function (response) {
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 return response.text();
@@ -566,19 +621,46 @@
             .then(function (htmlText) {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(htmlText, 'text/html');
-                
                 var selectors = [
                     '#lhList',
                     '#lhEmpty',
+                    '#lhTable',
+                    '#lfHistory',
+                    '#lfEmptyState',
+                    '#statPending',
+                    '#statApproved',
+                    '#statRejected',
+                    '.lf-balance-row',
                     '#taskTbody',
                     '#taskTable',
+                    '#tasksCard',
+                    '#historyCard',
+                    '#historyTbody',
+                    '#historyTable',
                     '#meetingList',
+                    '#meetingsCard',
+                    '#pastMeetingsCard',
+                    '#meetingsTable',
+                    '#pastMeetingsTable',
+                    '#meetingCountBadge',
+                    '#historyCountBadge',
+                    '#panelList',
+                    '#panelHistory',
                     '#employeeTbody',
+                    '#employeeTable',
                     '#attendanceTbody',
+                    '#attendanceTable',
                     '#teamList',
+                    '#teamTable',
+                    '#reportsCard',
+                    '#reportsTable',
+                    '#reportsGrid',
                     '#dashboardNotifFeed',
                     '.stats-row',
-                    '.tasks-scroll'
+                    '.tasks-scroll',
+                    '.left-col',
+                    '.right-col',
+                    '.dashboard-grid'
                 ];
 
                 var updatedAny = false;
@@ -591,13 +673,49 @@
                     }
                 });
 
+                // Post-refresh page-specific updates
+                var path = window.location.pathname.toLowerCase();
+                if (path.indexOf('/calendar') !== -1) {
+                    if (typeof window.loadHolidays === 'function') {
+                        window.loadHolidays();
+                    }
+                    updatedAny = true;
+                }
+
+                if (path.indexOf('/dashboard') !== -1) {
+                    try {
+                        var scriptElements = doc.querySelectorAll('script');
+                        scriptElements.forEach(function (script) {
+                            var text = script.textContent || '';
+                            if (text.indexOf('const DB =') !== -1 || text.indexOf('window.dashboardAnalytics =') !== -1) {
+                                var newScript = document.createElement('script');
+                                var cleanedText = text
+                                    .replace(/\bconst\s+DB\b/g, 'window.DB')
+                                    .replace(/\blet\s+DB\b/g, 'window.DB');
+                                newScript.textContent = cleanedText;
+                                document.body.appendChild(newScript);
+                                document.body.removeChild(newScript);
+                            }
+                        });
+
+                        if (typeof window.initDashboardCharts === 'function') {
+                            window.initDashboardCharts();
+                        }
+
+                        if (typeof window.refreshDashboardAnalytics === 'function' && window.dashboardAnalytics && window.dashboardAnalytics.initialData) {
+                            window.refreshDashboardAnalytics(window.dashboardAnalytics.initialData);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to dynamically refresh dashboard charts:', e);
+                    }
+                    updatedAny = true;
+                }
+
                 if (updatedAny) {
                     if (window.lucide) {
                         lucide.createIcons();
                     }
 
-                    // Run page-specific callbacks/post-refresh adjustments
-                    var path = window.location.pathname.toLowerCase();
                     if (path.indexOf('/leaves') !== -1) {
                         if (typeof updateStats === 'function') updateStats();
                         if (typeof applyFilters === 'function') applyFilters();
@@ -616,13 +734,11 @@
 
                     console.log('Page content elements updated dynamically.');
                 } else {
-                    console.log('No specific container selectors found, falling back to full reload...');
-                    window.location.reload();
+                    console.log('No specific container selectors found to update on this page.');
                 }
             })
             .catch(function (error) {
-                console.warn('AJAX page refresh failed, falling back to full reload:', error);
-                window.location.reload();
+                console.warn('AJAX page refresh failed:', error);
             });
     }
 
@@ -705,22 +821,24 @@
 
         // Fetch initial list of notifications
         fetchNotifications(function () {
-            // Once initial data loads, try connecting to WebSocket
-            window.crmFetch('/api/notifications/me', { method: 'GET', contentType: null })
-                .then(function (r) { return r.ok ? r.json() : null; })
-                .then(function (user) {
-                    if (user && user.id) {
-                        loadLibrariesAndConnect(user.id);
-                    } else {
-                        console.warn('Could not read user info. Falling back to HTTP polling.');
-                        startPolling();
-                    }
-                })
-                .catch(function (err) {
-                    console.warn('User details fetch failed. Falling back to HTTP polling:', err.message);
-                    startPolling();
-                });
+            isInitialized = true;
         });
+
+        // Fetch user profile and connect WebSocket in parallel
+        window.crmFetch('/api/notifications/me', { method: 'GET', contentType: null })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (user) {
+                if (user && user.id) {
+                    loadLibrariesAndConnect(user.id);
+                } else {
+                    console.warn('Could not read user info. Falling back to HTTP polling.');
+                    startPolling();
+                }
+            })
+            .catch(function (err) {
+                console.warn('User details fetch failed. Falling back to HTTP polling:', err.message);
+                startPolling();
+            });
     }
 
     if (document.readyState === 'loading') {

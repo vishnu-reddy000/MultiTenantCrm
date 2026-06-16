@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -685,6 +685,7 @@
 				})
 				.catch(function () {showToast('Failed to load holidays.', 'error');});
 		}
+		window.loadHolidays = loadHolidays;
 
 		// ── Render calendar ─────────────────────────────────────────────────────
 		function renderCalendar() {

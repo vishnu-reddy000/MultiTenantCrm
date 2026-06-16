@@ -110,6 +110,7 @@ public class HolidayController {
         h.setName(name);
         h.setType(type);
         holidayService.save(h);
+        notificationService.sendLiveUpdateToTenant(tenant, "HOLIDAY", "Holiday Updated", "Holiday was updated", "/calendar");
 
         resp.put("success", true);
         resp.put("message", "Holiday updated.");
@@ -134,6 +135,7 @@ public class HolidayController {
         }
 
         holidayService.deleteById(id);
+        notificationService.sendLiveUpdateToTenant(tenant, "HOLIDAY", "Holiday Deleted", "Holiday was deleted", "/calendar");
         resp.put("success", true);
         resp.put("message", "Holiday deleted.");
         return resp;

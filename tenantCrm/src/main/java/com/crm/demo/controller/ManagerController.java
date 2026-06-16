@@ -828,6 +828,7 @@ public class ManagerController {
 		}
 
 		leaveRequestRepository.save(leave);
+		notificationService.notifyLeaveSubmitted(leave);
 		ra.addFlashAttribute("successMessage", "Leave request submitted successfully.");
 		return "redirect:/manager/leaves";
 	}
@@ -1503,6 +1504,7 @@ public class ManagerController {
 		att.setStatus(status);
 		att.setTenantSegment(tenant);
 		attendanceRepository.save(att);
+		notificationService.notifyAttendanceUpdated(manager, "punch-in");
 
 		ra.addFlashAttribute("successMessage",
 				"Punched in at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
@@ -1537,6 +1539,7 @@ public class ManagerController {
 		LocalTime now = LocalTime.now();
 		att.setCheckOut(now);
 		attendanceRepository.save(att);
+		notificationService.notifyAttendanceUpdated(manager, "punch-out");
 
 		ra.addFlashAttribute("successMessage",
 				"Punched out at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
@@ -1572,6 +1575,7 @@ public class ManagerController {
 		if (att.getBreakStart() == null) {
 			att.setBreakStart(now);
 			attendanceRepository.save(att);
+			notificationService.notifyAttendanceUpdated(manager, "break-1-start");
 			ra.addFlashAttribute("successMessage",
 					"Break 1 started at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
 			return "redirect:/manager/attendance";
@@ -1580,6 +1584,7 @@ public class ManagerController {
 		if (att.getBreakEnd() != null && att.getBreak2Start() == null) {
 			att.setBreak2Start(now);
 			attendanceRepository.save(att);
+			notificationService.notifyAttendanceUpdated(manager, "break-2-start");
 			ra.addFlashAttribute("successMessage",
 					"Break 2 started at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
 			return "redirect:/manager/attendance";
@@ -1614,6 +1619,7 @@ public class ManagerController {
 		if (att.getBreak2Start() != null && att.getBreak2End() == null) {
 			att.setBreak2End(now);
 			attendanceRepository.save(att);
+			notificationService.notifyAttendanceUpdated(manager, "break-2-end");
 			ra.addFlashAttribute("successMessage",
 					"Break 2 ended at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
 			return "redirect:/manager/attendance";
@@ -1622,6 +1628,7 @@ public class ManagerController {
 		if (att.getBreakStart() != null && att.getBreakEnd() == null) {
 			att.setBreakEnd(now);
 			attendanceRepository.save(att);
+			notificationService.notifyAttendanceUpdated(manager, "break-1-end");
 			ra.addFlashAttribute("successMessage",
 					"Break 1 ended at " + String.format("%02d:%02d", now.getHour(), now.getMinute()) + ".");
 			return "redirect:/manager/attendance";

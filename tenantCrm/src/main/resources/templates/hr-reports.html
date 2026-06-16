@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -300,77 +300,79 @@
 				</div>
 			</div>
 
-			<!-- Reports grid -->
-			<div th:if="${allReports != null and !#lists.isEmpty(allReports)}">
-				<div class="reports-grid" id="reportsGrid">
-					<div class="report-card" th:each="report : ${allReports}">
-						<div
-							style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
-							<div style="min-width:0;">
-								<h3 class="report-title" th:text="${report.title}">Title</h3>
-								<div class="report-meta">
-									<i data-lucide="clock" style="width:11px;height:11px;vertical-align:-1px;"></i>
-									<span th:text="${report.sentAtFormatted}">—</span>
-								</div>
-							</div>
-							<span class="report-sender" style="flex-shrink:0;">
-								<i data-lucide="user" style="width:12px;height:12px;"></i>
-								<span th:text="${report.sentBy}">Manager</span>
-							</span>
-						</div>
-
-						<!-- Recipients -->
-						<div th:if="${report.recipientNames != null and !#strings.isEmpty(report.recipientNames)}">
-							<span class="report-recipients">
-								<i data-lucide="users" style="width:12px;height:12px;"></i>
-								<span th:text="'To: ' + ${report.recipientNames}">—</span>
-							</span>
-						</div>
-
-						<!-- Message -->
-						<div th:if="${report.message != null and !#strings.isEmpty(report.message)}"
-							style="margin-top:8px;">
-							<p class="report-message" th:text="${report.message}" th:id="'msg-' + ${report.id}"></p>
-							<button class="read-more-btn" th:attr="data-msg-id=${'msg-' + report.id}"
-								onclick="toggleMessage(this)">Read more</button>
-						</div>
-						<p th:if="${report.message == null or #strings.isEmpty(report.message)}"
-							style="font-size:13px;color:#94a3b8;font-style:italic;margin:8px 0 0;">No message.</p>
-
-						<!-- Attachments -->
-						<div th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}"
-							style="margin-top:10px;">
+			<!-- Reports grid or empty state wrapper -->
+			<div id="reportsCard">
+				<div th:if="${allReports != null and !#lists.isEmpty(allReports)}">
+					<div class="reports-grid" id="reportsGrid">
+						<div class="report-card" th:each="report : ${allReports}">
 							<div
-								style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:6px;">
-								Attachments (<span th:text="${#lists.size(report.attachments)}">0</span>)
+								style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+								<div style="min-width:0;">
+									<h3 class="report-title" th:text="${report.title}">Title</h3>
+									<div class="report-meta">
+										<i data-lucide="clock" style="width:11px;height:11px;vertical-align:-1px;"></i>
+										<span th:text="${report.sentAtFormatted}">—</span>
+									</div>
+								</div>
+								<span class="report-sender" style="flex-shrink:0;">
+									<i data-lucide="user" style="width:12px;height:12px;"></i>
+									<span th:text="${report.sentBy}">Manager</span>
+								</span>
 							</div>
-							<div class="attach-row">
-								<div class="attach-item" th:each="att : ${report.attachments}">
-									<button type="button" class="attach-link"
-										th:data-view-url="@{/hr/reports/view/{id}(id=${att.id})}"
-										th:data-download-url="@{/hr/reports/download/{id}(id=${att.id})}"
-										th:data-filename="${att.originalFilename}"
-										th:data-content-type="${att.contentType}" onclick="openPreviewModal(this)">
-										<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i>
-										<span th:text="${att.originalFilename}">file.pdf</span>
-									</button>
-									<a class="dl-btn" th:href="@{/hr/reports/download/{id}(id=${att.id})}"
-										th:attr="download=${att.originalFilename}">
-										<i data-lucide="download" style="width:12px;height:12px;"></i> Download
-									</a>
+
+							<!-- Recipients -->
+							<div th:if="${report.recipientNames != null and !#strings.isEmpty(report.recipientNames)}">
+								<span class="report-recipients">
+									<i data-lucide="users" style="width:12px;height:12px;"></i>
+									<span th:text="'To: ' + ${report.recipientNames}">—</span>
+								</span>
+							</div>
+
+							<!-- Message -->
+							<div th:if="${report.message != null and !#strings.isEmpty(report.message)}"
+								style="margin-top:8px;">
+								<p class="report-message" th:text="${report.message}" th:id="'msg-' + ${report.id}"></p>
+								<button class="read-more-btn" th:attr="data-msg-id=${'msg-' + report.id}"
+									onclick="toggleMessage(this)">Read more</button>
+							</div>
+							<p th:if="${report.message == null or #strings.isEmpty(report.message)}"
+								style="font-size:13px;color:#94a3b8;font-style:italic;margin:8px 0 0;">No message.</p>
+
+							<!-- Attachments -->
+							<div th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}"
+								style="margin-top:10px;">
+								<div
+									style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:6px;">
+									Attachments (<span th:text="${#lists.size(report.attachments)}">0</span>)
+								</div>
+								<div class="attach-row">
+									<div class="attach-item" th:each="att : ${report.attachments}">
+										<button type="button" class="attach-link"
+											th:data-view-url="@{/hr/reports/view/{id}(id=${att.id})}"
+											th:data-download-url="@{/hr/reports/download/{id}(id=${att.id})}"
+											th:data-filename="${att.originalFilename}"
+											th:data-content-type="${att.contentType}" onclick="openPreviewModal(this)">
+											<i data-lucide="paperclip" style="width:13px;height:13px;flex-shrink:0;"></i>
+											<span th:text="${att.originalFilename}">file.pdf</span>
+										</button>
+										<a class="dl-btn" th:href="@{/hr/reports/download/{id}(id=${att.id})}"
+											th:attr="download=${att.originalFilename}">
+											<i data-lucide="download" style="width:12px;height:12px;"></i> Download
+										</a>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Empty state -->
-			<div th:if="${allReports == null or #lists.isEmpty(allReports)}" class="card">
-				<div class="empty-inbox">
-					<i data-lucide="inbox" style="width:56px;height:56px;opacity:.25;color:#17455e;"></i>
-					<h3>No Reports Yet</h3>
-					<p>No manager reports have been sent in your organization yet.</p>
+				<!-- Empty state -->
+				<div th:if="${allReports == null or #lists.isEmpty(allReports)}" class="card">
+					<div class="empty-inbox">
+						<i data-lucide="inbox" style="width:56px;height:56px;opacity:.25;color:#17455e;"></i>
+						<h3>No Reports Yet</h3>
+						<p>No manager reports have been sent in your organization yet.</p>
+					</div>
 				</div>
 			</div>
 
