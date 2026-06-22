@@ -8,6 +8,246 @@
 	<link rel="stylesheet" th:href="@{/admin.css}">
 	<link rel="stylesheet" th:href="@{/notifications.css}">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+	<style>
+		/* ── Manager Reports Redesign ───────────────────────── */
+		.mgr-reports-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+			gap: 18px;
+			padding: 4px 0 8px;
+		}
+
+		.mgr-report-card {
+			position: relative;
+			background: #ffffff;
+			border: 1px solid #e8edf4;
+			border-radius: 14px;
+			padding: 0;
+			overflow: hidden;
+			box-shadow: 0 2px 8px rgba(15, 45, 74, 0.06);
+			transition: box-shadow 0.2s ease, transform 0.2s ease;
+		}
+
+		.mgr-report-card:hover {
+			box-shadow: 0 6px 24px rgba(15, 45, 74, 0.13);
+			transform: translateY(-2px);
+		}
+
+		/* Accent stripe on left edge */
+		.mgr-report-card::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: linear-gradient(180deg, #3b82f6, #17455e);
+			border-radius: 14px 0 0 14px;
+		}
+
+		.mgr-report-inner {
+			padding: 18px 20px 16px 22px;
+		}
+
+		/* Header row: title + sender badge */
+		.mgr-report-head {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 10px;
+			margin-bottom: 10px;
+		}
+
+		.mgr-report-title-block {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.mgr-report-title {
+			font-size: 14px;
+			font-weight: 700;
+			color: #0f2d4a;
+			line-height: 1.35;
+			margin: 0 0 4px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.mgr-report-date {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			font-size: 11px;
+			color: #94a3b8;
+			font-weight: 500;
+		}
+
+		.mgr-report-date svg {
+			flex-shrink: 0;
+		}
+
+		/* Sender pill */
+		.mgr-sender-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			background: linear-gradient(135deg, #17455e 0%, #1e5f82 100%);
+			color: #fff;
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			flex-shrink: 0;
+			letter-spacing: 0.01em;
+			white-space: nowrap;
+		}
+
+		/* Divider */
+		.mgr-report-divider {
+			height: 1px;
+			background: #f1f5f9;
+			margin: 10px 0;
+		}
+
+		/* Recipients row */
+		.mgr-recipients-row {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			color: #0369a1;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+
+		.mgr-recipients-label {
+			color: #94a3b8;
+			font-weight: 600;
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			flex-shrink: 0;
+		}
+
+		.mgr-recipients-names {
+			color: #0f2d4a;
+			font-size: 12px;
+			font-weight: 500;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		/* Message preview */
+		.mgr-report-message {
+			font-size: 12.5px;
+			color: #64748b;
+			line-height: 1.55;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			margin-bottom: 0;
+		}
+
+		/* Attachments area */
+		.mgr-attachments {
+			margin-top: 12px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.mgr-att-label {
+			font-size: 10px;
+			font-weight: 700;
+			color: #94a3b8;
+			text-transform: uppercase;
+			letter-spacing: 0.07em;
+			margin-bottom: 2px;
+		}
+
+		.mgr-att-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+			padding: 7px 10px;
+			background: #f0f9ff;
+			border: 1px solid #bae6fd;
+			border-radius: 8px;
+		}
+
+		.mgr-att-btn {
+			background: none;
+			border: none;
+			padding: 0;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			color: #0369a1;
+			font-size: 12px;
+			font-weight: 600;
+			text-decoration: none;
+			overflow: hidden;
+			max-width: 200px;
+		}
+
+		.mgr-att-btn:hover {
+			color: #0c4a6e;
+			text-decoration: underline;
+		}
+
+		.mgr-att-filename {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.mgr-att-download {
+			flex-shrink: 0;
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 10px;
+			border-radius: 6px;
+			background: #17455e;
+			color: #fff;
+			font-size: 11px;
+			font-weight: 600;
+			text-decoration: none;
+			transition: background 0.15s;
+		}
+
+		.mgr-att-download:hover {
+			background: #0f2d4a;
+		}
+
+		/* Empty state */
+		.mgr-empty {
+			text-align: center;
+			padding: 56px 24px;
+			color: #94a3b8;
+		}
+
+		.mgr-empty svg {
+			opacity: 0.25;
+			margin-bottom: 14px;
+		}
+
+		.mgr-empty h3 {
+			font-size: 15px;
+			font-weight: 700;
+			color: #64748b;
+			margin: 0 0 4px;
+		}
+
+		.mgr-empty p {
+			font-size: 13px;
+			margin: 0;
+		}
+	</style>
 </head>
 
 <body>
@@ -73,7 +313,7 @@
 				</div>
 			</div>
 
-			<!-- Manager-sent Reports -->
+			<!-- ── Manager Reports (redesigned) ──────────────── -->
 			<div class="card" id="reportsCard" style="margin-bottom:20px;">
 				<div class="card-header">
 					<div>
@@ -81,59 +321,80 @@
 						<p th:text="${reportCount} + ' report(s) sent by managers'">0 report(s)</p>
 					</div>
 				</div>
-				<div th:if="${allReports != null and !#lists.isEmpty(allReports)}"
-					 style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;padding:0 0 4px;">
-					<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;"
-						 th:each="report : ${allReports}">
-						<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
-							<div>
-								<div style="font-size:14px;font-weight:700;color:#0f2d4a;" th:text="${report.title}">Title</div>
-								<div style="font-size:11px;color:#94a3b8;margin-top:2px;" th:text="${report.sentAtFormatted}">—</div>
+
+				<!-- Reports grid -->
+				<div th:if="${allReports != null and !#lists.isEmpty(allReports)}" class="mgr-reports-grid">
+					<div class="mgr-report-card" th:each="report : ${allReports}">
+						<div class="mgr-report-inner">
+
+							<!-- Title + sender -->
+							<div class="mgr-report-head">
+								<div class="mgr-report-title-block">
+									<div class="mgr-report-title" th:text="${report.title}">Title</div>
+									<span class="mgr-report-date">
+										<i data-lucide="clock" style="width:11px;height:11px;"></i>
+										<span th:text="${report.sentAtFormatted}">—</span>
+									</span>
+								</div>
+								<span class="mgr-sender-pill">
+									<i data-lucide="user" style="width:11px;height:11px;"></i>
+									<span th:text="${report.sentBy}">Manager</span>
+								</span>
 							</div>
-							<span style="display:inline-flex;align-items:center;gap:5px;background:#eef6fb;color:#17455e;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;flex-shrink:0;">
-								<i data-lucide="user" style="width:11px;height:11px;"></i>
-								<span th:text="${report.sentBy}">Manager</span>
-							</span>
-						</div>
-						<div th:if="${report.recipientNames != null and !#strings.isEmpty(report.recipientNames)}"
-							 style="font-size:12px;color:#0369a1;margin-bottom:6px;">
-							<i data-lucide="users" style="width:11px;height:11px;vertical-align:-1px;"></i>
-							To: <span th:text="${report.recipientNames}">—</span>
-						</div>
-						<div th:if="${report.message != null and !#strings.isEmpty(report.message)}"
-							 style="font-size:12px;color:#475569;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-							 th:text="${report.message}">—</div>
-						<div th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}"
-							 style="margin-top:8px;">
-							<th:block th:each="att : ${report.attachments}">
-								<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;margin-bottom:4px;">
-									<button type="button"
-											style="background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:#0369a1;font-size:12px;font-weight:600;text-decoration:underline;overflow:hidden;max-width:240px;"
+
+							<div class="mgr-report-divider"></div>
+
+							<!-- Recipients -->
+							<div th:if="${report.recipientNames != null and !#strings.isEmpty(report.recipientNames)}"
+								class="mgr-recipients-row">
+								<span class="mgr-recipients-label">To</span>
+								<i data-lucide="users" style="width:12px;height:12px;color:#94a3b8;flex-shrink:0;"></i>
+								<span class="mgr-recipients-names" th:text="${report.recipientNames}">—</span>
+							</div>
+
+							<!-- Message preview -->
+							<div th:if="${report.message != null and !#strings.isEmpty(report.message)}"
+								class="mgr-report-message" th:text="${report.message}">—</div>
+
+							<!-- Attachments -->
+							<div th:if="${report.attachments != null and !#lists.isEmpty(report.attachments)}"
+								class="mgr-attachments">
+								<div class="mgr-att-label">
+									<i data-lucide="paperclip" style="width:10px;height:10px;vertical-align:-1px;"></i>
+									Attachments
+								</div>
+								<th:block th:each="att : ${report.attachments}">
+									<div class="mgr-att-item">
+										<button type="button" class="mgr-att-btn"
 											th:data-view-url="@{/admin/reports/view/{id}(id=${att.id})}"
 											th:data-download-url="@{/admin/reports/download/{id}(id=${att.id})}"
 											th:data-filename="${att.originalFilename}"
-											th:data-content-type="${att.contentType}"
-											onclick="openPreviewModal(this)">
-										<i data-lucide="paperclip" style="width:12px;height:12px;flex-shrink:0;"></i>
-										<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" th:text="${att.originalFilename}">file</span>
-									</button>
-									<a style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;background:#17455e;color:#fff;font-size:11px;font-weight:600;text-decoration:none;"
-									   th:href="@{/admin/reports/download/{id}(id=${att.id})}"
-									   th:attr="download=${att.originalFilename}">
-										<i data-lucide="download" style="width:11px;height:11px;"></i> Download
-									</a>
-								</div>
-							</th:block>
+											th:data-content-type="${att.contentType}" onclick="openPreviewModal(this)">
+											<i data-lucide="file" style="width:13px;height:13px;flex-shrink:0;"></i>
+											<span class="mgr-att-filename" th:text="${att.originalFilename}">file</span>
+										</button>
+										<a class="mgr-att-download"
+											th:href="@{/admin/reports/download/{id}(id=${att.id})}"
+											th:attr="download=${att.originalFilename}">
+											<i data-lucide="download" style="width:11px;height:11px;"></i> Download
+										</a>
+									</div>
+								</th:block>
+							</div>
+
 						</div>
 					</div>
 				</div>
-				<div th:if="${allReports == null or #lists.isEmpty(allReports)}"
-					 class="empty-state">
-					<i data-lucide="inbox" style="width:40px;height:40px;opacity:.3;"></i>
+
+				<!-- Empty state -->
+				<div th:if="${allReports == null or #lists.isEmpty(allReports)}" class="mgr-empty">
+					<div><i data-lucide="inbox"
+							style="width:44px;height:44px;display:block;margin:0 auto 14px;opacity:.25;"></i></div>
 					<h3>No Manager Reports</h3>
 					<p>No reports have been sent yet.</p>
 				</div>
 			</div>
+			<!-- ── End Manager Reports ──────────────────────── -->
 
 			<div class="dashboard-grid">
 				<div class="card">
@@ -216,41 +477,50 @@
 	</script>
 
 	<!-- File Preview Modal -->
-	<div style="display:none;position:fixed;inset:0;background:rgba(10,30,50,.72);backdrop-filter:blur(3px);z-index:20000;align-items:center;justify-content:center;" id="previewModal">
-		<div style="background:#fff;border-radius:18px;width:100%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.18);">
-			<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;border-bottom:1px solid #f0f4f8;">
-				<h2 style="font-size:15px;font-weight:700;color:#0f2d4a;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 140px);">
+	<div style="display:none;position:fixed;inset:0;background:rgba(10,30,50,.72);backdrop-filter:blur(3px);z-index:20000;align-items:center;justify-content:center;"
+		id="previewModal">
+		<div
+			style="background:#fff;border-radius:18px;width:100%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.18);">
+			<div
+				style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;border-bottom:1px solid #f0f4f8;">
+				<h2
+					style="font-size:15px;font-weight:700;color:#0f2d4a;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 140px);">
 					<span id="previewFilename">File Preview</span>
 				</h2>
 				<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-					<a id="previewDownloadBtn" href="#" download style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">Download</a>
-					<button onclick="closePreviewModal()" style="background:#f4f7fa;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#64748b;font-size:18px;">✕</button>
+					<a id="previewDownloadBtn" href="#" download
+						style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#17455e;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">Download</a>
+					<button onclick="closePreviewModal()"
+						style="background:#f4f7fa;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#64748b;font-size:18px;">✕</button>
 				</div>
 			</div>
-			<div id="previewBody" style="flex:1;overflow:auto;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;"></div>
+			<div id="previewBody"
+				style="flex:1;overflow:auto;background:#f8fafc;min-height:400px;display:flex;align-items:center;justify-content:center;">
+			</div>
 		</div>
 	</div>
 	<script>
-		window.openPreviewModal = function(btn) {
-			var viewUrl=btn.getAttribute('data-view-url'), downloadUrl=btn.getAttribute('data-download-url');
-			var filename=btn.getAttribute('data-filename')||'file', ct=(btn.getAttribute('data-content-type')||'').toLowerCase();
-			document.getElementById('previewFilename').textContent=filename;
-			document.getElementById('previewDownloadBtn').href=downloadUrl;
-			document.getElementById('previewDownloadBtn').setAttribute('download',filename);
-			var body=document.getElementById('previewBody'); body.innerHTML='';
-			if(ct.startsWith('image/')){var img=document.createElement('img');img.src=viewUrl;img.style.cssText='max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;';body.appendChild(img);}
-			else if(ct==='application/pdf'||ct.startsWith('text/')){var iframe=document.createElement('iframe');iframe.src=viewUrl;iframe.style.cssText='width:100%;height:75vh;border:none;';body.appendChild(iframe);}
-			else{body.innerHTML='<div style="text-align:center;padding:48px 24px;"><p style="font-size:14px;color:#374151;margin:0 0 16px;">'+filename+'</p><a href="'+downloadUrl+'" download="'+filename+'" style="padding:10px 22px;border-radius:10px;background:#17455e;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Download</a></div>';}
-			var modal=document.getElementById('previewModal'); modal.style.display='flex'; document.body.style.overflow='hidden';
+		window.openPreviewModal = function (btn) {
+			var viewUrl = btn.getAttribute('data-view-url'), downloadUrl = btn.getAttribute('data-download-url');
+			var filename = btn.getAttribute('data-filename') || 'file', ct = (btn.getAttribute('data-content-type') || '').toLowerCase();
+			document.getElementById('previewFilename').textContent = filename;
+			document.getElementById('previewDownloadBtn').href = downloadUrl;
+			document.getElementById('previewDownloadBtn').setAttribute('download', filename);
+			var body = document.getElementById('previewBody'); body.innerHTML = '';
+			if (ct.startsWith('image/')) {var img = document.createElement('img'); img.src = viewUrl; img.style.cssText = 'max-width:100%;max-height:75vh;object-fit:contain;border-radius:6px;'; body.appendChild(img);}
+			else if (ct === 'application/pdf' || ct.startsWith('text/')) {var iframe = document.createElement('iframe'); iframe.src = viewUrl; iframe.style.cssText = 'width:100%;height:75vh;border:none;'; body.appendChild(iframe);}
+			else {body.innerHTML = '<div style="text-align:center;padding:48px 24px;"><p style="font-size:14px;color:#374151;margin:0 0 16px;">' + filename + '</p><a href="' + downloadUrl + '" download="' + filename + '" style="padding:10px 22px;border-radius:10px;background:#17455e;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Download</a></div>';}
+			var modal = document.getElementById('previewModal'); modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
 		};
-		window.closePreviewModal = function() {
-			document.getElementById('previewModal').style.display='none';
-			document.body.style.overflow=''; document.getElementById('previewBody').innerHTML='';
+		window.closePreviewModal = function () {
+			document.getElementById('previewModal').style.display = 'none';
+			document.body.style.overflow = ''; document.getElementById('previewBody').innerHTML = '';
 		};
-		document.getElementById('previewModal').addEventListener('click',function(e){if(e.target===this)closePreviewModal();});
-		document.addEventListener('keydown',function(e){if(e.key==='Escape')closePreviewModal();});
+		document.getElementById('previewModal').addEventListener('click', function (e) {if (e.target === this) closePreviewModal();});
+		document.addEventListener('keydown', function (e) {if (e.key === 'Escape') closePreviewModal();});
 	</script>
 	<script th:src="@{/auth.js}"></script>
 	<script th:src="@{/notifications.js}"></script>
 </body>
+
 </html>
