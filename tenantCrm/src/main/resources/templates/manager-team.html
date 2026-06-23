@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -71,13 +71,60 @@
 		}
 
 		/* Clickable rows */
-		#teamTable tbody tr {
+		.teamTable tbody tr {
 			cursor: pointer;
 			transition: background .15s;
 		}
 
-		#teamTable tbody tr:hover {
+		.teamTable tbody tr:hover {
 			background: #f0f7fb;
+		}
+
+		.teams-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+			gap: 18px;
+			margin-bottom: 24px;
+		}
+
+		.team-selector-card {
+			background: white;
+			border-radius: 20px;
+			padding: 16px 20px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+			border: 2px solid transparent;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.team-selector-card:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+			border-color: #dcecf5;
+		}
+
+		.team-selector-card.active {
+			border-color: #17455e;
+			background: #f0f7fb;
+		}
+
+		.team-card-inner {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.team-info-content h4 {
+			font-size: 16px;
+			font-weight: 700;
+			color: #163647;
+			margin: 0 0 2px;
+		}
+
+		.team-info-content p {
+			font-size: 12px;
+			color: #6b7280;
+			margin: 0;
 		}
 
 		/* ── Employee Detail Modal ── */
@@ -404,89 +451,106 @@
 
 			<!-- Team assigned -->
 			<div th:unless="${myTeam == null}">
-				<!-- Team header -->
-				<div class="team-header-card">
-					<div class="team-icon-box"><i data-lucide="users-round" style="width:26px;height:26px;"></i></div>
-					<div class="team-header-info">
-						<h2 th:text="${myTeamName}">Team Name</h2>
-						<p th:text="${teamCount} + ' member(s) · You are the manager'">0 member(s)</p>
-					</div>
-				</div>
-
-				<!-- Stats -->
-				<div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
-					<div class="stat-card">
-						<div class="stat-icon purple"><i data-lucide="users"></i></div>
-						<div class="stat-info">
-							<h3 th:text="${teamCount} ?: '0'">0</h3>
-							<p>Total Members</p>
-						</div>
-					</div>
-					<div class="stat-card">
-						<div class="stat-icon green"><i data-lucide="user-check"></i></div>
-						<div class="stat-info">
-							<h3 th:text="${activeTeam} ?: '0'">0</h3>
-							<p>Active</p>
-						</div>
-					</div>
-					<div class="stat-card">
-						<div class="stat-icon orange"><i data-lucide="user-x"></i></div>
-						<div class="stat-info">
-							<h3 th:text="${inactiveTeam} ?: '0'">0</h3>
-							<p>Inactive</p>
+				<!-- My Teams Selector Grid -->
+				<h3 style="font-size:16px;font-weight:700;color:#163647;margin:0 0 14px;">Select Team</h3>
+				<div class="teams-grid">
+					<div th:each="team, iter : ${managedTeams}" 
+					     th:class="'team-selector-card ' + ${iter.first ? 'active' : ''}" 
+					     th:data-id="${team.id}"
+					     onclick="selectTeam(this)">
+						<div class="team-card-inner">
+							<div class="team-icon-box" style="background:#dcecf5;color:#17455e;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+								<i data-lucide="users-round" style="width:20px;height:20px;"></i>
+							</div>
+							<div class="team-info-content">
+								<h4 th:text="${team.name}">Team Name</h4>
+								<p th:text="${#lists.size(team.members)} + ' member(s)'">0 member(s)</p>
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Members table -->
-				<div class="card">
-					<div class="card-header">
-						<div>
-							<h2>Team Members</h2>
-							<p th:text="${teamCount} + ' member(s) in ' + ${myTeamName}">0 member(s)</p>
+				<!-- Details section for each team -->
+				<div th:each="team, iter : ${managedTeams}" 
+				     th:id="'team-section-' + ${team.id}" 
+				     class="team-details-section" 
+				     th:style="${iter.first ? 'display: block;' : 'display: none;'}">
+					
+					<!-- Stats for this specific team -->
+					<div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+						<div class="stat-card">
+							<div class="stat-icon purple"><i data-lucide="users"></i></div>
+							<div class="stat-info">
+								<h3 th:text="${#lists.size(team.members)}">0</h3>
+								<p>Total Members</p>
+							</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-icon green"><i data-lucide="user-check"></i></div>
+							<div class="stat-info">
+								<h3 th:text="${#lists.size(team.members.?[status == 'active' or status == null])}">0</h3>
+								<p>Active</p>
+							</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-icon orange"><i data-lucide="user-x"></i></div>
+							<div class="stat-info">
+								<h3 th:text="${#lists.size(team.members.?[status == 'inactive'])}">0</h3>
+								<p>Inactive</p>
+							</div>
 						</div>
 					</div>
-					<div class="table-wrap">
-						<table id="teamTable">
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>Member</th>
-									<th>Email</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="member, stat : ${teamMembers}" th:data-id="${member.id}"
-									th:data-name="${member.username}" onclick="openMemberModal(this)">
-									<td th:text="${stat.count}">1</td>
-									<td>
-										<div class="member-cell">
-											<div class="member-avatar"
-												th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">
-												M</div>
-											<span style="font-weight:600;" th:text="${member.username}">Member</span>
-										</div>
-									</td>
-									<td style="color:#6b7280;font-size:13px;" th:text="${member.email}">email</td>
-									<td>
-										<span class="status-badge active"
-											th:if="${member.status == 'active' or member.status == null}">Active</span>
-										<span class="status-badge inactive"
-											th:unless="${member.status == 'active' or member.status == null}">Inactive</span>
-									</td>
-								</tr>
-								<tr th:if="${teamMembers == null or #lists.isEmpty(teamMembers)}">
-									<td colspan="4">
-										<div class="empty-state">
-											<i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
-											<h3>No Members Yet</h3>
-											<p>Ask HR to add employees to your team.</p>
-										</div>
-									</td>
-								</tr>
-							</tbody>
-						</table>
+
+					<!-- Members table for this specific team -->
+					<div class="card">
+						<div class="card-header">
+							<div>
+								<h2>Team Members</h2>
+								<p th:text="${#lists.size(team.members)} + ' member(s) in ' + ${team.name}">0 member(s)</p>
+							</div>
+						</div>
+						<div class="table-wrap">
+							<table class="teamTable">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Member</th>
+										<th>Email</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="member, stat : ${team.members}" th:data-id="${member.id}"
+										th:data-name="${member.username}" onclick="openMemberModal(this)">
+										<td th:text="${stat.count}">1</td>
+										<td>
+											<div class="member-cell">
+												<div class="member-avatar"
+													th:text="${#strings.substring(member.username ?: 'M', 0, 1).toUpperCase()}">
+													M</div>
+												<span style="font-weight:600;" th:text="${member.username}">Member</span>
+											</div>
+										</td>
+										<td style="color:#6b7280;font-size:13px;" th:text="${member.email}">email</td>
+										<td>
+											<span class="status-badge active"
+												th:if="${member.status == 'active' or member.status == null}">Active</span>
+											<span class="status-badge inactive"
+												th:unless="${member.status == 'active' or member.status == null}">Inactive</span>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(team.members)}">
+										<td colspan="4">
+											<div class="empty-state">
+												<i data-lucide="users" style="width:48px;height:48px;opacity:.3;"></i>
+												<h3>No Members Yet</h3>
+												<p>Ask HR to add employees to your team.</p>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -521,11 +585,28 @@
 		if (hamburger) hamburger.addEventListener('click', openSidebar);
 		if (overlay) overlay.addEventListener('click', closeSidebar);
 
+		// ── Team Selection ──
+		function selectTeam(card) {
+			document.querySelectorAll('.team-selector-card').forEach(c => {
+				c.classList.remove('active');
+			});
+			card.classList.add('active');
+
+			document.querySelectorAll('.team-details-section').forEach(s => {
+				s.style.display = 'none';
+			});
+			var teamId = card.getAttribute('data-id');
+			var targetSection = document.getElementById('team-section-' + teamId);
+			if (targetSection) {
+				targetSection.style.display = 'block';
+			}
+		}
+
 		// ── Search ──
 		var gs = document.getElementById('globalSearch');
 		if (gs) gs.addEventListener('input', function () {
 			var q = this.value.toLowerCase();
-			document.querySelectorAll('#teamTable tbody tr').forEach(r => {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});
+			document.querySelectorAll('.teamTable tbody tr').forEach(r => {r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';});
 		});
 
 		// ── Modal ──

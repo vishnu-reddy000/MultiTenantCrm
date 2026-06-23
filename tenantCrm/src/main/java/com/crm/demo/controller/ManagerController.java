@@ -146,6 +146,7 @@ public class ManagerController {
 			model.addAttribute("inactiveTeam", 0);
 			model.addAttribute("myTeam", null);
 			model.addAttribute("myTeamName", "—");
+			model.addAttribute("managedTeams", Collections.emptyList());
 			model.addAttribute("projects", Collections.emptyList());
 			model.addAttribute("totalProjects", 0);
 			model.addAttribute("activeProjects", 0);
@@ -167,6 +168,7 @@ public class ManagerController {
 
 		// ── Load team(s) assigned to this manager ────────────────────────────
 		Team myTeam = getPrimaryTeam(manager);
+		List<Team> managedTeams = getManagedTeams(manager);
 		List<User> teamMembers = getManagedTeamMembers(manager);
 
 		long active   = teamMembers.stream().filter(User::isActive).count();
@@ -174,6 +176,7 @@ public class ManagerController {
 
 		model.addAttribute("myTeam",      myTeam);
 		model.addAttribute("myTeamName",  getManagedTeamName(manager));
+		model.addAttribute("managedTeams",managedTeams);
 		model.addAttribute("teamMembers", teamMembers);
 		model.addAttribute("teamCount",   teamMembers.size());
 		model.addAttribute("activeTeam",  active);
