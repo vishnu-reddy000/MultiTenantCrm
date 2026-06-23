@@ -404,7 +404,7 @@
 			font-size: 13px;
 		}
 
-		@media (max-width: 540px) {
+		@media (max-width: 768px) {
 			.leave-item {
 				flex-direction: column;
 				align-items: flex-start;
@@ -412,8 +412,16 @@
 
 			.leave-item-right {
 				width: 100%;
-				justify-content: flex-end;
+				justify-content: flex-start;
+				flex-wrap: wrap;
+				gap: 6px;
 			}
+		}
+
+		@media (max-width: 480px) {
+			.lf-filter-bar { flex-direction: column; gap: 8px; }
+			.lf-filter-bar select, .lf-filter-bar input[type=text] { width: 100%; }
+			.btn-approve, .btn-reject, .btn-view { height: 36px; padding: 0 10px; font-size: 12px; min-width: unset; }
 		}
 	</style>
 </head>

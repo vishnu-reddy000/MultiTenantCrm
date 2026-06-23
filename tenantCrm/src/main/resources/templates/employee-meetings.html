@@ -137,7 +137,28 @@
         }
         .pm-name { font-size: 13px; font-weight: 600; color: #163647; }
 
-        /* ── Modal ── */
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .meetings-table-card .card-header {
+                padding: 16px 18px 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .meetings-table-card {
+                border-radius: 18px;
+            }
+            .meetings-table-card .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 14px 16px 12px;
+            }
+            .btn-join, .btn-join-disabled {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+        }
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.45);

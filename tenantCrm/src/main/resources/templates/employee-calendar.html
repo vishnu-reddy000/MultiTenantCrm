@@ -264,13 +264,47 @@
 			margin-bottom: 16px;
 		}
 
-		@media(max-width:900px) {
+		@media(max-width:768px) {
 			.cal-wrapper {
 				grid-template-columns: 1fr;
 			}
 
 			.cal-cell {
 				min-height: 52px;
+			}
+
+			.list-card {
+				max-height: none;
+			}
+		}
+
+		@media(max-width:480px) {
+			.cal-cell {
+				min-height: 44px;
+				padding: 4px;
+				border-radius: 10px;
+			}
+
+			.cal-nav h2 {
+				font-size: 16px;
+			}
+
+			.cal-nav-btn {
+				width: 32px;
+				height: 32px;
+			}
+
+			.legend {
+				gap: 10px;
+			}
+
+			.legend-item {
+				font-size: 11px;
+			}
+
+			.readonly-badge {
+				font-size: 11px;
+				padding: 4px 10px;
 			}
 		}
 	</style>

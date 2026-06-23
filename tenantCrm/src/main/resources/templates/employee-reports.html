@@ -116,6 +116,21 @@
 		}
 		.empty-inbox h3 { font-size:18px; color:#0f2d4a; margin:16px 0 8px; font-weight:700; }
 		.empty-inbox p  { font-size:14px; color:#94a3b8; margin:0; }
+
+		@media (max-width: 768px) {
+			.reports-grid { grid-template-columns: 1fr; }
+			.preview-box { width: 96%; }
+		}
+
+		@media (max-width: 480px) {
+			.reports-grid { grid-template-columns: 1fr; gap: 14px; }
+			.report-card { padding: 14px 16px; }
+			.report-title { font-size: 14px; }
+			.report-card-header { flex-direction: column; gap: 8px; }
+			.report-sent-by { align-self: flex-start; }
+			.stats-row { max-width: 100% !important; }
+			.modal-header { padding: 14px 16px 12px; }
+		}
 	</style>
 </head>
 <body>

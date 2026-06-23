@@ -488,18 +488,34 @@
 		.btn-save:hover { background: #1e5a7a; transform: translateY(-1px); }
 		.btn-save i[data-lucide] { width: 16px; height: 16px; }
 
-		@media (max-width: 900px) {
+		@media (max-width: 768px) {
 			.form-body-split { grid-template-columns: 1fr; }
-			.form-right { border-top: 1px solid #edf3f6; }
+			.form-right { border-top: 1px solid #edf3f6; border-right: none; }
 			.form-left { border-right: none; }
+			.form-fields-grid { grid-template-columns: 1fr; }
+			.form-card-header { padding: 18px 18px 14px; }
+			.form-left { padding: 18px; }
+			.form-right { padding: 18px; }
+			.form-card-footer { padding: 16px 18px 20px; flex-wrap: wrap; gap: 10px; }
+			.btn-cancel, .btn-save { flex: 1; justify-content: center; }
+			.meetings-tab-bar { width: 100%; }
+			.meetings-tab-btn { flex: 1; justify-content: center; padding: 0 8px; font-size: 11px; }
+			/* Hide long text on tabs, show short label via pseudo */
+			.meetings-tab-btn > span:not(.tab-badge) { display: none; }
+			#tabSchedule::after { content: "Schedule"; font-size: 11px; font-weight: 600; }
+			#tabList::after    { content: "Upcoming"; font-size: 11px; font-weight: 600; }
+			#tabHistory::after { content: "History";  font-size: 11px; font-weight: 600; }
+			.table-wrap { margin: 0 -16px; padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+			.table-wrap::-webkit-scrollbar { display: block !important; height: 5px; }
+			.table-wrap::-webkit-scrollbar-thumb { background: rgba(23,69,94,0.2); border-radius: 8px; }
+			#meetingsTable, #historyTable { min-width: 520px; }
 		}
 
-		@media (max-width: 768px) {
-			.form-fields-grid { grid-template-columns: 1fr; }
-			.form-card-header { padding: 18px 20px 16px; }
-			.form-left { padding: 20px; }
-			.form-right { padding: 20px; }
-			.form-card-footer { padding: 18px 20px 22px; }
+		@media (max-width: 480px) {
+			.form-card-footer { display: flex; flex-direction: row; flex-wrap: nowrap; padding: 14px 14px 18px; gap: 10px; }
+			.btn-cancel, .btn-save { flex: 1; width: auto; justify-content: center; height: 42px; font-size: 13px; padding: 0 10px; }
+			.meetings-table-header { padding: 14px 16px 12px; }
+			#meetingsTable, #historyTable { min-width: 420px; }
 		}
 
 		/* ── Meeting type badges ── */
@@ -718,43 +734,7 @@
 			color: #163647;
 		}
 
-		/* ── Responsive tab bar ── */
-		@media (max-width: 600px) {
-			.meetings-tab-bar {
-				width: 100%;
-			}
-
-			.meetings-tab-btn {
-				flex: 1;
-				justify-content: center;
-				padding: 0 12px;
-			}
-		}
-
-		@media (max-width: 768px) {
-			.table-wrap {
-				margin: 0 -16px;
-				padding: 0 16px;
-				overflow-x: auto;
-				-webkit-overflow-scrolling: touch;
-				scrollbar-width: auto !important;
-			}
-			.table-wrap::-webkit-scrollbar {
-				display: block !important;
-				height: 6px !important;
-			}
-			.table-wrap::-webkit-scrollbar-thumb {
-				background: rgba(23, 69, 94, 0.25) !important;
-				border-radius: 10px !important;
-			}
-			.table-wrap::-webkit-scrollbar-track {
-				background: rgba(0, 0, 0, 0.02) !important;
-				border-radius: 10px !important;
-			}
-			#meetingsTable, #historyTable {
-				min-width: 600px;
-			}
-		}
+		/* ── Responsive tab bar and table — handled above ── */
 	</style>
 </head>
 
@@ -816,13 +796,13 @@
 				</button>
 				<button class="meetings-tab-btn" id="tabList" onclick="switchTab('list')">
 					<i data-lucide="calendar-check"></i>
-					Scheduled Meetings
+					<span>Scheduled Meetings</span>
 					<span class="tab-badge" id="meetingCountBadge"
 						th:text="${upcomingMeetings != null} ? ${#lists.size(upcomingMeetings)} : '0'">0</span>
 				</button>
 				<button class="meetings-tab-btn" id="tabHistory" onclick="switchTab('history')">
 					<i data-lucide="history"></i>
-					Past Meetings
+					<span>Past Meetings</span>
 					<span class="tab-badge" id="historyCountBadge"
 						th:text="${pastMeetings != null} ? ${#lists.size(pastMeetings)} : '0'">0</span>
 				</button>

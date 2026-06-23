@@ -248,7 +248,23 @@
 			margin: 0;
 		}
 
-		/* Read More button styling */
+		/* ── Reports responsive ── */
+		@media (max-width: 768px) {
+			.mgr-reports-grid { grid-template-columns: 1fr !important; }
+			.mgr-report-title { white-space: normal; overflow: visible; text-overflow: unset; }
+			.mgr-report-head { flex-direction: column; gap: 8px; }
+			.mgr-sender-pill { align-self: flex-start; }
+			.mgr-att-btn { max-width: 100%; }
+		}
+
+		@media (max-width: 480px) {
+			.mgr-report-inner { padding: 14px 14px 12px 16px; }
+			.mgr-report-title { font-size: 13px; }
+			.mgr-att-item { flex-direction: column; align-items: flex-start; gap: 6px; }
+			.mgr-att-download { align-self: flex-start; }
+		}
+
+		/* ── Read More button styling */
 		.read-more-btn {
 			background: none;
 			border: none;

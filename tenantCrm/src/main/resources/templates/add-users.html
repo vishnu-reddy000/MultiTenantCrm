@@ -302,6 +302,68 @@
 				padding: 16px;
 			}
 		}
+        /* Premium dropdown styles for filter */
+        .select-input {
+            height: 38px;
+            padding: 0 32px 0 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #334155;
+            background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            min-width: 130px;
+            transition: border-color 0.15s;
+        }
+        .select-input:focus {
+            border-color: #17455e;
+        }
+
+        @media (max-width: 768px) {
+            .emp-info-grid { grid-template-columns: 1fr 1fr; }
+            .emp-att-stats { grid-template-columns: 1fr 1fr; }
+            .emp-modal { border-radius: 16px; }
+            .emp-modal-body { padding: 16px; }
+            table { min-width: 650px !important; }
+            .table-wrap { margin: 0 -16px; padding: 0 16px; overflow-x: auto; }
+
+            /* Stats grid on tablet */
+            .au-stats {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 12px;
+            }
+            .au-stats .stat-card {
+                padding: 14px;
+                min-height: auto;
+            }
+        }
+        @media (max-width: 480px) {
+            .emp-info-grid { grid-template-columns: 1fr; }
+            .emp-att-stats { grid-template-columns: 1fr 1fr; }
+            table { min-width: 650px !important; }
+
+            /* Stack cards vertically on mobile */
+            .au-stats {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+
+            /* Stack card-header components */
+            .card-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px;
+            }
+            .header-filter-wrap {
+                width: 100%;
+            }
+            .select-input {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -335,7 +397,7 @@
         <div class="topbar-right">
             <div class="search-box"><input type="text" id="userSearch" placeholder="Search employees…"></div>
             <a th:href="@{/admin/add-employee}" class="btn btn-primary"
-               style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;height:46px;padding:0 20px;">
+               style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;height:42px;padding:0 18px;white-space:nowrap;">
                 <i data-lucide="user-plus"></i> Add Employee
             </a>
             <div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A</div>
@@ -370,9 +432,8 @@
                     <h2>All Members</h2>
                     <p th:text="${totalManagers} + ' registered employee(s)'">0 registered employee(s)</p>
                 </div>
-                <div style="display:inline-flex;align-items:center;gap:10px;">
-                    <select id="statusFilter" class="select-input"
-                            style="padding:8px 14px;border-radius:8px;border:1.5px solid #e5e7eb;font-size:13px;background:#fff;cursor:pointer;min-width:130px;">
+                <div class="header-filter-wrap">
+                    <select id="statusFilter" class="select-input">
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>

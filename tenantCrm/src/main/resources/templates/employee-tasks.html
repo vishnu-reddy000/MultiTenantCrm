@@ -579,107 +579,146 @@
 		}
 
 		@media (max-width: 768px) {
+			/* Task dashboard stats */
+			.task-dashboard-stats {
+				grid-template-columns: repeat(3, 1fr) !important;
+				gap: 12px;
+			}
+			.task-dashboard-stats .stat-card {
+				padding: 14px;
+				min-height: auto;
+			}
+
 			.tasks-scroll {
-				overflow: visible;
+				overflow-x: auto;
 			}
 			.tasks-scroll table {
-				min-width: 0 !important;
+				min-width: 560px !important;
 			}
 			.tasks-table thead {
 				display: none;
 			}
+			/* Each task row becomes a compact card */
 			.tasks-table tbody tr {
 				display: flex;
 				flex-direction: column;
-				padding: 16px;
+				padding: 10px 12px;
 				background: #fff;
-				border-radius: 16px;
-				margin-bottom: 16px;
+				border-radius: 12px;
+				margin-bottom: 8px;
 				border: 1.5px solid #edf2f7;
-				box-shadow: 0 4px 12px rgba(22, 54, 71, 0.04);
+				box-shadow: 0 2px 6px rgba(22, 54, 71, 0.05);
 			}
 			.tasks-table tbody td {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				padding: 10px 0 !important;
+				padding: 5px 0 !important;
 				border-bottom: 1px solid #f1f5f9 !important;
 				width: 100% !important;
 				background: transparent !important;
+				font-size: 12px !important;
 			}
 			.tasks-table tbody td:last-child {
 				border-bottom: none !important;
 				flex-direction: column;
 				align-items: stretch;
-				gap: 8px;
-				padding-top: 14px !important;
+				gap: 6px;
+				padding-top: 8px !important;
 			}
-			
-			.tasks-table .col-num, 
+
+			.tasks-table .col-num,
 			.tasks-table td.td-num {
 				display: none !important;
 			}
-			
+
+			/* Task title row — slightly larger */
 			.tasks-table td:nth-child(2) {
 				flex-direction: column;
 				align-items: flex-start;
-				border-bottom: 2px solid #e2e8f0 !important;
-				padding-bottom: 12px !important;
+				border-bottom: 1.5px solid #e2e8f0 !important;
+				padding-bottom: 6px !important;
 			}
-			
-			.tasks-table td:nth-child(3)::before {
-				content: "Priority";
-				font-weight: 700;
-				color: #94a3b8;
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-			.tasks-table td:nth-child(4)::before {
-				content: "Due Date";
-				font-weight: 700;
-				color: #94a3b8;
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
+			.td-title { font-size: 13px !important; margin-bottom: 2px; }
+			.td-meta { gap: 4px; }
+
+			/* Inline label + value on same row */
+			.tasks-table td:nth-child(3)::before,
+			.tasks-table td:nth-child(4)::before,
 			.tasks-table td:nth-child(5)::before {
-				content: "Assigned By";
 				font-weight: 700;
 				color: #94a3b8;
-				font-size: 11px;
+				font-size: 10px;
 				text-transform: uppercase;
-				letter-spacing: 0.5px;
+				letter-spacing: 0.4px;
+				white-space: nowrap;
 			}
+			.tasks-table td:nth-child(3)::before { content: "Priority"; }
+			.tasks-table td:nth-child(4)::before { content: "Due"; }
+			.tasks-table td:nth-child(5)::before { content: "By"; }
 			.tasks-table td:nth-child(6)::before {
 				content: "Status & Actions";
 				font-weight: 700;
 				color: #94a3b8;
-				font-size: 11px;
+				font-size: 10px;
 				text-transform: uppercase;
-				letter-spacing: 0.5px;
-				margin-bottom: 8px;
+				letter-spacing: 0.4px;
+				margin-bottom: 4px;
 				align-self: flex-start;
 			}
-			
-			.status-wrap {
-				width: 100%;
-				justify-content: flex-start;
-			}
-			.status-form-row {
-				width: 100%;
-				flex-direction: column;
-				align-items: stretch;
-				gap: 8px;
-			}
-			.task-status-select, 
-			.task-upload-control, 
-			.task-update-btn {
-				width: 100% !important;
-			}
+
+			/* Compact badges */
+			.pri-badge { padding: 3px 8px; font-size: 11px; }
+			.due-cell { font-size: 12px; }
+			.by-cell { font-size: 11px; }
+
+			/* Status actions: compact */
+			.status-wrap { width: 100%; justify-content: flex-start; }
+			.status-form-row { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; }
+			.task-status-select { height: 34px !important; font-size: 12px !important; }
+			.task-status-select, .task-upload-control, .task-update-btn { width: 100% !important; }
 			.task-upload-control {
 				justify-content: space-between;
+				min-height: 34px;
+				padding: 3px 8px 3px 4px;
 			}
+			.task-upload-button { padding: 4px 8px; font-size: 11px; }
+			.task-file-name { font-size: 11px; }
+			.task-update-btn { padding: 7px 10px; font-size: 12px; }
+
+			/* Toolbar */
+			.tasks-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; }
+			.tasks-toolbar-left h2 { font-size: 15px; }
+			.tasks-toolbar-left p { font-size: 12px; }
+			.tasks-toolbar-right { width: 100%; display: flex; gap: 8px; }
+			.filter-select { flex: 1; height: 34px; font-size: 12px; }
+
+			/* Tab bar */
+			.task-tab-bar { margin: 12px 0 8px; gap: 8px; }
+			.task-tab-button { padding: 7px 14px; font-size: 12px; }
+
+			/* Pagination */
+			.pagination-bar { gap: 8px; padding: 10px 14px; font-size: 12px; }
+			.page-btn { width: 28px; height: 28px; font-size: 12px; }
+		}
+
+		@media (max-width: 480px) {
+			/* Stack cards in a single column on mobile */
+			.task-dashboard-stats {
+				grid-template-columns: 1fr !important;
+				gap: 10px;
+			}
+
+			.task-flash-toast { right: 10px; bottom: 10px; left: 10px; min-width: 0; max-width: none; font-size: 12px; }
+			.tasks-table tbody tr { padding: 8px 10px; margin-bottom: 6px; border-radius: 10px; }
+			.tasks-table tbody td { padding: 4px 0 !important; font-size: 12px !important; }
+			.tasks-table tbody td:last-child { gap: 5px; padding-top: 6px !important; }
+			.tasks-table td:nth-child(2) { padding-bottom: 5px !important; }
+			.td-title { font-size: 13px !important; }
+			.task-tab-button { padding: 6px 12px; font-size: 11px; }
+			.pagination-bar { padding: 8px 12px; }
+			.rows-select { height: 28px; font-size: 11px; }
+			.stat-badge { padding: 3px 8px; font-size: 11px; }
 		}
 	</style>
 </head>

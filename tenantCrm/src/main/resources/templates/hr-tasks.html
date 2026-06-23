@@ -21,6 +21,58 @@
 		}
 		.page-btn:hover { background: #f8fafc; }
 		.page-btn:disabled { opacity: .4; cursor: default; }
+
+		.task-filters {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		/* ── Tasks responsive ── */
+		@media (max-width: 768px) {
+			/* Card header: stack filters below title */
+			#tasksCard .card-header {
+				flex-direction: column !important;
+				align-items: stretch !important;
+				gap: 10px;
+				padding: 14px 16px 12px !important;
+			}
+			.task-filters {
+				display: flex !important;
+				flex-wrap: nowrap !important;
+				gap: 8px !important;
+				width: 100% !important;
+			}
+			.filter-select { flex: 1; min-width: 0; height: 36px; font-size: 12px; }
+			/* Pagination */
+			.pagination-bar { flex-wrap: wrap; gap: 8px; padding: 10px 12px !important; font-size: 12px; }
+			/* Task table: scrollable on mobile */
+			.table-wrap { margin: 0 -16px; padding: 0 16px; overflow-x: auto; }
+			table { min-width: 680px !important; }
+
+			/* Task dashboard stats */
+			.task-dashboard-stats {
+				grid-template-columns: repeat(3, 1fr) !important;
+				gap: 12px;
+			}
+			.task-dashboard-stats .stat-card {
+				padding: 14px;
+				min-height: auto;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.task-filters { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 8px !important; width: 100% !important; }
+			.filter-select { flex: 1 !important; width: auto !important; min-width: 0 !important; }
+			.pagination-bar { padding: 8px 10px !important; font-size: 11px; }
+			table { min-width: 680px !important; }
+
+			/* Stack cards in a single column on mobile */
+			.task-dashboard-stats {
+				grid-template-columns: 1fr !important;
+				gap: 10px;
+			}
+		}
 	</style>
 </head>
 
@@ -99,7 +151,7 @@
 						<h2>All Tasks</h2>
 						<p th:text="${totalTasks} + ' task(s)'">0 task(s)</p>
 					</div>
-					<div style="display: flex; align-items: center; gap: 10px;">
+					<div class="task-filters">
 						<select class="filter-select" id="priorityFilter" onchange="filterTasks()">
 							<option value="">All Priorities</option>
 							<option value="High">High</option>

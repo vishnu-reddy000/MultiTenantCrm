@@ -265,7 +265,7 @@
                     <p id="recordCount" th:text="${totalRecords} + ' record(s) found'">0 record(s)</p>
                 </div>
                 <!-- Filter bar -->
-                <form id="filterForm" th:action="@{/employee/attendance}" method="get"
+                <form id="filterForm" class="att-filter-form" th:action="@{/employee/attendance}" method="get"
                       style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                         <label style="font-size:12px;font-weight:600;color:#4b6a7a;">From</label>

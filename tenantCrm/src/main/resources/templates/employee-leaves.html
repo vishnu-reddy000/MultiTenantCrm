@@ -53,7 +53,7 @@
 		.lf-group select:focus,
 		.lf-group input[type=date]:focus,
 		.lf-group textarea:focus {
-			border-color: var(--primary-color, #7c3aed);
+			border-color: var(--primary-color,#21556f);
 			box-shadow: 0 0 0 3px var(--primary-light, rgba(124, 58, 237, .1));
 		}
 
@@ -99,7 +99,7 @@
 		}
 
 		.lf-upload-zone:hover {
-			border-color: var(--primary-color, #7c3aed);
+			border-color: var(--primary-color,#21556f);
 			background: var(--primary-light, rgba(124, 58, 237, .04));
 		}
 
@@ -203,7 +203,7 @@
 		.lf-submit-btn {
 			width: 100%;
 			padding: 11px;
-			background: var(--primary-color, #7c3aed);
+			background: var(--primary-color,#21556f);
 			color: #fff;
 			border: none;
 			border-radius: 8px;
@@ -227,15 +227,19 @@
 			padding: 20px;
 		}
 
-		@media (max-width: 900px) {
+		@media (max-width: 768px) {
 			.leave-content-grid {
 				grid-template-columns: 1fr;
 			}
 		}
 
-		@media (max-width: 540px) {
+		@media (max-width: 480px) {
 			.lf-date-row {
 				grid-template-columns: 1fr;
+			}
+			.lf-submit-btn {
+				padding: 12px;
+				font-size: 13px;
 			}
 		}
 	</style>

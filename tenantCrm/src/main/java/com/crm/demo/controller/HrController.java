@@ -1573,6 +1573,15 @@ public class HrController {
     public String performancePage(HttpServletRequest request, Model model) {
         injectUser(request, model);
         injectStats(request, model);
+        
+        List<User> allEmployees = (List<User>) model.getAttribute("employees");
+        if (allEmployees != null) {
+            List<User> onlyEmployees = allEmployees.stream()
+                    .filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole()))
+                    .toList();
+            model.addAttribute("employees", onlyEmployees);
+        }
+        
         return "hr-performance";
     }
 }

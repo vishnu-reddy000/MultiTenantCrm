@@ -7,6 +7,22 @@
     <link rel="stylesheet" th:href="@{/admin.css}">
 	<link rel="stylesheet" th:href="@{/notifications.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+@media (max-width: 768px) {
+    .topbar { flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+    .topbar > div { flex-wrap: wrap; gap: 8px; }
+    .back-btn { height: 38px; padding: 0 14px; font-size: 12px; }
+    .topbar-right { width: 100%; justify-content: flex-end; }
+    .au-form-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-actions { flex-wrap: wrap; gap: 8px; }
+    .form-actions .btn { flex: 1; min-width: 120px; justify-content: center; }
+}
+@media (max-width: 480px) {
+    .au-form-grid { grid-template-columns: 1fr !important; gap: 12px; }
+    .form-actions { flex-direction: column; gap: 8px; }
+    .form-actions .btn { width: 100%; justify-content: center; }
+}
+    </style>
 </head>
 <body>
 

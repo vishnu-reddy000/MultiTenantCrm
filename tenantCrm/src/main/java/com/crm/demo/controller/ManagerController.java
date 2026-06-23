@@ -1825,7 +1825,9 @@ public class ManagerController {
 		}
 		if (workingDays < 1) workingDays = 1;
 
-		List<User> teamMembers = getManagedTeamMembers(manager);
+		List<User> teamMembers = getManagedTeamMembers(manager).stream()
+				.filter(u -> "EMPLOYEE".equalsIgnoreCase(u.getRole()))
+				.toList();
 		List<EmployeePerf> perfList = new ArrayList<>();
 
 		for (User emp : teamMembers) {

@@ -221,8 +221,6 @@
 			transform: translateY(-2px);
 		}
 
-		/* Standard toast used from hr.css */
-
 		/* ── Employee Detail Modal ── */
 		.emp-modal-overlay {
 			display: none;
@@ -253,15 +251,8 @@
 		}
 
 		@keyframes modalIn {
-			from {
-				opacity: 0;
-				transform: translateY(20px) scale(.97)
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0) scale(1)
-			}
+			from { opacity: 0; transform: translateY(20px) scale(.97) }
+			to   { opacity: 1; transform: translateY(0) scale(1) }
 		}
 
 		.emp-modal-header {
@@ -287,49 +278,25 @@
 			flex-shrink: 0;
 		}
 
-		.emp-modal-title {
-			flex: 1;
-		}
-
-		.emp-modal-title h2 {
-			font-size: 20px;
-			font-weight: 700;
-			color: #163647;
-			margin: 0 0 4px;
-		}
-
-		.emp-modal-title p {
-			font-size: 13px;
-			color: #6b7280;
-			margin: 0;
-		}
+		.emp-modal-title { flex: 1; }
+		.emp-modal-title h2 { font-size: 20px; font-weight: 700; color: #163647; margin: 0 0 4px; }
+		.emp-modal-title p  { font-size: 13px; color: #6b7280; margin: 0; }
 
 		.emp-modal-close {
-			width: 36px;
-			height: 36px;
-			border-radius: 50%;
-			border: none;
-			background: #f3f8fb;
-			color: #6b7280;
+			width: 36px; height: 36px;
+			border-radius: 50%; border: none;
+			background: #f3f8fb; color: #6b7280;
 			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
+			display: flex; align-items: center; justify-content: center;
 			transition: background .2s;
 		}
 
-		.emp-modal-close:hover {
-			background: #fdecec;
-			color: #d11a2a;
-		}
+		.emp-modal-close:hover { background: #fdecec; color: #d11a2a; }
 
 		.emp-modal-body {
-			flex: 1;
-			overflow-y: auto;
+			flex: 1; overflow-y: auto;
 			padding: 24px 28px;
-			display: flex;
-			flex-direction: column;
-			gap: 22px;
+			display: flex; flex-direction: column; gap: 22px;
 		}
 
 		.emp-info-grid {
@@ -338,174 +305,34 @@
 			gap: 14px;
 		}
 
-		.emp-info-tile {
-			background: #f5f9fb;
-			border-radius: 14px;
-			padding: 14px 16px;
-		}
+		.emp-info-tile { background: #f5f9fb; border-radius: 14px; padding: 14px 16px; }
+		.emp-info-tile .label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+		.emp-info-tile .value { font-size: 15px; font-weight: 700; color: #163647; }
 
-		.emp-info-tile .label {
-			font-size: 11px;
-			color: #6b7280;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: .04em;
-			margin-bottom: 6px;
-		}
+		.emp-att-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-		.emp-info-tile .value {
-			font-size: 15px;
-			font-weight: 700;
-			color: #163647;
-		}
+		.emp-att-stat { border-radius: 14px; padding: 14px 16px; text-align: center; }
+		.emp-att-stat .num { font-size: 26px; font-weight: 700; line-height: 1; }
+		.emp-att-stat .lbl { font-size: 11px; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
 
-		.emp-att-stats {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);
-			gap: 12px;
-		}
+		.emp-att-stat.green  { background: #dff5ea; color: #1b7a46; }
+		.emp-att-stat.red    { background: #fdecec; color: #d11a2a; }
+		.emp-att-stat.amber  { background: #fef3c7; color: #92400e; }
+		.emp-att-stat.purple { background: #fce7f3; color: #9d174d; }
 
-		.emp-att-stat {
-			border-radius: 14px;
-			padding: 14px 16px;
-			text-align: center;
-		}
+		.emp-att-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+		.emp-att-table thead th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #6b7280; border-bottom: 1px solid #e5edf2; text-transform: uppercase; letter-spacing: .04em; }
+		.emp-att-table tbody td { padding: 11px 12px; border-bottom: 1px solid #edf3f6; }
+		.emp-att-table tbody tr:last-child td { border-bottom: none; }
+		.emp-att-table tbody tr:hover { background: #f7fbfd; }
+		.emp-att-table tbody tr.row-weekend { background: #f5f3ff; }
+		.emp-att-table tbody tr.row-absent  { background: #fff8f8; }
+		.emp-att-table tbody tr.row-holiday { background: #fdf2f8; }
 
-		.emp-att-stat .num {
-			font-size: 26px;
-			font-weight: 700;
-			line-height: 1;
-		}
+		.modal-loading { display: flex; align-items: center; justify-content: center; padding: 48px; color: #6b7280; gap: 12px; font-size: 14px; }
 
-		.emp-att-stat .lbl {
-			font-size: 11px;
-			font-weight: 600;
-			margin-top: 4px;
-			text-transform: uppercase;
-			letter-spacing: .04em;
-		}
-
-		.emp-att-stat.green {
-			background: #dff5ea;
-			color: #1b7a46;
-		}
-
-		.emp-att-stat.red {
-			background: #fdecec;
-			color: #d11a2a;
-		}
-
-		.emp-att-stat.amber {
-			background: #fef3c7;
-			color: #92400e;
-		}
-
-		.emp-att-stat.purple {
-			background: #fce7f3;
-			color: #9d174d;
-		}
-
-		.emp-att-table {
-			width: 100%;
-			border-collapse: collapse;
-			font-size: 13px;
-		}
-
-		.emp-att-table thead th {
-			text-align: left;
-			padding: 10px 12px;
-			font-size: 11px;
-			font-weight: 600;
-			color: #6b7280;
-			border-bottom: 1px solid #e5edf2;
-			text-transform: uppercase;
-			letter-spacing: .04em;
-		}
-
-		.emp-att-table tbody td {
-			padding: 11px 12px;
-			border-bottom: 1px solid #edf3f6;
-		}
-
-		.emp-att-table tbody tr:last-child td {
-			border-bottom: none;
-		}
-
-		.emp-att-table tbody tr:hover {
-			background: #f7fbfd;
-		}
-
-		.emp-att-table tbody tr.row-weekend {
-			background: #f5f3ff;
-		}
-
-		.emp-att-table tbody tr.row-absent {
-			background: #fff8f8;
-		}
-
-		.emp-att-table tbody tr.row-holiday {
-			background: #fdf2f8;
-		}
-
-		#empTable tbody tr {
-			cursor: pointer;
-			transition: background .15s;
-		}
-
-		#empTable tbody tr:hover {
-			background: #f0f7fb;
-		}
-
-		.modal-loading {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 48px;
-			color: #6b7280;
-			gap: 12px;
-			font-size: 14px;
-		}
-
-		.spinner {
-			width: 22px;
-			height: 22px;
-			border: 3px solid #e5edf2;
-			border-top-color: #17455e;
-			border-radius: 50%;
-			animation: spin .7s linear infinite;
-		}
-
-		@keyframes spin {
-			to {
-				transform: rotate(360deg);
-			}
-		}
-
-		@media (max-width:600px) {
-			.emp-info-grid {
-				grid-template-columns: 1fr 1fr;
-			}
-
-			.emp-att-stats {
-				grid-template-columns: 1fr 1fr;
-			}
-
-			.emp-modal {
-				border-radius: 16px;
-			}
-
-			.emp-modal-body {
-				padding: 16px;
-			}
-
-			.modal-actions {
-				flex-direction: column;
-			}
-
-			.modal-actions .btn {
-				width: 100%;
-			}
-		}
+		.spinner { width: 22px; height: 22px; border: 3px solid #e5edf2; border-top-color: #17455e; border-radius: 50%; animation: spin .7s linear infinite; }
+		@keyframes spin { to { transform: rotate(360deg); } }
 
 		/* ── Pagination ── */
 		.pagination-container {
@@ -518,77 +345,184 @@
 			background: #fff;
 		}
 
-		.pagination-info {
-			font-size: 13.5px;
-			color: #6b7280;
-			font-weight: 500;
-		}
+		.pagination-info { font-size: 13.5px; color: #6b7280; font-weight: 500; }
 
-		.pagination-buttons {
-			display: flex;
-			gap: 8px;
-			align-items: center;
-		}
+		.pagination-buttons { display: flex; gap: 8px; align-items: center; }
 
 		.btn-pagination-nav {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			gap: 6px;
-			padding: 8px 16px;
-			border-radius: 10px;
-			font-size: 13px;
-			font-weight: 600;
-			cursor: pointer;
-			border: none;
-			background: #edf3f6;
-			color: #163647;
+			display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+			padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+			cursor: pointer; border: none; background: #edf3f6; color: #163647;
 			transition: background .2s, transform .2s, opacity .2s;
 		}
 
-		.btn-pagination-nav:hover:not(:disabled) {
-			background: #dfeaf0;
-			transform: translateY(-1px);
-		}
-
-		.btn-pagination-nav:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
-		}
+		.btn-pagination-nav:hover:not(:disabled) { background: #dfeaf0; transform: translateY(-1px); }
+		.btn-pagination-nav:disabled { opacity: 0.5; cursor: not-allowed; }
 
 		.btn-pagination-num {
-			width: 34px;
-			height: 34px;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			border-radius: 8px;
-			font-size: 13px;
-			font-weight: 600;
-			cursor: pointer;
-			border: none;
-			background: #edf3f6;
-			color: #163647;
+			width: 34px; height: 34px;
+			display: inline-flex; align-items: center; justify-content: center;
+			border-radius: 8px; font-size: 13px; font-weight: 600;
+			cursor: pointer; border: none; background: #edf3f6; color: #163647;
 			transition: background .2s, transform .2s;
 		}
 
-		.btn-pagination-num:hover:not(.active) {
-			background: #dfeaf0;
-			transform: translateY(-1px);
+		.btn-pagination-num:hover:not(.active) { background: #dfeaf0; transform: translateY(-1px); }
+		.btn-pagination-num.active { background: #17455e; color: white; cursor: default; }
+
+		/* ════════════════════════════════════════════════
+		   MOBILE TOPBAR FIX
+		   — Stack the topbar content vertically on small screens
+		   — Move search to its own full-width row
+		   — Keep Add Employee + user-badge together on the same row as the title
+		   ════════════════════════════════════════════════ */
+		@media (max-width: 768px) {
+
+			/* The topbar itself becomes a column */
+			.topbar {
+				flex-direction: column !important;
+				align-items: stretch !important;
+				gap: 12px !important;
+				padding: 14px 16px !important;
+			}
+
+			/* Row 1: title block (h1 + subtitle) — already fine */
+
+			/* Row 2: action row — Add Employee + user-badge, side by side, full width */
+			.topbar-right {
+				flex-direction: row !important;
+				flex-wrap: nowrap !important;
+				align-items: center !important;
+				gap: 10px !important;
+				width: 100% !important;
+				order: 2;
+			}
+
+			/* Search box becomes its own full-width row BELOW the action row */
+			.topbar-right .search-box {
+				order: 10;          /* push to end of the flex row … */
+				flex-basis: 100%;   /* … then wrap to its own line    */
+				width: 100% !important;
+				margin: 0 !important;
+			}
+
+			/* Make the search-box row wrap so the search sits below */
+			.topbar-right {
+				flex-wrap: wrap !important;
+			}
+
+			.topbar-right .search-box input {
+				width: 100% !important;
+				box-sizing: border-box;
+			}
+
+			/* Add Employee button: grow to fill available horizontal space */
+			.topbar-right .btn-primary {
+				flex: 1 1 auto !important;
+				min-width: 0 !important;
+				justify-content: center !important;
+				font-size: 13px !important;
+				height: 40px !important;
+				padding: 0 14px !important;
+			}
+
+			/* Keep user-badge fixed size */
+			.topbar-right .user-badge {
+				flex-shrink: 0 !important;
+			}
+
+			/* Pagination wraps on very small screens */
+			.pagination-container {
+				flex-direction: column;
+				gap: 12px;
+				align-items: center;
+				text-align: center;
+			}
+
+			/* Employee detail modal adjustments */
+			.emp-info-grid   { grid-template-columns: 1fr 1fr; }
+			.emp-att-stats   { grid-template-columns: 1fr 1fr; }
+			.emp-modal       { border-radius: 16px; }
+			.emp-modal-body  { padding: 16px; }
+
+			.modal-actions   { flex-direction: column; }
+			.modal-actions .btn { width: 100%; }
+
+			/* Table & Stats for tablet */
+			table { min-width: 650px !important; }
+			.table-wrap { margin: 0 -16px; padding: 0 16px; overflow-x: auto; }
+			.stats-row {
+				grid-template-columns: repeat(3, 1fr) !important;
+				gap: 12px;
+			}
+			.stats-row .stat-card {
+				padding: 14px;
+				min-height: auto;
+			}
 		}
 
-		.btn-pagination-num.active {
-			background: #17455e;
-			color: white;
-			cursor: default;
+		/* Premium dropdown styles for filter */
+		.select-input {
+			height: 38px;
+			padding: 0 32px 0 12px;
+			border: 1.5px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 13px;
+			font-family: inherit;
+			color: #334155;
+			background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+			appearance: none;
+			cursor: pointer;
+			outline: none;
+			min-width: 130px;
+			transition: border-color 0.15s;
+		}
+		.select-input:focus {
+			border-color: #17455e;
+		}
+
+		@media (max-width: 480px) {
+			.topbar-right .btn-primary {
+				height: 38px !important;
+			}
+			.stats-row {
+				grid-template-columns: 1fr !important;
+				gap: 10px;
+			}
+			.card-header {
+				flex-direction: column !important;
+				align-items: stretch !important;
+				gap: 10px;
+			}
+			.header-filter-wrap {
+				width: 100%;
+			}
+			.select-input {
+				width: 100% !important;
+			}
+			table { min-width: 650px !important; }
+		}
+
+		/* Extra-small phones */
+		@media (max-width: 400px) {
+			.topbar-right .btn-primary {
+				font-size: 12px !important;
+				padding: 0 10px !important;
+			}
 		}
 	</style>
 </head>
 
 <body>
-	<div class="mobile-topbar"><button class="hamburger"
-			id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">HR</span></div>
+	<div class="mobile-topbar">
+		<button class="hamburger" id="hamburgerBtn">
+			<span></span><span></span><span></span>
+		</button>
+		<span class="mobile-title">HR</span>
+	</div>
+
 	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 	<div class="sidebar" id="sidebar">
 		<a th:href="@{/hr/dashboard}" style="text-decoration: none; color: inherit; display: block;">
 			<div class="sidebar-logo">
@@ -614,18 +548,24 @@
 			<li><a th:href="@{/hr/reports}"><i data-lucide="file-bar-chart"></i> Reports</a></li>
 			<li><a th:href="@{/hr/profile}"><i data-lucide="user"></i> Profile</a></li>
 		</ul>
-		<a href="#" data-logout style="text-decoration:none;"><button class="logout-btn"><i data-lucide="log-out"></i>
-				Logout</button></a>
+		<a href="#" data-logout style="text-decoration:none;">
+			<button class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+		</a>
 	</div>
 
 	<div class="main-wrapper">
 		<div class="topbar">
+			<!-- Row 1: Title -->
 			<div>
 				<h1>Employees</h1>
 				<p class="topbar-subtitle">Click any row to view details &amp; attendance</p>
 			</div>
+
+			<!-- Row 2 (mobile): Add Employee + badge; Row 3: Search (wraps below via flex-wrap) -->
 			<div class="topbar-right">
-				<div class="search-box"><input type="text" id="userSearch" placeholder="Search employees…"></div>
+				<div class="search-box">
+					<input type="text" id="userSearch" placeholder="Search employees…">
+				</div>
 				<a th:href="@{/hr/add-user}" class="btn btn-primary"
 					style="height:46px;padding:0 20px;font-size:14px;text-decoration:none;">
 					<i data-lucide="user-plus"></i> Add Employee
@@ -637,7 +577,7 @@
 		<div class="page-content">
 			<!-- Flash messages -->
 			<div class="toast success" th:if="${successMessage}" th:text="${successMessage}"></div>
-			<div class="toast error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+			<div class="toast error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
 			<div class="toast warning" th:if="${warningMessage}" th:text="${warningMessage}"
 				style="background:#fff8e1;border-left:4px solid #f59e0b;color:#92400e;padding:12px 18px;border-radius:8px;margin-bottom:12px;font-size:13px;"></div>
 
@@ -673,15 +613,15 @@
 						<h2>All Members</h2>
 						<p th:text="${totalEmployees} + ' member(s)'">0 member(s)</p>
 					</div>
-					<div style="display:inline-flex;align-items:center;gap:10px;">
-						<select id="statusFilter" class="select-input"
-							style="padding:8px 14px;border-radius:8px;border:1.5px solid #e5e7eb;font-size:13px;background:#fff;cursor:pointer;min-width:130px;">
+					<div class="header-filter-wrap">
+						<select id="statusFilter" class="select-input">
 							<option value="all">All Status</option>
 							<option value="active">Active</option>
 							<option value="inactive">Inactive</option>
 						</select>
 					</div>
 				</div>
+
 				<div class="table-wrap">
 					<table id="empTable">
 						<thead>
@@ -695,14 +635,16 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="emp, stat : ${employees}" th:data-id="${emp.id}" th:data-name="${emp.username}"
-								th:data-status="${emp.status}" class="emp-row">
+							<tr th:each="emp, stat : ${employees}"
+								th:data-id="${emp.id}"
+								th:data-name="${emp.username}"
+								th:data-status="${emp.status}"
+								class="emp-row">
 								<td th:text="${stat.count}" style="color:#6b7280;font-weight:600;">1</td>
 								<td>
 									<div class="member-cell">
 										<div class="member-avatar"
-											th:text="${#strings.substring(emp.username ?: 'U', 0, 1).toUpperCase()}">U
-										</div>
+											th:text="${#strings.substring(emp.username ?: 'U', 0, 1).toUpperCase()}">U</div>
 										<span style="font-weight:600;" th:text="${emp.username}">Name</span>
 									</div>
 								</td>
@@ -733,13 +675,16 @@
 										<a th:href="@{/hr/edit-employee/{id}(id=${emp.id})}" class="btn-action edit">
 											<i data-lucide="pencil"></i> Edit
 										</a>
-										<button type="button" class="btn-action delete" th:data-id="${emp.id}"
-											th:data-name="${emp.username}" onclick="openDeleteModal(this)">
+										<button type="button" class="btn-action delete"
+											th:data-id="${emp.id}"
+											th:data-name="${emp.username}"
+											onclick="openDeleteModal(this)">
 											<i data-lucide="trash-2"></i> Delete
 										</button>
 									</div>
 								</td>
 							</tr>
+
 							<tr th:if="${employees == null or #lists.isEmpty(employees)}">
 								<td colspan="6">
 									<div class="empty-state">
@@ -752,10 +697,13 @@
 						</tbody>
 					</table>
 				</div>
-				<!-- Pagination Container -->
+
+				<!-- Pagination -->
 				<div id="paginationContainer" class="pagination-container" style="display: none;">
 					<div class="pagination-info">
-						Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="paginationTotal">0</span> members
+						Showing <span id="paginationStart">0</span> to
+						<span id="paginationEnd">0</span> of
+						<span id="paginationTotal">0</span> members
 					</div>
 					<div class="pagination-buttons">
 						<button type="button" class="btn-pagination-nav" id="prevPageBtn" onclick="prevPage()">
@@ -774,14 +722,20 @@
 	<!-- ── Delete Confirmation Modal ── -->
 	<div class="modal-overlay hidden" id="deleteModalOverlay">
 		<div class="modal">
-			<div class="modal-icon"><i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i></div>
+			<div class="modal-icon">
+				<i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i>
+			</div>
 			<h3 class="modal-title">Delete Member</h3>
-			<p class="modal-msg">Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?<br>This
-				action cannot be undone.</p>
+			<p class="modal-msg">
+				Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?<br>
+				This action cannot be undone.
+			</p>
 			<div class="modal-actions">
 				<button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
 				<form id="deleteEmployeeForm" method="post" style="display:contents;">
-					<button type="submit" class="btn btn-danger"><i data-lucide="trash-2"></i> Yes, Delete</button>
+					<button type="submit" class="btn btn-danger">
+						<i data-lucide="trash-2"></i> Yes, Delete
+					</button>
 				</form>
 			</div>
 		</div>
@@ -796,7 +750,9 @@
 					<h2 id="modalName">Loading…</h2>
 					<p id="modalEmail"></p>
 				</div>
-				<button class="emp-modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+				<button class="emp-modal-close" onclick="closeModal()">
+					<i data-lucide="x"></i>
+				</button>
 			</div>
 			<div class="emp-modal-body" id="modalBody">
 				<div class="modal-loading">
@@ -808,31 +764,37 @@
 
 	<script>
 		// ── Sidebar ──
-		var hamburger = document.getElementById('hamburgerBtn'), sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebarOverlay');
-		function openSidebar() {sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden';}
-		function closeSidebar() {sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = '';}
+		var hamburger = document.getElementById('hamburgerBtn'),
+		    sidebar   = document.getElementById('sidebar'),
+		    overlay   = document.getElementById('sidebarOverlay');
+
+		function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active');    document.body.style.overflow = 'hidden'; }
+		function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
 		if (hamburger) hamburger.addEventListener('click', openSidebar);
-		if (overlay) overlay.addEventListener('click', closeSidebar);
-		if (sidebar) sidebar.querySelectorAll('a').forEach(function (l) {l.addEventListener('click', function () {if (window.innerWidth < 900) closeSidebar();});});
+		if (overlay)   overlay.addEventListener('click', closeSidebar);
+		if (sidebar)   sidebar.querySelectorAll('a').forEach(function (l) {
+			l.addEventListener('click', function () { if (window.innerWidth < 900) closeSidebar(); });
+		});
 
 		// ── Search + Status filter + Pagination ──
-		var currentPage = 1;
-		var pageSize = 10;
+		var currentPage  = 1;
+		var pageSize     = 10;
 		var filteredRows = [];
 
 		function updatePagination() {
-			var q = (document.getElementById('userSearch').value || '').toLowerCase();
+			var q      = (document.getElementById('userSearch').value || '').toLowerCase();
 			var status = (document.getElementById('statusFilter').value || 'all').toLowerCase();
-			
+
 			filteredRows = [];
 			var allRows = document.querySelectorAll('#empTable tbody tr[data-id]');
 			allRows.forEach(function (row) {
-				var text = row.textContent.toLowerCase();
-				var badge = row.querySelector('.status-badge');
+				var text      = row.textContent.toLowerCase();
+				var badge     = row.querySelector('.status-badge');
 				var rowStatus = badge ? badge.textContent.trim().toLowerCase() : 'active';
 				var matchSearch = q === '' || text.indexOf(q) > -1;
 				var matchStatus = status === 'all' || rowStatus === status;
-				
+
 				if (matchSearch && matchStatus) {
 					filteredRows.push(row);
 				} else {
@@ -840,78 +802,60 @@
 				}
 			});
 
-			var totalRows = filteredRows.length;
+			var totalRows  = filteredRows.length;
 			var totalPages = Math.ceil(totalRows / pageSize) || 1;
 			if (currentPage > totalPages) currentPage = totalPages;
-			if (currentPage < 1) currentPage = 1;
+			if (currentPage < 1)          currentPage = 1;
 
 			var startIndex = (currentPage - 1) * pageSize;
-			var endIndex = Math.min(startIndex + pageSize, totalRows);
+			var endIndex   = Math.min(startIndex + pageSize, totalRows);
 
 			filteredRows.forEach(function (row, idx) {
-				if (idx >= startIndex && idx < endIndex) {
-					row.style.display = '';
-				} else {
-					row.style.display = 'none';
-				}
+				row.style.display = (idx >= startIndex && idx < endIndex) ? '' : 'none';
 			});
 
 			document.getElementById('paginationStart').textContent = totalRows > 0 ? (startIndex + 1) : 0;
-			document.getElementById('paginationEnd').textContent = endIndex;
-			document.getElementById('paginationTotal').textContent = totalRows;
+			document.getElementById('paginationEnd').textContent   = endIndex;
+			document.getElementById('paginationTotal').textContent  = totalRows;
 
 			document.getElementById('prevPageBtn').disabled = (currentPage === 1);
 			document.getElementById('nextPageBtn').disabled = (currentPage === totalPages);
 
-			var pageNumbersDiv = document.getElementById('pageNumbers');
+			var pageNumbersDiv  = document.getElementById('pageNumbers');
 			pageNumbersDiv.innerHTML = '';
-			
+
 			var maxPageButtons = 5;
 			var startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-			var endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+			var endPage   = Math.min(totalPages, startPage + maxPageButtons - 1);
 			if (endPage - startPage + 1 < maxPageButtons) {
 				startPage = Math.max(1, endPage - maxPageButtons + 1);
 			}
 
 			for (var i = startPage; i <= endPage; i++) {
 				var btn = document.createElement('button');
-				btn.type = 'button';
+				btn.type      = 'button';
 				btn.className = 'btn-pagination-num' + (i === currentPage ? ' active' : '');
 				btn.textContent = i;
-				btn.addEventListener('click', (function(page) {
-					return function() {
-						currentPage = page;
-						updatePagination();
-					};
+				btn.addEventListener('click', (function (page) {
+					return function () { currentPage = page; updatePagination(); };
 				})(i));
 				pageNumbersDiv.appendChild(btn);
 			}
-			
+
 			var container = document.getElementById('paginationContainer');
-			if (container) {
-				container.style.display = totalRows > 0 ? 'flex' : 'none';
-			}
+			if (container) container.style.display = totalRows > 0 ? 'flex' : 'none';
 		}
 
 		function prevPage() {
-			if (currentPage > 1) {
-				currentPage--;
-				updatePagination();
-			}
+			if (currentPage > 1) { currentPage--; updatePagination(); }
 		}
 
 		function nextPage() {
 			var totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
-			if (currentPage < totalPages) {
-				currentPage++;
-				updatePagination();
-			}
+			if (currentPage < totalPages) { currentPage++; updatePagination(); }
 		}
 
-		function applyFilters() {
-			currentPage = 1;
-			updatePagination();
-		}
+		function applyFilters() { currentPage = 1; updatePagination(); }
 
 		var si = document.getElementById('userSearch');
 		if (si) si.addEventListener('input', applyFilters);
@@ -925,27 +869,31 @@
 			document.getElementById('deleteModalOverlay').classList.remove('hidden');
 			document.body.style.overflow = 'hidden';
 		}
+
 		function closeDeleteModal() {
 			document.getElementById('deleteModalOverlay').classList.add('hidden');
 			document.body.style.overflow = '';
 		}
+
 		var delOverlay = document.getElementById('deleteModalOverlay');
-		if (delOverlay) delOverlay.addEventListener('click', function (e) {if (e.target === delOverlay) closeDeleteModal();});
-		document.addEventListener('keydown', function (e) {if (e.key === 'Escape') closeDeleteModal();});
+		if (delOverlay) delOverlay.addEventListener('click', function (e) { if (e.target === delOverlay) closeDeleteModal(); });
+		document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDeleteModal(); });
 
 		// ── Auto-dismiss toasts ──
 		document.querySelectorAll('.toast').forEach(function (t) {
-			setTimeout(function () {t.style.opacity = '0'; t.style.transition = 'opacity .5s'; setTimeout(function () {t.remove();}, 500);}, 4000);
+			setTimeout(function () {
+				t.style.opacity    = '0';
+				t.style.transition = 'opacity .5s';
+				setTimeout(function () { t.remove(); }, 500);
+			}, 4000);
 		});
 
 		// ── Employee Detail Modal ──
 		var empModalOverlay = document.getElementById('empModalOverlay');
 
-		// Use event delegation on the table body — ignore clicks on no-row-click cells
 		var empTableBody = document.querySelector('#empTable tbody');
 		if (empTableBody) {
 			empTableBody.addEventListener('click', function (e) {
-				// If the click originated inside a no-row-click cell, do nothing
 				if (e.target.closest('td.no-row-click')) return;
 				var row = e.target.closest('tr.emp-row');
 				if (row) openEmpModal(row);
@@ -953,85 +901,95 @@
 		}
 
 		function openEmpModal(row) {
-			var id = row.getAttribute('data-id');
+			var id   = row.getAttribute('data-id');
 			var name = row.getAttribute('data-name');
-			document.getElementById('modalName').textContent = name;
+			document.getElementById('modalName').textContent  = name;
 			document.getElementById('modalEmail').textContent = '';
 			document.getElementById('modalAvatar').textContent = name.charAt(0).toUpperCase();
 			document.getElementById('modalBody').innerHTML = '<div class="modal-loading"><div class="spinner"></div> Loading details…</div>';
 			empModalOverlay.classList.add('open');
 			document.body.style.overflow = 'hidden';
 			fetch('/hr/api/employee/' + id)
-				.then(r => r.json())
+				.then(r  => r.json())
 				.then(data => renderModal(data))
-				.catch(() => {document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">Failed to load details.</p>';});
+				.catch(() => {
+					document.getElementById('modalBody').innerHTML =
+						'<p style="padding:24px;color:#d11a2a;">Failed to load details.</p>';
+				});
 		}
-		function closeModal() {empModalOverlay.classList.remove('open'); document.body.style.overflow = '';}
-		function closeEmpModal(e) {if (e.target === empModalOverlay) closeModal();}
+
+		function closeModal()    { empModalOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+		function closeEmpModal(e){ if (e.target === empModalOverlay) closeModal(); }
 
 		function statusBadge(s) {
 			var map = {
-				'present': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">Present</span>',
-				'late': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce9d8;color:#b45309;">Late</span>',
-				'absent': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fdecec;color:#d11a2a;">Absent</span>',
+				'present':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">Present</span>',
+				'late':     '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce9d8;color:#b45309;">Late</span>',
+				'absent':   '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fdecec;color:#d11a2a;">Absent</span>',
 				'half-day': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;">Half Day</span>',
-				'weekend': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e9e2ff;color:#6b46c1;">Weekend</span>',
-				'holiday': '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce7f3;color:#9d174d;">Holiday</span>'
+				'weekend':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e9e2ff;color:#6b46c1;">Weekend</span>',
+				'holiday':  '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fce7f3;color:#9d174d;">Holiday</span>'
 			};
 			return map[s] || '<span style="color:#9ca3af;">—</span>';
 		}
 
 		function renderModal(d) {
 			if (d.error) {
-				document.getElementById('modalBody').innerHTML = '<p style="padding:24px;color:#d11a2a;">' + d.error + '</p>';
+				document.getElementById('modalBody').innerHTML =
+					'<p style="padding:24px;color:#d11a2a;">' + d.error + '</p>';
 				return;
 			}
-			document.getElementById('modalName').textContent = d.username;
-			document.getElementById('modalEmail').textContent = d.email;
+			document.getElementById('modalName').textContent   = d.username;
+			document.getElementById('modalEmail').textContent  = d.email;
 			document.getElementById('modalAvatar').textContent = d.username.charAt(0).toUpperCase();
 
 			var rows = '';
 			(d.attendance || []).forEach(function (a) {
-				var rowClass = a.status === 'weekend' ? 'row-weekend' : (a.status === 'absent' ? 'row-absent' : (a.status === 'holiday' ? 'row-holiday' : ''));
-				var checkIn = a.checkIn !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">' + a.checkIn + '</span>' : '<span style="color:#9ca3af;">—</span>';
-				var checkOut = a.checkOut !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dcecf5;color:#17455e;">' + a.checkOut + '</span>' : '<span style="color:#9ca3af;">—</span>';
+				var rowClass  = a.status === 'weekend' ? 'row-weekend' : (a.status === 'absent' ? 'row-absent' : (a.status === 'holiday' ? 'row-holiday' : ''));
+				var checkIn   = a.checkIn  !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dff5ea;color:#1b7a46;">'  + a.checkIn  + '</span>' : '<span style="color:#9ca3af;">—</span>';
+				var checkOut  = a.checkOut !== '—' ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#dcecf5;color:#17455e;">' + a.checkOut + '</span>' : '<span style="color:#9ca3af;">—</span>';
 				rows += '<tr class="' + rowClass + '">'
-					+ '<td style="font-weight:600;">' + a.date + '</td>'
-					+ '<td>' + checkIn + '</td>'
-					+ '<td>' + checkOut + '</td>'
-					+ '<td style="font-weight:600;color:#17455e;">' + a.worked + '</td>'
-					+ '<td style="color:#b45309;">' + a.breakTime + '</td>'
-					+ '<td>' + (a.dayType !== '—' ? '<span style="font-size:12px;font-weight:600;color:#17455e;">' + a.dayType + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>'
-					+ '<td>' + statusBadge(a.status) + '</td>'
+					+   '<td style="font-weight:600;">'        + a.date     + '</td>'
+					+   '<td>'                                 + checkIn    + '</td>'
+					+   '<td>'                                 + checkOut   + '</td>'
+					+   '<td style="font-weight:600;color:#17455e;">' + a.worked   + '</td>'
+					+   '<td style="color:#b45309;">'          + a.breakTime + '</td>'
+					+   '<td>' + (a.dayType !== '—' ? '<span style="font-size:12px;font-weight:600;color:#17455e;">' + a.dayType + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>'
+					+   '<td>' + statusBadge(a.status)         + '</td>'
 					+ '</tr>';
 			});
 
-			var roleColor = d.role === 'MANAGER' ? 'background:#dcecf5;color:#17455e;' : (d.role === 'HR' ? 'background:#e9e2ff;color:#6b46c1;' : 'background:#f3f8fb;color:#163647;');
+			var roleColor = d.role === 'MANAGER'
+				? 'background:#dcecf5;color:#17455e;'
+				: (d.role === 'HR' ? 'background:#e9e2ff;color:#6b46c1;' : 'background:#f3f8fb;color:#163647;');
+
 			document.getElementById('modalBody').innerHTML =
 				'<div class="emp-info-grid">'
-				+ '  <div class="emp-info-tile"><div class="label">Username</div><div class="value">' + d.username + '</div></div>'
-				+ '  <div class="emp-info-tile"><div class="label">Email</div><div class="value" style="font-size:13px;word-break:break-all;">' + d.email + '</div></div>'
-				+ '  <div class="emp-info-tile"><div class="label">Role</div><div class="value"><span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;' + roleColor + '">' + d.role + '</span></div></div>'
-				+ '  <div class="emp-info-tile"><div class="label">Status</div><div class="value">'
-				+ (d.status === 'active' ? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
+				+ '<div class="emp-info-tile"><div class="label">Username</div><div class="value">' + d.username + '</div></div>'
+				+ '<div class="emp-info-tile"><div class="label">Email</div><div class="value" style="font-size:13px;word-break:break-all;">' + d.email + '</div></div>'
+				+ '<div class="emp-info-tile"><div class="label">Role</div><div class="value"><span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;' + roleColor + '">' + d.role + '</span></div></div>'
+				+ '<div class="emp-info-tile"><div class="label">Status</div><div class="value">'
+				+ (d.status === 'active'
+					? '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#dff5ea;color:#1b7a46;">Active</span>'
 					: '<span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fdecec;color:#d11a2a;">Inactive</span>')
-				+ '  </div></div>'
+				+ '</div></div>'
 				+ '</div>'
 				+ '<div>'
-				+ '  <h3 style="font-size:15px;font-weight:700;color:#163647;margin:0 0 12px;">Last 30 Days Attendance</h3>'
-				+ '  <div class="emp-att-stats">'
-				+ '    <div class="emp-att-stat green"><div class="num">' + d.presentDays + '</div><div class="lbl">Present</div></div>'
-				+ '    <div class="emp-att-stat red"><div class="num">' + d.absentDays + '</div><div class="lbl">Absent</div></div>'
-				+ '    <div class="emp-att-stat amber"><div class="num">' + d.halfDays + '</div><div class="lbl">Half Days</div></div>'
-				+ '    <div class="emp-att-stat purple"><div class="num">' + d.holidays + '</div><div class="lbl">Holidays</div></div>'
-				+ '  </div>'
+				+ '<h3 style="font-size:15px;font-weight:700;color:#163647;margin:0 0 12px;">Last 30 Days Attendance</h3>'
+				+ '<div class="emp-att-stats">'
+				+ '<div class="emp-att-stat green"><div class="num">'  + d.presentDays + '</div><div class="lbl">Present</div></div>'
+				+ '<div class="emp-att-stat red"><div class="num">'    + d.absentDays  + '</div><div class="lbl">Absent</div></div>'
+				+ '<div class="emp-att-stat amber"><div class="num">'  + d.halfDays    + '</div><div class="lbl">Half Days</div></div>'
+				+ '<div class="emp-att-stat purple"><div class="num">' + d.holidays    + '</div><div class="lbl">Holidays</div></div>'
+				+ '</div>'
 				+ '</div>'
 				+ '<div style="overflow-x:auto;">'
-				+ '  <table class="emp-att-table">'
-				+ '    <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Worked</th><th>Break</th><th>Day Type</th><th>Status</th></tr></thead>'
-				+ '    <tbody>' + (rows || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No records found.</td></tr>') + '</tbody>'
-				+ '  </table>'
+				+ '<table class="emp-att-table">'
+				+ '<thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Worked</th><th>Break</th><th>Day Type</th><th>Status</th></tr></thead>'
+				+ '<tbody>' + (rows || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No records found.</td></tr>') + '</tbody>'
+				+ '</table>'
 				+ '</div>';
+
 			lucide.createIcons();
 		}
 

@@ -248,19 +248,71 @@
             });
     }
 
+    function showConfirmPopup(message, onConfirm) {
+        // Remove any existing confirm popup
+        var existing = document.getElementById('crmConfirmPopup');
+        if (existing) existing.remove();
+
+        var overlay = document.createElement('div');
+        overlay.id = 'crmConfirmPopup';
+        overlay.className = 'crm-confirm-overlay';
+        overlay.innerHTML =
+            '<div class="crm-confirm-box">' +
+                '<div class="crm-confirm-icon">' +
+                    '<i data-lucide="trash-2"></i>' +
+                '</div>' +
+                '<div class="crm-confirm-title">Clear All Notifications</div>' +
+                '<div class="crm-confirm-message">' + escapeHtml(message) + '</div>' +
+                '<div class="crm-confirm-actions">' +
+                    '<button type="button" class="crm-confirm-cancel">Cancel</button>' +
+                    '<button type="button" class="crm-confirm-ok">Delete All</button>' +
+                '</div>' +
+            '</div>';
+
+        document.body.appendChild(overlay);
+        if (window.lucide) lucide.createIcons();
+
+        // Animate in
+        setTimeout(function () { overlay.classList.add('show'); }, 10);
+
+        function close() {
+            overlay.classList.remove('show');
+            setTimeout(function () {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 250);
+        }
+
+        overlay.querySelector('.crm-confirm-cancel').addEventListener('click', function (e) {
+            e.stopPropagation();
+            close();
+        });
+
+        overlay.querySelector('.crm-confirm-ok').addEventListener('click', function (e) {
+            e.stopPropagation();
+            close();
+            onConfirm();
+        });
+
+        // Click backdrop to cancel
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) close();
+        });
+    }
+
     function deleteAll(e) {
         e.stopPropagation();
         if (!notifications.length) return;
-        if (!window.confirm('Delete all notifications?')) return;
-        window.crmFetch('/api/notifications/clear-all', { method: 'DELETE', contentType: null })
-            .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function () {
-                notifications = [];
-                unreadCount = 0;
-                updateBadge();
-                renderList();
-                renderDashboardFeed();
-            });
+        showConfirmPopup('Are you sure you want to delete all notifications? This cannot be undone.', function () {
+            window.crmFetch('/api/notifications/clear-all', { method: 'DELETE', contentType: null })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function () {
+                    notifications = [];
+                    unreadCount = 0;
+                    updateBadge();
+                    renderList();
+                    renderDashboardFeed();
+                });
+        });
     }
 
     function toggleDropdown(e) {

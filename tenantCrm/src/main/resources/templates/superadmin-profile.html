@@ -84,14 +84,20 @@
 			}
 
 			.form-actions {
-				flex-direction: column;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
 				gap: 10px;
 			}
 
 			.form-actions .btn,
 			.form-actions .btn-clear {
-				width: 100%;
+				flex: 1;
+				width: auto;
 				justify-content: center;
+				height: 42px;
+				font-size: 13px;
+				padding: 0 10px;
 			}
 		}
 

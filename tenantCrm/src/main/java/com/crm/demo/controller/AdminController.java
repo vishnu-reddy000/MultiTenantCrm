@@ -196,6 +196,9 @@ public class AdminController {
 		List<String> memberLabels = new ArrayList<>();
 		List<Long> memberTaskCounts = new ArrayList<>();
 		for (User employee : scopedEmployees) {
+			if ("HR".equalsIgnoreCase(employee.getRole()) || "MANAGER".equalsIgnoreCase(employee.getRole())) {
+				continue;
+			}
 			long count = scopedTasks.stream()
 					.filter(t -> employee.getUsername() != null && employee.getUsername().equalsIgnoreCase(t.getAssignedTo()))
 					.count();

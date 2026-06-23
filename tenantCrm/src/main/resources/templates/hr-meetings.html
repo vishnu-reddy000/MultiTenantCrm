@@ -920,7 +920,19 @@
 			}
 
 			.form-card-footer {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
+				gap: 10px;
 				padding: 18px 20px 22px;
+			}
+
+			.btn-cancel, .btn-save {
+				flex: 1;
+				justify-content: center;
+				height: 42px;
+				font-size: 13px;
+				padding: 0 10px;
 			}
 
 			.form-card-header {
@@ -933,6 +945,157 @@
 
 			.form-right {
 				padding: 20px;
+			}
+		}
+
+		/* ══════════════════════════════════════
+		   MOBILE CARD VIEW FOR MEETINGS TABLE
+		   — Full rewrite for reliable rendering —
+		══════════════════════════════════════ */
+		@media (max-width: 640px) {
+
+			/* ── Tab nav: full-width, 3 equal pills ── */
+			.tab-nav {
+				width: 100%;
+				box-sizing: border-box;
+				padding: 5px;
+				gap: 4px;
+			}
+
+			.tab-btn {
+				flex: 1;
+				justify-content: center;
+				padding: 9px 6px;
+				font-size: 11px;
+				font-weight: 600;
+				gap: 4px;
+				min-width: 0;
+			}
+
+			/* Hide text spans on smallest screens, keep icon + badge */
+			.tab-btn > span:not(.tab-badge) {
+				display: none;
+			}
+
+			/* Show short labels via pseudo-element */
+			#tabBtnSchedule::after { content: "Schedule"; font-size: 11px; font-weight: 600; }
+			#tabBtnList::after     { content: "Upcoming"; font-size: 11px; font-weight: 600; }
+			#tabBtnHistory::after  { content: "History";  font-size: 11px; font-weight: 600; }
+
+			/* ── Card header on mobile ── */
+			.meetings-table-card .card-header {
+				padding: 16px;
+			}
+
+			/* ── Kill the horizontal scroll wrapper ── */
+			.meetings-table-card .table-wrap {
+				overflow-x: visible !important;
+			}
+
+			/* ── Turn the whole table into a block ── */
+			.meetings-table-card .table-wrap table,
+			#historyTable {
+				display: block !important;
+				width: 100% !important;
+				border-collapse: collapse;
+			}
+
+			/* ── Hide thead completely ── */
+			.meetings-table-card .table-wrap table thead,
+			#historyTable thead {
+				display: none !important;
+			}
+
+			/* ── tbody becomes a flex column ── */
+			.meetings-table-card .table-wrap table tbody,
+			#historyTable tbody {
+				display: flex !important;
+				flex-direction: column;
+				gap: 10px;
+				padding: 12px;
+			}
+
+			/* ── Each tr becomes a card ── */
+			.meetings-table-card .table-wrap table tbody tr,
+			#historyTable tbody tr {
+				display: flex !important;
+				flex-direction: column;
+				gap: 0;
+				background: white;
+				border: 1.5px solid #e5edf2;
+				border-radius: 16px;
+				padding: 14px 16px;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+				overflow: hidden;
+			}
+
+			/* ── Each td becomes a labeled row ── */
+			.meetings-table-card .table-wrap table tbody td,
+			#historyTable tbody td {
+				display: flex !important;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 10px;
+				padding: 7px 0 !important;
+				font-size: 13px;
+				border: none !important;
+				border-bottom: 1px solid #f0f4f7 !important;
+				line-height: 1.4;
+			}
+
+			.meetings-table-card .table-wrap table tbody td:last-child,
+			#historyTable tbody td:last-child {
+				border-bottom: none !important;
+				padding-bottom: 0 !important;
+			}
+
+			/* ── Hide the # (index) column ── */
+			.meetings-table-card .table-wrap table tbody td:first-child,
+			#historyTable tbody td:first-child {
+				display: none !important;
+			}
+
+			/* ── Data labels via ::before ── */
+			.meetings-table-card .table-wrap table tbody td::before,
+			#historyTable tbody td::before {
+				content: attr(data-label);
+				font-size: 10px;
+				font-weight: 700;
+				color: #8a9fb0;
+				letter-spacing: 0.07em;
+				text-transform: uppercase;
+				flex-shrink: 0;
+				min-width: 88px;
+				padding-top: 2px;
+			}
+
+			/* ── Fix participants cell ── */
+			.participants-cell {
+				max-width: 100%;
+				white-space: normal;
+				overflow: visible;
+				text-overflow: unset;
+			}
+
+			/* ── Action buttons wrap ── */
+			.action-btns {
+				flex-wrap: wrap;
+				gap: 6px;
+			}
+
+			/* ── Empty state rows — no card border ── */
+			.meetings-table-card .table-wrap table tbody tr:has(td[colspan]),
+			#historyTable tbody tr:has(td[colspan]) {
+				border: none;
+				box-shadow: none;
+				background: transparent;
+				padding: 24px 0;
+			}
+
+			/* ── btn-participants full width on mobile ── */
+			.btn-participants {
+				width: 100%;
+				justify-content: center;
 			}
 		}
 	</style>
@@ -1001,18 +1164,17 @@
 			<div class="tab-nav">
 				<button class="tab-btn active" id="tabBtnSchedule" onclick="switchTab('schedule')">
 					<i data-lucide="calendar-plus"></i>
-					<span th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New
-						Meeting</span>
+					<span th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New Meeting</span>
 				</button>
 				<button class="tab-btn" id="tabBtnList" onclick="switchTab('list')">
 					<i data-lucide="calendar-clock"></i>
-					Scheduled Meetings
+					<span>Scheduled Meetings</span>
 					<span class="tab-badge" id="meetingCountBadge"
 						th:text="${upcomingMeetings != null} ? ${#lists.size(upcomingMeetings)} : '0'">0</span>
 				</button>
 				<button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">
 					<i data-lucide="history"></i>
-					Past Meetings
+					<span>Past Meetings</span>
 					<span class="tab-badge" id="historyCountBadge"
 						th:text="${pastMeetings != null} ? ${#lists.size(pastMeetings)} : '0'">0</span>
 				</button>
@@ -1025,8 +1187,7 @@
 					<!-- Card Header -->
 					<div class="form-card-header">
 						<div>
-							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule
-								New Meeting</h2>
+							<h2 th:text="${meetingForm.id != null} ? 'Edit Meeting' : 'Schedule New Meeting'">Schedule New Meeting</h2>
 							<p>Fill in the details below to schedule a meeting for your organisation</p>
 						</div>
 						<div class="form-card-icon">
@@ -1130,7 +1291,6 @@
 										</div>
 									</div>
 
-
 								</div>
 							</div><!-- /form-left -->
 
@@ -1191,9 +1351,7 @@
 							<a th:href="@{/hr/meetings}" class="btn-cancel">Cancel</a>
 							<button type="submit" class="btn-save">
 								<i data-lucide="calendar-check"></i>
-								<span
-									th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule
-									Meeting</span>
+								<span th:text="${meetingForm.id != null} ? 'Update Meeting' : 'Schedule Meeting'">Schedule Meeting</span>
 							</button>
 						</div>
 					</form>
@@ -1206,9 +1364,7 @@
 					<div class="card-header">
 						<div>
 							<h2>Scheduled Meetings</h2>
-							<p
-								th:text="${upcomingMeetings != null} ? (${#lists.size(upcomingMeetings)} + ' meeting(s)') : '0 meeting(s)'">
-								0 meeting(s)</p>
+							<p th:text="${upcomingMeetings != null} ? (${#lists.size(upcomingMeetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
 						</div>
 						<div class="card-header-icon">
 							<i data-lucide="calendar-check" style="width:18px;height:18px;"></i>
@@ -1229,29 +1385,24 @@
 							</thead>
 							<tbody>
 								<tr th:each="m, stat : ${upcomingMeetings}">
-									<td style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
-									<td>
-										<div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">
-											Title</div>
+									<td data-label="#" style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
+									<td data-label="Title">
+										<div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">Title</div>
 										<div style="font-size:11px;color:#9ca3af;margin-top:2px;"
 											th:text="${m.duration != null} ? (${m.duration} + ' min') : ''"></div>
 									</td>
-									<td>
+									<td data-label="Date & Time">
 										<div style="font-size:12px;font-weight:600;color:#4b6a7a;"
 											th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</div>
 										<div style="font-size:11px;color:#9ca3af;margin-top:2px;"
-											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">
-											Time</div>
+											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</div>
 									</td>
-									<td>
-										<span class="status-badge badge-online"
-											th:if="${m.meetingType == 'ONLINE'}">Online</span>
-										<span class="status-badge badge-inperson"
-											th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
-										<span class="status-badge badge-hybrid"
-											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
+									<td data-label="Type">
+										<span class="status-badge badge-online" th:if="${m.meetingType == 'ONLINE'}">Online</span>
+										<span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
+										<span class="status-badge badge-hybrid" th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
 									</td>
-									<td>
+									<td data-label="Participants">
 										<div class="participants-cell">
 											<button type="button" class="btn-participants"
 												th:if="${m.participants != null and !#strings.isEmpty(m.participants)}"
@@ -1260,11 +1411,10 @@
 												<i data-lucide="users"></i>
 												View Participants
 											</button>
-											<span
-												th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
+											<span th:if="${m.participants == null or #strings.isEmpty(m.participants)}">—</span>
 										</div>
 									</td>
-									<td>
+									<td data-label="Join">
 										<th:block
 											th:with="
 										isToday=${m.meetingDate != null and m.meetingDate.equals(T(java.time.LocalDate).now())},
@@ -1274,23 +1424,19 @@
 												target="_blank" rel="noopener noreferrer" class="btn-join">
 												<i data-lucide="video"></i> Join
 											</a>
-											<span th:if="${isToday and hasStarted and !hasUrl}"
-												class="btn-join-disabled"
+											<span th:if="${isToday and hasStarted and !hasUrl}" class="btn-join-disabled"
 												th:title="${m.location ?: 'No link provided'}">
 												<i data-lucide="map-pin"></i>
-												<span
-													th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No
-													Link</span>
+												<span th:text="${m.location != null and !#strings.isEmpty(m.location)} ? 'In Person' : 'No Link'">No Link</span>
 											</span>
 											<span th:if="${!isToday or !hasStarted}"
 												style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;white-space:nowrap;">
 												<i data-lucide="clock" style="width:12px;height:12px;"></i>
-												<span
-													th:text="${isToday} ? 'Starting Soon' : 'Scheduled'">Scheduled</span>
+												<span th:text="${isToday} ? 'Starting Soon' : 'Scheduled'">Scheduled</span>
 											</span>
 										</th:block>
 									</td>
-									<td>
+									<td data-label="Actions">
 										<div class="action-btns">
 											<a th:href="@{/hr/meetings/edit/{id}(id=${m.id})}" class="btn-action edit">
 												<i data-lucide="pencil"></i> Edit
@@ -1305,8 +1451,7 @@
 								<tr th:if="${upcomingMeetings == null or #lists.isEmpty(upcomingMeetings)}">
 									<td colspan="7">
 										<div class="empty-state">
-											<i data-lucide="calendar-clock"
-												style="width:48px;height:48px;opacity:.3;"></i>
+											<i data-lucide="calendar-clock" style="width:48px;height:48px;opacity:.3;"></i>
 											<h3>No Meetings Scheduled</h3>
 											<p>Switch to "Schedule New Meeting" to create your first meeting.</p>
 										</div>
@@ -1318,17 +1463,15 @@
 				</div>
 			</div><!-- /panelList -->
 
+			<!-- ── TAB PANEL: History ── -->
 			<div class="tab-panel" id="panelHistory">
 				<div class="meetings-table-card">
 					<div class="card-header">
 						<div>
 							<h2>Past Meetings / History</h2>
-							<p
-								th:text="${pastMeetings != null} ? (${#lists.size(pastMeetings)} + ' meeting(s)') : '0 meeting(s)'">
-								0 meeting(s)</p>
+							<p th:text="${pastMeetings != null} ? (${#lists.size(pastMeetings)} + ' meeting(s)') : '0 meeting(s)'">0 meeting(s)</p>
 						</div>
-						<div class="card-header-icon"><i data-lucide="history" style="width:18px;height:18px;"></i>
-						</div>
+						<div class="card-header-icon"><i data-lucide="history" style="width:18px;height:18px;"></i></div>
 					</div>
 					<div class="table-wrap">
 						<table id="historyTable">
@@ -1344,29 +1487,25 @@
 							</thead>
 							<tbody>
 								<tr th:each="m, stat : ${pastMeetings}">
-									<td style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
-									<td>
-										<div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">
-											Title</div>
+									<td data-label="#" style="color:#9ca3af;font-weight:600;" th:text="${stat.count}">1</td>
+									<td data-label="Title">
+										<div style="font-weight:600;font-size:13px;color:#163647;" th:text="${m.title}">Title</div>
 									</td>
-									<td>
+									<td data-label="Date">
 										<div style="font-size:12px;font-weight:600;color:#4b6a7a;"
 											th:text="${#temporals.format(m.meetingDate, 'dd MMM yyyy')}">Date</div>
 									</td>
-									<td>
-										<div style="font-size:11px;color:#9ca3af;margin-top:2px;"
-											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">
-											Time</div>
+									<td data-label="Time">
+										<div style="font-size:11px;color:#9ca3af;"
+											th:text="${m.meetingTime != null} ? ${#strings.substring(m.meetingTime.toString(),0,5)} : '—'">Time</div>
 									</td>
-									<td><span class="status-badge badge-online"
-											th:if="${m.meetingType == 'ONLINE'}">Online</span><span
-											class="status-badge badge-inperson"
-											th:if="${m.meetingType == 'IN_PERSON'}">In Person</span><span
-											class="status-badge badge-hybrid"
-											th:if="${m.meetingType == 'HYBRID'}">Hybrid</span></td>
-									<td>
-										<th:block
-											th:if="${m.participants != null and !#strings.isEmpty(m.participants)}">
+									<td data-label="Type">
+										<span class="status-badge badge-online" th:if="${m.meetingType == 'ONLINE'}">Online</span>
+										<span class="status-badge badge-inperson" th:if="${m.meetingType == 'IN_PERSON'}">In Person</span>
+										<span class="status-badge badge-hybrid" th:if="${m.meetingType == 'HYBRID'}">Hybrid</span>
+									</td>
+									<td data-label="Participants">
+										<th:block th:if="${m.participants != null and !#strings.isEmpty(m.participants)}">
 											<th:block th:with="parts=${#strings.arraySplit(m.participants, ',')}">
 												<div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
 													<span th:each="p, iter : ${parts}" th:if="${iter.index < 2}"
@@ -1378,15 +1517,14 @@
 												</div>
 											</th:block>
 										</th:block>
-										<span
-											th:unless="${m.participants != null and !#strings.isEmpty(m.participants)}"
+										<span th:unless="${m.participants != null and !#strings.isEmpty(m.participants)}"
 											style="font-size:12px;color:#6b7280;">—</span>
 									</td>
 								</tr>
 								<tr th:if="${pastMeetings == null or #lists.isEmpty(pastMeetings)}">
 									<td colspan="6">
-										<div class="empty-state"><i data-lucide="history"
-												style="width:48px;height:48px;opacity:.3;"></i>
+										<div class="empty-state">
+											<i data-lucide="history" style="width:48px;height:48px;opacity:.3;"></i>
 											<h3>No Past Meetings</h3>
 											<p>Completed meetings will appear here.</p>
 										</div>
@@ -1408,8 +1546,7 @@
 				<i data-lucide="trash-2" style="width:32px;height:32px;color:#d11a2a;"></i>
 			</div>
 			<h3 class="modal-title">Delete Meeting</h3>
-			<p class="modal-msg">Are you sure you want to delete <strong id="deleteMeetingTitle"></strong>?<br>This
-				action cannot be undone.</p>
+			<p class="modal-msg">Are you sure you want to delete <strong id="deleteMeetingTitle"></strong>?<br>This action cannot be undone.</p>
 			<div class="modal-actions">
 				<button type="button" class="btn btn-clear" onclick="closeDeleteModal()">Cancel</button>
 				<form id="deleteMeetingForm" method="post" style="display:contents;">
@@ -1582,7 +1719,7 @@
 			if (span) span.textContent = names.length + ' participant(s) selected';
 		}
 
-		/* ── Search (works across both tabs; show list tab when searching) ── */
+		/* ── Search ── */
 		var ms = document.getElementById('meetingSearch');
 		if (ms) ms.addEventListener('input', function () {
 			var q = this.value.toLowerCase();
@@ -1638,6 +1775,7 @@
 			document.getElementById('participantsModalOverlay').classList.add('hidden');
 			document.body.style.overflow = '';
 		}
+
 		var delOverlay = document.getElementById('deleteModalOverlay');
 		if (delOverlay) delOverlay.addEventListener('click', function (e) {if (e.target === delOverlay) closeDeleteModal();});
 		var participantsOverlay = document.getElementById('participantsModalOverlay');
@@ -1656,17 +1794,12 @@
 			}, 3500);
 		});
 
-		/* ════════════════════════════════════════════════════
-		   ── NO BACK DATE / NO BACK TIME RESTRICTION ──
-		   Only these lines are new — nothing else changed.
-		════════════════════════════════════════════════════ */
+		/* ── Date/Time restriction (no past dates/times) ── */
 		(function applyDateTimeRestriction() {
 			var dateInput = document.getElementById('meetingDateInput');
 			var timeInput = document.getElementById('meetingTimeInput');
-
 			if (!dateInput || !timeInput) return;
 
-			/* Helper: returns today as "YYYY-MM-DD" */
 			function todayStr() {
 				var d = new Date();
 				var mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -1674,56 +1807,43 @@
 				return d.getFullYear() + '-' + mm + '-' + dd;
 			}
 
-			/* Helper: returns current time as "HH:MM" */
 			function nowTimeStr() {
 				var d = new Date();
 				return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 			}
 
-			/* Helper: is the selected date today? */
-			function isToday() {
-				return dateInput.value === todayStr();
-			}
+			function isToday() { return dateInput.value === todayStr(); }
 
-			/* 1. Block past dates — set min to today */
 			dateInput.min = todayStr();
 
-			/* 2. If a past date was somehow already set, clear it */
 			if (dateInput.value && dateInput.value < todayStr()) {
 				dateInput.value = '';
 			}
 
-			/* 3. When date changes — update time min accordingly */
 			dateInput.addEventListener('change', function () {
 				if (isToday()) {
 					timeInput.min = nowTimeStr();
-					/* If the currently entered time is in the past on today, clear it */
 					if (timeInput.value && timeInput.value < nowTimeStr()) {
 						timeInput.value = '';
 					}
 				} else {
-					/* Future date — any time is allowed */
 					timeInput.min = '';
 				}
 			});
 
-			/* 4. On page load — if date is already today, restrict time too */
 			if (isToday()) {
 				timeInput.min = nowTimeStr();
 			}
 
-			/* 5. Re-check time minimum every minute so it stays current while the page is open */
 			setInterval(function () {
 				if (isToday()) {
 					timeInput.min = nowTimeStr();
-					/* Optionally clear an expired time if user hasn't submitted yet */
 					if (timeInput.value && timeInput.value < nowTimeStr()) {
 						timeInput.value = '';
 					}
 				}
 			}, 60000);
 		})();
-		/* ── END RESTRICTION ── */
 
 		lucide.createIcons();
 	</script>

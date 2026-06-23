@@ -496,14 +496,19 @@
 			flex: 1;
 		}
 
-		@media(max-width:900px) {
-			.cal-wrapper {
-				grid-template-columns: 1fr;
-			}
+		@media(max-width: 768px) {
+			.cal-wrapper { grid-template-columns: 1fr; }
+			.cal-cell { min-height: 52px; }
+			.list-card { max-height: none; }
+			.side-panel { flex-direction: column; }
+		}
 
-			.cal-cell {
-				min-height: 52px;
-			}
+		@media(max-width: 480px) {
+			.cal-cell { min-height: 42px; padding: 4px; border-radius: 10px; }
+			.cal-nav h2 { font-size: 16px; }
+			.cal-nav-btn { width: 32px; height: 32px; }
+			.legend { gap: 10px; }
+			.legend-item { font-size: 11px; }
 		}
 	</style>
 </head>

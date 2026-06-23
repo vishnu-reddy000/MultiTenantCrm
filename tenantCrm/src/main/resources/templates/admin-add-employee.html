@@ -58,6 +58,22 @@
 			display: flex;
 			align-items: center;
 		}
+
+		/* ── Responsive ── */
+		@media (max-width: 768px) {
+			.au-form-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+			.topbar { flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+			.topbar > div { flex-wrap: wrap; }
+			.topbar-right { width: 100%; display: flex; gap: 10px; flex-wrap: wrap; }
+			.topbar-right button { flex: 1; }
+		}
+
+		@media (max-width: 480px) {
+			.au-form-grid { grid-template-columns: 1fr !important; gap: 12px; }
+			.form-actions { flex-direction: column; gap: 8px; }
+			.form-actions .btn { width: 100%; justify-content: center; }
+			.topbar-right button { width: 100%; }
+		}
 	</style>
 </head>
 
@@ -94,9 +110,9 @@
 
 	<div class="main-wrapper">
 		<div class="topbar">
-			<div style="display:flex;align-items:center;gap:14px;">
+			<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 				<a th:href="@{/admin/employees}" class="btn btn-clear"
-					style="height:40px;padding:0 16px;font-size:13px;">
+					style="height:40px;padding:0 16px;font-size:13px;flex-shrink:0;">
 					<i data-lucide="arrow-left" style="width:15px;height:15px;"></i> Back
 				</a>
 				<div>
@@ -104,9 +120,9 @@
 					<p class="topbar-subtitle">Fill in the details to create a new account</p>
 				</div>
 			</div>
-			<div class="topbar-right">
+			<div class="topbar-right" style="flex-wrap:wrap;">
 				<button onclick="document.getElementById('bulkUploadModal').style.display='flex'"
-					style="height:46px;padding:0 18px;font-size:14px;display:inline-flex;align-items:center;gap:6px;background:#f0f7fb;color:#17455e;border:1.5px solid #c3d8e8;border-radius:10px;cursor:pointer;font-weight:600;font-family:'Poppins',sans-serif;">
+					style="height:42px;padding:0 16px;font-size:13px;display:inline-flex;align-items:center;gap:6px;background:#f0f7fb;color:#17455e;border:1.5px solid #c3d8e8;border-radius:10px;cursor:pointer;font-weight:600;font-family:'Poppins',sans-serif;white-space:nowrap;">
 					<i data-lucide="upload" style="width:16px;height:16px;"></i> Bulk Upload
 				</button>
 				<div class="user-badge" th:text="${#strings.substring(adminName ?: 'Admin', 0, 1).toUpperCase()}">A

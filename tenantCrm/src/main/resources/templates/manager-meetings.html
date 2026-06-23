@@ -892,7 +892,19 @@
 			}
 
 			.mtg-form-actions {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
+				gap: 10px;
 				padding: 18px 20px 22px;
+			}
+
+			.btn-cancel, .btn-submit {
+				flex: 1;
+				justify-content: center;
+				height: 42px;
+				font-size: 13px;
+				padding: 0 10px;
 			}
 
 			.form-card-header {
@@ -906,6 +918,33 @@
 			.form-right {
 				padding: 20px;
 			}
+		}
+
+		@media (max-width: 640px) {
+			.tab-nav {
+				width: 100%;
+				box-sizing: border-box;
+				padding: 5px;
+				gap: 4px;
+			}
+
+			.tab-btn {
+				flex: 1;
+				justify-content: center;
+				padding: 9px 6px;
+				font-size: 11px;
+				font-weight: 600;
+				gap: 4px;
+				min-width: 0;
+			}
+
+			.tab-btn > span:not(.tab-badge) {
+				display: none;
+			}
+
+			#tabBtnSchedule::after { content: "Schedule"; font-size: 11px; font-weight: 600; }
+			#tabBtnList::after     { content: "Upcoming"; font-size: 11px; font-weight: 600; }
+			#tabBtnHistory::after  { content: "History";  font-size: 11px; font-weight: 600; }
 		}
 	</style>
 </head>
@@ -984,13 +1023,13 @@
 				</button>
 				<button class="tab-btn" id="tabBtnList" onclick="switchTab('list')">
 					<i data-lucide="calendar-clock"></i>
-					Scheduled Meetings
+					<span>Scheduled Meetings</span>
 					<span class="tab-badge" id="meetingCountBadge"
 						th:text="${meetings != null} ? ${#lists.size(meetings)} : '0'">0</span>
 				</button>
 				<button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">
 					<i data-lucide="history"></i>
-					Past Meetings
+					<span>Past Meetings</span>
 					<span class="tab-badge" id="historyCountBadge"
 						th:text="${pastMeetings != null} ? ${#lists.size(pastMeetings)} : '0'">0</span>
 				</button>

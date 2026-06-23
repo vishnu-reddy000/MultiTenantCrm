@@ -854,96 +854,145 @@
 		}
 
 		@media (max-width: 768px) {
-			.tasks-scroll {
-				overflow: visible;
+			/* ── Toolbar: stack into 2 rows ── */
+			.tasks-toolbar {
+				flex-direction: column;
+				align-items: stretch;
+				padding: 14px 16px 12px;
+				gap: 10px;
 			}
-			.tasks-scroll table {
-				min-width: 0 !important;
+			.tasks-toolbar-left h2 { font-size: 15px; }
+			.tasks-toolbar-left p  { font-size: 12px; }
+			.tasks-toolbar-right {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				width: 100%;
 			}
-			.tasks-table thead {
-				display: none;
+			.filter-select {
+				flex: 1;
+				min-width: 0;
+				height: 36px;
+				font-size: 12px;
 			}
+			.btn-new-task {
+				width: 100%;
+				justify-content: center;
+				padding: 10px 16px;
+				font-size: 13px;
+				border-radius: 10px;
+			}
+
+			/* ── Table → card layout ── */
+			.tasks-scroll { overflow: visible; }
+			.tasks-scroll table { min-width: 0 !important; }
+			.tasks-table thead { display: none; }
+
 			.tasks-table tbody tr {
 				display: flex;
 				flex-direction: column;
-				padding: 16px;
+				padding: 12px 14px 10px;
 				background: #fff;
-				border-radius: 16px;
-				margin-bottom: 16px;
+				border-radius: 14px;
+				margin-bottom: 10px;
 				border: 1.5px solid #edf2f7;
-				box-shadow: 0 4px 12px rgba(22, 54, 71, 0.04);
+				box-shadow: 0 2px 8px rgba(22, 54, 71, 0.05);
 			}
+
 			.tasks-table tbody td {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				padding: 10px 0 !important;
+				padding: 6px 0 !important;
 				border-bottom: 1px solid #f1f5f9 !important;
 				width: 100% !important;
 				background: transparent !important;
+				font-size: 13px !important;
 			}
 			.tasks-table tbody td:last-child {
 				border-bottom: none !important;
+				padding-top: 8px !important;
 			}
-			
-			.tasks-table .col-num, 
+
+			/* Hide # and ⋮ columns */
+			.tasks-table .col-num,
 			.tasks-table td.td-num,
 			.tasks-table .col-more,
 			.tasks-table td:nth-child(7) {
 				display: none !important;
 			}
-			
+
+			/* Title row: stacked */
 			.tasks-table td:nth-child(2) {
 				flex-direction: column;
 				align-items: flex-start;
 				border-bottom: 2px solid #e2e8f0 !important;
-				padding-bottom: 12px !important;
+				padding-bottom: 10px !important;
+				gap: 4px;
 			}
-			
-			.tasks-table td:nth-child(3)::before {
-				content: "Priority";
-				font-weight: 700;
-				color: #94a3b8;
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-			.tasks-table td:nth-child(4)::before {
-				content: "Status";
-				font-weight: 700;
-				color: #94a3b8;
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-			.tasks-table td:nth-child(5)::before {
-				content: "Due Date";
-				font-weight: 700;
-				color: #94a3b8;
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
+			.td-title { font-size: 14px !important; }
+			.td-meta { gap: 5px; flex-wrap: wrap; }
+
+			/* Inline labels */
+			.tasks-table td:nth-child(3)::before { content: "Priority"; font-weight: 700; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+			.tasks-table td:nth-child(4)::before { content: "Status"; font-weight: 700; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+			.tasks-table td:nth-child(5)::before { content: "Due Date"; font-weight: 700; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
 			.tasks-table td:nth-child(6)::before {
 				content: "Actions";
 				font-weight: 700;
 				color: #94a3b8;
-				font-size: 11px;
+				font-size: 10px;
 				text-transform: uppercase;
 				letter-spacing: 0.5px;
-				margin-bottom: 8px;
+				margin-bottom: 6px;
 				align-self: flex-start;
 			}
+
+			/* Actions cell */
 			.tasks-table td:nth-child(6) {
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 8px;
+				gap: 6px;
+				padding-top: 8px !important;
 			}
-			.action-btns {
+			.act-wrap {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
 				width: 100%;
-				justify-content: flex-start;
-				gap: 8px;
 			}
+			.act-btn {
+				flex: 1;
+				min-width: 80px;
+				justify-content: center;
+				text-align: center;
+				padding: 6px 10px;
+				font-size: 12px;
+			}
+
+			/* Pagination */
+			.pagination-bar {
+				flex-wrap: wrap;
+				gap: 8px;
+				padding: 12px 14px;
+				font-size: 12px;
+			}
+			.rows-select { height: 30px; font-size: 12px; }
+			.page-btn { width: 28px; height: 28px; font-size: 12px; }
+		}
+
+		@media (max-width: 480px) {
+			.tasks-toolbar { padding: 12px 12px 10px; }
+			.tasks-toolbar-right { gap: 6px; }
+			.filter-select { height: 34px; font-size: 11px; }
+			.btn-new-task { font-size: 12px; padding: 9px 14px; }
+
+			.tasks-table tbody tr { padding: 10px 12px 8px; margin-bottom: 8px; border-radius: 12px; }
+			.tasks-table tbody td { padding: 4px 0 !important; font-size: 12px !important; }
+			.td-title { font-size: 13px !important; }
+			.act-btn { font-size: 11px; padding: 5px 8px; min-width: 70px; }
+
+			.pagination-bar { padding: 10px 12px; font-size: 11px; }
 		}
 	</style>
 </head>
