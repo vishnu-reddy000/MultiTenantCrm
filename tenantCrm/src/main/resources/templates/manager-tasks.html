@@ -1438,6 +1438,17 @@
 							</tr>
 						</thead>
 						<tbody id="taskTbody">
+							<!-- Dynamic empty state row -->
+							<tr id="dynamicEmptyRow" style="display:none;">
+								<td colspan="7" style="padding:52px;text-align:center;">
+									<div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#64748b;">
+										<i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;margin-bottom:8px;"></i>
+										<h3 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#0f2d4a;">No Tasks Found</h3>
+										<p style="font-size:13px;margin:0;">No tasks match the current selection criteria.</p>
+									</div>
+								</td>
+							</tr>
+
 							<!-- Empty state -->
 							<tr th:if="${tasks == null or #lists.isEmpty(tasks)}">
 								<td colspan="7" style="padding:52px;text-align:center;">
@@ -2106,8 +2117,25 @@
 				rows.forEach(function (r, i) {
 					r.style.display = (i >= start && i < end) ? '' : 'none';
 				});
+
+				var emptyRow = document.getElementById('dynamicEmptyRow');
+				if (emptyRow) {
+					if (total === 0) {
+						emptyRow.style.display = '';
+					} else {
+						emptyRow.style.display = 'none';
+					}
+				}
+
 				var infoEl = document.getElementById('pageInfo');
-				if (infoEl) infoEl.textContent = 'Showing ' + (Math.min(start + 1, total)) + ' to ' + Math.min(end, total) + ' of ' + total + ' tasks';
+				if (infoEl) {
+					if (total === 0) {
+						infoEl.textContent = 'Showing 0 to 0 of 0 tasks';
+					} else {
+						infoEl.textContent = 'Showing ' + (start + 1) + ' to ' + Math.min(end, total) + ' of ' + total + ' tasks';
+					}
+				}
+
 				var prevBtn = document.getElementById('prevPage');
 				var nextBtn = document.getElementById('nextPage');
 				var numBtn  = document.getElementById('pageNum');

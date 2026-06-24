@@ -342,10 +342,15 @@ public class HrController {
         long pending = tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())
                 || "in-progress".equalsIgnoreCase(t.getStatus())).count();
 
+        List<Team> teams = tenant.isBlank()
+                ? teamRepository.findAll()
+                : teamRepository.findByTenantSegmentOrderByIdDesc(tenant);
+
         model.addAttribute("tasks", tasks);
         model.addAttribute("totalTasks", tasks.size());
         model.addAttribute("doneTasks", done);
         model.addAttribute("pendingTaskCount", pending);
+        model.addAttribute("teams", teams);
 
         return "hr-tasks";
     }

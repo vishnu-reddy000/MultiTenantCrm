@@ -38,10 +38,12 @@ import com.crm.demo.repository.MeetingRepository;
 import com.crm.demo.repository.ProjectRepository;
 import com.crm.demo.repository.ReportAttachmentRepository;
 import com.crm.demo.repository.ReportRepository;
+import com.crm.demo.model.Team;
 import com.crm.demo.repository.TaskRepository;
 import com.crm.demo.repository.UserRepository;
 import com.crm.demo.repository.HolidayRepository;
 import com.crm.demo.repository.AttendanceRepository;
+import com.crm.demo.repository.TeamRepository;
 import com.crm.demo.service.NotificationService;
 import com.crm.demo.service.ProfileUpdateService;
 import com.crm.demo.service.AttendanceService;
@@ -90,6 +92,9 @@ public class AdminController {
 
 	@Autowired
 	private AttendanceRepository attendanceRepository;
+
+	@Autowired
+	private TeamRepository teamRepository;
 
 	// =========================================================
 	// COMMON USER DETAILS
@@ -783,15 +788,26 @@ public class AdminController {
 	public String tasksPage(HttpServletRequest request, Model model) {
 		injectUser(request, model);
 
-		List<Task> tasks = taskRepository.findAll();
+		String username = (String) request.getAttribute("loggedInUser");
+		String tenant   = getTenantSegment(username);
+
+		List<Task> tasks = tenant.isBlank()
+				? taskRepository.findAll()
+				: taskRepository.findByTenantSegment(tenant);
 		tasks.sort(java.util.Comparator.comparing(Task::getId).reversed());
+
 		long done    = tasks.stream().filter(t -> "done".equalsIgnoreCase(t.getStatus())).count();
 		long pending = tasks.stream().filter(t -> "pending".equalsIgnoreCase(t.getStatus())).count();
+
+		List<Team> teams = tenant.isBlank()
+				? teamRepository.findAll()
+				: teamRepository.findByTenantSegmentOrderByIdDesc(tenant);
 
 		model.addAttribute("tasks",            tasks);
 		model.addAttribute("totalTasks",       tasks.size());
 		model.addAttribute("doneTasks",        done);
 		model.addAttribute("pendingTaskCount", pending);
+		model.addAttribute("teams",            teams);
 
 		return "admin-tasks";
 	}

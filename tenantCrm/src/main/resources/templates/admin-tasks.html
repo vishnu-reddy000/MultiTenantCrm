@@ -73,6 +73,278 @@
 				gap: 10px;
 			}
 		}
+
+		/* ── Teams and Members Filter Styles ── */
+		.teams-container-section {
+			background: #ffffff;
+			border-radius: 20px;
+			padding: 24px;
+			margin-bottom: 24px;
+			box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+			border: 1px solid #eef2f6;
+			transition: all 0.3s ease;
+		}
+
+		.section-header-row {
+			margin-bottom: 18px;
+		}
+
+		.section-title-wrap {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 4px;
+		}
+
+		.section-title-wrap h2 {
+			font-size: 16px;
+			font-weight: 700;
+			color: #0f2d4a;
+			margin: 0;
+		}
+
+		.section-title-wrap .icon-primary {
+			color: #1a6b8a;
+			width: 18px;
+			height: 18px;
+		}
+
+		.section-subtitle {
+			font-size: 13px;
+			color: #64748b;
+			margin: 0;
+		}
+
+		.teams-tabs {
+			display: flex;
+			gap: 16px;
+			overflow-x: auto;
+			padding-bottom: 8px;
+			scroll-behavior: smooth;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		/* Hide scrollbars but allow scrolling */
+		.teams-tabs::-webkit-scrollbar {
+			height: 6px;
+		}
+		.teams-tabs::-webkit-scrollbar-track {
+			background: #f1f5f9;
+			border-radius: 10px;
+		}
+		.teams-tabs::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 10px;
+		}
+
+		.team-tab-card {
+			flex: 0 0 auto;
+			min-width: 180px;
+			background: #f8fafc;
+			border: 1.5px solid #e2e8f0;
+			border-radius: 14px;
+			padding: 14px 16px;
+			cursor: pointer;
+			transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.team-tab-card::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 100%;
+			width: 4px;
+			background: transparent;
+			transition: background 0.2s;
+		}
+
+		.team-tab-card:hover {
+			transform: translateY(-2px);
+			border-color: #cbd5e1;
+			box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.05);
+			background: #ffffff;
+		}
+
+		.team-tab-card.active {
+			background: linear-gradient(135deg, #1a6b8a 0%, #0f4f69 100%);
+			border-color: #1a6b8a;
+			color: #ffffff;
+			box-shadow: 0 10px 20px -8px rgba(26, 107, 138, 0.35);
+		}
+
+		.team-tab-card.active::before {
+			background: #38bdf8;
+		}
+
+		.team-tab-inner {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.team-tab-icon-wrap {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			background: #eef6fb;
+			color: #1a6b8a;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.25s;
+			flex-shrink: 0;
+		}
+
+		.team-tab-icon-wrap.all-teams {
+			background: #fff3e6;
+			color: #d97706;
+		}
+
+		.team-tab-card.active .team-tab-icon-wrap {
+			background: rgba(255, 255, 255, 0.15);
+			color: #ffffff;
+		}
+
+		.team-tab-icon-wrap i {
+			width: 20px;
+			height: 20px;
+		}
+
+		.team-tab-info {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		.team-tab-name {
+			font-size: 14px;
+			font-weight: 700;
+			color: #1e293b;
+			transition: color 0.2s;
+		}
+
+		.team-tab-card.active .team-tab-name {
+			color: #ffffff;
+		}
+
+		.team-manager-label {
+			font-size: 11px;
+			color: #1a6b8a;
+			background: #eef6fb;
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-weight: 600;
+			width: fit-content;
+			margin-top: 2px;
+			margin-bottom: 2px;
+			display: inline-flex;
+			align-items: center;
+			gap: 2px;
+		}
+
+		.team-tab-card.active .team-manager-label {
+			background: rgba(255, 255, 255, 0.2);
+			color: #ffffff;
+		}
+
+		.team-tab-count {
+			font-size: 12px;
+			color: #64748b;
+			font-weight: 500;
+			transition: color 0.2s;
+		}
+
+		.team-tab-card.active .team-tab-count {
+			color: rgba(255, 255, 255, 0.75);
+		}
+
+		/* Members list styling */
+		.members-chips-container {
+			margin-top: 20px;
+			padding-top: 16px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			flex-wrap: wrap;
+			animation: fadeIn 0.3s ease;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(4px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.members-chips-title {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 13px;
+			font-weight: 700;
+			color: #475569;
+		}
+
+		.members-chips-title i {
+			width: 16px;
+			height: 16px;
+			color: #1a6b8a;
+		}
+
+		.members-chips-list {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.member-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			background: #f1f5f9;
+			border: 1px solid #e2e8f0;
+			padding: 6px 12px;
+			border-radius: 99px;
+			cursor: pointer;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			transition: all 0.2s;
+			user-select: none;
+		}
+
+		.member-chip:hover {
+			background: #e2e8f0;
+			color: #1e293b;
+		}
+
+		.member-chip.active {
+			background: #e0f2fe;
+			border-color: #0284c7;
+			color: #0369a1;
+			box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.08);
+		}
+
+		.member-chip-avatar {
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background: #1a6b8a;
+			color: #ffffff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 9px;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		.member-chip.active .member-chip-avatar {
+			background: #0284c7;
+		}
 	</style>
 </head>
 
@@ -120,25 +392,98 @@
 				<div class="stat-card">
 					<div class="stat-icon orange"><i data-lucide="list-checks"></i></div>
 					<div class="stat-info">
-						<h3 th:text="${totalTasks} ?: '0'">0</h3>
+						<h3 id="stat-total-tasks" th:text="${totalTasks} ?: '0'">0</h3>
 						<p>Total Tasks</p>
 					</div>
 				</div>
 				<div class="stat-card">
 					<div class="stat-icon green"><i data-lucide="check-circle-2"></i></div>
 					<div class="stat-info">
-						<h3 th:text="${doneTasks} ?: '0'">0</h3>
+						<h3 id="stat-completed-tasks" th:text="${doneTasks} ?: '0'">0</h3>
 						<p>Completed</p>
 					</div>
 				</div>
 				<div class="stat-card">
 					<div class="stat-icon purple"><i data-lucide="clock"></i></div>
 					<div class="stat-info">
-						<h3 th:text="${pendingTaskCount} ?: '0'">0</h3>
+						<h3 id="stat-pending-tasks" th:text="${pendingTaskCount} ?: '0'">0</h3>
 						<p>Pending</p>
 					</div>
 				</div>
 			</div>
+
+			<!-- ══════════════════════════════
+			     TEAMS & MEMBERS SELECTOR
+			══════════════════════════════ -->
+			<div class="teams-container-section" th:if="${teams != null and !#lists.isEmpty(teams)}">
+				<!-- Header -->
+				<div class="section-header-row">
+					<div class="section-title-wrap">
+						<i data-lucide="users" class="icon-primary"></i>
+						<h2>Teams by Manager</h2>
+					</div>
+					<p class="section-subtitle">Select a team to view tasks assigned to the team and its individual members</p>
+				</div>
+				
+				<!-- Teams Slider/Tabs -->
+				<div class="teams-tabs">
+					<!-- "All Teams" Card -->
+					<div class="team-tab-card active" onclick="selectTeam('all')" id="team-card-all">
+						<div class="team-tab-inner">
+							<div class="team-tab-icon-wrap all-teams">
+								<i data-lucide="layers"></i>
+							</div>
+							<div class="team-tab-info">
+								<span class="team-tab-name">All Teams</span>
+								<span class="team-tab-count" th:text="${totalTasks} + ' Tasks'">0 Tasks</span>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Individual Team Cards -->
+					<div class="team-tab-card" 
+					     th:each="team : ${teams}" 
+					     th:id="'team-card-' + ${team.id}" 
+					     th:onclick="'selectTeam(\'' + ${team.id} + '\')'">
+						<div class="team-tab-inner">
+							<div class="team-tab-icon-wrap">
+								<i data-lucide="users"></i>
+							</div>
+							<div class="team-tab-info">
+								<span class="team-tab-name" th:text="${team.name}">Team Name</span>
+								<!-- Manager badge -->
+								<span class="team-manager-label">
+									<i data-lucide="shield" style="width:10px;height:10px;display:inline-block;vertical-align:middle;margin-right:2px;"></i>
+									<span th:text="${team.manager != null ? team.manager.username : 'No Manager'}">Manager</span>
+								</span>
+								<span class="team-tab-count" th:text="${#lists.size(team.members)} + ' Members'">0 Members</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Members Selection Row -->
+				<div class="members-chips-container" id="membersChipsContainer" style="display: none;">
+					<div class="members-chips-title">
+						<i data-lucide="user-check"></i>
+						<span>Individual Choice:</span>
+					</div>
+					<div class="members-chips-list" id="membersChipsList">
+						<!-- Dynamic chips injected here via JS -->
+					</div>
+				</div>
+
+				<!-- Hidden DOM Data Store for Team Members -->
+				<div id="teamsDataStore" style="display:none;">
+					<div th:each="team : ${teams}" 
+					     th:id="'team-data-' + ${team.id}" 
+					     th:attr="data-team-name=${team.name}">
+						<span th:each="member : ${team.members}"
+						      th:attr="data-member-id=${member.id},data-member-name=${member.username}"></span>
+					</div>
+				</div>
+			</div>
+
 			<div class="card" id="tasksCard">
 				<div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 18px 20px 14px;">
 					<div>
@@ -174,7 +519,18 @@
 							</tr>
 						</thead>
 						<tbody id="taskTbody">
-							<tr th:each="task, stat : ${tasks}" th:attr="data-priority=${task.priority},data-status=${task.status}">
+							<!-- Dynamic empty state row -->
+							<tr id="dynamicEmptyRow" style="display:none;">
+								<td colspan="7" style="padding:52px;text-align:center;">
+									<div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#64748b;">
+										<i data-lucide="check-square" style="width:48px;height:48px;opacity:.3;margin-bottom:8px;"></i>
+										<h3 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#0f2d4a;">No Tasks Found</h3>
+										<p style="font-size:13px;margin:0;">No tasks match the current selection criteria.</p>
+									</div>
+								</td>
+							</tr>
+
+							<tr th:each="task, stat : ${tasks}" th:attr="data-priority=${task.priority},data-status=${task.status},data-assigned-to-id=${task.assignedToId != null ? task.assignedToId : ''}">
 								<td th:text="${stat.count}">1</td>
 								<td style="font-weight:600;" th:text="${task.title}">Task</td>
 								<td><span class="priority-badge high"
@@ -234,15 +590,156 @@
 
 		var currentPage = 1;
 		var rowsPerPage = 10;
+		var selectedTeamId = 'all';
+		var selectedMemberId = 'all';
 
 		function getVisibleRows() {
 			return Array.from(document.querySelectorAll('#taskTbody tr:not([colspan])'));
+		}
+
+		function getTeamMembers(teamId) {
+			var members = [];
+			var teamEl = document.getElementById('team-data-' + teamId);
+			if (teamEl) {
+				var spanEls = teamEl.querySelectorAll('span');
+				spanEls.forEach(function (span) {
+					members.push({
+						id: span.getAttribute('data-member-id'),
+						name: span.getAttribute('data-member-name')
+					});
+				});
+			}
+			return members;
+		}
+
+		function escapeHtml(str) {
+			return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		}
+
+		window.selectTeam = function (teamId) {
+			selectedTeamId = teamId;
+			selectedMemberId = 'all';
+
+			// Update team cards active state
+			document.querySelectorAll('.team-tab-card').forEach(function (card) {
+				card.classList.remove('active');
+			});
+			var activeCard = document.getElementById('team-card-' + teamId);
+			if (activeCard) {
+				activeCard.classList.add('active');
+			}
+
+			// Populate dynamic members list
+			var container = document.getElementById('membersChipsContainer');
+			var list = document.getElementById('membersChipsList');
+			if (container && list) {
+				if (teamId === 'all') {
+					container.style.display = 'none';
+					list.innerHTML = '';
+				} else {
+					container.style.display = 'flex';
+					list.innerHTML = '';
+
+					// "Total Team" chip
+					var totalChip = document.createElement('div');
+					totalChip.className = 'member-chip active';
+					totalChip.id = 'member-chip-all';
+					totalChip.onclick = function () { selectMember('all'); };
+					totalChip.innerHTML = '<span class="member-chip-avatar"><i data-lucide="users" style="width:10px;height:10px;"></i></span> <span>Total Team</span>';
+					list.appendChild(totalChip);
+
+					// Team members chips
+					var members = getTeamMembers(teamId);
+					members.forEach(function (m) {
+						var chip = document.createElement('div');
+						chip.className = 'member-chip';
+						chip.id = 'member-chip-' + m.id;
+						chip.onclick = function () { selectMember(m.id); };
+
+						var initial = m.name ? m.name.charAt(0).toUpperCase() : '?';
+						chip.innerHTML = '<span class="member-chip-avatar">' + initial + '</span> <span>' + escapeHtml(m.name) + '</span>';
+						list.appendChild(chip);
+					});
+
+					lucide.createIcons();
+				}
+			}
+
+			filterTasks();
+		};
+
+		window.selectMember = function (memberId) {
+			selectedMemberId = memberId;
+
+			// Update active chip state
+			document.querySelectorAll('.member-chip').forEach(function (chip) {
+				chip.classList.remove('active');
+			});
+			var activeChip = document.getElementById('member-chip-' + memberId);
+			if (activeChip) {
+				activeChip.classList.add('active');
+			}
+
+			filterTasks();
+		};
+
+		function updateDynamicStats() {
+			var totalTasks = 0;
+			var completedTasks = 0;
+			var pendingTasks = 0;
+
+			// Calculate members belonging to selected team
+			var allowedMemberIds = null;
+			if (selectedTeamId !== 'all') {
+				var members = getTeamMembers(selectedTeamId);
+				allowedMemberIds = members.map(function (m) { return m.id; });
+			}
+
+			getVisibleRows().forEach(function (r) {
+				var rMemberId = r.getAttribute('data-assigned-to-id') || '';
+
+				// Check if row matches the team scope
+				var teamMatch = true;
+				if (allowedMemberIds !== null) {
+					teamMatch = allowedMemberIds.includes(rMemberId);
+				}
+
+				// Check if row matches the member scope
+				var memberMatch = true;
+				if (selectedMemberId !== 'all') {
+					memberMatch = (rMemberId === selectedMemberId);
+				}
+
+				if (teamMatch && memberMatch) {
+					totalTasks++;
+					var rStatus = (r.getAttribute('data-status') || '').toLowerCase();
+					if (rStatus === 'done') {
+						completedTasks++;
+					} else if (rStatus === 'pending') {
+						pendingTasks++;
+					}
+				}
+			});
+
+			var totalEl = document.getElementById('stat-total-tasks');
+			var compEl = document.getElementById('stat-completed-tasks');
+			var pendEl = document.getElementById('stat-pending-tasks');
+			if (totalEl) totalEl.textContent = totalTasks;
+			if (compEl) compEl.textContent = completedTasks;
+			if (pendEl) pendEl.textContent = pendingTasks;
 		}
 
 		function filterTasks() {
 			var pri = (document.getElementById('priorityFilter') || {}).value || '';
 			var status = (document.getElementById('statusFilter') || {}).value || '';
 			var q = (document.getElementById('globalSearch') || {}).value.toLowerCase() || '';
+
+			// Compile allowed member ids for the selected team
+			var allowedMemberIds = null;
+			if (selectedTeamId !== 'all') {
+				var members = getTeamMembers(selectedTeamId);
+				allowedMemberIds = members.map(function (m) { return m.id; });
+			}
 
 			getVisibleRows().forEach(function (r) {
 				var rPri = r.getAttribute('data-priority') || '';
@@ -253,10 +750,24 @@
 
 				var qMatch = !q || r.textContent.toLowerCase().includes(q);
 
-				r.style.display = (priMatch && statusMatch && qMatch) ? '' : 'none';
+				// Team match
+				var teamMatch = true;
+				var rMemberId = r.getAttribute('data-assigned-to-id') || '';
+				if (allowedMemberIds !== null) {
+					teamMatch = allowedMemberIds.includes(rMemberId);
+				}
+
+				// Member match
+				var memberMatch = true;
+				if (selectedMemberId !== 'all') {
+					memberMatch = (rMemberId === selectedMemberId);
+				}
+
+				r.style.display = (priMatch && statusMatch && qMatch && teamMatch && memberMatch) ? '' : 'none';
 			});
 			currentPage = 1;
 			renderPage();
+			updateDynamicStats();
 		}
 
 		function renderPage() {
@@ -268,6 +779,15 @@
 			rows.forEach(function (r, i) {
 				r.style.display = (i >= start && i < end) ? '' : 'none';
 			});
+
+			var emptyRow = document.getElementById('dynamicEmptyRow');
+			if (emptyRow) {
+				if (total === 0) {
+					emptyRow.style.display = '';
+				} else {
+					emptyRow.style.display = 'none';
+				}
+			}
 
 			var infoEl = document.getElementById('pageInfo');
 			if (infoEl) {
