@@ -63,11 +63,45 @@
         }
         const fetchOptions = Object.assign({}, options, { headers });
         delete fetchOptions.contentType;
-        return fetch(url, fetchOptions);
+        return fetch(url, fetchOptions).then(async response => {
+            if (response.status === 401) {
+                try {
+                    const data = await response.clone().json();
+                    if (data && data.error === 'superseded') {
+                        clearAuth();
+                        window.location.href = '/login?error=superseded';
+                        return response;
+                    }
+                } catch (e) {
+                    // Ignore JSON parsing errors
+                }
+                clearAuth();
+                window.location.href = '/login';
+            }
+            return response;
+        });
     };
 
     // ── Logout ────────────────────────────────────────────────────────────────
-    window.crmLogout = function () {
+    window.crmLogout = async function () {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1000);
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    signal: controller.signal
+                });
+            } catch (e) {
+                console.error("Logout API request failed or timed out", e);
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
         clearAuth();
         window.location.href = '/login';
     };

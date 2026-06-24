@@ -10,6 +10,112 @@
 	<!-- Preconnect for Google Fonts performance -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<style>
+		/* Confirmation Modal Styles */
+		.modal-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(8px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+			animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+
+		.modal-content {
+			background: #ffffff;
+			border-radius: 16px;
+			padding: 32px;
+			width: 90%;
+			max-width: 420px;
+			box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+			text-align: center;
+			transform: scale(0.95);
+			animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			border: 1px solid #f1f5f9;
+		}
+
+		.modal-icon {
+			font-size: 48px;
+			margin-bottom: 16px;
+			display: inline-block;
+			animation: bounce 1s infinite alternate;
+		}
+
+		.modal-content h3 {
+			font-size: 20px;
+			color: #0f172a;
+			margin-bottom: 12px;
+			font-weight: 600;
+		}
+
+		.modal-content p {
+			font-size: 14px;
+			color: #64748b;
+			line-height: 1.6;
+			margin-bottom: 24px;
+		}
+
+		.modal-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.btn-continue {
+			background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+			color: #ffffff;
+			border: none;
+			padding: 12px 24px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2);
+		}
+
+		.btn-continue:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3);
+		}
+
+		.btn-cancel {
+			background: #f8fafc;
+			color: #475569;
+			border: 1px solid #e2e8f0;
+			padding: 12px 24px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.btn-cancel:hover {
+			background: #f1f5f9;
+			color: #1e293b;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+
+		@keyframes scaleIn {
+			to { transform: scale(1); }
+		}
+
+		@keyframes bounce {
+			from { transform: translateY(0); }
+			to { transform: translateY(-5px); }
+		}
+	</style>
 </head>
 
 <body>
@@ -63,13 +169,36 @@
 
 		</form>
 
+	</div>
 
-
+	<!-- CONFIRMATION MODAL for concurrent login -->
+	<div class="modal-overlay" id="confirmModal" style="display:none;">
+		<div class="modal-content">
+			<div class="modal-icon">⚠️</div>
+			<h3>Concurrent Session Detected</h3>
+			<p id="confirmMessage">Your account is already active on another device. Do you want to continue and sign out from the previous session?</p>
+			<div class="modal-actions">
+				<button type="button" class="btn-continue" id="confirmContinueBtn" onclick="continueForceLogin()">Continue Login</button>
+				<button type="button" class="btn-cancel" id="confirmCancelBtn" onclick="cancelForceLogin()">Cancel</button>
+			</div>
+		</div>
 	</div>
 
 	<script>
 		// ── Skip login if valid token already exists ──────────────────────────
 		(function () {
+			// Helper to get a cookie value
+			const getCookie = (name) => {
+				const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+				return match ? match[2] : null;
+			};
+			const cookieToken = getCookie('jwt_token');
+			if (!cookieToken || cookieToken.trim() === '') {
+				localStorage.removeItem('jwt_token');
+				localStorage.removeItem('jwt_role');
+				localStorage.removeItem('jwt_username');
+			}
+
 			const token = localStorage.getItem('jwt_token');
 			const role = localStorage.getItem('jwt_role');
 			if (token && role) {
@@ -142,6 +271,12 @@
 					}
 
 					window.location.href = data.redirect;
+				} else if (response.status === 409 && data.alreadyLoggedIn) {
+					// Save credentials for the force login option
+					window.pendingUsername = username;
+					window.pendingPassword = password;
+					// Show confirmation modal
+					document.getElementById('confirmModal').style.display = 'flex';
 				} else {
 					showError(data.error || 'Login failed. Please try again.');
 				}
@@ -151,6 +286,68 @@
 				btn.disabled = false;
 				btn.textContent = 'Sign In';
 			}
+		}
+
+		async function continueForceLogin() {
+			const modal = document.getElementById('confirmModal');
+			const btn = document.getElementById('signInBtn');
+			const errorDiv = document.getElementById('errorMsg');
+			const username = window.pendingUsername;
+			const password = window.pendingPassword;
+
+			// Hide modal immediately
+			modal.style.display = 'none';
+
+			btn.disabled = true;
+			btn.textContent = 'Signing in…';
+			errorDiv.style.display = 'none';
+
+			try {
+				const response = await fetch('/api/auth/login', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({username, password, force: true})
+				});
+
+				const data = await response.json();
+
+				if (response.ok && data.token) {
+					localStorage.setItem('jwt_token', data.token);
+					localStorage.setItem('jwt_role', data.role);
+					localStorage.setItem('jwt_username', data.username);
+
+					// Store in cookie for Thymeleaf page navigation
+					try {
+						const payload = JSON.parse(atob(data.token.split('.')[1]));
+						const expires = new Date(payload.exp * 1000).toUTCString();
+						document.cookie = 'jwt_token=' + data.token
+							+ '; expires=' + expires
+							+ '; path=/'
+							+ '; SameSite=Strict';
+					} catch (e) {
+						document.cookie = 'jwt_token=' + data.token + '; path=/; SameSite=Strict';
+					}
+
+					window.location.href = data.redirect;
+				} else {
+					showError(data.error || 'Login failed. Please try again.');
+				}
+			} catch (err) {
+				showError('Network error. Please check your connection.');
+			} finally {
+				btn.disabled = false;
+				btn.textContent = 'Sign In';
+				// Clear temporary credentials
+				window.pendingUsername = null;
+				window.pendingPassword = null;
+			}
+		}
+
+		function cancelForceLogin() {
+			document.getElementById('confirmModal').style.display = 'none';
+			// Clear temporary credentials
+			window.pendingUsername = null;
+			window.pendingPassword = null;
 		}
 
 		function showError(msg) {
@@ -169,6 +366,14 @@
 			};
 			return map[role] || '/login';
 		}
+
+		// ── Check query parameters for error messages ──────────────────────────
+		window.addEventListener('DOMContentLoaded', () => {
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.get('error') === 'superseded') {
+				showError("You have been logged out because your account was logged in from another device.");
+			}
+		});
 	</script>
 
 </body>

@@ -78,14 +78,23 @@ public class SecurityConfig {
                     if (accept != null && accept.contains("application/json")) {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json");
-                        response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        if (Boolean.TRUE.equals(request.getAttribute("session_superseded"))) {
+                            response.getWriter().write("{\"error\":\"superseded\"}");
+                        } else {
+                            response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        }
                     } else {
-                        response.sendRedirect("/login");
+                        if (Boolean.TRUE.equals(request.getAttribute("session_superseded"))) {
+                            response.sendRedirect("/login?error=superseded");
+                        } else {
+                            response.sendRedirect("/login");
+                        }
                     }
                 })
             )
             .formLogin(fl -> fl.disable())
             .httpBasic(hb -> hb.disable())
+            .logout(logout -> logout.disable())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

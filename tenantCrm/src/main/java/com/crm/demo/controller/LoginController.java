@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.crm.demo.model.User;
 import com.crm.demo.repository.UserRepository;
 import com.crm.demo.security.JwtUtil;
+import com.crm.demo.security.SessionManager;
 
 @Controller
 public class LoginController {
@@ -24,6 +25,7 @@ public class LoginController {
     @Autowired private UserRepository      userRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
     @Autowired private JwtUtil             jwtUtil;
+    @Autowired private SessionManager      sessionManager;
 
     // ─── Serve the login HTML page ────────────────────────────────────────────────
     @GetMapping("/login")
@@ -39,6 +41,7 @@ public class LoginController {
 
         String username = body.get("username");
         String password = body.get("password");
+        boolean force = Boolean.parseBoolean(body.get("force"));
 
         if (username == null || username.trim().isEmpty() || password == null || password.isEmpty()) {
             return ResponseEntity.badRequest()
@@ -71,7 +74,23 @@ public class LoginController {
                 }
             }
 
+            // Check if user is already logged in
+            if (!force && sessionManager.isUserLoggedIn(user.getUsername())) {
+                return ResponseEntity.status(409)
+                        .body(Map.of(
+                            "alreadyLoggedIn", true,
+                            "error", "Your account is already active on another device. Do you want to continue and sign out from the previous session?"
+                        ));
+            }
+
+            if (force) {
+                sessionManager.invalidateSession(user.getUsername());
+            }
+
             String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+
+            // Register the active session
+            sessionManager.registerSession(user.getUsername(), token);
 
             return ResponseEntity.ok(Map.of(
                     "token",    token,
@@ -85,11 +104,36 @@ public class LoginController {
                 .body(Map.of("error", "Invalid username or password."));
     }
 
-    // ─── Logout: client just deletes the token from localStorage ─────────────────
-    // This endpoint is optional — kept for convenience (e.g. server-side audit log)
+    // ─── REST Logout: clear server-side session ──────────────────────────────────
+    @PostMapping("/api/auth/logout")
+    @ResponseBody
+    public ResponseEntity<?> apiLogout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            if (jwtUtil.isValid(token)) {
+                String username = jwtUtil.extractUsername(token);
+                sessionManager.invalidateSession(username);
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    // ─── Logout: clear server-side session and cookie ────────────────────────────
     @GetMapping("/logout")
-    public String logout() {
-        // Nothing to invalidate server-side — token lives only in the browser
+    public String logout(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+        org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String username = auth.getName();
+            sessionManager.invalidateSession(username);
+        }
+        
+        // Clear cookie
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt_token", "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        
         return "redirect:/login";
     }
 

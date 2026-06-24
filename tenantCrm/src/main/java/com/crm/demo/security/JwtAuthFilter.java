@@ -34,6 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private SessionManager sessionManager;
+
     @Override
     protected void doFilterInternal(HttpServletRequest  request,
                                     HttpServletResponse response,
@@ -46,18 +49,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String username = jwtUtil.extractUsername(token);
             String role     = jwtUtil.extractRole(token);
 
-            // Expose as request attributes so Thymeleaf controllers can read them
-            request.setAttribute("loggedInUser", username);
-            request.setAttribute("loggedInRole", role);
-            request.setAttribute("JWT_TOKEN",    token);
+            if (sessionManager.isValidSession(username, token)) {
+                // Update activity time
+                sessionManager.updateActivity(username, token);
 
-            // Build Spring Security authentication — no session, no UserDetailsService
-            var authority = new SimpleGrantedAuthority("ROLE_" + role.toUpperCase());
-            var auth = new UsernamePasswordAuthenticationToken(
-                    username, null, List.of(authority));
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Expose as request attributes so Thymeleaf controllers can read them
+                request.setAttribute("loggedInUser", username);
+                request.setAttribute("loggedInRole", role);
+                request.setAttribute("JWT_TOKEN",    token);
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                // Build Spring Security authentication — no session, no UserDetailsService
+                var authority = new SimpleGrantedAuthority("ROLE_" + role.toUpperCase());
+                var auth = new UsernamePasswordAuthenticationToken(
+                        username, null, List.of(authority));
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                // Clear the superseded cookie immediately
+                jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt_token", "");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+
+                // Flag that the session was superseded
+                request.setAttribute("session_superseded", true);
+            }
         }
 
         filterChain.doFilter(request, response);
