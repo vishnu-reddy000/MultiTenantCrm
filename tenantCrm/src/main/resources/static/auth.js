@@ -158,13 +158,27 @@
         guardPage();
     }
 
-    // ── Wire up any element with data-logout attribute ────────────────────────
+    // ── Wire up data-logout and convert sidebar links ─────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
+        // Wire up logout buttons
         document.querySelectorAll('[data-logout]').forEach(function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
                 window.crmLogout();
             });
+        });
+
+        // Convert sidebar links to click handlers to hide URLs and prevent opening in new tabs
+        document.querySelectorAll('.sidebar a, .sidebar-menu a').forEach(function (el) {
+            const href = el.getAttribute('href');
+            if (href && href !== '#' && !href.startsWith('javascript:')) {
+                el.removeAttribute('href');
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = href;
+                });
+            }
         });
     });
 
