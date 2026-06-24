@@ -1,42 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Background Gradient -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Background Gradient matching login page brand-icon -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0B3B4B" />
       <stop offset="100%" stop-color="#1C5D6E" />
     </linearGradient>
-    
-    <!-- Accent Logo Gradient -->
-    <linearGradient id="logoGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#48B6C2" />
-      <stop offset="100%" stop-color="#6DD5E3" />
-    </linearGradient>
-
-    <!-- Glow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="8" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
   </defs>
 
-  <!-- Base Rounded Container -->
-  <rect x="24" y="24" width="464" height="464" rx="100" fill="url(#bgGrad)" />
+  <!-- Background squircle matching the 24px border-radius ratio of 64px width (24/64 * 512 = 192) -->
+  <rect x="0" y="0" width="512" height="512" rx="192" fill="url(#brandGrad)" />
   
-  <!-- Outer glowing ring -->
-  <rect x="36" y="36" width="440" height="440" rx="90" fill="none" stroke="url(#logoGrad)" stroke-width="6" opacity="0.4" />
-  
-  <!-- Stylized CRM Emblem (Shield + Graph Nodes) -->
-  <!-- Shield outline -->
-  <path d="M256 110 L380 160 V290 C380 370 256 420 256 420 C256 420 132 370 132 290 V160 Z" 
-        fill="none" stroke="url(#logoGrad)" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow)" />
-
-  <!-- Node lines -->
-  <line x1="200" y1="210" x2="310" y2="280" stroke="#FFFFFF" stroke-width="8" opacity="0.8" />
-  <line x1="310" y1="280" x2="256" y2="340" stroke="#FFFFFF" stroke-width="8" opacity="0.8" />
-  <line x1="200" y1="210" x2="256" y2="340" stroke="#FFFFFF" stroke-width="8" opacity="0.8" />
-
-  <!-- Node points -->
-  <circle cx="200" cy="210" r="18" fill="url(#logoGrad)" filter="url(#glow)" stroke="#FFFFFF" stroke-width="3" />
-  <circle cx="310" cy="280" r="22" fill="#FFFFFF" filter="url(#glow)" />
-  <circle cx="256" cy="340" r="18" fill="url(#logoGrad)" filter="url(#glow)" stroke="#FFFFFF" stroke-width="3" />
+  <!-- High-fidelity White Shield (representation of the shield emoji 🛡️ used on the login page) -->
+  <!-- Outer Shield contour -->
+  <path d="M256,80 L395,130 V260 C395,360 256,432 256,432 C256,432 117,360 117,260 V130 Z" 
+        fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linejoin="round" stroke-linecap="round" />
+        
+  <!-- Inner Shield core -->
+  <path d="M256,120 L355,155 V250 C355,325 256,380 256,380 C256,380 157,325 157,250 V155 Z" 
+        fill="#FFFFFF" />
 </svg>
