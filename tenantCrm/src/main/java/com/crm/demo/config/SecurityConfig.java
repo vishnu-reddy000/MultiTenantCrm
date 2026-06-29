@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.http.HttpMethod;
 
 import com.crm.demo.security.JwtAuthFilter;
 
@@ -32,44 +32,48 @@ public class SecurityConfig {
             .requestCache(rc -> rc.disable())
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
             .authorizeHttpRequests(auth -> auth
-                .shouldFilterAllDispatcherTypes(false)
                 // ── Public assets & auth pages ──────────────────────────────
                 .requestMatchers(
-                    new AntPathRequestMatcher("/login"),
-                    new AntPathRequestMatcher("/forgot-password"),
-                    new AntPathRequestMatcher("/reset-password"),
-                    new AntPathRequestMatcher("/api/auth/**"),
-                    new AntPathRequestMatcher("/error"),
-                    new AntPathRequestMatcher("/error/**"),
-                    new AntPathRequestMatcher("/**/*.css"),
-                    new AntPathRequestMatcher("/**/*.js"),
-                    new AntPathRequestMatcher("/**/*.png"),
-                    new AntPathRequestMatcher("/**/*.jpg"),
-                    new AntPathRequestMatcher("/**/*.ico"),
-                    new AntPathRequestMatcher("/**/*.woff"),
-                    new AntPathRequestMatcher("/**/*.woff2"),
-                    new AntPathRequestMatcher("/ws"),
-                    new AntPathRequestMatcher("/ws/**")
+                    "/login",
+                    "/forgot-password",
+                    "/reset-password",
+                    "/api/auth/**",
+                    "/error",
+                    "/error/**",
+                    "/*.css",
+                    "/*.js",
+                    "/*.png",
+                    "/*.jpg",
+                    "/*.ico",
+                    "/*.woff",
+                    "/*.woff2",
+                    "/*.svg",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/static/**",
+                    "/ws",
+                    "/ws/**"
                 ).permitAll()
                 // GET  /api/holidays   — any authenticated user (all roles see their tenant's holidays)
                 // POST /api/holidays   — ADMIN or HR only
                 // PUT  /api/holidays/* — ADMIN or HR only
                 // DELETE /api/holidays/* — ADMIN or HR only
-                .requestMatchers(new AntPathRequestMatcher("/api/holidays", "GET")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/holidays/**", "GET")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/holidays", "POST")).hasAnyRole("ADMIN", "HR")
-                .requestMatchers(new AntPathRequestMatcher("/api/holidays/**", "PUT")).hasAnyRole("ADMIN", "HR")
-                .requestMatchers(new AntPathRequestMatcher("/api/holidays/**", "DELETE")).hasAnyRole("ADMIN", "HR")
-                .requestMatchers(new AntPathRequestMatcher("/api/notifications", "GET")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "GET")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "POST")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/notifications/**", "DELETE")).authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/holidays").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/holidays/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/holidays").hasAnyRole("ADMIN", "HR")
+                .requestMatchers(HttpMethod.PUT, "/api/holidays/**").hasAnyRole("ADMIN", "HR")
+                .requestMatchers(HttpMethod.DELETE, "/api/holidays/**").hasAnyRole("ADMIN", "HR")
+                .requestMatchers(HttpMethod.GET, "/api/notifications").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/notifications/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/notifications/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/notifications/**").authenticated()
                 // ── Role-scoped pages ────────────────────────────────────────
-                .requestMatchers(new AntPathRequestMatcher("/superadmin/**")).hasRole("SUPER_ADMIN")
-                .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
-                .requestMatchers(new AntPathRequestMatcher("/manager/**")).hasRole("MANAGER")
-                .requestMatchers(new AntPathRequestMatcher("/hr/**")).hasRole("HR")
-                .requestMatchers(new AntPathRequestMatcher("/employee/**")).hasRole("EMPLOYEE")
+                .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/manager/**").hasRole("MANAGER")
+                .requestMatchers("/hr/**").hasRole("HR")
+                .requestMatchers("/employee/**").hasRole("EMPLOYEE")
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex

@@ -201,8 +201,17 @@ public class EmployeeController {
         model.addAttribute("leaveDays",            0);
         model.addAttribute("attendancePercent",    0);
         model.addAttribute("lastCheckin",         "—");
+        List<Task> pendingTasks = Collections.emptyList();
+        if (emp != null) {
+            String tenant = getTenantSegment(emp);
+            List<Task> allTasks = taskRepository.findByAssignedToAndTenantSegment(emp.getUsername(), tenant);
+            pendingTasks = allTasks.stream()
+                .filter(t -> !"done".equalsIgnoreCase(t.getStatus()))
+                .sorted(java.util.Comparator.comparing(Task::getId).reversed())
+                .collect(java.util.stream.Collectors.toList());
+        }
         model.addAttribute("myProjects",           Collections.emptyList());
-        model.addAttribute("pendingTasks",         Collections.emptyList());
+        model.addAttribute("pendingTasks",         pendingTasks);
         model.addAttribute("leaveRequests",        emp != null ? leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(emp) : Collections.emptyList());
     }
 

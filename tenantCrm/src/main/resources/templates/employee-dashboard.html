@@ -8,6 +8,124 @@
 	<link rel="stylesheet" th:href="@{/notifications.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+		/* Dashboard Task List Styles */
+		.dashboard-task-list {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			padding: 18px 20px;
+		}
+
+		.dashboard-task-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 12px 16px;
+			background: #f8fafc;
+			border: 1px solid #e2e8f0;
+			border-radius: 12px;
+			gap: 16px;
+			transition: transform 0.15s, box-shadow 0.15s;
+		}
+
+		.dashboard-task-item:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(22, 54, 71, 0.05);
+			background: #fff;
+		}
+
+		.task-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.task-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: #0f172a;
+			margin: 0 0 4px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.task-meta {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-size: 12px;
+			color: #64748b;
+		}
+
+		.task-actions-wrap {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+		}
+
+		/* Badges */
+		.pri-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 3px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 700;
+		}
+
+		.pri-badge.high {
+			background: #fee2e2;
+			color: #b91c1c;
+		}
+
+		.pri-badge.medium {
+			background: #fef3c7;
+			color: #b45309;
+		}
+
+		.pri-badge.low {
+			background: #dcfce7;
+			color: #15803d;
+		}
+
+		.stat-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 3px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: capitalize;
+		}
+
+		.stat-badge.inprog {
+			background: #fce9d8;
+			color: #b45309;
+		}
+
+		.stat-badge.pending {
+			background: #f1f5f9;
+			color: #64748b;
+		}
+
+		/* Responsive styling for dashboard tasks list */
+		@media (max-width: 576px) {
+			.dashboard-task-item {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 10px;
+				padding: 12px;
+			}
+			.task-actions-wrap {
+				width: 100%;
+				justify-content: flex-start;
+				border-top: 1px solid #f1f5f9;
+				padding-top: 8px;
+			}
+		}
+    </style>
 </head>
 <body>
 <div class="mobile-topbar"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button><span class="mobile-title">Employee</span></div>
@@ -77,6 +195,33 @@
                 <div class="card">
                     <div class="card-header"><div><h2>My Tasks</h2><p>Pending tasks</p></div><a th:href="@{/employee/tasks}" class="btn-link">All Tasks &rarr;</a></div>
                     <div th:if="${pendingTasks == null or #lists.isEmpty(pendingTasks)}" class="empty-state" style="padding:20px;"><i data-lucide="check-square" style="width:32px;height:32px;opacity:.3;"></i><h3>No Pending Tasks</h3></div>
+                    
+                    <!-- Task list if not empty -->
+                    <div th:unless="${pendingTasks == null or #lists.isEmpty(pendingTasks)}" class="dashboard-task-list">
+                        <div th:each="task : ${pendingTasks}" class="dashboard-task-item">
+                            <div class="task-info">
+                                <h4 class="task-title" th:text="${task.title}">Task Title</h4>
+                                <div class="task-meta">
+                                    <span class="task-due">
+                                        <i data-lucide="calendar" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+                                        <span th:text="${task.dueDate} ?: 'No due date'">Due Date</span>
+                                    </span>
+                                    <span class="task-by" th:if="${task.createdBy != null}">
+                                        <i data-lucide="user" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>
+                                        <span th:text="${task.createdBy}">Manager</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="task-actions-wrap">
+                                <span class="pri-badge" 
+                                      th:classappend="${task.priority == 'High'} ? 'high' : (${task.priority == 'Low'} ? 'low' : 'medium')"
+                                      th:text="${task.priority}">Medium</span>
+                                <span class="stat-badge pending" 
+                                      th:classappend="${task.status == 'in-progress'} ? 'inprog' : 'pending'"
+                                      th:text="${task.status}">Pending</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="right-col">

@@ -593,7 +593,13 @@
 				overflow-x: auto;
 			}
 			.tasks-scroll table {
-				min-width: 560px !important;
+				min-width: 0 !important;
+				width: 100% !important;
+				display: block;
+			}
+			.tasks-scroll tbody {
+				display: block;
+				width: 100% !important;
 			}
 			.tasks-table thead {
 				display: none;
@@ -609,6 +615,19 @@
 				border: 1.5px solid #edf2f7;
 				box-shadow: 0 2px 6px rgba(22, 54, 71, 0.05);
 			}
+			.tasks-table tbody tr.empty-row {
+				display: block !important;
+				background: transparent !important;
+				border: none !important;
+				box-shadow: none !important;
+			}
+			.tasks-table tbody tr.empty-row td {
+				display: block !important;
+				border: none !important;
+				width: 100% !important;
+				text-align: center !important;
+				padding: 40px 20px !important;
+			}
 			.tasks-table tbody td {
 				display: flex;
 				justify-content: space-between;
@@ -619,12 +638,15 @@
 				background: transparent !important;
 				font-size: 12px !important;
 			}
-			.tasks-table tbody td:last-child {
+			#taskTable tbody td:last-child {
 				border-bottom: none !important;
 				flex-direction: column;
 				align-items: stretch;
 				gap: 6px;
 				padding-top: 8px !important;
+			}
+			#historyTable tbody td:last-child {
+				border-bottom: none !important;
 			}
 
 			.tasks-table .col-num,
@@ -645,7 +667,9 @@
 			/* Inline label + value on same row */
 			.tasks-table td:nth-child(3)::before,
 			.tasks-table td:nth-child(4)::before,
-			.tasks-table td:nth-child(5)::before {
+			.tasks-table td:nth-child(5)::before,
+			#historyTable td:nth-child(6)::before,
+			#historyTable td:nth-child(7)::before {
 				font-weight: 700;
 				color: #94a3b8;
 				font-size: 10px;
@@ -656,7 +680,9 @@
 			.tasks-table td:nth-child(3)::before { content: "Priority"; }
 			.tasks-table td:nth-child(4)::before { content: "Due"; }
 			.tasks-table td:nth-child(5)::before { content: "By"; }
-			.tasks-table td:nth-child(6)::before {
+			
+			/* Task Table Status & Actions (6th column) */
+			#taskTable td:nth-child(6)::before {
 				content: "Status & Actions";
 				font-weight: 700;
 				color: #94a3b8;
@@ -666,6 +692,10 @@
 				margin-bottom: 4px;
 				align-self: flex-start;
 			}
+
+			/* History Table Status & Verification (6th & 7th columns) */
+			#historyTable td:nth-child(6)::before { content: "Status"; }
+			#historyTable td:nth-child(7)::before { content: "Verification"; }
 
 			/* Compact badges */
 			.pri-badge { padding: 3px 8px; font-size: 11px; }
@@ -712,7 +742,7 @@
 			.task-flash-toast { right: 10px; bottom: 10px; left: 10px; min-width: 0; max-width: none; font-size: 12px; }
 			.tasks-table tbody tr { padding: 8px 10px; margin-bottom: 6px; border-radius: 10px; }
 			.tasks-table tbody td { padding: 4px 0 !important; font-size: 12px !important; }
-			.tasks-table tbody td:last-child { gap: 5px; padding-top: 6px !important; }
+			#taskTable tbody td:last-child { gap: 5px; padding-top: 6px !important; }
 			.tasks-table td:nth-child(2) { padding-bottom: 5px !important; }
 			.td-title { font-size: 13px !important; }
 			.task-tab-button { padding: 6px 12px; font-size: 11px; }
@@ -855,7 +885,7 @@
 								</tr>
 							</thead>
 							<tbody id="taskTbody">
-								<tr th:if="${myTasks == null or #lists.isEmpty(myTasks)}">
+								<tr th:if="${myTasks == null or #lists.isEmpty(myTasks)}" class="empty-row">
 									<td colspan="6" style="padding:52px;text-align:center;">
 										<div class="empty-state">
 											<i data-lucide="check-square"
@@ -1049,7 +1079,7 @@
 								</tr>
 							</thead>
 							<tbody id="historyTbody">
-								<tr th:if="${taskHistory == null or #lists.isEmpty(taskHistory)}">
+								<tr th:if="${taskHistory == null or #lists.isEmpty(taskHistory)}" class="empty-row">
 									<td colspan="7" style="padding:52px;text-align:center;">
 										<div class="empty-state">
 											<i data-lucide="history" style="width:48px;height:48px;opacity:.25;"></i>
