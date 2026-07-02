@@ -1028,7 +1028,7 @@
 							<button class="page-btn active" id="pageNumTasks">1</button>
 							<button class="page-btn" id="nextPageTasks" onclick="changePageTasks(1)">&#8250;</button>
 						</div>
-						<div style="display:flex;align-items:center;gap:8px;">
+						<div style="display:none;align-items:center;gap:8px;">
 							<span style="font-size:13px;color:#64748b;">Rows per page:</span>
 							<select class="rows-select" id="rowsPerPageTasks" onchange="changeRowsTasks()">
 								<option value="10" selected>10</option>
@@ -1149,7 +1149,7 @@
 							<button class="page-btn active" id="pageNumHistory">1</button>
 							<button class="page-btn" id="nextPageHistory" onclick="changePageHistory(1)">&#8250;</button>
 						</div>
-						<div style="display:flex;align-items:center;gap:8px;">
+						<div style="display:none;align-items:center;gap:8px;">
 							<span style="font-size:13px;color:#64748b;">Rows per page:</span>
 							<select class="rows-select" id="rowsPerPageHistory" onchange="changeRowsHistory()">
 								<option value="10" selected>10</option>
@@ -1311,17 +1311,21 @@
 				var statusMatch = !status || rStatus.toLowerCase() === status.toLowerCase();
 
 				var qMatch = !q || r.textContent.toLowerCase().includes(q);
-				r.style.display = (priMatch && statusMatch && qMatch) ? '' : 'none';
+				var matches = !!(priMatch && statusMatch && qMatch);
+				r.setAttribute('data-matches-filter-tasks', matches ? 'true' : 'false');
 			});
 			currentPageTasks = 1;
 			renderPageTasks();
 		}
 
 		function renderPageTasks() {
-			var rows = getTaskRows().filter(function (r) {return r.style.display !== 'none';});
+			var rows = getTaskRows().filter(function (r) {return r.getAttribute('data-matches-filter-tasks') === 'true';});
 			var total = rows.length;
 			var start = (currentPageTasks - 1) * rowsPerPageTasks;
 			var end = start + rowsPerPageTasks;
+			getTaskRows().forEach(function (r) {
+				r.style.display = 'none';
+			});
 			rows.forEach(function (r, i) {r.style.display = (i >= start && i < end) ? '' : 'none';});
 			var el = document.getElementById('pageInfoTasks');
 			if (el) {
@@ -1367,17 +1371,21 @@
 				var statusMatch = !status || rStatus.toLowerCase() === status.toLowerCase();
 
 				var qMatch = !q || r.textContent.toLowerCase().includes(q);
-				r.style.display = (priMatch && statusMatch && qMatch) ? '' : 'none';
+				var matches = !!(priMatch && statusMatch && qMatch);
+				r.setAttribute('data-matches-filter-history', matches ? 'true' : 'false');
 			});
 			currentPageHistory = 1;
 			renderPageHistory();
 		}
 
 		function renderPageHistory() {
-			var rows = getHistoryRows().filter(function (r) {return r.style.display !== 'none';});
+			var rows = getHistoryRows().filter(function (r) {return r.getAttribute('data-matches-filter-history') === 'true';});
 			var total = rows.length;
 			var start = (currentPageHistory - 1) * rowsPerPageHistory;
 			var end = start + rowsPerPageHistory;
+			getHistoryRows().forEach(function (r) {
+				r.style.display = 'none';
+			});
 			rows.forEach(function (r, i) {r.style.display = (i >= start && i < end) ? '' : 'none';});
 			var el = document.getElementById('pageInfoHistory');
 			if (el) {

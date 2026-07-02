@@ -566,7 +566,7 @@
 						<button class="page-btn active" id="pageNum" style="width: 32px; height: 32px; border: 1.5px solid #17455e; border-radius: 8px; background: #17455e; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">1</button>
 						<button class="page-btn" id="nextPage" onclick="changePage(1)" style="width: 32px; height: 32px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #334155;">&#8250;</button>
 					</div>
-					<div style="display:flex;align-items:center;gap:8px;">
+					<div style="display:none;align-items:center;gap:8px;">
 						<span style="font-size:13px;color:#64748b;">Rows per page:</span>
 						<select class="rows-select" id="rowsPerPage" onchange="changeRows()" style="height: 32px; padding: 0 28px 0 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: inherit; color: #334155; background: #fff; appearance: none; cursor: pointer; outline: none;">
 							<option value="10" selected>10</option>
@@ -763,7 +763,8 @@
 					memberMatch = (rMemberId === selectedMemberId);
 				}
 
-				r.style.display = (priMatch && statusMatch && qMatch && teamMatch && memberMatch) ? '' : 'none';
+				var matches = !!(priMatch && statusMatch && qMatch && teamMatch && memberMatch);
+				r.setAttribute('data-matches-filter', matches ? 'true' : 'false');
 			});
 			currentPage = 1;
 			renderPage();
@@ -771,10 +772,14 @@
 		}
 
 		function renderPage() {
-			var rows = getVisibleRows().filter(function (r) { return r.style.display !== 'none'; });
+			var rows = getVisibleRows().filter(function (r) { return r.getAttribute('data-matches-filter') === 'true'; });
 			var total = rows.length;
 			var start = (currentPage - 1) * rowsPerPage;
 			var end = start + rowsPerPage;
+
+			getVisibleRows().forEach(function (r) {
+				r.style.display = 'none';
+			});
 
 			rows.forEach(function (r, i) {
 				r.style.display = (i >= start && i < end) ? '' : 'none';

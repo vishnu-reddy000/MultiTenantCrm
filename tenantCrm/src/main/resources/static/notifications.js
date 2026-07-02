@@ -1163,21 +1163,21 @@
 
     function initPaginators() {
         var targets = [
-            { container: '#attTable tbody', item: 'tr', size: 5 },
-            { container: '#meetingsTable tbody', item: 'tr', size: 5 },
-            { container: '#historyTable tbody', item: 'tr', size: 3 },
-            { container: '#pastMeetingsTable tbody', item: 'tr', size: 3 },
-            { container: '#perfTable tbody', item: 'tr', size: 5 },
-            { container: '.table-wrap table tbody', item: 'tr', size: 5 },
-            { container: '.teamTable tbody', item: 'tr', size: 5 },
-            { container: '.team-grid', item: '.team-card', size: 5 },
-            { container: '#reportsTable tbody', item: 'tr', size: 5 },
-            { container: '.reports-grid', item: '.report-card', size: 5 },
-            { container: '#lhList', item: '.leave-item', size: 5 },
-            { container: '#lhList', item: '.lh-item', size: 5 },
-            { container: '#taskTable tbody', item: 'tr', size: 5 },
-            { container: '#usersTable tbody', item: 'tr', size: 5 },
-            { container: '#adminsTable tbody', item: 'tr', size: 5 }
+            { container: '#attTable tbody', item: 'tr', size: 10 },
+            { container: '#meetingsTable tbody', item: 'tr', size: 10 },
+            { container: '#historyTable tbody', item: 'tr', size: 10 },
+            { container: '#pastMeetingsTable tbody', item: 'tr', size: 10 },
+            { container: '#perfTable tbody', item: 'tr', size: 10 },
+            { container: '.table-wrap table tbody', item: 'tr', size: 10 },
+            { container: '.teamTable tbody', item: 'tr', size: 10 },
+            { container: '.team-grid', item: '.team-card', size: 10 },
+            { container: '#reportsTable tbody', item: 'tr', size: 10 },
+            { container: '.reports-grid', item: '.report-card', size: 10 },
+            { container: '#lhList', item: '.leave-item', size: 10 },
+            { container: '#lhList', item: '.lh-item', size: 10 },
+            { container: '#taskTable tbody', item: 'tr', size: 10 },
+            { container: '#usersTable tbody', item: 'tr', size: 10 },
+            { container: '#adminsTable tbody', item: 'tr', size: 10 }
         ];
 
         targets.forEach(function(t) {

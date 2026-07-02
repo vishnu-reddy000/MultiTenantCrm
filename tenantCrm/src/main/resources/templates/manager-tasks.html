@@ -2057,7 +2057,7 @@
 						<button class="page-btn active" id="pageNum">1</button>
 						<button class="page-btn" id="nextPage" onclick="changePage(1)">&#8250;</button>
 					</div>
-					<div style="display:flex;align-items:center;gap:8px;">
+					<div style="display:none;align-items:center;gap:8px;">
 						<span style="font-size:13px;color:#64748b;">Rows per page:</span>
 						<select class="rows-select" id="rowsPerPage" onchange="changeRows()">
 							<option value="10" selected>10</option>
@@ -2561,7 +2561,8 @@
 						memberMatch = (rMemberId === selectedMemberId);
 					}
 
-					r.style.display = (priMatch && statusMatch && qMatch && teamMatch && memberMatch) ? '' : 'none';
+					var matches = !!(priMatch && statusMatch && qMatch && teamMatch && memberMatch);
+					r.setAttribute('data-matches-filter', matches ? 'true' : 'false');
 				});
 				currentPage = 1;
 				renderPage();
@@ -2569,10 +2570,15 @@
 			}
 
 			function renderPage() {
-				var rows = getVisibleRows().filter(function (r) {return r.style.display !== 'none';});
+				var rows = getVisibleRows().filter(function (r) {return r.getAttribute('data-matches-filter') === 'true';});
 				var total = rows.length;
 				var start = (currentPage - 1) * rowsPerPage;
 				var end = start + rowsPerPage;
+
+				getVisibleRows().forEach(function (r) {
+					r.style.display = 'none';
+				});
+
 				rows.forEach(function (r, i) {
 					r.style.display = (i >= start && i < end) ? '' : 'none';
 				});
