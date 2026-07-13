@@ -1884,7 +1884,7 @@ public class HrController {
             return REDIRECT_HR_PAYROLL + "?error=none";
         } else {
             ra.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Successfully generated " + generated + " payslip(s) for " + java.time.Month.of(month).name() + " " + year + ".");
-            return REDIRECT_HR_PAYROLL + "?success";
+            return REDIRECT_HR_PAYROLL + SUCCESS;
         }
     }
 

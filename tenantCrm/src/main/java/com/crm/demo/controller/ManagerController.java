@@ -82,6 +82,7 @@ public class ManagerController {
 	private static final String REDIRECT_MANAGER_LEAVES = "redirect:/manager/leaves";
 	private static final String REDIRECT_MANAGER_MEETINGS = "redirect:/manager/meetings";
 	private static final String REDIRECT_MANAGER_ATTENDANCE = "redirect:/manager/attendance";
+	private static final String REDIRECT_LOGIN = "redirect:/login";
 	private static final String STATUS_PENDING = "pending";
 	private static final String STATUS_APPROVED = "Approved";
 	private static final String STATUS_APPROVED_LOWER = "approved";
@@ -642,7 +643,7 @@ public class ManagerController {
 		var manager = getCurrentManager();
 		if (manager == null) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, MSG_SESSION_EXPIRED);
-			return "redirect:/login";
+			return REDIRECT_LOGIN;
 		}
 
 		var validationError = validateTaskParams(title, description, priority, status, dueDate);
@@ -795,7 +796,7 @@ public class ManagerController {
 		var manager = getCurrentManager();
 		if (manager == null) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, MSG_SESSION_EXPIRED);
-			return "redirect:/login";
+			return REDIRECT_LOGIN;
 		}
 
 		var tenant = getTenantSegment(manager);
@@ -972,7 +973,7 @@ public class ManagerController {
 		if (attachment != null && !attachment.isEmpty()) {
 			try {
 				leave.setAttachmentName(attachment.getOriginalFilename());
-				leave.setAttachmentContentType(attachment.getContentType() != null ? attachment.getContentType() : "application/octet-stream");
+				leave.setAttachmentContentType(attachment.getContentType() != null ? attachment.getContentType() : OCTET_STREAM);
 				leave.setAttachmentData(attachment.getBytes());
 			} catch (IOException e) {
 				ra.addFlashAttribute(ATTR_ERROR_MESSAGE, "Attachment upload failed: " + e.getMessage());
@@ -1058,7 +1059,7 @@ public class ManagerController {
 		var manager = getCurrentManager();
 		if (manager == null) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, MSG_SESSION_EXPIRED);
-			return "redirect:/login";
+			return REDIRECT_LOGIN;
 		}
 
 		var paramError = validateReportParams(title, message, recipientIds);
@@ -1237,22 +1238,22 @@ public class ManagerController {
 		if (result.hasErrors()) {
 			injectStats(model);
 			if (manager != null) {
-				model.addAttribute("meetings", getUpcomingMeetings(tenant, username));
-				model.addAttribute("pastMeetings", getPastMeetings(tenant, username));
-				model.addAttribute("teamMembers", getManagedTeamMembers(manager));
+				model.addAttribute(ATTR_MEETINGS, getUpcomingMeetings(tenant, username));
+				model.addAttribute(ATTR_PAST_MEETINGS, getPastMeetings(tenant, username));
+				model.addAttribute(ATTR_TEAM_MEMBERS, getManagedTeamMembers(manager));
 			} else {
-				model.addAttribute("meetings", Collections.emptyList());
-				model.addAttribute("teamMembers", Collections.emptyList());
+				model.addAttribute(ATTR_MEETINGS, Collections.emptyList());
+				model.addAttribute(ATTR_TEAM_MEMBERS, Collections.emptyList());
 			}
-			model.addAttribute("errorMessage", "Please fix the errors below.");
-			return "manager-meetings";
+			model.addAttribute(ATTR_ERROR_MESSAGE, "Please fix the errors below.");
+			return PAGE_MEETINGS;
 		}
 
 		meetingForm.setTenantSegment(tenant);
 		meetingForm.setScheduledBy(username);
 		meetingRepository.save(meetingForm);
 		notificationService.notifyMeetingParticipants(meetingForm);
-		ra.addFlashAttribute("successMessage", "Meeting scheduled successfully.");
+		ra.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Meeting scheduled successfully.");
 		return REDIRECT_MANAGER_MEETINGS;
 	}
 
@@ -1391,7 +1392,7 @@ public class ManagerController {
 	private boolean hasApprovedLeave(User user, LocalDate date) {
 		if (user == null || date == null) return false;
 		return leaveRequestRepository.findByEmployeeOrderByCreatedAtDesc(user).stream()
-				.anyMatch(leave -> "Approved".equalsIgnoreCase(leave.getStatus())
+				.anyMatch(leave -> STATUS_APPROVED.equalsIgnoreCase(leave.getStatus())
 						&& !date.isBefore(leave.getFromDate())
 						&& !date.isAfter(leave.getToDate()));
 	}
@@ -1513,7 +1514,7 @@ public class ManagerController {
 	@PostMapping("/attendance/punch-in")
 	public String punchIn(RedirectAttributes ra) {
 		var manager = getCurrentManager();
-		if (manager == null) return "redirect:/login";
+		if (manager == null) return REDIRECT_LOGIN;
 
 		var tenant = getTenantSegment(manager);
 		var today  = LocalDate.now();
@@ -1556,7 +1557,7 @@ public class ManagerController {
 	@PostMapping("/attendance/punch-out")
 	public String punchOut(RedirectAttributes ra) {
 		var manager = getCurrentManager();
-		if (manager == null) return "redirect:/login";
+		if (manager == null) return REDIRECT_LOGIN;
 
 		var att = getAndValidateTodayAttendance(manager, "You are on approved leave today. Punch-out is not allowed.", ra);
 		if (att == null) {
@@ -1591,7 +1592,7 @@ public class ManagerController {
 	@PostMapping("/attendance/break-start")
 	public String breakStart(RedirectAttributes ra) {
 		var manager = getCurrentManager();
-		if (manager == null) return "redirect:/login";
+		if (manager == null) return REDIRECT_LOGIN;
 
 		var att = getAndValidateTodayAttendance(manager, "You are on approved leave today. Break actions are not allowed.", ra);
 		if (att == null) {
@@ -1630,7 +1631,7 @@ public class ManagerController {
 	@PostMapping("/attendance/break-end")
 	public String breakEnd(RedirectAttributes ra) {
 		var manager = getCurrentManager();
-		if (manager == null) return "redirect:/login";
+		if (manager == null) return REDIRECT_LOGIN;
 
 		var att = getAndValidateTodayAttendance(manager, "You are on approved leave today. Break actions are not allowed.", ra);
 		if (att == null) {
@@ -2214,7 +2215,7 @@ public class ManagerController {
 	@GetMapping("/payroll")
 	public String payrollPage(Model model) {
 		User manager = getCurrentManager();
-		if (manager == null) return "redirect:/login";
+		if (manager == null) return REDIRECT_LOGIN;
 
 		injectStats(model);
 		String tenant = getTenantSegment(manager);

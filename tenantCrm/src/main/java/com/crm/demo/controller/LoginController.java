@@ -30,6 +30,7 @@ public class LoginController {
     private static final String REDIRECT_PREFIX = "redirect:";
     private static final String REDIRECT_SLASH = "redirect:/";
     private static final String REDIRECT_LOGIN = "redirect:/login";
+    private static final String PATH_MEETINGS = "meetings";
 
     @Autowired private UserRepository      userRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
@@ -161,7 +162,7 @@ public class LoginController {
         }
         
         // Handle special exceptions first
-        if ("meetings".equals(cleanPath) && ROLE_ADMIN.equalsIgnoreCase(role)) {
+        if (PATH_MEETINGS.equals(cleanPath) && ROLE_ADMIN.equalsIgnoreCase(role)) {
             return "redirect:/admin/schedule-meeting";
         }
         if ("teams".equals(cleanPath)) {
@@ -173,7 +174,7 @@ public class LoginController {
         // Standard paths
         boolean allowed = switch (cleanPath) {
             case "tasks", "reports", "calendar" -> hasRole(role, ROLE_EMPLOYEE, ROLE_MANAGER, ROLE_HR, ROLE_ADMIN);
-            case "meetings", "leaves", "performance", "attendance" -> hasRole(role, ROLE_EMPLOYEE, ROLE_MANAGER, ROLE_HR);
+            case PATH_MEETINGS, "leaves", "performance", "attendance" -> hasRole(role, ROLE_EMPLOYEE, ROLE_MANAGER, ROLE_HR);
             default -> false;
         };
         
@@ -195,7 +196,7 @@ public class LoginController {
     private String getCleanPathSuffix(String path) {
         if (path == null) return null;
         if (path.endsWith("/tasks")) return "tasks";
-        if (path.endsWith("/meetings")) return "meetings";
+        if (path.endsWith("/" + PATH_MEETINGS)) return PATH_MEETINGS;
         if (path.endsWith("/leaves") || path.endsWith("/leave")) return "leaves";
         if (path.endsWith("/teams") || path.endsWith("/team")) return "teams";
         if (path.endsWith("/performance")) return "performance";
