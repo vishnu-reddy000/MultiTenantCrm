@@ -551,10 +551,10 @@ public class EmployeeController extends BaseController {
         if (filterTo == null) {
             filterTo = today;
         }
-        if (filterTo.isAfter(today)) {
+        if (filterTo != null && filterTo.isAfter(today)) {
             filterTo = today;
         }
-        if (filterFrom.isAfter(filterTo)) {
+        if (filterFrom != null && filterTo != null && filterFrom.isAfter(filterTo)) {
             filterFrom = filterTo;
         }
 

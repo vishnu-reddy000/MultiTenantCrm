@@ -1419,8 +1419,8 @@ public class ManagerController extends BaseController {
 		LocalDate filterTo   = (to   != null && !to.isBlank())   ? LocalDate.parse(to)   : today;
 		if (filterFrom == null) filterFrom = today.minusDays(29);
 		if (filterTo == null) filterTo = today;
-		if (filterTo.isAfter(today))      filterTo   = today;
-		if (filterFrom.isAfter(filterTo)) filterFrom = filterTo;
+		if (filterTo != null && filterTo.isAfter(today))      filterTo   = today;
+		if (filterFrom != null && filterTo != null && filterFrom.isAfter(filterTo)) filterFrom = filterTo;
 
 		// Fetch real records in range
 		var tenant = getTenantSegment(manager);
