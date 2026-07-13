@@ -579,9 +579,14 @@ public class EmployeeController {
         }
         var today = LocalDate.now();
 
-        // Date range (default: last 30 days)
         var filterFrom = (from != null && !from.isBlank()) ? LocalDate.parse(from) : today.minusDays(29);
         var filterTo   = (to   != null && !to.isBlank())   ? LocalDate.parse(to)   : today;
+        if (filterFrom == null) {
+            filterFrom = today.minusDays(29);
+        }
+        if (filterTo == null) {
+            filterTo = today;
+        }
         if (filterTo.isAfter(today)) {
             filterTo = today;
         }
