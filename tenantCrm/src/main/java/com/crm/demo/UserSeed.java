@@ -15,6 +15,9 @@ public class UserSeed implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(UserSeed.class);
 
+    @org.springframework.beans.factory.annotation.Value("${app.security.superadmin.default-password}")
+    private String defaultPassword;
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -35,9 +38,8 @@ public class UserSeed implements CommandLineRunner {
 
         // Only re-hash if the stored password is NOT already a BCrypt hash.
         // This prevents double-hashing on every restart.
-        var rawPassword = "superadmin123";
         if (user.getPassword() == null || !user.getPassword().startsWith("$2")) {
-            user.setPassword(passwordEncoder.encode(rawPassword));
+            user.setPassword(passwordEncoder.encode(defaultPassword));
         }
 
         user.setUsername("superadmin");
