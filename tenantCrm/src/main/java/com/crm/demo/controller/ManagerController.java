@@ -927,6 +927,7 @@ public class ManagerController {
 	}
 
 	@PostMapping("/leaves")
+	@SuppressWarnings("java:S3516")
 	public String submitLeave(@RequestParam String type,
 	                          @RequestParam String fromDate,
 	                          @RequestParam String toDate,
