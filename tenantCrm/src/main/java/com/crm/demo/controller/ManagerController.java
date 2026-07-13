@@ -935,13 +935,13 @@ public class ManagerController {
 		var manager = getCurrentManager();
 		if (manager == null) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, MSG_SESSION_EXPIRED);
-			return REDIRECT_MANAGER_LEAVES;
+			return REDIRECT_MANAGER_LEAVES + "?error";
 		}
 
 		var validationError = validateLeaveParams(type, reason, fromDate, toDate);
 		if (validationError != null) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, validationError);
-			return REDIRECT_MANAGER_LEAVES;
+			return REDIRECT_MANAGER_LEAVES + "?error";
 		}
 
 		LocalDate from;
@@ -951,12 +951,12 @@ public class ManagerController {
 			to = LocalDate.parse(toDate);
 		} catch (java.time.format.DateTimeParseException e) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, "Invalid date value.");
-			return REDIRECT_MANAGER_LEAVES;
+			return REDIRECT_MANAGER_LEAVES + "?error";
 		}
 
 		if (to.isBefore(from)) {
 			ra.addFlashAttribute(ATTR_ERROR_MESSAGE, "To date cannot be before from date.");
-			return REDIRECT_MANAGER_LEAVES;
+			return REDIRECT_MANAGER_LEAVES + "?error";
 		}
 
 		var leave = new LeaveRequest();
@@ -976,14 +976,14 @@ public class ManagerController {
 				leave.setAttachmentData(attachment.getBytes());
 			} catch (IOException e) {
 				ra.addFlashAttribute(ATTR_ERROR_MESSAGE, "Attachment upload failed: " + e.getMessage());
-				return REDIRECT_MANAGER_LEAVES;
+				return REDIRECT_MANAGER_LEAVES + "?error";
 			}
 		}
 
 		leaveRequestRepository.save(leave);
 		notificationService.notifyLeaveSubmitted(leave);
 		ra.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Leave request submitted successfully.");
-		return REDIRECT_MANAGER_LEAVES;
+		return REDIRECT_MANAGER_LEAVES + "?success";
 	}
 
 	// =========================
