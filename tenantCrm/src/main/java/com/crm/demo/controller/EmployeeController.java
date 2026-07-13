@@ -640,8 +640,8 @@ public class EmployeeController {
         model.addAttribute("todayHolidayName",  todayHolidayName);
         model.addAttribute("presentCount",      presentCount);
         model.addAttribute("lateCount",         lateCount);
-        model.addAttribute("filterFrom",        filterFrom.toString());
-        model.addAttribute("filterTo",          filterTo.toString());
+        model.addAttribute("filterFrom",        filterFrom != null ? filterFrom.toString() : "");
+        model.addAttribute("filterTo",          filterTo != null ? filterTo.toString() : "");
         model.addAttribute("filterStatus",      status != null ? status : "all");
 
         return "employee-attendance";
