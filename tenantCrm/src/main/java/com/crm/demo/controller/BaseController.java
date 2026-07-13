@@ -58,4 +58,23 @@ public abstract class BaseController {
         }
         return map;
     }
+
+    protected LocalDate[] resolveDateRange(String fromStr, String toStr) {
+        LocalDate today = LocalDate.now();
+        LocalDate filterFrom = (fromStr != null && !fromStr.isBlank()) ? LocalDate.parse(fromStr) : today.minusDays(29);
+        LocalDate filterTo   = (toStr   != null && !toStr.isBlank())   ? LocalDate.parse(toStr)   : today;
+        if (filterFrom == null) {
+            filterFrom = today.minusDays(29);
+        }
+        if (filterTo == null) {
+            filterTo = today;
+        }
+        if (filterTo != null && filterTo.isAfter(today)) {
+            filterTo = today;
+        }
+        if (filterFrom != null && filterTo != null && filterFrom.isAfter(filterTo)) {
+            filterFrom = filterTo;
+        }
+        return new LocalDate[]{filterFrom, filterTo};
+    }
 }

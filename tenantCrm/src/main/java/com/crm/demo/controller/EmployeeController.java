@@ -543,20 +543,9 @@ public class EmployeeController extends BaseController {
         }
         var today = LocalDate.now();
 
-        var filterFrom = (from != null && !from.isBlank()) ? LocalDate.parse(from) : today.minusDays(29);
-        var filterTo   = (to   != null && !to.isBlank())   ? LocalDate.parse(to)   : today;
-        if (filterFrom == null) {
-            filterFrom = today.minusDays(29);
-        }
-        if (filterTo == null) {
-            filterTo = today;
-        }
-        if (filterTo != null && filterTo.isAfter(today)) {
-            filterTo = today;
-        }
-        if (filterFrom != null && filterTo != null && filterFrom.isAfter(filterTo)) {
-            filterFrom = filterTo;
-        }
+        var range = resolveDateRange(from, to);
+        var filterFrom = range[0];
+        var filterTo = range[1];
 
         // Fetch real records in range
         var tenant = getTenantSegment(emp);
